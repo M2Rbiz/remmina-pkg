@@ -1,19 +1,28 @@
-Source: grdc
+Source: remmina
 Section: gnome
 Priority: optional
 Maintainer: Luca Falavigna <dktrkranz@debian.org>
 Build-Depends: debhelper (>= 7), intltool (>= 0.35.0), libglib2.0-dev (>= 2.14.0), libgtk2.0-dev (>= 2.12.0), libvncserver-dev, libssh-dev, libavahi-ui-dev, libvte-dev, libgcrypt-dev, quilt (>= 0.46-7)
 Standards-Version: 3.8.3
-Homepage: http://grdc.sourceforge.net/
-Vcs-Git: git://git.debian.org/git/users/dktrkranz/grdc.git
-Vcs-Browser: http://git.debian.org/?p=users/dktrkranz/grdc.git;a=summary
+Homepage: http://remmina.sourceforge.net/
+Vcs-Git: git://git.debian.org/git/users/dktrkranz/remmina.git
+Vcs-Browser: http://git.debian.org/?p=users/dktrkranz/remmina.git;a=summary
 
-Package: grdc
+Package: remmina
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: rdesktop
 Description: remote desktop client for GNOME desktop environment
- Grdc is a remote desktop connection client able to display and control a
+ Remmina is a remote desktop connection client able to display and control a
  remote desktop session. It can connect to a VNC platform as well as windows
  terminal servers.
+
+Package: grdc
+Architecture: all
+Depends: remmina
+Recommends: rdesktop
+Description: transitional dummy package for python-fltk
+ This is a dummy package to ease transition to new package name remmina.
+ .
+ It can be safely removed from your system.
 
