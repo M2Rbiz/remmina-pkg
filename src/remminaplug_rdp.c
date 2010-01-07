@@ -157,6 +157,10 @@ remmina_plug_rdp_main (RemminaPlugRdp *gp_rdp)
         argv[argc++] = g_strdup (remminafile->keymap);
     }
 
+    /* rdesktop should not grab keyboard when embed into Remmina. It's up to Remmina users to
+     * decide whether to grab keyboard for rdesktop. */
+    argv[argc++] = g_strdup ("-K");
+
     if (remminafile->bitmapcaching)
     {
         argv[argc++] = g_strdup ("-P");
