@@ -1186,6 +1186,7 @@ remmina_file_editor_update (RemminaFileEditor *gfe)
         priv->ssh_auth_publickey_radio &&
         gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (priv->ssh_auth_publickey_radio)) ?
         SSH_AUTH_PUBLICKEY :
+        priv->ssh_auth_auto_publickey_radio &&
         gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (priv->ssh_auth_auto_publickey_radio)) ?
         SSH_AUTH_AUTO_PUBLICKEY :
         SSH_AUTH_PASSWORD);

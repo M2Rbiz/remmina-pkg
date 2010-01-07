@@ -37,6 +37,7 @@ G_DEFINE_TYPE (RemminaPlugXdmcp, remmina_plug_xdmcp, REMMINA_TYPE_PLUG)
 static void
 remmina_plug_xdmcp_plug_added (GtkSocket *socket, RemminaPlugXdmcp *gp_xdmcp)
 {
+    remmina_plug_emit_signal (REMMINA_PLUG (gp_xdmcp), "connect");
 }
 
 static void
@@ -102,7 +103,6 @@ remmina_plug_xdmcp_tunnel_init_callback (RemminaSSHTunnel *tunnel, gpointer data
 static gboolean
 remmina_plug_xdmcp_tunnel_connect_callback (RemminaSSHTunnel *tunnel, gpointer data)
 {
-    remmina_plug_emit_signal (REMMINA_PLUG (data), "connect");
     return TRUE;
 }
 
@@ -229,12 +229,6 @@ remmina_plug_xdmcp_main (RemminaPlugXdmcp *gp_xdmcp)
             return FALSE;
         }
     }
-    else
-    {
-        remmina_plug_emit_signal (REMMINA_PLUG (gp_xdmcp), "connect");
-    }
-#else
-    remmina_plug_emit_signal (REMMINA_PLUG (gp_xdmcp), "connect");
 #endif
 
     gp_xdmcp->thread = 0;

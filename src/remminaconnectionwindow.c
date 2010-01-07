@@ -55,7 +55,10 @@ struct _RemminaConnectionWindowPriv
     GtkWidget *floating_toolbar;
     GtkWidget *floating_toolbar_label;
     /* To avoid strange event-loop */
-    guint32 floating_toolbar_motion_time;
+    guint32 floating_toolbar_motion_handler;
+
+    gboolean floating_toolbar_motion_show;
+    gboolean floating_toolbar_motion_visible;
 
     GtkWidget *toolbar;
 
@@ -191,6 +194,11 @@ remmina_connection_window_destroy (GtkWidget *widget, RemminaConnectionHolder* c
 {
     RemminaConnectionWindowPriv *priv = REMMINA_CONNECTION_WINDOW (widget)->priv;
 
+    if (priv->floating_toolbar_motion_handler)
+    {
+        g_source_remove (priv->floating_toolbar_motion_handler);
+        priv->floating_toolbar_motion_handler = 0;
+    }
     if (priv->floating_toolbar != NULL)
     {
         gtk_widget_destroy (priv->floating_toolbar);
@@ -200,22 +208,84 @@ remmina_connection_window_destroy (GtkWidget *widget, RemminaConnectionHolder* c
 }
 
 static void
-remmina_connection_holder_floating_toolbar_hide (RemminaConnectionHolder *cnnhld)
+remmina_connection_holder_update_toolbar_opacity (RemminaConnectionHolder *cnnhld)
+{
+    DECLARE_CNNOBJ
+    RemminaConnectionWindowPriv *priv = cnnhld->cnnwin->priv;
+
+    gtk_window_set_opacity (GTK_WINDOW (priv->floating_toolbar),
+        (1.0 - TOOLBAR_OPACITY_MIN) / ((gdouble) TOOLBAR_OPACITY_LEVEL)
+        * ((gdouble) (TOOLBAR_OPACITY_LEVEL - cnnobj->remmina_file->toolbar_opacity))
+        + TOOLBAR_OPACITY_MIN);
+}
+
+static gboolean
+remmina_connection_holder_floating_toolbar_motion (RemminaConnectionHolder *cnnhld)
 {
     RemminaConnectionWindowPriv *priv = cnnhld->cnnwin->priv;
     GtkRequisition req;
     gint x;
 
-    if (priv->floating_toolbar == NULL) return;
+    priv->floating_toolbar_motion_handler = 0;
+    if (priv->floating_toolbar == NULL) return FALSE;
 
     gtk_widget_size_request (priv->floating_toolbar, &req);
     gtk_window_get_position (GTK_WINDOW (priv->floating_toolbar), &x, NULL);
-    gtk_window_move (GTK_WINDOW (priv->floating_toolbar), x, 2 - req.height);
-    if (remmina_pref.invisible_toolbar)
+
+    if (priv->floating_toolbar_motion_show)
     {
-        gtk_window_set_opacity (GTK_WINDOW (priv->floating_toolbar), 0.0);
+        gtk_window_move (GTK_WINDOW (priv->floating_toolbar), x, 0);
+        remmina_connection_holder_update_toolbar_opacity (cnnhld);
     }
-    priv->floating_toolbar_motion_time = gtk_get_current_event_time ();
+    else if (priv->floating_toolbar_motion_visible)
+    {
+        gtk_window_move (GTK_WINDOW (priv->floating_toolbar), x, 2 - req.height);
+        if (remmina_pref.invisible_toolbar)
+        {
+            gtk_window_set_opacity (GTK_WINDOW (priv->floating_toolbar), 0.0);
+        }
+    }
+    else
+    {
+        gtk_window_move (GTK_WINDOW (priv->floating_toolbar), x, -20 - req.height);
+    }
+    return FALSE;
+}
+
+static void
+remmina_connection_holder_floating_toolbar_update (RemminaConnectionHolder *cnnhld)
+{
+    RemminaConnectionWindowPriv *priv = cnnhld->cnnwin->priv;
+
+    if (priv->floating_toolbar_motion_handler == 0)
+    {
+        priv->floating_toolbar_motion_handler = g_timeout_add (MOTION_TIME,
+            (GSourceFunc) remmina_connection_holder_floating_toolbar_motion, cnnhld);
+    }
+}
+
+static void
+remmina_connection_holder_floating_toolbar_show (RemminaConnectionHolder *cnnhld, gboolean show)
+{
+    RemminaConnectionWindowPriv *priv = cnnhld->cnnwin->priv;
+
+    if (priv->floating_toolbar == NULL) return;
+
+    priv->floating_toolbar_motion_show = show;
+
+    remmina_connection_holder_floating_toolbar_update (cnnhld);
+}
+
+static void
+remmina_connection_holder_floating_toolbar_visible (RemminaConnectionHolder *cnnhld, gboolean visible)
+{
+    RemminaConnectionWindowPriv *priv = cnnhld->cnnwin->priv;
+
+    if (priv->floating_toolbar == NULL) return;
+
+    priv->floating_toolbar_motion_visible = visible;
+
+    remmina_connection_holder_floating_toolbar_update (cnnhld);
 }
 
 static void
@@ -442,7 +512,7 @@ remmina_connection_holder_toolbar_switch_page_popdown (GtkWidget *widget, Remmin
     priv->sticky = FALSE;
 
     gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (priv->toolitem_switch_page), FALSE);
-    remmina_connection_holder_floating_toolbar_hide (cnnhld);
+    remmina_connection_holder_floating_toolbar_show (cnnhld, FALSE);
 }
 
 static void
@@ -548,7 +618,7 @@ remmina_connection_holder_scale_option_popdown (RemminaConnectionHolder* cnnhld)
         gtk_widget_destroy (scale_option_window);
         scale_option_window = NULL;
     }
-    remmina_connection_holder_floating_toolbar_hide (cnnhld);
+    remmina_connection_holder_floating_toolbar_show (cnnhld, FALSE);
 }
 
 static gboolean
@@ -651,7 +721,7 @@ remmina_connection_holder_toolbar_preferences_popdown (GtkWidget *widget, Remmin
     priv->sticky = FALSE;
 
     gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (priv->toolitem_preferences), FALSE);
-    remmina_connection_holder_floating_toolbar_hide (cnnhld);
+    remmina_connection_holder_floating_toolbar_show (cnnhld, FALSE);
 }
 
 static void
@@ -662,7 +732,7 @@ remmina_connection_holder_toolbar_tools_popdown (GtkWidget *widget, RemminaConne
     priv->sticky = FALSE;
 
     gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (priv->toolitem_tools), FALSE);
-    remmina_connection_holder_floating_toolbar_hide (cnnhld);
+    remmina_connection_holder_floating_toolbar_show (cnnhld, FALSE);
 }
 
 static void
@@ -888,7 +958,7 @@ remmina_connection_holder_toolbar_tools (GtkWidget *widget, RemminaConnectionHol
 static void
 remmina_connection_holder_toolbar_minimize (GtkWidget *widget, RemminaConnectionHolder *cnnhld)
 {
-    remmina_connection_holder_floating_toolbar_hide (cnnhld);
+    remmina_connection_holder_floating_toolbar_show (cnnhld, FALSE);
     gtk_window_iconify (GTK_WINDOW (cnnhld->cnnwin));
 }
 
@@ -1100,33 +1170,13 @@ remmina_connection_holder_update_toolbar (RemminaConnectionHolder *cnnhld)
     }
 }
 
-static void
-remmina_connection_holder_update_toolbar_opacity (RemminaConnectionHolder *cnnhld)
-{
-    DECLARE_CNNOBJ
-    RemminaConnectionWindowPriv *priv = cnnhld->cnnwin->priv;
-
-    gtk_window_set_opacity (GTK_WINDOW (priv->floating_toolbar),
-        (1.0 - TOOLBAR_OPACITY_MIN) / ((gdouble) TOOLBAR_OPACITY_LEVEL)
-        * ((gdouble) (TOOLBAR_OPACITY_LEVEL - cnnobj->remmina_file->toolbar_opacity))
-        + TOOLBAR_OPACITY_MIN);
-}
-
 static gboolean
 remmina_connection_holder_toolbar_enter (
     GtkWidget *widget,
     GdkEventCrossing *event,
     RemminaConnectionHolder *cnnhld)
 {
-    RemminaConnectionWindowPriv *priv = cnnhld->cnnwin->priv;
-    gint x;
-
-    /* I hardcoded a 100ms timeout here, so that the toolbar won't show up immediately after it hides */
-    if (gtk_get_current_event_time () - priv->floating_toolbar_motion_time < MOTION_TIME) return TRUE;
-
-    gtk_window_get_position (GTK_WINDOW (priv->floating_toolbar), &x, NULL);
-    gtk_window_move (GTK_WINDOW (priv->floating_toolbar), x, 0);
-    remmina_connection_holder_update_toolbar_opacity (cnnhld);
+    remmina_connection_holder_floating_toolbar_show (cnnhld, TRUE);
     return TRUE;
 }
 
@@ -1140,7 +1190,7 @@ remmina_connection_holder_toolbar_leave (
 
     if (!priv->sticky && event->mode == GDK_CROSSING_NORMAL)
     {
-        remmina_connection_holder_floating_toolbar_hide (cnnhld);
+        remmina_connection_holder_floating_toolbar_show (cnnhld, FALSE);
         return TRUE;
     }
     return FALSE;
@@ -1153,7 +1203,7 @@ remmina_connection_window_focus_in (GtkWidget *widget, GdkEventFocus *event, Rem
 
     if (priv->floating_toolbar)
     {
-        gtk_widget_show (priv->floating_toolbar);
+        remmina_connection_holder_floating_toolbar_visible (cnnhld, TRUE);
     }
     return FALSE;
 }
@@ -1166,7 +1216,7 @@ remmina_connection_window_focus_out (GtkWidget *widget, GdkEventFocus *event, Re
 
     if (!priv->sticky && priv->floating_toolbar)
     {
-        gtk_widget_hide (priv->floating_toolbar);
+        remmina_connection_holder_floating_toolbar_visible (cnnhld, FALSE);
     }
     if (REMMINA_IS_SCROLLED_VIEWPORT (cnnobj->scrolled_container))
     {
@@ -1321,8 +1371,11 @@ remmina_connection_holder_create_floating_toolbar (RemminaConnectionHolder *cnnh
     {
         gtk_window_set_opacity (GTK_WINDOW (window), 0.0);
     }
+    gtk_window_set_accept_focus (GTK_WINDOW (window), FALSE);
 
     priv->floating_toolbar = window;
+    priv->floating_toolbar_motion_visible = TRUE;
+    priv->floating_toolbar_motion_show = FALSE;
 
     g_signal_connect (G_OBJECT (window), "enter-notify-event", 
         G_CALLBACK (remmina_connection_holder_toolbar_enter), cnnhld);
@@ -1343,7 +1396,7 @@ remmina_connection_window_init (RemminaConnectionWindow *cnnwin)
     cnnwin->priv = priv;
 
     priv->floating_toolbar = NULL;
-    priv->floating_toolbar_motion_time = 0;
+    priv->floating_toolbar_motion_handler = 0;
     priv->sticky = FALSE;
     priv->toolbar = NULL;
     priv->notebook = NULL;
