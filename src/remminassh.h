@@ -147,7 +147,7 @@ gboolean remmina_ssh_tunnel_open (RemminaSSHTunnel *tunnel, const gchar *dest, g
 gboolean remmina_ssh_tunnel_x11 (RemminaSSHTunnel *tunnel, const gchar *cmd);
 
 /* start X Port Forwarding */
-gboolean remmina_ssh_tunnel_xport (RemminaSSHTunnel *tunnel, gint display, gboolean bindlocalhost);
+gboolean remmina_ssh_tunnel_xport (RemminaSSHTunnel *tunnel, gboolean bindlocalhost);
 
 /* Tells if the tunnel is terminated after start */
 gboolean remmina_ssh_tunnel_terminated (RemminaSSHTunnel *tunnel);

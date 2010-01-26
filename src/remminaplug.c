@@ -20,6 +20,7 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include <stdlib.h>
 #include "config.h"
 #include "remminapublic.h"
 #include "remminapref.h"
@@ -347,9 +348,10 @@ remmina_plug_init_tunnel (RemminaPlug *gp)
 #endif
 
 gchar*
-remmina_plug_start_direct_tunnel (RemminaPlug *gp, gint default_port)
+remmina_plug_start_direct_tunnel (RemminaPlug *gp, gint default_port, gboolean port_plus)
 {
-    gchar *dest;
+    gchar *dest, *ptr;
+    gint port;
 
     if (remmina_file_is_incoming (gp->remmina_file))
     {
@@ -360,6 +362,21 @@ remmina_plug_start_direct_tunnel (RemminaPlug *gp, gint default_port)
         if (strchr (gp->remmina_file->server, ':') == NULL)
         {
             dest = g_strdup_printf ("%s:%i", gp->remmina_file->server, default_port);
+        }
+        else if (port_plus)
+        {
+            dest = g_strdup (gp->remmina_file->server);
+            /* Protocols like VNC supports using instance number :0, :1, etc as port number. */
+            ptr = strchr (dest, ':');
+            port = atoi (ptr + 1);
+            if (port < 100)
+            {
+                port += default_port;
+                *ptr = '\0';
+                ptr = dest;
+                dest = g_strdup_printf ("%s:%i", ptr, port);
+                g_free (ptr);
+            }
         }
         else
         {
@@ -410,7 +427,7 @@ remmina_plug_start_direct_tunnel (RemminaPlug *gp, gint default_port)
 }
 
 gboolean
-remmina_plug_start_xport_tunnel (RemminaPlug *gp, gint display,
+remmina_plug_start_xport_tunnel (RemminaPlug *gp,
     RemminaSSHTunnelCallback init_func,
     RemminaSSHTunnelCallback connect_func,
     RemminaSSHTunnelCallback disconnect_func,
@@ -431,7 +448,7 @@ remmina_plug_start_xport_tunnel (RemminaPlug *gp, gint display,
     bindlocalhost = (g_strcmp0 (REMMINA_SSH (gp->ssh_tunnel)->server, server) == 0);
     g_free (server);
 
-    if (!remmina_ssh_tunnel_xport (gp->ssh_tunnel, display, bindlocalhost))
+    if (!remmina_ssh_tunnel_xport (gp->ssh_tunnel, bindlocalhost))
     {
         g_snprintf (gp->error_message, MAX_ERROR_LENGTH,
             "Failed to open channel : %s", ssh_get_error (REMMINA_SSH (gp->ssh_tunnel)->session));
@@ -444,5 +461,12 @@ remmina_plug_start_xport_tunnel (RemminaPlug *gp, gint display,
 #else
     return FALSE;
 #endif
+}
+
+void
+remmina_plug_set_display (RemminaPlug *gp, gint display)
+{
+    if (gp->ssh_tunnel->localdisplay) g_free (gp->ssh_tunnel->localdisplay);
+    gp->ssh_tunnel->localdisplay = g_strdup_printf ("unix:%i", display);
 }
 

@@ -697,7 +697,6 @@ remmina_ssh_tunnel_main_thread (gpointer data)
             return NULL;
         }
 
-        ssh_set_blocking (REMMINA_SSH (tunnel)->session, FALSE);
         break;
     }
 
@@ -966,10 +965,9 @@ remmina_ssh_tunnel_x11 (RemminaSSHTunnel *tunnel, const gchar *cmd)
 }
 
 gboolean
-remmina_ssh_tunnel_xport (RemminaSSHTunnel *tunnel, gint display, gboolean bindlocalhost)
+remmina_ssh_tunnel_xport (RemminaSSHTunnel *tunnel, gboolean bindlocalhost)
 {
     tunnel->tunnel_type = REMMINA_SSH_TUNNEL_XPORT;
-    tunnel->localdisplay = g_strdup_printf ("unix:%i", display);
     tunnel->bindlocalhost = bindlocalhost;
     tunnel->running = TRUE;
 

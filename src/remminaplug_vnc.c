@@ -1089,7 +1089,7 @@ remmina_plug_vnc_main (RemminaPlugVnc *gp_vnc)
     {
         gp_vnc->auth_called = FALSE;
 
-        host = remmina_plug_start_direct_tunnel (gp, 5900);
+        host = remmina_plug_start_direct_tunnel (gp, 5900, TRUE);
 
         if (host == NULL)
         {
