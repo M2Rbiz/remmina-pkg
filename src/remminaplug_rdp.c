@@ -102,7 +102,7 @@ remmina_plug_rdp_main (RemminaPlugRdp *gp_rdp)
         }
     }
 
-    host = remmina_plug_start_direct_tunnel (gp, 3389);
+    host = remmina_plug_start_direct_tunnel (gp, 3389, FALSE);
     if (host == NULL)
     {
         gp_rdp->thread = 0;

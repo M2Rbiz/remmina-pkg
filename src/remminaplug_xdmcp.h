@@ -47,6 +47,8 @@ typedef struct _RemminaPlugXdmcp
     GPid pid;
     gint output_fd;
     gint error_fd;
+    gint display;
+    gboolean ready;
 
 #ifdef HAVE_PTHREAD
     pthread_t thread;

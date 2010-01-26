@@ -38,6 +38,7 @@ static void
 remmina_plug_xdmcp_plug_added (GtkSocket *socket, RemminaPlugXdmcp *gp_xdmcp)
 {
     remmina_plug_emit_signal (REMMINA_PLUG (gp_xdmcp), "connect");
+    gp_xdmcp->ready = TRUE;
 }
 
 static void
@@ -46,96 +47,20 @@ remmina_plug_xdmcp_plug_removed (GtkSocket *socket, RemminaPlugXdmcp *gp_xdmcp)
     remmina_plug_close_connection (REMMINA_PLUG (gp_xdmcp));
 }
 
-#ifdef HAVE_LIBSSH
 static gboolean
-remmina_plug_xdmcp_tunnel_init_callback (RemminaSSHTunnel *tunnel, gpointer data)
-{
-    RemminaPlug *gp = REMMINA_PLUG (data);
-    ssh_channel channel;
-    gchar *server;
-    gint port;
-    gchar *cmd;
-    gint status;
-    gboolean ret = FALSE;
-
-    if ((channel = channel_new (REMMINA_SSH (tunnel)->session)) == NULL)
-    {
-        return FALSE;
-    }
-
-    /* If the SSH authentication happens too fast, for example an auto-pubkey authentication passes very quick,
-     * the xqproxy might be executed before Xephyr finish initialize the X server unix socket. Then all
-     * connections from the display manager will be forwarded into a black hole.
-     * Sleep one second is a workaround for this race condition. but it is not guarantee... Probably the best
-     * way is to check the unix socket.
-     */
-    sleep (1);
-
-    remmina_public_get_server_port (gp->remmina_file->server, 177, &server, &port);
-    cmd = g_strdup_printf ("xqproxy -display %i -host %s -port %i -query -manage",
-        tunnel->remotedisplay, (tunnel->bindlocalhost ? "localhost" : server), port);
-    g_free (server);
-    if (channel_open_session (channel) == SSH_OK &&
-        channel_request_exec (channel, cmd) == SSH_OK)
-    {
-        channel_send_eof (channel);
-        status = channel_get_exit_status (channel);
-        switch (status)
-        {
-        case 0:
-            ret = TRUE;
-            break;
-        case 127:
-            remmina_ssh_set_application_error (tunnel,
-                _("Please install xqproxy on SSH server in order to run XDMCP over SSH"));
-            break;
-        default:
-            ((RemminaSSH*)tunnel)->error = g_strdup_printf ("Error executing xqproxy on SSH server (status = %i).", status);
-            break;
-        }
-    }
-    g_free (cmd);
-    channel_close (channel);
-    channel_free (channel);
-    return ret;
-}
-
-static gboolean
-remmina_plug_xdmcp_tunnel_connect_callback (RemminaSSHTunnel *tunnel, gpointer data)
-{
-    return TRUE;
-}
-
-static gboolean
-remmina_plug_xdmcp_tunnel_disconnect_callback (RemminaSSHTunnel *tunnel, gpointer data)
-{
-    RemminaPlug *gp = REMMINA_PLUG (data);
-
-    if (REMMINA_SSH (tunnel)->error)
-    {
-        g_snprintf (gp->error_message, MAX_ERROR_LENGTH, "%s", REMMINA_SSH (tunnel)->error);
-        gp->has_error = TRUE;
-    }
-    IDLE_ADD ((GSourceFunc) remmina_plug_close_connection, gp);
-    return TRUE;
-}
-#endif
-
-static gboolean
-remmina_plug_xdmcp_main (RemminaPlugXdmcp *gp_xdmcp)
+remmina_plug_xdmcp_start_xephyr (RemminaPlugXdmcp *gp_xdmcp)
 {
     RemminaPlug *gp = REMMINA_PLUG (gp_xdmcp);
     RemminaFile *remminafile = gp->remmina_file;
     gchar *argv[50];
     gint argc;
     gchar *p1, *p2;
-    gint display;
     gint i;
     GError *error = NULL;
     gboolean ret;
 
-    display = remmina_public_get_available_xdisplay ();
-    if (display == 0)
+    gp_xdmcp->display = remmina_public_get_available_xdisplay ();
+    if (gp_xdmcp->display == 0)
     {
         g_snprintf (gp->error_message, MAX_ERROR_LENGTH, "%s", "Run out of available local X display number.");
         gp->has_error = TRUE;
@@ -146,7 +71,7 @@ remmina_plug_xdmcp_main (RemminaPlugXdmcp *gp_xdmcp)
     argc = 0;
     argv[argc++] = g_strdup ("Xephyr");
 
-    argv[argc++] = g_strdup_printf (":%i", display);
+    argv[argc++] = g_strdup_printf (":%i", gp_xdmcp->display);
 
     argv[argc++] = g_strdup ("-parent");
     argv[argc++] = g_strdup_printf ("%i", gp_xdmcp->socket_id);
@@ -216,14 +141,104 @@ remmina_plug_xdmcp_main (RemminaPlugXdmcp *gp_xdmcp)
         return FALSE;
     }
 
+    return TRUE;
+}
+
+#ifdef HAVE_LIBSSH
+static gboolean
+remmina_plug_xdmcp_tunnel_init_callback (RemminaSSHTunnel *tunnel, gpointer data)
+{
+    RemminaPlug *gp = REMMINA_PLUG (data);
+    RemminaPlugXdmcp *gp_xdmcp = REMMINA_PLUG_XDMCP (data);
+    ssh_channel channel;
+    gchar *server;
+    gint port;
+    gchar *cmd;
+    gint status;
+    gboolean ret = FALSE;
+
+    if (!remmina_plug_xdmcp_start_xephyr (gp_xdmcp)) return FALSE;
+    while (!gp_xdmcp->ready) sleep (1);
+
+    remmina_plug_set_display (gp, gp_xdmcp->display);
+
+    if ((channel = channel_new (REMMINA_SSH (tunnel)->session)) == NULL)
+    {
+        return FALSE;
+    }
+
+    remmina_public_get_server_port (gp->remmina_file->server, 177, &server, &port);
+    cmd = g_strdup_printf ("xqproxy -display %i -host %s -port %i -query -manage",
+        tunnel->remotedisplay, (tunnel->bindlocalhost ? "localhost" : server), port);
+    g_free (server);
+    if (channel_open_session (channel) == SSH_OK &&
+        channel_request_exec (channel, cmd) == SSH_OK)
+    {
+        channel_send_eof (channel);
+        status = channel_get_exit_status (channel);
+        switch (status)
+        {
+        case 0:
+            ret = TRUE;
+            break;
+        case 127:
+            remmina_ssh_set_application_error (tunnel,
+                _("Please install xqproxy on SSH server in order to run XDMCP over SSH"));
+            break;
+        default:
+            ((RemminaSSH*)tunnel)->error = g_strdup_printf ("Error executing xqproxy on SSH server (status = %i).", status);
+            break;
+        }
+    }
+    g_free (cmd);
+    channel_close (channel);
+    channel_free (channel);
+    return ret;
+}
+
+static gboolean
+remmina_plug_xdmcp_tunnel_connect_callback (RemminaSSHTunnel *tunnel, gpointer data)
+{
+    return TRUE;
+}
+
+static gboolean
+remmina_plug_xdmcp_tunnel_disconnect_callback (RemminaSSHTunnel *tunnel, gpointer data)
+{
+    RemminaPlug *gp = REMMINA_PLUG (data);
+
+    if (REMMINA_SSH (tunnel)->error)
+    {
+        g_snprintf (gp->error_message, MAX_ERROR_LENGTH, "%s", REMMINA_SSH (tunnel)->error);
+        gp->has_error = TRUE;
+    }
+    IDLE_ADD ((GSourceFunc) remmina_plug_close_connection, gp);
+    return TRUE;
+}
+#endif
+
+static gboolean
+remmina_plug_xdmcp_main (RemminaPlugXdmcp *gp_xdmcp)
+{
+    RemminaPlug *gp = REMMINA_PLUG (gp_xdmcp);
+    RemminaFile *remminafile = gp->remmina_file;
+
 #ifdef HAVE_LIBSSH
     if (remminafile->ssh_enabled)
     {
-        if (!remmina_plug_start_xport_tunnel (gp, display,
+        if (!remmina_plug_start_xport_tunnel (gp,
             remmina_plug_xdmcp_tunnel_init_callback,
             remmina_plug_xdmcp_tunnel_connect_callback,
             remmina_plug_xdmcp_tunnel_disconnect_callback,
             gp_xdmcp))
+        {
+            gp_xdmcp->thread = 0;
+            return FALSE;
+        }
+    }
+    else
+    {
+        if (!remmina_plug_xdmcp_start_xephyr (gp_xdmcp))
         {
             gp_xdmcp->thread = 0;
             return FALSE;
@@ -358,6 +373,8 @@ remmina_plug_xdmcp_init (RemminaPlugXdmcp *gp_xdmcp)
     gp_xdmcp->output_fd = 0;
     gp_xdmcp->error_fd = 0;
     gp_xdmcp->thread = 0;
+    gp_xdmcp->display = 0;
+    gp_xdmcp->ready = FALSE;
 }
 
 GtkWidget*

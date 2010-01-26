@@ -104,13 +104,15 @@ void remmina_plug_emit_signal (RemminaPlug *gp, const gchar *signal);
  * 1. The actual destination (host:port) if SSH tunnel is disable
  * 2. The tunnel local destination (127.0.0.1:port) if SSH tunnel is enabled
  */
-gchar* remmina_plug_start_direct_tunnel (RemminaPlug *gp, gint default_port);
+gchar* remmina_plug_start_direct_tunnel (RemminaPlug *gp, gint default_port, gboolean port_plus);
 
-gboolean remmina_plug_start_xport_tunnel (RemminaPlug *gp, gint display,
+gboolean remmina_plug_start_xport_tunnel (RemminaPlug *gp,
     RemminaSSHTunnelCallback init_func,
     RemminaSSHTunnelCallback connect_func,
     RemminaSSHTunnelCallback disconnect_func,
     gpointer callback_data);
+
+void remmina_plug_set_display (RemminaPlug *gp, gint display);
 
 G_END_DECLS
 
