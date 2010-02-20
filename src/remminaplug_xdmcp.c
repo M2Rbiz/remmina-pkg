@@ -237,6 +237,7 @@ remmina_plug_xdmcp_main (RemminaPlugXdmcp *gp_xdmcp)
         }
     }
     else
+#endif
     {
         if (!remmina_plug_xdmcp_start_xephyr (gp_xdmcp))
         {
@@ -244,7 +245,6 @@ remmina_plug_xdmcp_main (RemminaPlugXdmcp *gp_xdmcp)
             return FALSE;
         }
     }
-#endif
 
     gp_xdmcp->thread = 0;
     return TRUE;

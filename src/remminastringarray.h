@@ -26,7 +26,7 @@ G_BEGIN_DECLS
 
 typedef GPtrArray RemminaStringArray;
 
-#define remmina_string_array_new g_ptr_array_new
+RemminaStringArray* remmina_string_array_new (void);
 #define remmina_string_array_index(array,i) (gchar*)g_ptr_array_index(array,i)
 RemminaStringArray* remmina_string_array_new_from_string (const gchar *strs);
 RemminaStringArray* remmina_string_array_new_from_allocated_string (gchar *strs);
@@ -37,7 +37,7 @@ void remmina_string_array_remove (RemminaStringArray *array, const gchar *str);
 void remmina_string_array_intersect (RemminaStringArray *array, const gchar *dest_strs);
 void remmina_string_array_sort (RemminaStringArray *array);
 gchar* remmina_string_array_to_string (RemminaStringArray *array);
-#define remmina_string_array_free(array) g_ptr_array_free(array,TRUE)
+void remmina_string_array_free (RemminaStringArray *array);
 
 G_END_DECLS
 

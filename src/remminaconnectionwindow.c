@@ -101,13 +101,13 @@ struct _RemminaConnectionHolder
 };
 
 #define DECLARE_CNNOBJ \
-    if (!cnnhld->cnnwin || gtk_notebook_get_current_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)) < 0) return; \
+    if (!cnnhld || !cnnhld->cnnwin || gtk_notebook_get_current_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)) < 0) return; \
     RemminaConnectionObject *cnnobj = (RemminaConnectionObject*) g_object_get_data ( \
         G_OBJECT (gtk_notebook_get_nth_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook), \
         gtk_notebook_get_current_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)))), "cnnobj");
 
 #define DECLARE_CNNOBJ_WITH_RETURN(r) \
-    if (!cnnhld->cnnwin || gtk_notebook_get_current_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)) < 0) return r; \
+    if (!cnnhld || !cnnhld->cnnwin || gtk_notebook_get_current_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)) < 0) return r; \
     RemminaConnectionObject *cnnobj = (RemminaConnectionObject*) g_object_get_data ( \
         G_OBJECT (gtk_notebook_get_nth_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook), \
         gtk_notebook_get_current_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)))), "cnnobj");
@@ -1645,7 +1645,15 @@ remmina_connection_holder_on_switch_page (GtkNotebook *notebook, GtkNotebookPage
 static void
 remmina_connection_holder_on_page_added (GtkNotebook *notebook, GtkWidget *child, guint page_num, RemminaConnectionHolder *cnnhld)
 {
-    remmina_connection_holder_update_notebook (cnnhld);
+    if (gtk_notebook_get_n_pages (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)) <= 0)
+    {
+        gtk_widget_destroy (GTK_WIDGET (cnnhld->cnnwin));
+        g_free (cnnhld);
+    }
+    else
+    {
+        remmina_connection_holder_update_notebook (cnnhld);
+    }
 }
 
 static GtkWidget*
@@ -1778,13 +1786,51 @@ remmina_connection_holder_create_fullscreen (RemminaConnectionHolder *cnnhld, Re
     gtk_widget_show (window);
 }
 
+static RemminaConnectionWindow*
+remmina_connection_window_find (RemminaFile *remminafile)
+{
+    gchar *tag;
+
+    switch (remmina_pref.tab_mode)
+    {
+    case REMMINA_TAB_BY_GROUP:
+        tag = remminafile->group;
+        break;
+    case REMMINA_TAB_BY_PROTOCOL:
+        tag = remminafile->protocol;
+        break;
+    case REMMINA_TAB_ALL:
+        tag = NULL;
+        break;
+    case REMMINA_TAB_NONE:
+    default:
+        return NULL;
+    }
+    return REMMINA_CONNECTION_WINDOW (remmina_widget_pool_find (REMMINA_TYPE_CONNECTION_WINDOW, tag));
+}
+
 static void
 remmina_connection_object_on_connect (RemminaPlug *gp, RemminaConnectionObject *cnnobj)
 {
-    RemminaConnectionHolder *cnnhld = cnnobj->cnnhld;
+    RemminaConnectionWindow *cnnwin;
+    RemminaConnectionHolder *cnnhld;
     GdkScreen *screen;
     GtkWidget *tab;
     gint i;
+
+    cnnwin = remmina_connection_window_find (cnnobj->remmina_file);
+
+    if (cnnwin)
+    {
+        cnnhld = cnnwin->priv->cnnhld;
+    }
+    else
+    {
+        cnnhld = g_new (RemminaConnectionHolder, 1);
+        cnnhld->cnnwin = NULL;
+    }
+
+    cnnobj->cnnhld = cnnhld;
 
     screen = gdk_screen_get_default ();
 
@@ -1840,7 +1886,7 @@ remmina_connection_object_on_disconnect (RemminaPlug *gp, RemminaConnectionObjec
         scale_option_window = NULL;
     }
 
-    if (remmina_pref.save_view_mode)
+    if (cnnhld && remmina_pref.save_view_mode)
     {
         if (cnnhld->cnnwin)
         {
@@ -1848,7 +1894,7 @@ remmina_connection_object_on_disconnect (RemminaPlug *gp, RemminaConnectionObjec
         }
         remmina_file_save (cnnobj->remmina_file);
     }
-    g_free (cnnobj->remmina_file);
+    remmina_file_free (cnnobj->remmina_file);
 
     if (REMMINA_PLUG (cnnobj->remmina_plug)->has_error)
     {
@@ -1866,15 +1912,10 @@ remmina_connection_object_on_disconnect (RemminaPlug *gp, RemminaConnectionObjec
         cnnobj->window = NULL;
     }
 
-    if (cnnhld->cnnwin && cnnobj->scrolled_container)
+    if (cnnhld && cnnhld->cnnwin && cnnobj->scrolled_container)
     {
         gtk_notebook_remove_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook),
             gtk_notebook_page_num (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook), cnnobj->scrolled_container));
-
-        if (gtk_notebook_get_n_pages (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook)) <= 0)
-        {
-            gtk_widget_destroy (GTK_WIDGET (cnnhld->cnnwin));
-        }
     }
     g_free (cnnobj);
 }
@@ -1883,29 +1924,6 @@ static void
 remmina_connection_object_on_desktop_resize (RemminaPlug *gp, RemminaConnectionObject *cnnobj)
 {
     remmina_connection_holder_check_resize (cnnobj->cnnhld);
-}
-
-static RemminaConnectionWindow*
-remmina_connection_window_find (RemminaFile *remminafile)
-{
-    gchar *tag;
-
-    switch (remmina_pref.tab_mode)
-    {
-    case REMMINA_TAB_BY_GROUP:
-        tag = remminafile->group;
-        break;
-    case REMMINA_TAB_BY_PROTOCOL:
-        tag = remminafile->protocol;
-        break;
-    case REMMINA_TAB_ALL:
-        tag = NULL;
-        break;
-    case REMMINA_TAB_NONE:
-    default:
-        return NULL;
-    }
-    return REMMINA_CONNECTION_WINDOW (remmina_widget_pool_find (REMMINA_TYPE_CONNECTION_WINDOW, tag));
 }
 
 gboolean
@@ -1934,8 +1952,6 @@ remmina_connection_window_open_from_filename (const gchar *filename)
 void
 remmina_connection_window_open_from_file (RemminaFile *remminafile)
 {
-    RemminaConnectionWindow *cnnwin;
-    RemminaConnectionHolder *cnnhld;
     RemminaConnectionObject *cnnobj;
     GdkColor color;
 
@@ -1947,22 +1963,10 @@ remmina_connection_window_open_from_file (RemminaFile *remminafile)
         return;
     }
 
-    cnnwin = remmina_connection_window_find (remminafile);
-
     remmina_file_update_screen_resolution (remminafile);
 
-    if (cnnwin)
-    {
-        cnnhld = cnnwin->priv->cnnhld;
-    }
-    else
-    {
-        cnnhld = g_new (RemminaConnectionHolder, 1);
-        cnnhld->cnnwin = NULL;
-    }
-
     cnnobj = g_new (RemminaConnectionObject, 1);
-    cnnobj->cnnhld = cnnhld;
+    cnnobj->cnnhld = NULL;
     cnnobj->remmina_file = remminafile;
     cnnobj->scrolled_container = NULL;
     cnnobj->connected = FALSE;
