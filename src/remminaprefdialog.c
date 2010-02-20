@@ -158,10 +158,18 @@ remmina_pref_dialog_destroy (GtkWidget *widget, gpointer data)
     remmina_pref.save_view_mode = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (priv->save_view_mode_check));
     remmina_pref.invisible_toolbar = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (priv->invisible_toolbar_check));
 
-    remmina_pref.default_action = atoi (gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->default_action_combo)));
-    remmina_pref.default_mode = atoi (gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->default_mode_combo)));
-    remmina_pref.tab_mode = atoi (gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->tab_mode_combo)));
-    remmina_pref.scale_quality = atoi (gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->scale_quality_combo)));
+    s = gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->default_action_combo));
+    remmina_pref.default_action = atoi (s);
+    g_free (s);
+    s = gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->default_mode_combo));
+    remmina_pref.default_mode = atoi (s);
+    g_free (s);
+    s = gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->tab_mode_combo));
+    remmina_pref.tab_mode = atoi (s);
+    g_free (s);
+    s = gtk_combo_box_get_active_text (GTK_COMBO_BOX (priv->scale_quality_combo));
+    remmina_pref.scale_quality = atoi (s);
+    g_free (s);
 
     remmina_pref.sshtunnel_port = atoi (gtk_entry_get_text (GTK_ENTRY (priv->sshtunnel_port_entry)));
     if (remmina_pref.sshtunnel_port <= 0) remmina_pref.sshtunnel_port = DEFAULT_SSHTUNNEL_PORT;

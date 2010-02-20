@@ -189,6 +189,7 @@ remmina_plug_close_connection (RemminaPlug *gp)
 
     if (gp->printers)
     {
+        g_ptr_array_foreach (gp->printers, (GFunc) g_free, NULL);
         g_ptr_array_free (gp->printers, TRUE);
         gp->printers = NULL;
     }
@@ -466,7 +467,9 @@ remmina_plug_start_xport_tunnel (RemminaPlug *gp,
 void
 remmina_plug_set_display (RemminaPlug *gp, gint display)
 {
+#ifdef HAVE_LIBSSH
     if (gp->ssh_tunnel->localdisplay) g_free (gp->ssh_tunnel->localdisplay);
     gp->ssh_tunnel->localdisplay = g_strdup_printf ("unix:%i", display);
+#endif
 }
 

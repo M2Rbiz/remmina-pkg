@@ -23,6 +23,12 @@
 #include "remminastringarray.h"
 
 RemminaStringArray*
+remmina_string_array_new (void)
+{
+    return g_ptr_array_new ();
+}
+
+RemminaStringArray*
 remmina_string_array_new_from_string (const gchar *strs)
 {
     RemminaStringArray *array;
@@ -75,7 +81,6 @@ remmina_string_array_find (RemminaStringArray* array, const gchar *str)
 
 void remmina_string_array_remove_index (RemminaStringArray* array, gint i)
 {
-    g_free (remmina_string_array_index (array, i));
     g_ptr_array_remove_index (array, i);
 }
 
@@ -141,3 +146,9 @@ remmina_string_array_to_string (RemminaStringArray* array)
     return g_string_free (gstr, FALSE);
 }
 
+void
+remmina_string_array_free (RemminaStringArray *array)
+{
+    g_ptr_array_foreach (array, (GFunc) g_free, NULL);
+    g_ptr_array_free (array, TRUE);
+}
