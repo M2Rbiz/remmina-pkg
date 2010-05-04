@@ -118,15 +118,15 @@ static void remmina_connection_holder_create_fullscreen (RemminaConnectionHolder
 static void
 remmina_connection_window_class_init (RemminaConnectionWindowClass *klass)
 {
-	gtk_rc_parse_string (
-		"style \"remmina-small-button-style\"\n"
-		"{\n"
-		"  GtkWidget::focus-padding = 0\n"
-		"  GtkWidget::focus-line-width = 0\n"
-		"  xthickness = 0\n"
-		"  ythickness = 0\n"
-		"}\n"
-		"widget \"*.remmina-small-button\" style \"remmina-small-button-style\"");
+    gtk_rc_parse_string (
+        "style \"remmina-small-button-style\"\n"
+        "{\n"
+        "  GtkWidget::focus-padding = 0\n"
+        "  GtkWidget::focus-line-width = 0\n"
+        "  xthickness = 0\n"
+        "  ythickness = 0\n"
+        "}\n"
+        "widget \"*.remmina-small-button\" style \"remmina-small-button-style\"");
 }
 
 static void
@@ -289,7 +289,7 @@ remmina_connection_holder_floating_toolbar_visible (RemminaConnectionHolder *cnn
 }
 
 static void
-remmina_connection_holder_get_desktop_size (RemminaConnectionHolder* cnnhld, gint *width, gint *height, gboolean expend)
+remmina_connection_holder_get_desktop_size (RemminaConnectionHolder* cnnhld, gint *width, gint *height, gboolean expand)
 {
     DECLARE_CNNOBJ
     RemminaFile *gf = cnnobj->remmina_file;
@@ -304,7 +304,7 @@ remmina_connection_holder_get_desktop_size (RemminaConnectionHolder* cnnhld, gin
         {
             *width = (*width) * gf->hscale / 100;
         }
-        else if (!expend)
+        else if (!expand)
         {
             *width = 1;
         }
@@ -316,7 +316,7 @@ remmina_connection_holder_get_desktop_size (RemminaConnectionHolder* cnnhld, gin
         {
             *height = (*height) * gf->vscale / 100;
         }
-        else if (!expend)
+        else if (!expand)
         {
             *height = 1;
         }
@@ -367,6 +367,23 @@ remmina_connection_holder_toolbar_autofit (GtkWidget *widget, RemminaConnectionH
         g_timeout_add (200, (GSourceFunc) remmina_connection_holder_toolbar_autofit_restore, cnnhld);
     }
 
+}
+
+static void
+remmina_connection_object_init_adjustment (RemminaConnectionObject *cnnobj)
+{
+    GdkScreen *screen;
+    GtkAdjustment *adj;
+    gint screen_width, screen_height;
+
+    screen = gdk_screen_get_default ();
+    screen_width = gdk_screen_get_width (screen);
+    screen_height = gdk_screen_get_height (screen);
+
+    adj = gtk_viewport_get_hadjustment (GTK_VIEWPORT (cnnobj->viewport));
+    gtk_adjustment_set_page_size (adj, screen_width);
+    adj = gtk_viewport_get_vadjustment (GTK_VIEWPORT (cnnobj->viewport));
+    gtk_adjustment_set_page_size (adj, screen_height);
 }
 
 static void
@@ -1529,8 +1546,8 @@ remmina_connection_object_create_tab (RemminaConnectionObject *cnnobj)
     gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
     button = gtk_button_new ();
-	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
-	gtk_button_set_focus_on_click (GTK_BUTTON (button), FALSE);
+    gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+    gtk_button_set_focus_on_click (GTK_BUTTON (button), FALSE);
     gtk_widget_set_name (button, "remmina-small-button");
     gtk_widget_show (button);
 
@@ -1866,6 +1883,7 @@ remmina_connection_object_on_connect (RemminaPlug *gp, RemminaConnectionObject *
         gtk_window_present (GTK_WINDOW (cnnhld->cnnwin));
         gtk_notebook_set_current_page (GTK_NOTEBOOK (cnnhld->cnnwin->priv->notebook), i);
     }
+    remmina_connection_object_init_adjustment (cnnobj);
 
     if (cnnhld->cnnwin->priv->floating_toolbar)
     {

@@ -203,7 +203,7 @@
 
 /* Define to the full name and version of this package. */
 #ifndef LIBVNCSERVER_PACKAGE_STRING 
-#define LIBVNCSERVER_PACKAGE_STRING  "remmina 0.7.4" 
+#define LIBVNCSERVER_PACKAGE_STRING  "remmina 0.7.5" 
 #endif
 
 /* Define to the one symbol short name of this package. */
@@ -218,7 +218,7 @@
 
 /* Define to the version of this package. */
 #ifndef LIBVNCSERVER_PACKAGE_VERSION 
-#define LIBVNCSERVER_PACKAGE_VERSION  "0.7.4" 
+#define LIBVNCSERVER_PACKAGE_VERSION  "0.7.5" 
 #endif
 
 /* Define to 1 if you have the ANSI C header files. */
@@ -228,7 +228,7 @@
 
 /* Version number of package */
 #ifndef LIBVNCSERVER_VERSION 
-#define LIBVNCSERVER_VERSION  "0.7.4" 
+#define LIBVNCSERVER_VERSION  "0.7.5" 
 #endif
 
 /* Enable support for gnutls in libvncclient */
