@@ -156,15 +156,22 @@ remmina_plug_vnc_scale_area (RemminaPlugVnc *gp_vnc, gint *x, gint *y, gint *w, 
 
     if (gp_vnc->rgb_buffer == NULL || gp_vnc->scale_buffer == NULL) return;
 
-    /* We have to extend the scaled region one scaled pixel, to avoid gaps */
+    if (gp_vnc->scale_width == gp->width && gp_vnc->scale_height == gp->height)
+    {
+        /* Same size, just copy the pixels */
+        gdk_pixbuf_copy_area (gp_vnc->rgb_buffer, *x, *y, *w, *h, gp_vnc->scale_buffer, *x, *y);
+        return;
+    }
+
+    /* We have to extend the scaled region 2 scaled pixels, to avoid gaps */
     sx = MIN (MAX (0, (*x) * gp_vnc->scale_width / gp->width
-        - gp_vnc->scale_width / gp->width - 1), gp_vnc->scale_width - 1);
+        - gp_vnc->scale_width / gp->width - 2), gp_vnc->scale_width - 1);
     sy = MIN (MAX (0, (*y) * gp_vnc->scale_height / gp->height
-        - gp_vnc->scale_height / gp->height - 1), gp_vnc->scale_height - 1);
+        - gp_vnc->scale_height / gp->height - 2), gp_vnc->scale_height - 1);
     sw = MIN (gp_vnc->scale_width - sx, (*w) * gp_vnc->scale_width / gp->width
-        + gp_vnc->scale_width / gp->width + 1);
+        + gp_vnc->scale_width / gp->width + 4);
     sh = MIN (gp_vnc->scale_height - sy, (*h) * gp_vnc->scale_height / gp->height
-        + gp_vnc->scale_height / gp->height + 1);
+        + gp_vnc->scale_height / gp->height + 4);
 
     gdk_pixbuf_scale (gp_vnc->rgb_buffer, gp_vnc->scale_buffer,
         sx, sy,
@@ -1142,6 +1149,14 @@ remmina_plug_vnc_main (RemminaPlugVnc *gp_vnc)
         if (!gp_vnc->auth_called)
         {
             gp_vnc->connected = FALSE;
+            break;
+        }
+
+        /* vnc4server reports "already in use" after authentication. Workaround here */
+        if (strstr(vnc_error, "The server is already in use"))
+        {
+            gp_vnc->connected = FALSE;
+            gp_vnc->auth_called = FALSE;
             break;
         }
 

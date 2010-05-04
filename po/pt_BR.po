@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-10-13 21:52+0800\n"
-"PO-Revision-Date: 2010-01-10 20:28+0000\n"
-"Last-Translator: D. L. Kehl <Unknown>\n"
+"PO-Revision-Date: 2010-04-13 03:39+0000\n"
+"Last-Translator: cristianfere <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2010-01-11 04:59+0000\n"
+"X-Launchpad-Export-Date: 2010-04-14 03:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../desktop/remmina.desktop.in.h:1
@@ -30,13 +30,13 @@ msgstr ""
 #, c-format
 msgid "Total %i item."
 msgid_plural "Total %i items."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Total de %i item."
+msgstr[1] "Total de %i itens."
 
 #: ../src/remminamain.c:406
 #, c-format
 msgid "Are you sure to delete '%s'"
-msgstr ""
+msgstr "Tem certeza que deseja apagar '%s'"
 
 #: ../src/remminamain.c:580
 msgid "_Action"
@@ -304,7 +304,7 @@ msgstr "Profundidade de cores"
 
 #: ../src/remminafileeditor.c:761
 msgid "Share Folder"
-msgstr "Pasta compartilhada"
+msgstr "Compartilhar pasta"
 
 #. The Advanced tab
 #: ../src/remminafileeditor.c:764 ../src/remminafileeditor.c:856
@@ -459,19 +459,19 @@ msgstr "Alternar o modo de janela com rolagem"
 
 #: ../src/remminaconnectionwindow.c:946 ../src/remminaprefdialog.c:52
 msgid "Scrolled Fullscreen"
-msgstr "Tela inteira com rolagem"
+msgstr "Tela cheia com rolagem"
 
 #: ../src/remminaconnectionwindow.c:948
 msgid "Toggle scrolled fullscreen mode"
-msgstr "Alternar o modo de tela inteira com rolagem"
+msgstr "Alternar modo de tela cheia com rolagem"
 
 #: ../src/remminaconnectionwindow.c:958 ../src/remminaprefdialog.c:53
 msgid "Viewport Fullscreen"
-msgstr ""
+msgstr "Visualizar em tela cheia"
 
 #: ../src/remminaconnectionwindow.c:960
 msgid "Toggle viewport fullscreen mode"
-msgstr ""
+msgstr "Alternar para modo de visualização em tela cheia"
 
 #: ../src/remminaconnectionwindow.c:972
 msgid "Switch tab pages"
@@ -479,11 +479,11 @@ msgstr ""
 
 #: ../src/remminaconnectionwindow.c:985
 msgid "Toggle scaled mode"
-msgstr ""
+msgstr "Alternar para modo dimensionado"
 
 #: ../src/remminaconnectionwindow.c:1019
 msgid "Grab all keyboard events"
-msgstr ""
+msgstr "Capturar todos eventos do teclado"
 
 #: ../src/remminaconnectionwindow.c:1027
 msgid "Preferences"
@@ -628,7 +628,8 @@ msgstr "Cliente de área de trabalho remota GTK+"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
-"  D. L. Kehl https://launchpad.net/~dlkehl"
+"  Deivis L. Kehl https://launchpad.net/~dlkehl\n"
+"  cristianfere https://launchpad.net/~cristianfere"
 
 #: ../src/remminaprefdialog.c:34
 msgid "Open Connection"
@@ -676,7 +677,7 @@ msgstr "Não usar abas"
 
 #: ../src/remminaprefdialog.c:128
 msgid "Please enter format 'widthxheight'."
-msgstr "Por favor, digite no formato 'larguraxaltura'"
+msgstr "Por favor, digite no formato 'largura x altura'"
 
 #: ../src/remminaprefdialog.c:140
 msgid "Recent lists cleared."
@@ -778,7 +779,7 @@ msgstr "Senha SSH"
 #: ../src/remminassh.c:241
 #, c-format
 msgid "Authenticating %s's identity to SSH server %s..."
-msgstr ""
+msgstr "Autenticando identidade %s no servidor SSH %s..."
 
 #: ../src/remminassh.c:242
 msgid "SSH Private Key Passphrase"
@@ -787,199 +788,203 @@ msgstr ""
 #: ../src/remminassh.c:279
 #, c-format
 msgid "Failed to startup SSH session: %s"
-msgstr ""
+msgstr "Falha ao iniciar sessão SSH: %s"
 
 #: ../src/remminassh.c:600
 #, c-format
 msgid "Failed to connect to the SSH tunnel destination: %s"
-msgstr ""
+msgstr "Falha ao conectar no túnel SSH de destino: %s"
 
 #: ../src/remminassh.c:639
 #, c-format
 msgid "Failed to execute %s on SSH server : %%s"
-msgstr ""
+msgstr "Falha ao executar %s no servidor SSH: %%s"
 
 #: ../src/remminassh.c:681
 #, c-format
 msgid "Failed to request port forwarding : %s"
-msgstr ""
+msgstr "Falha ao requerer encaminhamento de porta: %s"
 
 #: ../src/remminassh.c:720
 msgid "No response from the server."
-msgstr ""
+msgstr "Nenhuma resposta do servidor."
 
 #: ../src/remminassh.c:1062
 #, c-format
 msgid "Failed to create sftp session: %s"
-msgstr ""
+msgstr "Falha ao criar sessão sftp: %s"
 
 #: ../src/remminassh.c:1067
 #, c-format
 msgid "Failed to initialize sftp session: %s"
-msgstr ""
+msgstr "Falha ao iniciar sessão sftp: %s"
 
 #. Title
 #: ../src/remminachatwindow.c:175
 #, c-format
 msgid "Chat with %s"
-msgstr ""
+msgstr "Bate-papo com %s"
 
 #: ../src/remminachatwindow.c:227
 msgid "_Send"
-msgstr ""
+msgstr "_Enviar"
 
 #: ../src/remminachatwindow.c:237
 msgid "_Clear"
-msgstr ""
+msgstr "_Limpar"
 
 #: ../src/remminaftpwindow.c:442
 msgid "Choose download location"
-msgstr ""
+msgstr "Escolher local do download"
 
 #: ../src/remminaftpwindow.c:652
 msgid "Are you sure to delete the selected files on server?"
-msgstr ""
+msgstr "Tem certeza que deseja deletar os arquivos selecionados no servidor?"
 
 #: ../src/remminaftpwindow.c:700
 msgid "Choose a file to upload"
-msgstr ""
+msgstr "Escolha o arquivo para enviar"
 
 #: ../src/remminaftpwindow.c:812
 msgid "Go to home folder"
-msgstr ""
+msgstr "Ir para pasta pessoal"
 
 #: ../src/remminaftpwindow.c:816
 msgid "Go to parent folder"
-msgstr ""
+msgstr "Ir para pasta acima"
 
 #: ../src/remminaftpwindow.c:820
 msgid "Refresh current folder"
-msgstr ""
+msgstr "Atualizar pasta atual"
 
 #: ../src/remminaftpwindow.c:823
 msgid "Upload"
-msgstr ""
+msgstr "Enviar"
 
 #: ../src/remminaftpwindow.c:824
 msgid "Upload to server"
-msgstr ""
+msgstr "Enviar para o servidor"
 
 #: ../src/remminaftpwindow.c:834
 msgid "Download"
-msgstr ""
+msgstr "Baixar"
 
 #: ../src/remminaftpwindow.c:835
 msgid "Download from server"
-msgstr ""
+msgstr "Baixar do servidor"
 
 #: ../src/remminaftpwindow.c:839
 msgid "Delete files on server"
-msgstr ""
+msgstr "Deletar arquivos no servidor"
 
 #: ../src/remminaftpwindow.c:937 ../src/remminaftpwindow.c:1003
 msgid "File Name"
-msgstr ""
+msgstr "Nome do Arquivo"
 
 #: ../src/remminaftpwindow.c:950 ../src/remminaftpwindow.c:1033
 msgid "Size"
-msgstr ""
+msgstr "Tamanho"
 
 #: ../src/remminaftpwindow.c:958
 msgid "User"
-msgstr ""
+msgstr "Usuário"
 
 #: ../src/remminaftpwindow.c:972
 msgid "Permission"
-msgstr ""
+msgstr "Permissão"
 
 #: ../src/remminaftpwindow.c:1041
 msgid "Progress"
-msgstr ""
+msgstr "Progresso"
 
 #. Title
 #: ../src/remminaftpwindow.c:1090
 #, c-format
 msgid "File Transfer: %s"
-msgstr ""
+msgstr "Transferência de arquivo: %s"
 
 #: ../src/remminasftpwindow.c:138
 #, c-format
 msgid "Error creating directory %s."
-msgstr ""
+msgstr "Erro ao criar diretório %s."
 
 #: ../src/remminasftpwindow.c:149
 #, c-format
 msgid "Error opening file %s on server. %s"
-msgstr ""
+msgstr "Erro ao abrir arquivo %s no servidor. %s"
 
 #: ../src/remminasftpwindow.c:157
 #, c-format
 msgid "Error creating file %s."
-msgstr ""
+msgstr "Erro ao criar arquivo %s."
 
 #: ../src/remminasftpwindow.c:169
 #, c-format
 msgid "Error writing file %s."
-msgstr ""
+msgstr "Erro ao gravar arquivo %s."
 
 #: ../src/remminasftpwindow.c:212
 #, c-format
 msgid "Error opening directory %s. %s"
-msgstr ""
+msgstr "Erro ao abrir diretório %s. %s"
 
 #: ../src/remminasftpwindow.c:287
 #, c-format
 msgid "Error creating file %s on server. %s"
-msgstr ""
+msgstr "Erro ao criar arquivo %s no servidor. %s"
 
 #: ../src/remminasftpwindow.c:295
 #, c-format
 msgid "Error opening file %s."
-msgstr ""
+msgstr "Erro ao abrir arquivo %s."
 
 #: ../src/remminasftpwindow.c:307
 #, c-format
 msgid "Error writing file %s on server. %s"
-msgstr ""
+msgstr "Erro ao gravar arquivo %s no servidor. %s"
 
 #: ../src/remminasftpwindow.c:465
 msgid ""
 "File transfer currently in progress.\n"
 "Are you sure to quit?"
 msgstr ""
+"Transferência de arquivo atualmente em progresso.\n"
+"Tem certeza que deseja sair?"
 
 #: ../src/remminasftpwindow.c:511 ../src/remminasftpwindow.c:580
 #, c-format
 msgid "Failed to open directory %s. %s"
-msgstr ""
+msgstr "Falha ao abrir diretório %s. %s"
 
 #: ../src/remminasftpwindow.c:529
 #, c-format
 msgid "Failed reading directory. %s"
-msgstr ""
+msgstr "Falha ao ler diretório. %s"
 
 #: ../src/remminasftpwindow.c:645
 msgid ""
 "File transfer currently in progress.\n"
 "Are you sure to cancel it?"
 msgstr ""
+"Transferência de arquivo atualmente em progresso.\n"
+"Tem certeza que deseja cancelar isso?"
 
 #: ../src/remminasftpwindow.c:681
 #, c-format
 msgid "Failed to delete '%s'. %s"
-msgstr ""
+msgstr "Falha ao deletar '%s'. %s"
 
 #. Title
 #: ../src/remminasftpwindow.c:741
 #, c-format
 msgid "Secure File Transfer: %s"
-msgstr ""
+msgstr "Transferência segura de arquivo: %s"
 
 #: ../src/remminasftpwindow.c:921
 #, c-format
 msgid "Connecting to SFTP server '%s'..."
-msgstr ""
+msgstr "Conectando ao servidor SFTP '%s'..."
 
 #: ../src/remminascaler.c:62
 msgid "Fit Window Size"
-msgstr ""
+msgstr "Dimensionar tamanho da janela"
