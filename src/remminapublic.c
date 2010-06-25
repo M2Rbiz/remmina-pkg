@@ -39,9 +39,6 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #endif
-#ifdef HAVE_GTK_PRINTER
-#include <gtk/gtkprinter.h>
-#endif
 #include "remminapublic.h"
 
 GtkWidget*
@@ -164,12 +161,10 @@ remmina_public_load_combo_text_d (GtkWidget *combo, const gchar *text, const gch
 }
 
 GtkWidget*
-remmina_public_create_combo_map (const gpointer *key_value_list, const gchar *def, gboolean use_icon)
+remmina_public_create_combo (gboolean use_icon)
 {
-    gint i;
     GtkWidget *combo;
     GtkListStore *store; 
-    GtkTreeIter iter; 
     GtkCellRenderer *renderer;
 
     if (use_icon)
@@ -180,22 +175,36 @@ remmina_public_create_combo_map (const gpointer *key_value_list, const gchar *de
     {
         store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
     }
-    combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL(store)); 
+    combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL(store));
 
     if (use_icon)
     {
-        renderer = gtk_cell_renderer_pixbuf_new (); 
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combo), renderer, FALSE); 
-        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT(combo), renderer, "icon-name", 2);
+        renderer = gtk_cell_renderer_pixbuf_new ();
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, FALSE);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "icon-name", 2);
     }
     renderer = gtk_cell_renderer_text_new (); 
-    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combo), renderer, TRUE); 
-    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT(combo), renderer, "text", 1);
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 1);
     if (use_icon) g_object_set (G_OBJECT (renderer), "xpad", 5, NULL);
+
+    return combo;
+}
+
+GtkWidget*
+remmina_public_create_combo_map (const gpointer *key_value_list, const gchar *def, gboolean use_icon)
+{
+    gint i;
+    GtkWidget *combo;
+    GtkListStore *store;
+    GtkTreeIter iter;
+
+    combo = remmina_public_create_combo (use_icon);
+    store = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (combo)));
 
     for (i = 0; key_value_list[i]; i += (use_icon ? 3 : 2))
     {
-        gtk_list_store_append (store, &iter); 
+        gtk_list_store_append (store, &iter);
         gtk_list_store_set (store, &iter, 0, key_value_list[i], 1, _(key_value_list[i + 1]), -1);
         if (use_icon)
         {
@@ -277,20 +286,38 @@ remmina_public_threads_leave (void* data)
 void
 remmina_public_get_server_port (const gchar *server, gint defaultport, gchar **host, gint *port)
 {
-    gchar *str, *ptr;
+    gchar *str, *ptr, *ptr2;
 
     str = g_strdup (server);
+
+    /* [server]:port format */
+    ptr = strchr (str, '[');
+    if (ptr)
+    {
+        ptr++;
+        ptr2 = strchr (ptr, ']');
+        if (ptr2) *ptr2++ = '\0';
+        if (*ptr2 == ':') defaultport = atoi (ptr2 + 1);
+        if (host) *host = strdup (ptr);
+        if (port) *port = defaultport;
+        free (str);
+        return;
+    }
+
+    /* server:port format, IPv6 cannot use this format */
     ptr = strchr (str, ':');
     if (ptr)
     {
-        *ptr++ = '\0';
-        if (port) *port = atoi (ptr);
-    }
-    else
-    {
-        if (port) *port = defaultport;
+        ptr2 = strchr (ptr + 1, ':');
+        if (ptr2 == NULL)
+        {
+            *ptr++ = '\0';
+            defaultport = atoi (ptr);
+        }
+        /* More than one ':' means this is IPv6 address. Treat it as a whole address */
     }
     if (host) *host = str;
+    if (port) *port = defaultport;
 }
 
 gboolean
@@ -301,6 +328,8 @@ remmina_public_get_xauth_cookie (const gchar *display, gchar **msg)
     gchar *ptr;
     GError *error = NULL;
     gboolean ret;
+
+    if (!display) display = gdk_get_display ();
 
     g_snprintf (buf, sizeof (buf), "xauth list %s", display);
     ret = g_spawn_command_line_sync (buf, &out, NULL, NULL, &error);
@@ -360,25 +389,6 @@ remmina_public_open_xdisplay (const gchar *disp)
 
     g_free (display);
     return sock;
-}
-
-gint
-remmina_public_get_available_xdisplay (void)
-{
-    gint i;
-    gint display = 0;
-    gchar fn[MAX_PATH_LEN];
-
-    for (i = 1; i < MAX_X_DISPLAY_NUMBER; i++)
-    {
-        g_snprintf (fn, sizeof (fn), X_UNIX_SOCKET, i);
-        if (!g_file_test (fn, G_FILE_TEST_EXISTS))
-        {
-            display = i;
-            break;
-        }
-    }
-    return display;
 }
 
 /* This function was copied from GEdit (gedit-utils.c). */
@@ -465,61 +475,4 @@ remmina_public_get_window_workspace (GtkWindow *gtkwindow)
     return 0;
 #endif
 }
-
-#ifdef HAVE_GTK_PRINTER
-typedef struct _RemminaPrinterList
-{
-    GPtrArray *printers;
-    RemminaGetPrintersCallback callback;
-    gpointer user_data;
-} RemminaPrinterList;
-
-static void
-remmina_public_printer_finalize (gpointer data)
-{
-    RemminaPrinterList *lst = (RemminaPrinterList*) data;
-
-    /* callback owns the pointer array */
-    lst->callback (lst->printers, lst->user_data);
-    g_free (lst);
-}
-
-static gboolean
-remmina_public_printer_func (GtkPrinter *printer, gpointer data)
-{
-    RemminaPrinterList *lst = (RemminaPrinterList*) data;
-    const gchar *printername;
-
-    printername = gtk_printer_get_name (printer);
-    g_ptr_array_add (lst->printers, g_strdup (printername));
-
-    return FALSE;
-}
-
-/* By using this function, we can safely perform enumerating printers asynchronously (which is needed by GTK),
- * while we don't have to enter the glib main loop (wait=TRUE, which can cause freezing). We use callback
- * function to inform the caller that enumeration is done, and pass a pointer array to the callback.
- */
-void
-remmina_public_get_printers (RemminaGetPrintersCallback callback, gpointer user_data)
-{
-    RemminaPrinterList *lst;
-
-    lst = g_new (RemminaPrinterList, 1);
-    lst->printers = g_ptr_array_new ();
-    lst->callback = callback;
-    lst->user_data = user_data;
-
-    gtk_enumerate_printers (remmina_public_printer_func, lst, remmina_public_printer_finalize, FALSE);
-}
-
-#else
-
-void
-remmina_public_get_printers (RemminaGetPrintersCallback callback, gpointer user_data)
-{
-    callback (NULL, user_data);
-}
-
-#endif
 

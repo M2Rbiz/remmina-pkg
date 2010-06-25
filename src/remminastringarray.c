@@ -152,3 +152,4 @@ remmina_string_array_free (RemminaStringArray *array)
     g_ptr_array_foreach (array, (GFunc) g_free, NULL);
     g_ptr_array_free (array, TRUE);
 }
+

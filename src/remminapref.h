@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,10 @@ typedef struct _RemminaPref
 {
     /* In RemminaPrefDialog */
     gboolean save_view_mode;
+    gboolean save_when_connect;
     gboolean invisible_toolbar;
+    gboolean always_show_tab;
+    gboolean hide_connection_toolbar;
     gint default_action;
     gint scale_quality;
     gchar *resolutions;
@@ -73,9 +76,21 @@ typedef struct _RemminaPref
     gboolean applet_quick_ontop;
     gboolean applet_hide_count;
 
+    guint hostkey;
+    guint shortcutkey_fullscreen;
+    guint shortcutkey_autofit;
+    guint shortcutkey_nexttab;
+    guint shortcutkey_prevtab;
+    guint shortcutkey_scale;
+    guint shortcutkey_grab;
+    guint shortcutkey_minimize;
+    guint shortcutkey_disconnect;
+    guint shortcutkey_toolbar;
+
     /* In View menu */
     gboolean hide_toolbar;
     gboolean hide_statusbar;
+    gboolean show_quick_search;
     gboolean small_toolbutton;
     gint view_file_mode;
 
@@ -104,8 +119,14 @@ void remmina_pref_add_recent (const gchar *protocol, const gchar *server);
 gchar* remmina_pref_get_recent (const gchar *protocol);
 void remmina_pref_clear_recent (void);
 
-guint remmina_pref_keymap_keyval (const gchar *keymap, guint keyval);
+guint remmina_pref_keymap_get_keyval (const gchar *keymap, guint keyval);
 gchar* remmina_pref_keymap_groups (void);
+
+gint remmina_pref_get_scale_quality (void);
+gint remmina_pref_get_sshtunnel_port (void);
+
+void remmina_pref_set_value (const gchar *key, const gchar *value);
+gchar* remmina_pref_get_value (const gchar *key);
 
 G_END_DECLS
 

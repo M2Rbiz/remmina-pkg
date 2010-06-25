@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #ifdef HAVE_LIBSSH
 
 #include <libssh/libssh.h>
+#include <libssh/callbacks.h>
 #include <libssh/sftp.h>
 #include <pthread.h>
 #include "remminafile.h"
@@ -41,10 +42,11 @@ G_BEGIN_DECLS
 typedef struct _RemminaSSH
 {
     ssh_session session;
+    ssh_callbacks callback;
     gboolean authenticated;
 
     gchar *server;
-    guint port;
+    gint port;
     gchar *user;
     gint auth;
     gchar *password;
@@ -78,7 +80,7 @@ gint remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog, gboolean 
 /* Error handling */
 #define remmina_ssh_has_error(ssh) (((RemminaSSH*)ssh)->error!=NULL)
 void remmina_ssh_set_error (RemminaSSH *ssh, const gchar *fmt);
-#define remmina_ssh_set_application_error(ssh,msg) ((RemminaSSH*)ssh)->error = g_strdup (msg);
+void remmina_ssh_set_application_error (RemminaSSH *ssh, const gchar *fmt, ...);
 
 /* Converts a string to/from UTF-8, or simply duplicate it if no conversion */
 gchar* remmina_ssh_convert (RemminaSSH *ssh, const gchar *from);
@@ -96,7 +98,8 @@ enum
 {
     REMMINA_SSH_TUNNEL_OPEN,
     REMMINA_SSH_TUNNEL_X11,
-    REMMINA_SSH_TUNNEL_XPORT
+    REMMINA_SSH_TUNNEL_XPORT,
+    REMMINA_SSH_TUNNEL_REVERSE
 };
 
 struct _RemminaSSHTunnel
@@ -111,6 +114,8 @@ struct _RemminaSSHTunnel
     gint num_channels;
     gint max_channels;
 
+    ssh_channel x11_channel;
+
     pthread_t thread;
     gboolean running;
 
@@ -121,6 +126,7 @@ struct _RemminaSSHTunnel
     gint server_sock;
     gchar *dest;
     gint port;
+    gint localport;
 
     gint remotedisplay;
     gboolean bindlocalhost;
@@ -139,7 +145,7 @@ RemminaSSHTunnel* remmina_ssh_tunnel_new_from_file (RemminaFile *remminafile);
  * dest: The host:port of the remote destination
  * local_port: The listening local port for the tunnel
  */
-gboolean remmina_ssh_tunnel_open (RemminaSSHTunnel *tunnel, const gchar *dest, gint local_port);
+gboolean remmina_ssh_tunnel_open (RemminaSSHTunnel *tunnel, const gchar *host, gint port, gint local_port);
 
 /* Accept the X11 tunnel. A new thread will be started and connect to local display.
  * cmd: The remote X11 application to be executed
@@ -148,6 +154,14 @@ gboolean remmina_ssh_tunnel_x11 (RemminaSSHTunnel *tunnel, const gchar *cmd);
 
 /* start X Port Forwarding */
 gboolean remmina_ssh_tunnel_xport (RemminaSSHTunnel *tunnel, gboolean bindlocalhost);
+
+/* start reverse tunnel. A new thread will be started and waiting for incoming connection.
+ * port: the port listening on the remote server side.
+ * local_port: the port listening on the local side. When connection on the server side comes
+ *             in, it will connect to the local port and create the tunnel. The caller should
+ *             start listening on the local port before calling it or in connect_func callback.
+ */
+gboolean remmina_ssh_tunnel_reverse (RemminaSSHTunnel *tunnel, gint port, gint local_port);
 
 /* Tells if the tunnel is terminated after start */
 gboolean remmina_ssh_tunnel_terminated (RemminaSSHTunnel *tunnel);
@@ -176,24 +190,37 @@ gboolean remmina_sftp_open (RemminaSFTP *sftp);
 /* Free the SFTP session */
 void remmina_sftp_free (RemminaSFTP *sftp);
 
-/*----------------------- SSH Terminal ------------------------*/
+/*----------------------- SSH Shell ------------------------*/
+typedef void (*RemminaSSHExitFunc) (gpointer data);
 
-typedef struct _RemminaSSHTerminal
+typedef struct _RemminaSSHShell
 {
     RemminaSSH ssh;
 
     gint master;
     gint slave;
+    gchar *exec;
     pthread_t thread;
-    GtkWidget *window;
+    ssh_channel channel;
     gboolean closed;
-} RemminaSSHTerminal;
+    RemminaSSHExitFunc exit_callback;
+    gpointer user_data;
+} RemminaSSHShell;
 
-/* Create a new SSH Terminal session object from existing SSH session */
-RemminaSSHTerminal* remmina_ssh_terminal_new_from_ssh (RemminaSSH *ssh);
+/* Create a new SSH Shell session object from RemminaFile */
+RemminaSSHShell* remmina_ssh_shell_new_from_file (RemminaFile *remminafile);
 
-/* open the SSH Terminal (init -> auth -> term) */
-gboolean remmina_ssh_terminal_open (RemminaSSHTerminal *term);
+/* Create a new SSH Shell session object from existing SSH session */
+RemminaSSHShell* remmina_ssh_shell_new_from_ssh (RemminaSSH *ssh);
+
+/* open the SSH Shell, assuming the session already authenticated */
+gboolean remmina_ssh_shell_open (RemminaSSHShell *shell, RemminaSSHExitFunc exit_callback, gpointer data);
+
+/* Change the SSH Shell terminal size */
+void remmina_ssh_shell_set_size (RemminaSSHShell *shell, gint columns, gint rows);
+
+/* Free the SFTP session */
+void remmina_ssh_shell_free (RemminaSSHShell *shell);
 
 G_END_DECLS
 
@@ -202,7 +229,7 @@ G_END_DECLS
 #define RemminaSSH void
 #define RemminaSSHTunnel void
 #define RemminaSFTP void
-#define RemminaTerminal void
+#define RemminaSSHShell void
 typedef void (*RemminaSSHTunnelCallback) (void);
 
 #endif /* HAVE_LIBSSH */

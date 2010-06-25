@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
  */
- 
+
+#include "remmina/types.h" 
 
 #ifndef __REMMINAFILE_H__
 #define __REMMINAFILE_H__
@@ -34,70 +35,6 @@ enum
 #define TOOLBAR_OPACITY_LEVEL 8
 #define TOOLBAR_OPACITY_MIN 0.2
 
-typedef struct _RemminaFile
-{
-    /* Profile settings */
-    gchar *filename;
-    gchar *name;
-    gchar *group;
-
-    /* Protocol settings */
-    gchar *server;
-    gchar *protocol;
-    gchar *username;
-    gchar *password;
-    gchar *domain;
-    gchar *clientname;
-    gchar *resolution;
-    gchar *keymap;
-    gchar *gkeymap;
-    gchar *exec;
-    gchar *execpath;
-    gchar *sound;
-    gchar *arguments;
-    gchar *cacert;
-    gchar *cacrl;
-    gchar *clientcert;
-    gchar *clientkey;
-    gint colordepth;
-    gint quality;
-    gint listenport;
-    gint sharefolder;
-    gint hscale;
-    gint vscale;
-    gboolean bitmapcaching;
-    gboolean compression;
-    gboolean showcursor;
-    gboolean viewonly;
-    gboolean console;
-    gboolean disableserverinput;
-    gboolean aspectscale;
-    gboolean shareprinter;
-    gboolean once;
-
-    /* SSH settings */
-    gboolean ssh_enabled;
-    gchar *ssh_server;
-    gint ssh_auth;
-    gchar *ssh_username;
-    gchar *ssh_privatekey;
-    gchar *ssh_charset;
-
-    /* Run-time settings */
-    gint viewmode;
-    gboolean scale;
-    gboolean keyboard_grab;
-
-    gint window_width;
-    gint window_height;
-    gboolean window_maximize;
-
-    gint toolbar_opacity;
-
-    gint resolution_width;
-    gint resolution_height;
-} RemminaFile;
-
 extern const gpointer colordepth_list[];
 extern const gpointer colordepth2_list[];
 extern const gpointer quality_list[];
@@ -106,10 +43,14 @@ extern const gpointer quality_list[];
 RemminaFile* remmina_file_new (void);
 RemminaFile* remmina_file_new_temp (void);
 RemminaFile* remmina_file_copy (const gchar *filename);
+gchar* remmina_file_generate_filename (void);
 /* Load a new .remmina file and return the allocated RemminaFile object */
 RemminaFile* remmina_file_load (const gchar *filename);
 /* Create or overwrite the .remmina file */
-void remmina_file_save (RemminaFile *gf);
+void remmina_file_save_profile (RemminaFile *gf);
+void remmina_file_save_credential (RemminaFile *gf);
+void remmina_file_save_runtime (RemminaFile *gf);
+void remmina_file_save_all (RemminaFile *gf);
 /* Free the RemminaFile object */
 void remmina_file_free (RemminaFile *remminafile);
 /* Duplicate a RemminaFile object */
@@ -118,8 +59,8 @@ RemminaFile* remmina_file_dup (RemminaFile *remminafile);
 void remmina_file_update_screen_resolution (RemminaFile *remminafile);
 /* Get the protocol icon name */
 const gchar* remmina_file_get_icon_name (RemminaFile *remminafile);
-/* Is an incoming protocol */
-gboolean remmina_file_is_incoming (RemminaFile *remminafile);
+/* Duplicate a temporary RemminaFile and change the protocol */
+RemminaFile* remmina_file_dup_temp_protocol (RemminaFile *remminafile, const gchar *new_protocol);
 
 G_END_DECLS
 

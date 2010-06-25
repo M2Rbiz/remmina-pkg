@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@
 #include <signal.h>
 #include <time.h>
 #include <sys/types.h>
-#include <libssh/libssh.h>
 #include <pthread.h>
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
@@ -55,13 +54,14 @@
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>
 #endif
-#ifdef HAVE_LIBVTE
-#include <vte/vte.h>
-#endif
 #include "remminapublic.h"
+#include "remminalog.h"
 #include "remminassh.h"
 
 /*************************** SSH Base *********************************/
+
+#define LOCK_SSH(ssh) pthread_mutex_lock (&REMMINA_SSH (ssh)->ssh_mutex);
+#define UNLOCK_SSH(ssh) pthread_mutex_unlock (&REMMINA_SSH (ssh)->ssh_mutex);
 
 static const gchar *common_identities[] = {
     ".ssh/id_rsa",
@@ -103,6 +103,16 @@ remmina_ssh_set_error (RemminaSSH *ssh, const gchar *fmt)
 
     err = ssh_get_error (ssh->session);
     ssh->error = g_strdup_printf (fmt, err);
+}
+
+void
+remmina_ssh_set_application_error (RemminaSSH *ssh, const gchar *fmt, ...)
+{
+    va_list args;
+
+    va_start (args, fmt);
+    ssh->error = g_strdup_vprintf (fmt, args);
+    va_end (args);
 }
 
 static gint
@@ -266,14 +276,34 @@ remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog, gboolean threa
     return 1;
 }
 
+void
+remmina_ssh_log_callback (ssh_session session, int priority, const char *message, void *userdata)
+{
+    remmina_log_printf ("[SSH] %s\n", message);
+}
+
 gboolean
 remmina_ssh_init_session (RemminaSSH *ssh)
 {
+    gint verbosity;
+
+    ssh->callback = g_new0 (struct ssh_callbacks_struct, 1);
+    ssh->callback->userdata = ssh;
+
     /* Init & startup the SSH session */    
     ssh->session = ssh_new ();
     ssh_options_set (ssh->session, SSH_OPTIONS_HOST, ssh->server);
     ssh_options_set (ssh->session, SSH_OPTIONS_PORT, &ssh->port);
     ssh_options_set (ssh->session, SSH_OPTIONS_USER, ssh->user);
+    if (remmina_log_running ())
+    {
+        verbosity = SSH_LOG_RARE;
+        ssh_options_set (ssh->session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
+        ssh->callback->log_function = remmina_ssh_log_callback;
+    }
+    ssh_callbacks_init (ssh->callback);
+    ssh_set_callbacks(ssh->session, ssh->callback);
+    
     if (ssh_connect (ssh->session))
     {
         remmina_ssh_set_error (ssh, _("Failed to startup SSH session: %s"));
@@ -291,9 +321,10 @@ remmina_ssh_init_session (RemminaSSH *ssh)
 gboolean
 remmina_ssh_init_from_file (RemminaSSH *ssh, RemminaFile *remminafile)
 {
-    gchar *ptr, *s;
+    gchar *s;
 
     ssh->session = NULL;
+    ssh->callback = NULL;
     ssh->authenticated = FALSE;
     ssh->error = NULL;
     pthread_mutex_init (&ssh->ssh_mutex, NULL);
@@ -301,16 +332,11 @@ remmina_ssh_init_from_file (RemminaSSH *ssh, RemminaFile *remminafile)
     /* Parse the address and port */
     if (remminafile->ssh_server && remminafile->ssh_server[0] != '\0')
     {
-        ssh->server = g_strdup (remminafile->ssh_server);
-        ptr = g_strrstr (ssh->server, ":");
-        if (ptr != NULL)
+        remmina_public_get_server_port (remminafile->ssh_server, 22, &ssh->server, &ssh->port);
+        if (ssh->server[0] == '\0')
         {
-            *ptr++ =  '\0';
-            ssh->port = (guint) atoi (ptr);
-        }
-        else
-        {
-            ssh->port = 22;
+            g_free (ssh->server);
+            remmina_public_get_server_port (remminafile->server, 0, &ssh->server, NULL);
         }
     }
     else if (remminafile->server == NULL || remminafile->server[0] == '\0')
@@ -319,9 +345,7 @@ remmina_ssh_init_from_file (RemminaSSH *ssh, RemminaFile *remminafile)
     }
     else
     {
-        ssh->server = g_strdup (remminafile->server);
-        ptr = g_strrstr (ssh->server, ":");
-        if (ptr) *ptr = '\0';
+        remmina_public_get_server_port (remminafile->server, 0, &ssh->server, NULL);
         ssh->port = 22;
     }
 
@@ -403,6 +427,7 @@ remmina_ssh_free (RemminaSSH *ssh)
         ssh_free (ssh->session);
         ssh->session = NULL;
     }
+    g_free (ssh->callback);
     g_free (ssh->server);
     g_free (ssh->user);
     g_free (ssh->password);
@@ -459,6 +484,7 @@ remmina_ssh_tunnel_new_from_file (RemminaFile *remminafile)
     tunnel->socketbuffers = NULL;
     tunnel->num_channels = 0;
     tunnel->max_channels = 0;
+    tunnel->x11_channel = NULL;
     tunnel->thread = 0;
     tunnel->running = FALSE;
     tunnel->server_sock = -1;
@@ -499,6 +525,13 @@ remmina_ssh_tunnel_close_all_channels (RemminaSSHTunnel *tunnel)
 
     tunnel->num_channels = 0;
     tunnel->max_channels = 0;
+
+    if (tunnel->x11_channel)
+    {
+        channel_close (tunnel->x11_channel);
+        channel_free (tunnel->x11_channel);
+        tunnel->x11_channel = NULL;
+    }
 }
 
 static void
@@ -557,12 +590,13 @@ remmina_ssh_tunnel_main_thread (gpointer data)
     GTimeVal t1, t2;
     glong diff;
     ssh_channel channel = NULL;
-    ssh_channel schannel = NULL;
     gboolean first = TRUE;
     gboolean disconnected;
     gint sock;
+    gint maxfd;
     gint i;
     gint ret;
+    struct sockaddr_in sin;
 
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
 
@@ -604,65 +638,54 @@ remmina_ssh_tunnel_main_thread (gpointer data)
         break;
 
     case REMMINA_SSH_TUNNEL_X11:
-        if ((schannel = channel_new (tunnel->ssh.session)) == NULL)
+        if ((tunnel->x11_channel = channel_new (tunnel->ssh.session)) == NULL)
         {
             remmina_ssh_set_error (REMMINA_SSH (tunnel), "Failed to create channel : %s");
             tunnel->thread = 0;
             return NULL;
         }
-        if (!remmina_public_get_xauth_cookie (gdk_get_display (), &ptr))
+        if (!remmina_public_get_xauth_cookie (tunnel->localdisplay, &ptr))
         {
-            remmina_ssh_set_application_error (tunnel, ptr);
+            remmina_ssh_set_application_error (REMMINA_SSH (tunnel), "%s", ptr);
             g_free (ptr);
-            channel_close (schannel);
-            channel_free (schannel);
             tunnel->thread = 0;
             return NULL;
         }
-        if (channel_open_session (schannel) ||
-            channel_request_x11 (schannel, TRUE, NULL, ptr,
+        if (channel_open_session (tunnel->x11_channel) ||
+            channel_request_x11 (tunnel->x11_channel, TRUE, NULL, ptr,
                 gdk_screen_get_number (gdk_screen_get_default ())))
         {
             g_free (ptr);
-            channel_close (schannel);
-            channel_free (schannel);
             remmina_ssh_set_error (REMMINA_SSH (tunnel), "Failed to open channel : %s");
             tunnel->thread = 0;
             return NULL;
         }
         g_free (ptr);
-        if (channel_request_exec (schannel, tunnel->dest))
+        if (channel_request_exec (tunnel->x11_channel, tunnel->dest))
         {
-            channel_close (schannel);
-            channel_free (schannel);
             ptr = g_strdup_printf (_("Failed to execute %s on SSH server : %%s"), tunnel->dest);
             remmina_ssh_set_error (REMMINA_SSH (tunnel), ptr);
             g_free (ptr);
             tunnel->thread = 0;
             return NULL;
         }
-        channel = channel_accept_x11 (schannel, 15000);
-        channel_close (schannel);
-        channel_free (schannel);
-        if (channel == NULL)
+
+        if (tunnel->init_func &&
+            ! (*tunnel->init_func) (tunnel, tunnel->callback_data))
         {
-            remmina_ssh_set_error (REMMINA_SSH (tunnel), "Failed to accept X11 channel : %s");
+            if (tunnel->disconnect_func)
+            {
+                (*tunnel->disconnect_func) (tunnel, tunnel->callback_data);
+            }
             tunnel->thread = 0;
             return NULL;
         }
 
-        sock = remmina_public_open_xdisplay (gdk_get_display ());
-        if (sock < 0)
-        {
-            tunnel->thread = 0;
-            return NULL;
-        }
-        remmina_ssh_tunnel_add_channel (tunnel, channel, sock);
         break;
 
     case REMMINA_SSH_TUNNEL_XPORT:
-        /* Detect the next available port starting from 6001 on the server */
-        for (i = 1; i <= MAX_X_DISPLAY_NUMBER; i++)
+        /* Detect the next available port starting from 6010 on the server */
+        for (i = 10; i <= MAX_X_DISPLAY_NUMBER; i++)
         {
             if (channel_forward_listen (REMMINA_SSH (tunnel)->session,
                 (tunnel->bindlocalhost ? "localhost" : NULL), 6000 + i, NULL))
@@ -698,6 +721,31 @@ remmina_ssh_tunnel_main_thread (gpointer data)
         }
 
         break;
+
+    case REMMINA_SSH_TUNNEL_REVERSE:
+        if (channel_forward_listen (REMMINA_SSH (tunnel)->session, NULL, tunnel->port, NULL))
+        {
+            remmina_ssh_set_error (REMMINA_SSH (tunnel), _("Failed to request port forwarding : %s"));
+            if (tunnel->disconnect_func)
+            {
+                (*tunnel->disconnect_func) (tunnel, tunnel->callback_data);
+            }
+            tunnel->thread = 0;
+            return NULL;
+        }
+
+        if (tunnel->init_func &&
+            ! (*tunnel->init_func) (tunnel, tunnel->callback_data))
+        {
+            if (tunnel->disconnect_func)
+            {
+                (*tunnel->disconnect_func) (tunnel, tunnel->callback_data);
+            }
+            tunnel->thread = 0;
+            return NULL;
+        }
+
+        break;
     }
 
     tunnel->buffer_len = 10240;
@@ -706,16 +754,25 @@ remmina_ssh_tunnel_main_thread (gpointer data)
     /* Start the tunnel data transmittion */
     while (tunnel->running)
     {
-        if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_XPORT)
+        if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_XPORT ||
+            tunnel->tunnel_type == REMMINA_SSH_TUNNEL_X11 ||
+            tunnel->tunnel_type == REMMINA_SSH_TUNNEL_REVERSE)
         {
             if (first)
             {
                 first = FALSE;
                 /* Wait for a period of time for the first incoming connection */
-                channel = channel_forward_accept (REMMINA_SSH (tunnel)->session, 15000);
+                if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_X11)
+                {
+                    channel = channel_accept_x11 (tunnel->x11_channel, 15000);
+                }
+                else
+                {
+                    channel = channel_forward_accept (REMMINA_SSH (tunnel)->session, 15000);
+                }
                 if (!channel)
                 {
-                    remmina_ssh_set_application_error (tunnel, _("No response from the server."));
+                    remmina_ssh_set_application_error (REMMINA_SSH (tunnel), _("No response from the server."));
                     if (tunnel->disconnect_func)
                     {
                         (*tunnel->disconnect_func) (tunnel, tunnel->callback_data);
@@ -727,8 +784,13 @@ remmina_ssh_tunnel_main_thread (gpointer data)
                 {
                     (*tunnel->connect_func) (tunnel, tunnel->callback_data);
                 }
+                if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_REVERSE)
+                {
+                    /* For reverse tunnel, we only need one connection. */
+                    channel_forward_cancel (REMMINA_SSH (tunnel)->session, NULL, tunnel->port);
+                }
             }
-            else
+            else if (tunnel->tunnel_type != REMMINA_SSH_TUNNEL_REVERSE)
             {
                 /* Poll once per some period of time if no incoming connections.
                  * Don't try to poll continuously as it will significantly slow down the loop */
@@ -736,7 +798,14 @@ remmina_ssh_tunnel_main_thread (gpointer data)
                 diff = (t1.tv_sec - t2.tv_sec) * 10 + (t1.tv_usec - t2.tv_usec) / 100000;
                 if (diff > 1)
                 {
-                    channel = channel_forward_accept (REMMINA_SSH (tunnel)->session, 0);
+                    if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_X11)
+                    {
+                        channel = channel_accept_x11 (tunnel->x11_channel, 0);
+                    }
+                    else
+                    {
+                        channel = channel_forward_accept (REMMINA_SSH (tunnel)->session, 0);
+                    }
                     if (channel == NULL)
                     {
                         t2 = t1;
@@ -746,9 +815,24 @@ remmina_ssh_tunnel_main_thread (gpointer data)
 
             if (channel)
             {
-                pthread_mutex_lock (&REMMINA_SSH (tunnel)->ssh_mutex);
-
-                sock = remmina_public_open_xdisplay (tunnel->localdisplay);
+                if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_REVERSE)
+                {
+                    sin.sin_family = AF_INET;
+                    sin.sin_port = htons (tunnel->localport);
+                    sin.sin_addr.s_addr = inet_addr ("127.0.0.1");
+                    sock = socket (AF_INET, SOCK_STREAM, 0);
+                    if (connect (sock, (struct sockaddr *) &sin, sizeof (sin)) < 0)
+                    {
+                        remmina_ssh_set_application_error (REMMINA_SSH (tunnel),
+                            "Cannot connect to local port %i.", tunnel->localport);
+                        close (sock);
+                        sock = -1;
+                    }
+                }
+                else
+                {
+                    sock = remmina_public_open_xdisplay (tunnel->localdisplay);
+                }
                 if (sock >= 0)
                 {
                     remmina_ssh_tunnel_add_channel (tunnel, channel, sock);
@@ -760,8 +844,6 @@ remmina_ssh_tunnel_main_thread (gpointer data)
                     channel_free (channel);
                 }
                 channel = NULL;
-
-                pthread_mutex_unlock (&REMMINA_SSH (tunnel)->ssh_mutex);
             }
         }
 
@@ -775,12 +857,17 @@ remmina_ssh_tunnel_main_thread (gpointer data)
         timeout.tv_usec = 200000;
 
         FD_ZERO (&set);
+        maxfd = 0;
         for (i = 0; i < tunnel->num_channels; i++)
         {
+            if (tunnel->sockets[i] > maxfd)
+            {
+                maxfd = tunnel->sockets[i];
+            }
             FD_SET (tunnel->sockets[i], &set);
         }
 
-        ret = ssh_select (tunnel->channels, tunnel->channels_out, FD_SETSIZE, &set, &timeout);
+        ret = ssh_select (tunnel->channels, tunnel->channels_out, maxfd + 1, &set, &timeout);
         if (!tunnel->running) break;
         if (ret == SSH_EINTR) continue;
         if (ret == -1) break;
@@ -877,33 +964,23 @@ remmina_ssh_tunnel_main_thread (gpointer data)
         }
     }
 
-    pthread_mutex_lock (&REMMINA_SSH (tunnel)->ssh_mutex);
-
     tunnel->thread = 0;
     remmina_ssh_tunnel_close_all_channels (tunnel);
-
-    pthread_mutex_unlock (&REMMINA_SSH (tunnel)->ssh_mutex);
 
     return NULL;
 }
 
 gboolean
-remmina_ssh_tunnel_open (RemminaSSHTunnel* tunnel, const gchar *dest, gint local_port)
+remmina_ssh_tunnel_open (RemminaSSHTunnel* tunnel, const gchar *host, gint port, gint local_port)
 {
-    gchar *ptr;
     gint sock;
     gint sockopt = 1;
     struct sockaddr_in sin;
 
     tunnel->tunnel_type = REMMINA_SSH_TUNNEL_OPEN;
-    tunnel->dest = g_strdup (dest);
-    ptr = g_strrstr (tunnel->dest, ":");
-    if (ptr != NULL)
-    {
-        *ptr++ =  '\0';
-        tunnel->port = atoi (ptr);
-    }
-    else
+    tunnel->dest = g_strdup (host);
+    tunnel->port = port;
+    if (tunnel->port == 0)
     {
         REMMINA_SSH (tunnel)->error = g_strdup ("Destination port has not been assigned");
         return FALSE;
@@ -920,7 +997,7 @@ remmina_ssh_tunnel_open (RemminaSSHTunnel* tunnel, const gchar *dest, gint local
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons (local_port);
-    sin.sin_addr.s_addr = inet_addr("127.0.0.1");
+    sin.sin_addr.s_addr = inet_addr ("127.0.0.1");
 
     if (bind (sock, (struct sockaddr *) &sin, sizeof(sin)))
     {
@@ -941,7 +1018,7 @@ remmina_ssh_tunnel_open (RemminaSSHTunnel* tunnel, const gchar *dest, gint local
 
     if (pthread_create (&tunnel->thread, NULL, remmina_ssh_tunnel_main_thread, tunnel))
     {
-        remmina_ssh_set_application_error (tunnel, "Failed to initialize pthread.");
+        remmina_ssh_set_application_error (REMMINA_SSH (tunnel), "Failed to initialize pthread.");
         tunnel->thread = 0;
         return FALSE;
     }
@@ -957,7 +1034,7 @@ remmina_ssh_tunnel_x11 (RemminaSSHTunnel *tunnel, const gchar *cmd)
 
     if (pthread_create (&tunnel->thread, NULL, remmina_ssh_tunnel_main_thread, tunnel))
     {
-        remmina_ssh_set_application_error (tunnel, "Failed to initialize pthread.");
+        remmina_ssh_set_application_error (REMMINA_SSH (tunnel), "Failed to initialize pthread.");
         tunnel->thread = 0;
         return FALSE;
     }
@@ -973,7 +1050,24 @@ remmina_ssh_tunnel_xport (RemminaSSHTunnel *tunnel, gboolean bindlocalhost)
 
     if (pthread_create (&tunnel->thread, NULL, remmina_ssh_tunnel_main_thread, tunnel))
     {
-        remmina_ssh_set_application_error (tunnel, "Failed to initialize pthread.");
+        remmina_ssh_set_application_error (REMMINA_SSH (tunnel), "Failed to initialize pthread.");
+        tunnel->thread = 0;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+gboolean
+remmina_ssh_tunnel_reverse (RemminaSSHTunnel *tunnel, gint port, gint local_port)
+{
+    tunnel->tunnel_type = REMMINA_SSH_TUNNEL_REVERSE;
+    tunnel->port = port;
+    tunnel->localport = local_port;
+    tunnel->running = TRUE;
+
+    if (pthread_create (&tunnel->thread, NULL, remmina_ssh_tunnel_main_thread, tunnel))
+    {
+        remmina_ssh_set_application_error (REMMINA_SSH (tunnel), "Failed to initialize pthread.");
         tunnel->thread = 0;
         return FALSE;
     }
@@ -989,15 +1083,17 @@ remmina_ssh_tunnel_terminated (RemminaSSHTunnel* tunnel)
 void
 remmina_ssh_tunnel_free (RemminaSSHTunnel* tunnel)
 {
-    pthread_mutex_lock (&REMMINA_SSH (tunnel)->ssh_mutex);
+    pthread_t thread;
 
-    if (tunnel->thread != 0)
+    thread = tunnel->thread;
+    if (thread != 0)
     {
         tunnel->running = FALSE;
-        pthread_cancel (tunnel->thread);
-        if (tunnel->thread) pthread_join (tunnel->thread, NULL);
+        pthread_cancel (thread);
+        pthread_join (thread, NULL);
         tunnel->thread = 0;
     }
+
     if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_XPORT && tunnel->remotedisplay > 0)
     {
         channel_forward_cancel (REMMINA_SSH (tunnel)->session,
@@ -1009,8 +1105,6 @@ remmina_ssh_tunnel_free (RemminaSSHTunnel* tunnel)
         tunnel->server_sock = -1;
     }
     remmina_ssh_tunnel_close_all_channels (tunnel);
-
-    pthread_mutex_unlock (&REMMINA_SSH (tunnel)->ssh_mutex);
 
     g_free (tunnel->buffer);
     g_free (tunnel->channels_out);
@@ -1078,53 +1172,43 @@ remmina_sftp_free (RemminaSFTP *sftp)
     remmina_ssh_free (REMMINA_SSH (sftp));
 }
 
-/*************************** SSH Terminal *********************************/
+/*************************** SSH Shell *********************************/
 
-RemminaSSHTerminal*
-remmina_ssh_terminal_new_from_ssh (RemminaSSH *ssh)
+RemminaSSHShell*
+remmina_ssh_shell_new_from_file (RemminaFile *remminafile)
 {
-    RemminaSSHTerminal *term;
+    RemminaSSHShell *shell;
 
-    term = g_new (RemminaSSHTerminal, 1);
+    shell = g_new0 (RemminaSSHShell, 1);
 
-    remmina_ssh_init_from_ssh (REMMINA_SSH (term), ssh);
+    remmina_ssh_init_from_file (REMMINA_SSH (shell), remminafile);
 
-    term->thread = 0;
-    term->window = NULL;
-    term->master = -1;
-    term->slave = -1;
-    term->closed = FALSE;
+    shell->master = -1;
+    shell->slave = -1;
+    shell->exec = g_strdup (remminafile->exec);
 
-    return term;
+    return shell;
 }
 
-#ifdef HAVE_LIBVTE
+RemminaSSHShell*
+remmina_ssh_shell_new_from_ssh (RemminaSSH *ssh)
+{
+    RemminaSSHShell *shell;
 
-#define REMMINA_SSH_TERMINAL_THREAD_EXIT \
-    gdk_threads_enter(); \
-    gtk_widget_destroy (term->window); \
-    if (error) \
-    { \
-        dialog = gtk_message_dialog_new (NULL, \
-            GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, \
-            error, NULL); \
-        g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (gtk_widget_destroy), NULL); \
-        gtk_widget_show (dialog); \
-        g_free (error); \
-    } \
-    gdk_flush();gdk_threads_leave(); \
-    close (term->master); \
-    close (term->slave); \
-    channel_close (channel); \
-    channel_free (channel); \
-    remmina_ssh_free (REMMINA_SSH (term)); \
-    g_free (buf); \
-    return NULL;
+    shell = g_new0 (RemminaSSHShell, 1);
+
+    remmina_ssh_init_from_ssh (REMMINA_SSH (shell), ssh);
+
+    shell->master = -1;
+    shell->slave = -1;
+
+    return shell;
+}
 
 static gpointer
-remmina_ssh_terminal_thread (gpointer data)
+remmina_ssh_shell_thread (gpointer data)
 {
-    RemminaSSHTerminal *term = (RemminaSSHTerminal*) data;
+    RemminaSSHShell *shell = (RemminaSSHShell*) data;
     fd_set fds;
     struct timeval timeout;
     ssh_channel channel = NULL;
@@ -1133,24 +1217,41 @@ remmina_ssh_terminal_thread (gpointer data)
     gint buf_len;
     gint len;
     gint i, ret;
-    gchar *error = NULL;
-    GtkWidget *dialog;
 
-    if (!remmina_ssh_init_session (REMMINA_SSH (term)) ||
-        remmina_ssh_auth (REMMINA_SSH (term), NULL) <= 0 ||
-        (channel = channel_new (REMMINA_SSH (term)->session)) == NULL ||
+    LOCK_SSH (shell)
+
+    if ((channel = channel_new (REMMINA_SSH (shell)->session)) == NULL ||
         channel_open_session (channel))
     {
-        error = g_strdup_printf ("Failed to open channel : %s", ssh_get_error (REMMINA_SSH (term)->session));
-        REMMINA_SSH_TERMINAL_THREAD_EXIT
+        UNLOCK_SSH (shell)
+        remmina_ssh_set_error (REMMINA_SSH (shell), "Failed to open channel : %s");
+        if (channel) channel_free (channel);
+        shell->thread = 0;
+        return NULL;
     }
 
     channel_request_pty (channel);
-    if (channel_request_shell(channel))
+    if (shell->exec && shell->exec[0])
     {
-        error = g_strdup_printf ("Failed to request shell : %s", ssh_get_error (REMMINA_SSH (term)->session));
-        REMMINA_SSH_TERMINAL_THREAD_EXIT
+        ret = channel_request_exec (channel, shell->exec);
     }
+    else
+    {
+        ret = channel_request_shell (channel);
+    }
+    if (ret)
+    {
+        UNLOCK_SSH (shell)
+        remmina_ssh_set_error (REMMINA_SSH (shell), "Failed to request shell : %s");
+        channel_close (channel);
+        channel_free (channel);
+        shell->thread = 0;
+        return NULL;
+    }
+
+    shell->channel = channel;
+
+    UNLOCK_SSH (shell)
 
     buf_len = 1000;
     buf = g_malloc (buf_len + 1);
@@ -1158,30 +1259,34 @@ remmina_ssh_terminal_thread (gpointer data)
     ch[0] = channel;
     ch[1] = NULL;
 
-    while (!term->closed)
+    while (!shell->closed)
     {
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
 
         FD_ZERO (&fds);
-        FD_SET (term->master, &fds);
+        FD_SET (shell->master, &fds);
 
-        ret = ssh_select (ch, chout, FD_SETSIZE, &fds, &timeout);
+        ret = ssh_select (ch, chout, shell->master + 1, &fds, &timeout);
         if (ret == SSH_EINTR) continue;
         if (ret == -1) break;
 
-        if (FD_ISSET (term->master, &fds))
+        if (FD_ISSET (shell->master, &fds))
         {
-            len = read (term->master, buf, buf_len);
+            len = read (shell->master, buf, buf_len);
             if (len <= 0) break;
+            LOCK_SSH (shell)
             channel_write (channel, buf, len);
+            UNLOCK_SSH (shell)
         }
         for (i = 0; i < 2; i++)
         {
+            LOCK_SSH (shell)
             len = channel_poll (channel, i);
+            UNLOCK_SSH (shell)
             if (len == SSH_ERROR || len == SSH_EOF)
             {
-                term->closed = TRUE;
+                shell->closed = TRUE;
                 break;
             }
             if (len <= 0) continue;
@@ -1190,115 +1295,99 @@ remmina_ssh_terminal_thread (gpointer data)
                 buf_len = len;
                 buf = (gchar*) g_realloc (buf, buf_len + 1);
             }
+            LOCK_SSH (shell)
             len = channel_read_nonblocking (channel, buf, len, i);
+            UNLOCK_SSH (shell)
             if (len <= 0)
             {
-                term->closed = TRUE;
+                shell->closed = TRUE;
                 break;
             }
             while (len > 0)
             {
-                ret = write (term->master, buf, len);
+                ret = write (shell->master, buf, len);
                 if (ret <= 0) break;
                 len -= ret;
             }
         }
     }
 
-    REMMINA_SSH_TERMINAL_THREAD_EXIT
-}
+    LOCK_SSH (shell)
+    shell->channel = NULL;
+    channel_close (channel);
+    channel_free (channel);
+    UNLOCK_SSH (shell)
 
-static gboolean
-remmina_ssh_terminal_on_delete_event (GtkWidget *window, GdkEvent *event, RemminaSSHTerminal *term)
-{
-    term->closed = TRUE;
-    return TRUE;
-}
+    g_free (buf);
+    shell->thread = 0;
 
-static void
-remmina_ssh_terminal_create_window (RemminaSSHTerminal *term)
-{
-    GtkWidget *window;
-    GtkWidget *hbox;
-    GtkWidget *vscrollbar;
-    GtkWidget *vte;
-    gchar *charset;
-
-    charset = REMMINA_SSH (term)->charset;
-
-    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title (GTK_WINDOW (window), REMMINA_SSH (term)->server);
-    gtk_window_set_resizable (GTK_WINDOW (window), FALSE);
-    g_signal_connect (G_OBJECT (window), "delete-event",
-        G_CALLBACK (remmina_ssh_terminal_on_delete_event), term);
-
-    hbox = gtk_hbox_new (FALSE, 0);
-    gtk_widget_show (hbox);
-    gtk_container_add (GTK_CONTAINER (window), hbox);
-
-    vte = vte_terminal_new ();
-    gtk_widget_show (vte);
-    vte_terminal_set_size (VTE_TERMINAL (vte), 80, 25);
-    vte_terminal_set_scroll_on_keystroke (VTE_TERMINAL (vte), TRUE);
-    gtk_box_pack_start (GTK_BOX (hbox), vte, TRUE, TRUE, 0);
-    if (charset && charset[0] != '\0')
-    {
-        vte_terminal_set_encoding (VTE_TERMINAL (vte), charset);
-    }
-
-    vscrollbar = gtk_vscrollbar_new (vte_terminal_get_adjustment (VTE_TERMINAL (vte)));
-    gtk_widget_show (vscrollbar);
-    gtk_box_pack_start (GTK_BOX (hbox), vscrollbar, FALSE, TRUE, 0);
-
-    vte_terminal_set_pty (VTE_TERMINAL (vte), term->slave);
-
-    term->window = window;
+    if (shell->exit_callback) shell->exit_callback (shell->user_data);
+    return NULL;
 }
 
 gboolean
-remmina_ssh_terminal_open (RemminaSSHTerminal *term)
+remmina_ssh_shell_open (RemminaSSHShell *shell, RemminaSSHExitFunc exit_callback, gpointer data)
 {
     gchar *slavedevice;
     struct termios stermios;
 
-    term->master = posix_openpt (O_RDWR | O_NOCTTY);
-    if (term->master == -1 ||
-        grantpt (term->master) == -1 ||
-        unlockpt (term->master) == -1 ||
-        (slavedevice = ptsname (term->master)) == NULL ||
-        (term->slave = open (slavedevice, O_RDWR | O_NOCTTY)) < 0)
+    shell->master = posix_openpt (O_RDWR | O_NOCTTY);
+    if (shell->master == -1 ||
+        grantpt (shell->master) == -1 ||
+        unlockpt (shell->master) == -1 ||
+        (slavedevice = ptsname (shell->master)) == NULL ||
+        (shell->slave = open (slavedevice, O_RDWR | O_NOCTTY)) < 0)
     {
-        REMMINA_SSH (term)->error = g_strdup ("Failed to create pty device.");
+        REMMINA_SSH (shell)->error = g_strdup ("Failed to create pty device.");
         return FALSE;
     }
 
     /* These settings works fine with OpenSSH... */
-    tcgetattr (term->slave, &stermios);
+    tcgetattr (shell->slave, &stermios);
     stermios.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
     stermios.c_iflag &= ~(ICRNL);
-    tcsetattr (term->slave, TCSANOW, &stermios);
+    tcsetattr (shell->slave, TCSANOW, &stermios);
 
-    remmina_ssh_terminal_create_window (term);
-
-    gtk_widget_show (term->window);
-    gtk_window_present (GTK_WINDOW (term->window));
+    shell->exit_callback = exit_callback;
+    shell->user_data = data;
 
     /* Once the process started, we should always TRUE and assume the pthread will be created always */
-    pthread_create (&term->thread, NULL, remmina_ssh_terminal_thread, term);
+    pthread_create (&shell->thread, NULL, remmina_ssh_shell_thread, shell);
 
     return TRUE;
 }
 
-#else /* HAVE_LIBVTE */
-
-gboolean
-remmina_ssh_terminal_open (RemminaSSHTerminal *term)
+void
+remmina_ssh_shell_set_size (RemminaSSHShell *shell, gint columns, gint rows)
 {
-    REMMINA_SSH (term)->error = g_strdup ("No terminal support.");
-    return FALSE;
+    LOCK_SSH (shell)
+    if (shell->channel)
+    {
+        channel_change_pty_size (shell->channel, columns, rows);
+    }
+    UNLOCK_SSH (shell)
 }
 
-#endif /* HAVE_LIBVTE */
+void
+remmina_ssh_shell_free (RemminaSSHShell *shell)
+{
+    pthread_t thread = shell->thread;
+
+    shell->exit_callback = NULL;
+    if (thread)
+    {
+        shell->closed = TRUE;
+        pthread_join (thread, NULL);
+    }
+    close (shell->master);
+    if (shell->exec)
+    {
+        g_free (shell->exec);
+        shell->exec = NULL;
+    }
+    /* It's not necessary to close shell->slave since the other end (vte) will close it */;
+    remmina_ssh_free (REMMINA_SSH (shell));
+}
 
 #endif /* HAVE_LIBSSH */
 
