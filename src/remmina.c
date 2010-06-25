@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,9 @@
 #include "remminaprefdialog.h"
 #include "remminawidgetpool.h"
 #include "remminaabout.h"
+#include "remminapluginmanager.h"
+#include "remminasftpplugin.h"
+#include "remminasshplugin.h"
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
@@ -58,7 +61,8 @@ enum
     REMMINA_COMMAND_NEW,
     REMMINA_COMMAND_CONNECT,
     REMMINA_COMMAND_EDIT,
-    REMMINA_COMMAND_ABOUT
+    REMMINA_COMMAND_ABOUT,
+    REMMINA_COMMAND_PLUGIN
 };
 
 static gint
@@ -71,7 +75,7 @@ remmina_parse_command (int argc, char* argv[], gchar **data)
     gchar *server = NULL;
     gchar *protocol = NULL;
 
-    while ((c = getopt (argc, argv, "ac:e:np:qs:t:")) != -1)
+    while ((c = getopt (argc, argv, "ac:e:np:qs:t:x:")) != -1)
     {
         switch (c)
         {
@@ -81,13 +85,14 @@ remmina_parse_command (int argc, char* argv[], gchar **data)
         case 'n':
         case 'p':
         case 'q':
+        case 'x':
             if (exec != 0)
             {
                 g_print ("%s: Invalid option %c\n", argv[0], c);
                 break;
             }
             exec = c;
-            if (c == 'c' || c == 'e' || c == 'p')
+            if (c == 'c' || c == 'e' || c == 'p' || c == 'x')
             {
                 opt = optarg;
             }
@@ -141,6 +146,10 @@ remmina_parse_command (int argc, char* argv[], gchar **data)
         command = REMMINA_COMMAND_ABOUT;
         *data = NULL;
         break;
+    case 'x':
+        command = REMMINA_COMMAND_PLUGIN;
+        *data = g_strdup (opt);
+        break;
     default:
         command = REMMINA_COMMAND_MAIN;
         *data = NULL;
@@ -154,6 +163,7 @@ remmina_exec_command (gint command, const gchar *data)
 {
     GtkWidget *widget;
     gchar *s1, *s2;
+    RemminaEntryPlugin *plugin;
 
     switch (command)
     {
@@ -223,6 +233,22 @@ remmina_exec_command (gint command, const gchar *data)
     case REMMINA_COMMAND_ABOUT:
         remmina_about_open (NULL);
         break;
+    case REMMINA_COMMAND_PLUGIN:
+        plugin = (RemminaEntryPlugin *) remmina_plugin_manager_get_plugin (REMMINA_PLUGIN_TYPE_ENTRY, data);
+        if (plugin)
+        {
+            plugin->entry_func ();
+        }
+        else
+        {
+            widget = gtk_message_dialog_new (NULL,
+                GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                _("Plugin %s is not registered."), data);
+            g_signal_connect (G_OBJECT (widget), "response", G_CALLBACK (gtk_widget_destroy), NULL);
+            gtk_widget_show (widget);
+            remmina_widget_pool_register (widget);
+        }
+        break;
     }
 }
 
@@ -243,12 +269,13 @@ remmina_unique_message_received (
     return UNIQUE_RESPONSE_OK;
 }
 
-static void
+static gboolean
 remmina_unique_exec_command (gint command, const gchar *data)
 {
     UniqueApp *app;
     UniqueMessageData *message;
     UniqueResponse resp;
+    gboolean newapp = TRUE;
 
     app = unique_app_new_with_commands ("org.remmina", NULL,
         "main",     REMMINA_COMMAND_MAIN,
@@ -258,6 +285,7 @@ remmina_unique_exec_command (gint command, const gchar *data)
         "connect",  REMMINA_COMMAND_CONNECT,
         "edit",     REMMINA_COMMAND_EDIT,
         "about",    REMMINA_COMMAND_ABOUT,
+        "plugin",   REMMINA_COMMAND_PLUGIN,
         NULL);
     if (unique_app_is_running (app))
     {
@@ -273,7 +301,11 @@ remmina_unique_exec_command (gint command, const gchar *data)
         resp = unique_app_send_message (app, command, message);
         if (message) unique_message_data_free (message);
 
-        if (resp != UNIQUE_RESPONSE_OK)
+        if (resp == UNIQUE_RESPONSE_OK)
+        {
+            newapp = FALSE;
+        }
+        else
         {
             remmina_exec_command (command, data);
         }
@@ -284,6 +316,7 @@ remmina_unique_exec_command (gint command, const gchar *data)
         g_signal_connect (app, "message-received", G_CALLBACK (remmina_unique_message_received), NULL);
         remmina_exec_command (command, data);
     }
+    return newapp;
 }
 #endif
 
@@ -292,6 +325,7 @@ main (int argc, char* argv[])
 {
     gint command;
     gchar *data;
+    gboolean newapp;
 
     bindtextdomain (GETTEXT_PACKAGE, REMMINA_LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -315,6 +349,10 @@ main (int argc, char* argv[])
 
     remmina_file_manager_init ();
     remmina_pref_init ();
+    remmina_plugin_manager_init ();
+    remmina_widget_pool_init ();
+    remmina_sftp_plugin_register ();
+    remmina_ssh_plugin_register ();
 
     g_set_application_name ("Remmina");
     gtk_window_set_default_icon_name ("remmina");
@@ -324,14 +362,15 @@ main (int argc, char* argv[])
 
     command = remmina_parse_command (argc, argv, &data);
 #ifdef HAVE_LIBUNIQUE
-    remmina_unique_exec_command (command, data);
+    newapp = remmina_unique_exec_command (command, data);
 #else
     remmina_exec_command (command, data);
+    newapp = TRUE;
 #endif
     g_free (data);
 
-    if (remmina_widget_pool && remmina_widget_pool->len > 0)
-    {    
+    if (newapp)
+    {
         gtk_main ();
     }
 

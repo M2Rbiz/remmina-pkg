@@ -1,35 +1,3 @@
-***** 0.7.5 - 2010-05-02 *****
-o Fix unwanted scrollbars when the window size fits in the remote resolution
-o Fix an error prompting 'Server already in use' for vnc4server
-o Fix VNC screen artifacts when scaling
-o Fix unnecessary scaling when the window size fits in the remote resolution
-o Translation updates
-
-***** 0.7.4 - 2010-02-17 *****
-o Fix compilation issue when SSH is disabled
-o Fix various memory leaks
-o Fix a segmentation fault in connect event
-
-***** 0.7.3 - 2010-01-25 *****
-o Fix a cosmetic floating toolbar bug when using in compiz
-o Fix: Unable to connect with VNC+SSH when specifying vnc instance number rather than tcp port number.
-o Fix horizontal location of the floating toolbar on dual-monitor setup
-o Add missing encoding KOI8-R and UTF-8
-o Some trivial fixes for XDMCP
-
-***** 0.7.2 - 2010-01-07 *****
-o Fix a floating toolbar flickering bug after resuming from a screensaver in compiz
-o Add a fixed -K option to rdesktop so that rdesktop won't steal keyboard grabbing feature from us
-o Fix the timing of showing up the window after launching Xephyr
-o Fix the command line argument issue, which caused launching discovered server from panel applets failed
-o Some other trivial fixes
-
-***** 0.7.1 - 2009-12-22 *****
-o Fix a FreeBSD compilation problem
-o Fix a Vino connection problem when no password required
-o Fix a memory leak in directory reading
-o Fix a freezing bug when closing the SSH tunnel
-
 ***** 0.7.0 - 2009-12-12 *****
 o Add new XDMCP protocol (using Xephyr)
 o Implement XDMCP session over SSH (using xqproxy on SSH server side)
