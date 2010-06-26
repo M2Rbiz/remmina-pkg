@@ -10,7 +10,8 @@ Vcs-Browser: http://git.debian.org/?p=users/dktrkranz/remmina.git;a=summary
 
 Package: remmina
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, rdesktop
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: remmina-plugin-rdp, remmina-plugin-vnc
 Description: remote desktop client for GNOME desktop environment
  Remmina is a remote desktop connection client able to display and control a
  remote desktop session.

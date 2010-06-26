@@ -5,10 +5,12 @@ remmina (0.7.99.1-1) UNRELEASED; urgency=low
   * debian/control:
     - No longer build-depend on libvncserver-dev and libgnutls-dev.
     - Add remmina-dev package to provide development headers.
+    - Drop rdesktop from Depends, add most commonly used plugins to
+      Recommends, due to new plugin design.
   * debian/remmina-dev.install:
     - Install remmina-dev files into correct package.
 
- -- Luca Falavigna <dktrkranz@debian.org>  Sat, 26 Jun 2010 02:49:38 +0200
+ -- Luca Falavigna <dktrkranz@debian.org>  Sat, 26 Jun 2010 02:52:11 +0200
 
 remmina (0.7.5-1) unstable; urgency=low
 
