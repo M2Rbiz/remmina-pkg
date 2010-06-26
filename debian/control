@@ -16,7 +16,16 @@ Description: remote desktop client for GNOME desktop environment
  remote desktop session.
  .
  It supports multiple network protocols in an integrated and consistant user
- interface. Currently RDP, VNC, XDMCP and SSH protocols are supported.
+ interface. Currently RDP, VNC, NX, XDMCP and SSH protocols are supported.
+
+Package: remmina-dev
+Architecture: all
+Depends: ${misc:Depends}, remmina (>= ${source:Version}), remmina (<< ${source:Version}.1~)
+Description: remote desktop client (development headers)
+ Remmina is a remote desktop connection client able to display and control a
+ remote desktop session.
+ .
+ This package contains the Remmina plugin development headers.
 
 Package: grdc
 Architecture: all
