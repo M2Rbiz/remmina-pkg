@@ -143,6 +143,8 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 POFILES = @POFILES@
 POSUB = @POSUB@
 PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
@@ -204,8 +206,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = @REMMINA_CFLAGS@ @LIBGCRYPT_CFLAGS@ \
-    -I$(top_srcdir)/include \
+INCLUDES = -I$(top_srcdir)/include \
+    @REMMINA_CFLAGS@ @LIBGCRYPT_CFLAGS@ \
     -DREMMINA_LOCALEDIR=\"$(remmina_localedir)\" \
     -DREMMINA_PLUGINDIR=\"$(remmina_plugindir)\" \
     -DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
