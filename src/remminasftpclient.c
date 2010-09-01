@@ -18,6 +18,7 @@
  * Boston, MA 02111-1307, USA.
  */
  
+#define _FILE_OFFSET_BITS 64
 #include "config.h"
 
 #ifdef HAVE_LIBSSH
@@ -578,7 +579,12 @@ remmina_sftp_client_destroy (RemminaSFTPClient *client, gpointer data)
     }
     client->thread_abort = TRUE;
     /* We will wait for the thread to quit itself, and hopefully the thread is handling things correctly */
-    if (client->thread) pthread_join (client->thread, NULL);
+    while (client->thread)
+    {
+        gdk_threads_leave ();
+        sleep (1);
+        gdk_threads_enter ();
+    }
 }
 
 static sftp_dir
