@@ -289,17 +289,10 @@ remmina_unique_exec_command (gint command, const gchar *data)
         NULL);
     if (unique_app_is_running (app))
     {
-        if (data)
-        {
-            message = unique_message_data_new ();
-            unique_message_data_set_text (message, data, -1);
-        }
-        else
-        {
-            message = NULL;
-        }
+        message = unique_message_data_new ();
+        unique_message_data_set_text (message, (data && data[0]) ? data : "none", -1);
         resp = unique_app_send_message (app, command, message);
-        if (message) unique_message_data_free (message);
+        unique_message_data_free (message);
 
         if (resp == UNIQUE_RESPONSE_OK)
         {
@@ -343,8 +336,6 @@ main (int argc, char* argv[])
     gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 #endif
 
-    THREADS_ENTER
-
     gtk_init (&argc, &argv);
 
     remmina_file_manager_init ();
@@ -371,10 +362,10 @@ main (int argc, char* argv[])
 
     if (newapp)
     {
+        THREADS_ENTER
         gtk_main ();
+        THREADS_LEAVE    
     }
-
-    THREADS_LEAVE    
 
     return 0;
 }
