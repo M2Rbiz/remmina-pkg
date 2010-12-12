@@ -3,14 +3,16 @@
 # This file is distributed under the same license as the remmina package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
+#: ../src/remminassh.c:162
 msgid ""
 msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-15 21:51+0800\n"
+"POT-Creation-Date: 2010-12-11 23:54+0800\n"
 "PO-Revision-Date: 2010-09-22 10:16+0000\n"
 "Last-Translator: tri m s <makan.aja@gmail.com>\n"
 "Language-Team: Indonesian <id@li.org>\n"
+"Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,27 +24,23 @@ msgstr ""
 msgid "Connect to remote desktops"
 msgstr "Mengakses remote desktop"
 
-#: ../desktop/remmina.desktop.in.h:2
+#: ../desktop/remmina.desktop.in.h:2 ../src/remminamain.c:1157
+#: ../src/remminaicon.c:362 ../src/remminaicon.c:363
 msgid "Remmina Remote Desktop Client"
 msgstr "Remmina Remote Desktop Client"
 
-#: ../src/remmina.c:246
-#, c-format
-msgid "Plugin %s is not registered."
-msgstr "Pegaya %s tidak terdaftar"
-
-#: ../src/remminamain.c:376
+#: ../src/remminamain.c:503
 #, c-format
 msgid "Total %i item."
 msgid_plural "Total %i items."
 msgstr[0] "Total %i item."
 
-#: ../src/remminamain.c:467
+#: ../src/remminamain.c:573
 #, c-format
 msgid "Are you sure to delete '%s'"
 msgstr "Anda yankin untuk menghapus '%s'"
 
-#: ../src/remminamain.c:635
+#: ../src/remminamain.c:741
 #, c-format
 msgid ""
 "Unable to import:\n"
@@ -51,194 +49,121 @@ msgstr ""
 "Gagal meng-import:\n"
 "%s"
 
-#: ../src/remminamain.c:664 ../src/remminamain.c:832
+#: ../src/remminamain.c:770 ../src/remminamain.c:937
 msgid "Import"
 msgstr "Impor"
 
-#: ../src/remminamain.c:702
+#: ../src/remminamain.c:808
 msgid "This protocol does not support exporting."
 msgstr ""
 
-#: ../src/remminamain.c:808
-msgid "_Action"
-msgstr "_Aksi"
+#: ../src/remminamain.c:919
+msgid "_Connection"
+msgstr ""
 
-#: ../src/remminamain.c:809
+#: ../src/remminamain.c:920
 msgid "_Edit"
 msgstr "_Sunting"
 
-#: ../src/remminamain.c:810
+#: ../src/remminamain.c:921
 msgid "_View"
 msgstr "_Tampilan"
 
-#: ../src/remminamain.c:811
+#: ../src/remminamain.c:922
 msgid "_Tools"
 msgstr "Ala_t"
 
-#: ../src/remminamain.c:812
+#: ../src/remminamain.c:923
 msgid "_Help"
 msgstr "_Bantuan"
 
-#: ../src/remminamain.c:814 ../src/remminamain.c:1123
-#: ../src/remminafileeditor.c:1561
-msgid "Quick Connect"
-msgstr "Hubung Cepat"
-
-#: ../src/remminamain.c:815
-msgid "Open a quick connection"
-msgstr "Buka koneksi cepat"
-
-#: ../src/remminamain.c:818
-msgid "Quick _Connect To"
-msgstr "Akes _Cepat Ke"
-
-#: ../src/remminamain.c:821
+#: ../src/remminamain.c:926
 msgid "Create a new remote desktop file"
 msgstr "Buat berkas remote desktop baru"
 
-#: ../src/remminamain.c:825
+#: ../src/remminamain.c:930
 msgid "Open the preferences dialog"
 msgstr "Buka jendela pengaturan"
 
-#: ../src/remminamain.c:829
-msgid "Quit Remmina"
-msgstr "Keluar Remmina"
-
-#: ../src/remminamain.c:836 ../src/remminapluginmanager.c:232
+#: ../src/remminamain.c:941 ../src/remminapluginmanager.c:239
 msgid "Plugins"
 msgstr "Pengaya"
 
-#: ../src/remminamain.c:840
+#: ../src/remminamain.c:945
+msgid "Homepage"
+msgstr ""
+
+#: ../src/remminamain.c:949
 msgid "Online Wiki"
 msgstr ""
 
-#: ../src/remminamain.c:844
+#: ../src/remminamain.c:953
 msgid "Debug Window"
 msgstr ""
 
-#: ../src/remminamain.c:856
+#: ../src/remminamain.c:965
 msgid "Open the connection to the selected remote desktop file"
 msgstr "Buka koneksi dengan berkas remote dekstop"
 
-#: ../src/remminamain.c:860
+#: ../src/remminamain.c:969
 msgid "Create a copy of the selected remote desktop file"
 msgstr ""
 
-#: ../src/remminamain.c:864
+#: ../src/remminamain.c:973
 msgid "Edit the selected remote desktop file"
 msgstr ""
 
-#: ../src/remminamain.c:868
+#: ../src/remminamain.c:977
 msgid "Delete the selected remote desktop file"
 msgstr ""
 
-#: ../src/remminamain.c:871
+#: ../src/remminamain.c:980
 msgid "Export"
 msgstr ""
 
-#: ../src/remminamain.c:878
+#: ../src/remminamain.c:987
 msgid "Toolbar"
 msgstr ""
 
-#: ../src/remminamain.c:881
+#: ../src/remminamain.c:990
 msgid "Statusbar"
 msgstr ""
 
-#: ../src/remminamain.c:884
+#: ../src/remminamain.c:993
 msgid "Quick Search"
 msgstr ""
 
-#: ../src/remminamain.c:887
+#: ../src/remminamain.c:996
 msgid "Small Toolbar Buttons"
 msgstr ""
 
-#: ../src/remminamain.c:893
+#: ../src/remminamain.c:1002
 msgid "List View"
 msgstr ""
 
-#: ../src/remminamain.c:894
+#: ../src/remminamain.c:1003
 msgid "Tree View"
 msgstr ""
 
-#: ../src/remminamain.c:1062
-msgid "Remote Desktop Client"
-msgstr ""
-
 #. Profile: Name
-#: ../src/remminamain.c:1152 ../src/remminafileeditor.c:1548
-#: ../src/remminapluginmanager.c:252
+#: ../src/remminamain.c:1230 ../src/remminafileeditor.c:1286
+#: ../src/remminapluginmanager.c:259
 msgid "Name"
 msgstr ""
 
-#: ../src/remminamain.c:1165 ../src/remminafileeditor.c:1575
-#: ../src/remminaftpclient.c:976
+#. Profile: Group
+#: ../src/remminamain.c:1243 ../src/remminafileeditor.c:1308
+#: ../src/remminaftpclient.c:1020
 msgid "Group"
 msgstr ""
 
-#: ../src/remminamain.c:1173 ../src/remminafileeditor.c:411
-#: ../src/remminafileeditor.c:987 ../src/remminafileeditor.c:1000
-#: ../src/remminaprotocolwidget.c:939
+#: ../src/remminamain.c:1251 ../src/remminafileeditor.c:342
+#: ../src/remminafileeditor.c:795 ../src/remminafileeditor.c:808
+#: ../src/remminaprotocolwidget.c:1032
 msgid "Server"
 msgstr ""
 
-#: ../src/remminafile.c:37 ../src/remminafile.c:48
-msgid "256 Colors"
-msgstr ""
-
-#: ../src/remminafile.c:38
-msgid "High Color (15 bit)"
-msgstr ""
-
-#: ../src/remminafile.c:39 ../src/remminafile.c:49
-msgid "High Color (16 bit)"
-msgstr ""
-
-#: ../src/remminafile.c:40 ../src/remminafile.c:50
-msgid "True Color (24 bit)"
-msgstr ""
-
-#. The Set As Default button
-#: ../src/remminafile.c:46 ../src/remminafileeditor.c:1485
-msgid "Default"
-msgstr ""
-
-#: ../src/remminafile.c:47
-msgid "Grayscale"
-msgstr ""
-
-#: ../src/remminafile.c:56
-msgid "Poor (Fastest)"
-msgstr ""
-
-#: ../src/remminafile.c:57
-msgid "Medium"
-msgstr ""
-
-#: ../src/remminafile.c:58
-msgid "Good"
-msgstr ""
-
-#: ../src/remminafile.c:59
-msgid "Best (Slowest)"
-msgstr ""
-
-#: ../src/remminafile.c:125
-msgid "New Connection"
-msgstr ""
-
-#: ../src/remminafileeditor.c:71
-msgid "Off"
-msgstr ""
-
-#: ../src/remminafileeditor.c:72 ../src/remminaftpclient.c:1037
-msgid "Local"
-msgstr ""
-
-#: ../src/remminafileeditor.c:73 ../src/remminaftpclient.c:1030
-msgid "Remote"
-msgstr ""
-
-#: ../src/remminafileeditor.c:78
+#: ../src/remminafileeditor.c:56
 msgid ""
 "<tt><big>Supported formats\n"
 "* server\n"
@@ -246,7 +171,7 @@ msgid ""
 "* [server]:port</big></tt>"
 msgstr ""
 
-#: ../src/remminafileeditor.c:85
+#: ../src/remminafileeditor.c:63
 msgid ""
 "<tt><big>Supported formats\n"
 "* :port\n"
@@ -255,360 +180,259 @@ msgid ""
 "* [server]:port</big></tt>"
 msgstr ""
 
-#: ../src/remminafileeditor.c:163
+#: ../src/remminafileeditor.c:120
 msgid "Choose a Remote Desktop Server"
 msgstr ""
 
-#: ../src/remminafileeditor.c:357 ../src/remminafileeditor.c:363
-#: ../src/remminafileeditor.c:371
-msgid "Identity File"
+#: ../src/remminafileeditor.c:297 ../src/remminafileeditor.c:304
+msgid "Identity file"
 msgstr ""
 
-#: ../src/remminafileeditor.c:432
+#: ../src/remminafileeditor.c:365
 #, c-format
 msgid "Browse the network to find a %s server"
 msgstr ""
 
-#: ../src/remminafileeditor.c:453 ../src/remminafileeditor.c:1032
-#: ../src/remminaprotocolwidget.c:737 ../src/remminainitdialog.c:278
+#: ../src/remminafileeditor.c:387 ../src/remminafileeditor.c:850
+#: ../src/remminaprotocolwidget.c:833 ../src/remminainitdialog.c:278
 msgid "Password"
 msgstr ""
 
-#: ../src/remminafileeditor.c:472
+#: ../src/remminafileeditor.c:428
 msgid "Resolution"
 msgstr ""
 
-#: ../src/remminafileeditor.c:478
-msgid "Use Window Size"
+#: ../src/remminafileeditor.c:434
+msgid "Use window size"
 msgstr ""
 
-#: ../src/remminafileeditor.c:478
-msgid "Use Client Resolution"
+#: ../src/remminafileeditor.c:434
+msgid "Use client resolution"
 msgstr ""
 
-#: ../src/remminafileeditor.c:488 ../src/remminafileeditor.c:967
+#: ../src/remminafileeditor.c:444 ../src/remminafileeditor.c:775
 msgid "Custom"
 msgstr ""
 
-#. Entries
-#: ../src/remminafileeditor.c:702 ../src/remminafileeditor.c:1029
-#: ../src/remminainitdialog.c:265
-msgid "User Name"
+#: ../src/remminafileeditor.c:626
+msgid "Keyboard mapping"
 msgstr ""
 
-#: ../src/remminafileeditor.c:708
-msgid "Domain"
+#: ../src/remminafileeditor.c:631 ../src/remminascaler.c:138
+msgid "Horizontal scale"
 msgstr ""
 
-#: ../src/remminafileeditor.c:714 ../src/remminafileeditor.c:720
-msgid "Color Depth"
+#: ../src/remminafileeditor.c:636 ../src/remminascaler.c:145
+msgid "Vertical scale"
 msgstr ""
 
-#: ../src/remminafileeditor.c:727
-msgid "Share Folder"
+#: ../src/remminafileeditor.c:746
+msgid "Enable SSH tunnel"
 msgstr ""
 
-#: ../src/remminafileeditor.c:733
-msgid "Sound"
-msgstr ""
-
-#: ../src/remminafileeditor.c:739 ../src/remminafileeditor.c:861
-msgid "Keyboard Mapping"
-msgstr ""
-
-#: ../src/remminafileeditor.c:745
-msgid "Client Name"
-msgstr ""
-
-#: ../src/remminafileeditor.c:751 ../src/remminafileeditor.c:758
-#: ../src/remminafileeditor.c:1018
-msgid "Startup Program"
-msgstr ""
-
-#: ../src/remminafileeditor.c:764
-msgid "Startup Path"
-msgstr ""
-
-#: ../src/remminafileeditor.c:770
-msgid "Share Local Printers"
-msgstr ""
-
-#: ../src/remminafileeditor.c:776
-msgid "Attach to console (Windows 2003 or newer)"
-msgstr ""
-
-#: ../src/remminafileeditor.c:782
-msgid "Enable bitmap caching"
-msgstr ""
-
-#: ../src/remminafileeditor.c:788
-msgid "Enable compression"
-msgstr ""
-
-#: ../src/remminafileeditor.c:794
-msgid "Advanced Arguments"
-msgstr ""
-
-#: ../src/remminafileeditor.c:801
-msgid "Listen on Port"
-msgstr ""
-
-#: ../src/remminafileeditor.c:809
-msgid "Quality"
-msgstr ""
-
-#: ../src/remminafileeditor.c:815
-msgid "Show Remote Cursor"
-msgstr ""
-
-#: ../src/remminafileeditor.c:821
-msgid "Use Local Cursor"
-msgstr ""
-
-#: ../src/remminafileeditor.c:827 ../src/remminaconnectionwindow.c:908
-msgid "View Only"
-msgstr ""
-
-#: ../src/remminafileeditor.c:833 ../src/remminaconnectionwindow.c:923
-msgid "Disable Server Input"
-msgstr ""
-
-#: ../src/remminafileeditor.c:838 ../src/remminascaler.c:138
-msgid "Horizontal Scale"
-msgstr ""
-
-#: ../src/remminafileeditor.c:843 ../src/remminascaler.c:145
-msgid "Vertical Scale"
-msgstr ""
-
-#: ../src/remminafileeditor.c:861 ../src/remminakeychooser.c:43
-msgid "<None>"
-msgstr ""
-
-#: ../src/remminafileeditor.c:868
-msgid "Disconnect After One Session"
-msgstr ""
-
-#: ../src/remminafileeditor.c:874
-msgid "Disable Encryption"
-msgstr ""
-
-#: ../src/remminafileeditor.c:887
-msgid "Proxy Destination"
-msgstr ""
-
-#: ../src/remminafileeditor.c:893
-msgid "Disable Clipboard Sync"
-msgstr ""
-
-#: ../src/remminafileeditor.c:938
-msgid "Enable SSH Tunnel"
-msgstr ""
-
-#: ../src/remminafileeditor.c:945
-msgid "Tunnel via Loopback Address"
+#: ../src/remminafileeditor.c:753
+msgid "Tunnel via loopback address"
 msgstr ""
 
 #. SSH Server group
-#: ../src/remminafileeditor.c:952
+#: ../src/remminafileeditor.c:760
 msgid "SSH Server"
 msgstr ""
 
-#: ../src/remminafileeditor.c:958
+#: ../src/remminafileeditor.c:766
 #, c-format
-msgid "Same Server at Port %i"
+msgid "Same server at port %i"
 msgstr ""
 
-#: ../src/remminafileeditor.c:1012
-msgid "Character Set"
+#: ../src/remminafileeditor.c:820
+msgid "Character set"
+msgstr ""
+
+#: ../src/remminafileeditor.c:826
+msgid "Startup program"
+msgstr ""
+
+#: ../src/remminafileeditor.c:835
+msgid "Startup path"
 msgstr ""
 
 #. SSH Authentication frame
-#: ../src/remminafileeditor.c:1025
+#: ../src/remminafileeditor.c:843
 msgid "SSH Authentication"
 msgstr ""
 
-#: ../src/remminafileeditor.c:1039
-msgid "Public Key (Automatic)"
+#. Entries
+#: ../src/remminafileeditor.c:847 ../src/remminainitdialog.c:265
+msgid "User name"
 msgstr ""
 
-#: ../src/remminafileeditor.c:1092
+#: ../src/remminafileeditor.c:857
+msgid "Public key (automatic)"
+msgstr ""
+
+#: ../src/remminafileeditor.c:914
 msgid "Basic"
 msgstr ""
 
-#: ../src/remminafileeditor.c:1099
+#: ../src/remminafileeditor.c:921
 msgid "Advanced"
 msgstr ""
 
-#: ../src/remminafileeditor.c:1412
+#: ../src/remminafileeditor.c:1115
 msgid "Default settings saved."
 msgstr ""
 
 #. Create the editor dialog
-#: ../src/remminafileeditor.c:1462
+#: ../src/remminafileeditor.c:1164
 msgid "Remote Desktop Preference"
 msgstr ""
 
-#: ../src/remminafileeditor.c:1545
+#. The Set As Default button
+#: ../src/remminafileeditor.c:1189
+msgid "Default"
+msgstr ""
+
+#: ../src/remminafileeditor.c:1283
 msgid "Profile"
 msgstr ""
 
+#: ../src/remminafileeditor.c:1298
+msgid "Quick Connect"
+msgstr "Hubung Cepat"
+
+#: ../src/remminafileeditor.c:1320
+#, c-format
+msgid "Use '%s' as subgroup delimiter"
+msgstr ""
+
 #. Profile: Protocol
-#: ../src/remminafileeditor.c:1588 ../src/remminapluginmanager.c:38
+#: ../src/remminafileeditor.c:1325 ../src/remminapluginmanager.c:38
 msgid "Protocol"
 msgstr ""
 
-#: ../src/remminafileeditor.c:1645 ../src/remminafileeditor.c:1666
-#: ../src/remminaconnectionwindow.c:2215
+#: ../src/remminafileeditor.c:1384 ../src/remminafileeditor.c:1405
+#: ../src/remminaconnectionwindow.c:2421
 #, c-format
 msgid "File %s not found."
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:177
+#: ../src/remminaconnectionwindow.c:183
 #, c-format
 msgid ""
 "There are %i active connections in the current window. Are you sure to close?"
 msgstr ""
 
-#. Refresh
-#: ../src/remminaconnectionwindow.c:963
-msgid "Refresh"
+#: ../src/remminaconnectionwindow.c:563
+msgid "Viewport fullscreen mode"
 msgstr ""
 
-#. Chat
-#: ../src/remminaconnectionwindow.c:981
-msgid "Open Chat..."
+#: ../src/remminaconnectionwindow.c:574
+msgid "Scrolled fullscreen mode"
 msgstr ""
 
-#. SFTP
-#: ../src/remminaconnectionwindow.c:999
-msgid "Open Secure File Transfer..."
-msgstr ""
-
-#. SSH Terminal
-#: ../src/remminaconnectionwindow.c:1017
-msgid "Open Secure Shell in New Terminal..."
-msgstr ""
-
-#: ../src/remminaconnectionwindow.c:1084 ../src/remminaprefdialog.c:487
-msgid "Auto-Fit Window"
-msgstr ""
-
-#: ../src/remminaconnectionwindow.c:1086
+#: ../src/remminaconnectionwindow.c:1177
 msgid "Resize the window to fit in remote resolution"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1093 ../src/remminaprefdialog.c:53
-msgid "Scrolled Window"
+#: ../src/remminaconnectionwindow.c:1188 ../src/remminaprefdialog.c:559
+msgid "Toggle fullscreen mode"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1095
-msgid "Toggle scrolled window mode"
-msgstr ""
-
-#: ../src/remminaconnectionwindow.c:1103 ../src/remminaprefdialog.c:54
-msgid "Scrolled Fullscreen"
-msgstr ""
-
-#: ../src/remminaconnectionwindow.c:1105
-msgid "Toggle scrolled fullscreen mode"
-msgstr ""
-
-#: ../src/remminaconnectionwindow.c:1115 ../src/remminaprefdialog.c:55
-msgid "Viewport Fullscreen"
-msgstr ""
-
-#: ../src/remminaconnectionwindow.c:1117
-msgid "Toggle viewport fullscreen mode"
-msgstr ""
-
-#: ../src/remminaconnectionwindow.c:1129
+#: ../src/remminaconnectionwindow.c:1229 ../src/remminaprefdialog.c:579
 msgid "Switch tab pages"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1142
+#: ../src/remminaconnectionwindow.c:1243 ../src/remminaprefdialog.c:598
 msgid "Toggle scaled mode"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1176
+#: ../src/remminaconnectionwindow.c:1278
 msgid "Grab all keyboard events"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1184
+#: ../src/remminaconnectionwindow.c:1287
 msgid "Preferences"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1192 ../src/remminaconnectionwindow.c:1193
+#: ../src/remminaconnectionwindow.c:1295 ../src/remminaconnectionwindow.c:1296
 msgid "Tools"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1205 ../src/remminaprefdialog.c:536
-msgid "Minimize Window"
+#: ../src/remminaconnectionwindow.c:1308 ../src/remminaprefdialog.c:618
+msgid "Minimize window"
 msgstr ""
 
-#: ../src/remminaconnectionwindow.c:1212 ../src/remminaprefdialog.c:546
+#: ../src/remminaconnectionwindow.c:1316 ../src/remminaprefdialog.c:628
 msgid "Disconnect"
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:118
+#: ../src/remminaprotocolwidget.c:119
 #, c-format
 msgid "Connecting to '%s'..."
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:190
+#: ../src/remminaprotocolwidget.c:202
 #, c-format
-msgid "Protocol %s is not supported."
+msgid "Protocol plugin %s is not installed."
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:357
+#: ../src/remminaprotocolwidget.c:240
+msgid "Open Secure Shell in New Terminal..."
+msgstr ""
+
+#: ../src/remminaprotocolwidget.c:246
+msgid "Open Secure File Transfer..."
+msgstr ""
+
+#: ../src/remminaprotocolwidget.c:451
 #, c-format
 msgid "Connecting to SSH server %s..."
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:420 ../src/remminaprotocolwidget.c:590
+#: ../src/remminaprotocolwidget.c:516 ../src/remminaprotocolwidget.c:686
 #, c-format
 msgid "Connecting to %s through SSH tunnel..."
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:464
+#: ../src/remminaprotocolwidget.c:560
 #, c-format
 msgid "Waiting for an incoming SSH tunnel at port %i..."
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:513
+#: ../src/remminaprotocolwidget.c:609
 #, c-format
 msgid "Command %s not found on SSH server"
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:517
+#: ../src/remminaprotocolwidget.c:613
 #, c-format
 msgid "Command %s failed on SSH server (status = %i)."
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:528
+#: ../src/remminaprotocolwidget.c:624
 #, c-format
 msgid "Failed to execute command: %s"
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:728
+#: ../src/remminaprotocolwidget.c:824
 #, c-format
-msgid "%s Password"
+msgid "%s password"
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:731 ../src/remminassh.c:248
-msgid "SSH Password"
+#: ../src/remminaprotocolwidget.c:827 ../src/remminassh.c:248
+msgid "SSH password"
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:734 ../src/remminassh.c:252
-msgid "SSH Private Key Passphrase"
+#: ../src/remminaprotocolwidget.c:830 ../src/remminassh.c:252
+msgid "SSH private key passphrase"
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:875
+#: ../src/remminaprotocolwidget.c:968
 #, c-format
-msgid "Listening on Port %i for an Incoming %s Connection..."
+msgid "Listening on port %i for an incoming %s connection..."
 msgstr ""
 
-#: ../src/remminaprotocolwidget.c:883
+#: ../src/remminaprotocolwidget.c:976
 msgid "Authentication failed. Trying to reconnect..."
 msgstr ""
 
@@ -618,12 +442,12 @@ msgid "Save %s"
 msgstr ""
 
 #: ../src/remminainitdialog.c:289
-msgid "Save Password"
+msgid "Save password"
 msgstr ""
 
 #. Buttons for choosing the certificates
 #: ../src/remminainitdialog.c:388
-msgid "CA Certificate"
+msgid "CA certificate"
 msgstr ""
 
 #: ../src/remminainitdialog.c:389
@@ -631,11 +455,11 @@ msgid "CA CRL"
 msgstr ""
 
 #: ../src/remminainitdialog.c:390
-msgid "Client Certificate"
+msgid "Client certificate"
 msgstr ""
 
 #: ../src/remminainitdialog.c:391
-msgid "Client Key"
+msgid "Client key"
 msgstr ""
 
 #: ../src/remminaabout.c:32
@@ -679,161 +503,194 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  tri m s https://launchpad.net/~trims"
 
-#: ../src/remminaprefdialog.c:36
-msgid "Open Connection"
-msgstr ""
-
 #: ../src/remminaprefdialog.c:37
-msgid "Edit Settings"
+msgid "Open connection"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:43
-msgid "Nearest"
+#: ../src/remminaprefdialog.c:38
+msgid "Edit settings"
 msgstr ""
 
 #: ../src/remminaprefdialog.c:44
-msgid "Tiles"
+msgid "Nearest"
 msgstr ""
 
 #: ../src/remminaprefdialog.c:45
-msgid "Bilinear"
+msgid "Tiles"
 msgstr ""
 
 #: ../src/remminaprefdialog.c:46
+msgid "Bilinear"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:47
 msgid "Hyper"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:52
+#: ../src/remminaprefdialog.c:53
 msgid "Automatic"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:61
-msgid "Tab by Groups"
+#: ../src/remminaprefdialog.c:54
+msgid "Scrolled window"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:55
+msgid "Scrolled fullscreen"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:56
+msgid "Viewport fullscreen"
 msgstr ""
 
 #: ../src/remminaprefdialog.c:62
-msgid "Tab by Protocols"
+msgid "Tab by groups"
 msgstr ""
 
 #: ../src/remminaprefdialog.c:63
-msgid "Tab All Connections"
+msgid "Tab by protocols"
 msgstr ""
 
 #: ../src/remminaprefdialog.c:64
-msgid "Do Not Use Tabs"
+msgid "Tab all connections"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:143
+#: ../src/remminaprefdialog.c:65
+msgid "Do not use tabs"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:150
 msgid "Please enter format 'widthxheight'."
 msgstr ""
 
-#: ../src/remminaprefdialog.c:155
+#: ../src/remminaprefdialog.c:162
 msgid "Recent lists cleared."
 msgstr ""
 
 #. Create the dialog
-#: ../src/remminaprefdialog.c:261
+#: ../src/remminaprefdialog.c:320
 msgid "Remmina Preferences"
 msgstr ""
 
 #. Options tab
-#: ../src/remminaprefdialog.c:278
+#: ../src/remminaprefdialog.c:337
 msgid "Options"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:293
-msgid "Remember Last View Mode for Each Connection"
+#: ../src/remminaprefdialog.c:352
+msgid "Remember last view mode for each connection"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:299
-msgid "Save Settings When Starting the Connection"
+#: ../src/remminaprefdialog.c:358
+msgid "Save settings when starting the connection"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:305
-msgid "Invisible Floating Toolbar"
+#: ../src/remminaprefdialog.c:364
+msgid "Invisible floating toolbar"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:318
-msgid "Always Show Tabs"
+#: ../src/remminaprefdialog.c:377
+msgid "Always show tabs"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:324
-msgid "Hide Connection Toolbar"
+#: ../src/remminaprefdialog.c:383
+msgid "Hide connection toolbar"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:330
-msgid "Double-click Action"
+#: ../src/remminaprefdialog.c:389
+msgid "Double-click action"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:340
-msgid "Default View Mode"
+#: ../src/remminaprefdialog.c:399
+msgid "Default view mode"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:350
-msgid "Tab Interface"
+#: ../src/remminaprefdialog.c:409
+msgid "Tab interface"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:360
-msgid "Scale Quality"
+#: ../src/remminaprefdialog.c:419
+msgid "Scale quality"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:370
-msgid "SSH Tunnel Local Port"
+#: ../src/remminaprefdialog.c:429
+msgid "SSH tunnel local port"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:382
-msgid "Maximum Recent Items"
+#: ../src/remminaprefdialog.c:441
+msgid "Maximum recent items"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:398
+#: ../src/remminaprefdialog.c:457
 msgid "Clear"
 msgstr ""
 
 #. Resolutions tab
-#: ../src/remminaprefdialog.c:404
+#: ../src/remminaprefdialog.c:463
 msgid "Resolutions"
 msgstr ""
 
 #. Applet tab
-#: ../src/remminaprefdialog.c:424
+#: ../src/remminaprefdialog.c:483
 msgid "Applet"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:439
-msgid "Show Quick Connect on top of the Menu"
+#: ../src/remminaprefdialog.c:498
+msgid "Show new connection on top of the menu"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:445
-msgid "Hide Total Count in Group Expander"
+#: ../src/remminaprefdialog.c:504
+msgid "Hide total count in group menu"
 msgstr ""
 
-#. Keyboard tab
-#: ../src/remminaprefdialog.c:452
-msgid "Keyboard"
-msgstr ""
-
-#: ../src/remminaprefdialog.c:467
-msgid "Host Key"
-msgstr ""
-
-#: ../src/remminaprefdialog.c:477
-msgid "Toggle Fullscreen Mode"
-msgstr ""
-
-#: ../src/remminaprefdialog.c:497
-msgid "Switch Tab Pages"
+#: ../src/remminaprefdialog.c:510
+msgid "Disable tray icon"
 msgstr ""
 
 #: ../src/remminaprefdialog.c:516
-msgid "Toggle Scaled Mode"
+msgid "Start tray icon automatically"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:526
-msgid "Grab Keyboard"
+#: ../src/remminaprefdialog.c:523
+msgid "Minimize windows to tray"
 msgstr ""
 
-#: ../src/remminaprefdialog.c:556
-msgid "Show / Hide Toolbar"
+#. Keyboard tab
+#: ../src/remminaprefdialog.c:534
+msgid "Keyboard"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:549
+msgid "Host key"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:569
+msgid "Auto-fit window"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:608
+msgid "Grab keyboard"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:638
+msgid "Show / hide toolbar"
+msgstr ""
+
+#. Terminal tab
+#: ../src/remminaprefdialog.c:649
+msgid "Terminal"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:664
+msgid "Font"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:669
+msgid "Use system default font"
+msgstr ""
+
+#: ../src/remminaprefdialog.c:694
+msgid "Scrollback lines"
 msgstr ""
 
 #: ../src/remminassh.c:129
@@ -871,36 +728,36 @@ msgstr ""
 msgid "Failed to startup SSH session: %s"
 msgstr ""
 
-#: ../src/remminassh.c:633
+#: ../src/remminassh.c:635
 #, c-format
 msgid "Failed to connect to the SSH tunnel destination: %s"
 msgstr ""
 
-#: ../src/remminassh.c:666
+#: ../src/remminassh.c:668
 #, c-format
 msgid "Failed to execute %s on SSH server : %%s"
 msgstr ""
 
-#: ../src/remminassh.c:703 ../src/remminassh.c:728
+#: ../src/remminassh.c:705 ../src/remminassh.c:730
 #, c-format
 msgid "Failed to request port forwarding : %s"
 msgstr ""
 
-#: ../src/remminassh.c:775
+#: ../src/remminassh.c:777
 msgid "No response from the server."
 msgstr ""
 
-#: ../src/remminassh.c:1153
+#: ../src/remminassh.c:1180
 #, c-format
 msgid "Failed to create sftp session: %s"
 msgstr ""
 
-#: ../src/remminassh.c:1158
+#: ../src/remminassh.c:1185
 #, c-format
 msgid "Failed to initialize sftp session: %s"
 msgstr ""
 
-#: ../src/remminasshplugin.c:321
+#: ../src/remminasshplugin.c:351
 msgid "SSH - Secure Shell"
 msgstr ""
 
@@ -918,146 +775,158 @@ msgstr ""
 msgid "_Clear"
 msgstr ""
 
-#: ../src/remminaftpclient.c:444
+#: ../src/remminaftpclient.c:456
 msgid "Choose download location"
 msgstr ""
 
-#: ../src/remminaftpclient.c:602
+#: ../src/remminaftpclient.c:614
 msgid "Are you sure to delete the selected files on server?"
 msgstr ""
 
-#: ../src/remminaftpclient.c:659
+#: ../src/remminaftpclient.c:671
 msgid "Choose a file to upload"
 msgstr ""
 
-#: ../src/remminaftpclient.c:670
+#: ../src/remminaftpclient.c:682
 msgid "Upload folder"
 msgstr ""
 
-#: ../src/remminaftpclient.c:735 ../src/remminaftpclient.c:864
+#: ../src/remminaftpclient.c:747 ../src/remminaftpclient.c:876
 msgid "Download"
 msgstr ""
 
-#: ../src/remminaftpclient.c:743 ../src/remminaftpclient.c:875
+#: ../src/remminaftpclient.c:755 ../src/remminaftpclient.c:887
 msgid "Upload"
 msgstr ""
 
-#: ../src/remminaftpclient.c:845
+#: ../src/remminaftpclient.c:857
 msgid "Go to home folder"
 msgstr ""
 
-#: ../src/remminaftpclient.c:852
+#: ../src/remminaftpclient.c:864
 msgid "Go to parent folder"
 msgstr ""
 
-#: ../src/remminaftpclient.c:859
+#: ../src/remminaftpclient.c:871
 msgid "Refresh current folder"
 msgstr ""
 
-#: ../src/remminaftpclient.c:866
+#: ../src/remminaftpclient.c:878
 msgid "Download from server"
 msgstr ""
 
-#: ../src/remminaftpclient.c:877
+#: ../src/remminaftpclient.c:889
 msgid "Upload to server"
 msgstr ""
 
-#: ../src/remminaftpclient.c:886
+#: ../src/remminaftpclient.c:898
 msgid "Delete files on server"
 msgstr ""
 
-#: ../src/remminaftpclient.c:948 ../src/remminaftpclient.c:1014
+#: ../src/remminaftpclient.c:992 ../src/remminaftpclient.c:1064
 msgid "File Name"
 msgstr ""
 
-#: ../src/remminaftpclient.c:961 ../src/remminaftpclient.c:1044
+#: ../src/remminaftpclient.c:1005 ../src/remminaftpclient.c:1094
 msgid "Size"
 msgstr ""
 
-#: ../src/remminaftpclient.c:969
+#: ../src/remminaftpclient.c:1013
 msgid "User"
 msgstr ""
 
-#: ../src/remminaftpclient.c:983
+#: ../src/remminaftpclient.c:1027
 msgid "Permission"
 msgstr ""
 
-#: ../src/remminaftpclient.c:1052
+#: ../src/remminaftpclient.c:1080
+msgid "Remote"
+msgstr ""
+
+#: ../src/remminaftpclient.c:1087
+msgid "Local"
+msgstr ""
+
+#: ../src/remminaftpclient.c:1102
 msgid "Progress"
 msgstr ""
 
-#: ../src/remminasftpclient.c:137
+#: ../src/remminasftpclient.c:144
 #, c-format
 msgid "Error creating directory %s."
 msgstr ""
 
-#: ../src/remminasftpclient.c:148
+#: ../src/remminasftpclient.c:155
 #, c-format
 msgid "Error opening file %s on server. %s"
 msgstr ""
 
-#: ../src/remminasftpclient.c:156
+#: ../src/remminasftpclient.c:163
 #, c-format
 msgid "Error creating file %s."
 msgstr ""
 
-#: ../src/remminasftpclient.c:168
+#: ../src/remminasftpclient.c:175
 #, c-format
 msgid "Error writing file %s."
 msgstr ""
 
-#: ../src/remminasftpclient.c:211
+#: ../src/remminasftpclient.c:218
 #, c-format
 msgid "Error opening directory %s. %s"
 msgstr ""
 
-#: ../src/remminasftpclient.c:332
+#: ../src/remminasftpclient.c:339
 #, c-format
 msgid "Error creating folder %s on server. %s"
 msgstr ""
 
-#: ../src/remminasftpclient.c:357
+#: ../src/remminasftpclient.c:364
 #, c-format
 msgid "Error creating file %s on server. %s"
 msgstr ""
 
-#: ../src/remminasftpclient.c:365
+#: ../src/remminasftpclient.c:372
 #, c-format
 msgid "Error opening file %s."
 msgstr ""
 
-#: ../src/remminasftpclient.c:377
+#: ../src/remminasftpclient.c:384
 #, c-format
 msgid "Error writing file %s on server. %s"
 msgstr ""
 
-#: ../src/remminasftpclient.c:595 ../src/remminasftpclient.c:664
+#: ../src/remminasftpclient.c:607 ../src/remminasftpclient.c:678
 #, c-format
 msgid "Failed to open directory %s. %s"
 msgstr ""
 
-#: ../src/remminasftpclient.c:613
+#: ../src/remminasftpclient.c:625
 #, c-format
 msgid "Failed reading directory. %s"
 msgstr ""
 
-#: ../src/remminasftpclient.c:729
+#: ../src/remminasftpclient.c:743
 msgid ""
 "File transfer currently in progress.\n"
 "Are you sure to cancel it?"
 msgstr ""
 
-#: ../src/remminasftpclient.c:765
+#: ../src/remminasftpclient.c:779
 #, c-format
 msgid "Failed to delete '%s'. %s"
 msgstr ""
 
-#: ../src/remminasftpplugin.c:210
+#: ../src/remminasftpplugin.c:244
+msgid "Show Hidden Files"
+msgstr ""
+
+#: ../src/remminasftpplugin.c:252
 msgid "SFTP - Secure File Transfer"
 msgstr "SFTP - Secure File Transfer"
 
 #: ../src/remminascaler.c:62
-msgid "Fit Window Size"
+msgid "Fit window size"
 msgstr ""
 
 #: ../src/remminapluginmanager.c:39
@@ -1076,12 +945,20 @@ msgstr ""
 msgid "Preference"
 msgstr ""
 
-#: ../src/remminapluginmanager.c:259
+#: ../src/remminapluginmanager.c:266
 msgid "Type"
 msgstr ""
 
-#: ../src/remminapluginmanager.c:266
+#: ../src/remminapluginmanager.c:273
 msgid "Description"
+msgstr ""
+
+#: ../src/remminapluginmanager.c:280
+msgid "Version"
+msgstr ""
+
+#: ../src/remminakeychooser.c:43
+msgid "<None>"
 msgstr ""
 
 #: ../src/remminakeychooser.c:71
@@ -1091,3 +968,34 @@ msgstr ""
 #: ../src/remminakeychooser.c:85
 msgid "Please press the new key..."
 msgstr ""
+
+#: ../src/remminaexec.c:105
+#, c-format
+msgid "Plugin %s is not registered."
+msgstr "Pegaya %s tidak terdaftar"
+
+#: ../src/remminaicon.c:107
+msgid "Open Main Window"
+msgstr "Buka Jendela Utama"
+
+#: ../src/remminaicon.c:129
+msgid "Enable Service Discovery"
+msgstr "Aktifkan Layanan Pencarian"
+
+#. Refresh it in case translation is updated
+#: ../src/remminaicon.c:342 ../src/remminaicon.c:421
+msgid "Remmina Applet"
+msgstr ""
+
+#: ../src/remminaicon.c:343 ../src/remminaicon.c:422
+msgid "Connect to remote desktops through the applet menu"
+msgstr "Akses remote desktop dari menu applet"
+
+#: ../src/remminaappletmenuitem.c:92
+msgid "Discovered"
+msgstr "Ditemukan"
+
+#: ../src/remminaappletmenuitem.c:97
+msgid "New Connection"
+msgstr ""
+

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(remmina, 0.8.3)
+AC_INIT(remmina, 0.9.0)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER([config.h])
 AC_CONFIG_SRCDIR([src/remmina.c])
@@ -35,7 +35,7 @@ AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [The gettext package])
 
 if test "x$USE_NLS" != "xno"; then
-    ALL_LINGUAS="bg cs da de el es eu fr hu id it lt nl pl pt_BR pt_PT ru sv tr uk zh_CN"
+    ALL_LINGUAS="bg ca cs da de el es eu fr hu id it kk lt nl pl pt_BR pt_PT ru sk sv th tr uk zh_CN"
     nls_support="yes"
 else
     ALL_LINGUAS=""
@@ -68,10 +68,14 @@ AC_ARG_ENABLE(avahi,
 )
 if test "x$avahi_support" != "xno"; then
     PKG_CHECK_MODULES(AVAHI_UI,
-        avahi-ui >= 0.6.22, [
+        [
+            avahi-ui >= 0.6.22
+            avahi-client >= 0.6.22
+        ], [
             avahi_support="yes"
-            remmina_pkgs="$remmina_pkgs avahi-ui"
+            remmina_pkgs="$remmina_pkgs avahi-ui avahi-client"
             AC_DEFINE([HAVE_LIBAVAHI_UI], [1], [Define to 1 if you have the 'avahi-ui' library (-lavahi-ui).])
+            AC_DEFINE([HAVE_LIBAVAHI_CLIENT], [1], [Define to 1 if you have the 'avahi-client' library (-lavahi-client).])
         ], avahi_support="no. libavahi-ui-dev required."
     )
 else

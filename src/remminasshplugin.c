@@ -29,7 +29,11 @@
 #include "remminapluginmanager.h"
 #include "remminassh.h"
 #include "remminaprotocolwidget.h"
+#include "remminapref.h"
 #include "remminasshplugin.h"
+
+#define REMMINA_PLUGIN_SSH_FEATURE_TOOL_COPY  1
+#define REMMINA_PLUGIN_SSH_FEATURE_TOOL_PASTE 2
 
 /***** A VTE-Terminal subclass to override the size_request behavior *****/
 #define REMMINA_TYPE_VTE               (remmina_vte_get_type ())
@@ -123,8 +127,8 @@ remmina_plugin_ssh_main_thread (gpointer data)
     {
         /* New SSH Shell connection */
         remminafile = remmina_plugin_service->protocol_plugin_get_file (gp);
-        g_free (remminafile->ssh_server);
-        remminafile->ssh_server = g_strdup (remminafile->server);
+        remmina_plugin_service->file_set_string (remminafile, "ssh_server",
+            remmina_plugin_service->file_get_string (remminafile, "server"));
 
         shell = remmina_ssh_shell_new_from_file (remminafile);
         while (1)
@@ -207,6 +211,22 @@ remmina_plugin_ssh_on_size_allocate (GtkWidget *widget, GtkAllocation *alloc, Re
 }
 
 static void
+remmina_plugin_ssh_set_vte_pref (RemminaProtocolWidget *gp)
+{
+    RemminaPluginSshData *gpdata;
+
+    gpdata = (RemminaPluginSshData*) g_object_get_data (G_OBJECT (gp), "plugin-data");
+    if (remmina_pref.vte_font && remmina_pref.vte_font[0])
+    {
+        vte_terminal_set_font_from_string (VTE_TERMINAL (gpdata->vte), remmina_pref.vte_font);
+    }
+    if (remmina_pref.vte_lines > 0)
+    {
+        vte_terminal_set_scrollback_lines (VTE_TERMINAL (gpdata->vte), remmina_pref.vte_lines);
+    }
+}
+
+static void
 remmina_plugin_ssh_init (RemminaProtocolWidget *gp)
 {
     RemminaPluginSshData *gpdata;
@@ -228,6 +248,7 @@ remmina_plugin_ssh_init (RemminaProtocolWidget *gp)
     vte_terminal_set_scroll_on_keystroke (VTE_TERMINAL (vte), TRUE);
     gtk_box_pack_start (GTK_BOX (hbox), vte, TRUE, TRUE, 0);
     gpdata->vte = vte;
+    remmina_plugin_ssh_set_vte_pref (gp);
     g_signal_connect (G_OBJECT (vte), "size-allocate", G_CALLBACK (remmina_plugin_ssh_on_size_allocate), gp);
 
     remmina_plugin_service->protocol_plugin_register_hostkey (gp, vte);
@@ -283,29 +304,60 @@ remmina_plugin_ssh_close_connection (RemminaProtocolWidget *gp)
     return FALSE;
 }
 
-static gpointer
-remmina_plugin_ssh_query_feature (RemminaProtocolWidget *gp, RemminaProtocolFeature feature)
+static gboolean
+remmina_plugin_ssh_query_feature (RemminaProtocolWidget *gp, const RemminaProtocolFeature *feature)
 {
-    return NULL;
+    return TRUE;
 }
 
 static void
-remmina_plugin_ssh_call_feature (RemminaProtocolWidget *gp, RemminaProtocolFeature feature, const gpointer data)
+remmina_plugin_ssh_call_feature (RemminaProtocolWidget *gp, const RemminaProtocolFeature *feature)
 {
+    RemminaPluginSshData *gpdata;
+
+    gpdata = (RemminaPluginSshData*) g_object_get_data (G_OBJECT (gp), "plugin-data");
+    switch (feature->id)
+    {
+    case REMMINA_PROTOCOL_FEATURE_TOOL_SSH:
+        remmina_plugin_service->open_connection (
+            remmina_file_dup_temp_protocol (remmina_plugin_service->protocol_plugin_get_file (gp), "SSH"),
+            NULL, gpdata->shell, NULL);
+        return;
+    case REMMINA_PROTOCOL_FEATURE_TOOL_SFTP:
+        remmina_plugin_service->open_connection (
+            remmina_file_dup_temp_protocol (remmina_plugin_service->protocol_plugin_get_file (gp), "SFTP"),
+            NULL, gpdata->shell, NULL);
+        return;
+    case REMMINA_PLUGIN_SSH_FEATURE_TOOL_COPY:
+        vte_terminal_copy_clipboard (VTE_TERMINAL (gpdata->vte));
+        return;
+    case REMMINA_PLUGIN_SSH_FEATURE_TOOL_PASTE:
+        vte_terminal_paste_clipboard (VTE_TERMINAL (gpdata->vte));
+        return;
+    }
 }
+
+static const RemminaProtocolFeature remmina_plugin_ssh_features[] =
+{
+    { REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PLUGIN_SSH_FEATURE_TOOL_COPY, NULL, GTK_STOCK_COPY, NULL },
+    { REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PLUGIN_SSH_FEATURE_TOOL_PASTE, NULL, GTK_STOCK_PASTE, NULL },
+    { REMMINA_PROTOCOL_FEATURE_TYPE_END, 0, NULL, NULL, NULL }
+};
 
 static RemminaProtocolPlugin remmina_plugin_ssh =
 {
     REMMINA_PLUGIN_TYPE_PROTOCOL,
     "SSH",
-    NULL,
+    N_("SSH - Secure Shell"),
+    GETTEXT_PACKAGE,
+    VERSION,
 
     "utilities-terminal",
     "utilities-terminal",
     NULL,
     NULL,
-    NULL,
     REMMINA_PROTOCOL_SSH_SETTING_SSH,
+    remmina_plugin_ssh_features,
 
     remmina_plugin_ssh_init,
     remmina_plugin_ssh_open_connection,
@@ -318,7 +370,6 @@ void
 remmina_ssh_plugin_register (void)
 {
     remmina_plugin_service = &remmina_plugin_manager_service;
-    remmina_plugin_ssh.description = _("SSH - Secure Shell");
     remmina_plugin_service->register_plugin ((RemminaPlugin *) &remmina_plugin_ssh);
 }
 

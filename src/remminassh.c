@@ -245,11 +245,11 @@ remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog, gboolean threa
         {
         case SSH_AUTH_PASSWORD:
             tips = _("Authenticating %s's password to SSH server %s...");
-            keyname = _("SSH Password");
+            keyname = _("SSH password");
             break;
         case SSH_AUTH_PUBLICKEY:
             tips = _("Authenticating %s's identity to SSH server %s...");
-            keyname = _("SSH Private Key Passphrase");
+            keyname = _("SSH private key passphrase");
             break;
         default:
             return FALSE;
@@ -321,6 +321,10 @@ remmina_ssh_init_session (RemminaSSH *ssh)
 gboolean
 remmina_ssh_init_from_file (RemminaSSH *ssh, RemminaFile *remminafile)
 {
+    const gchar *ssh_server;
+    const gchar *ssh_username;
+    const gchar *ssh_privatekey;
+    const gchar *server;
     gchar *s;
 
     ssh->session = NULL;
@@ -330,34 +334,36 @@ remmina_ssh_init_from_file (RemminaSSH *ssh, RemminaFile *remminafile)
     pthread_mutex_init (&ssh->ssh_mutex, NULL);
 
     /* Parse the address and port */
-    if (remminafile->ssh_server && remminafile->ssh_server[0] != '\0')
+    ssh_server = remmina_file_get_string (remminafile, "ssh_server");
+    ssh_username = remmina_file_get_string (remminafile, "ssh_username");
+    ssh_privatekey = remmina_file_get_string (remminafile, "ssh_privatekey");
+    server = remmina_file_get_string (remminafile, "server");
+    if (ssh_server)
     {
-        remmina_public_get_server_port (remminafile->ssh_server, 22, &ssh->server, &ssh->port);
+        remmina_public_get_server_port (ssh_server, 22, &ssh->server, &ssh->port);
         if (ssh->server[0] == '\0')
         {
             g_free (ssh->server);
-            remmina_public_get_server_port (remminafile->server, 0, &ssh->server, NULL);
+            remmina_public_get_server_port (server, 0, &ssh->server, NULL);
         }
     }
-    else if (remminafile->server == NULL || remminafile->server[0] == '\0')
+    else if (server == NULL)
     {
         return FALSE;
     }
     else
     {
-        remmina_public_get_server_port (remminafile->server, 0, &ssh->server, NULL);
+        remmina_public_get_server_port (server, 0, &ssh->server, NULL);
         ssh->port = 22;
     }
 
-    ssh->user = g_strdup ((remminafile->ssh_username && remminafile->ssh_username[0] != '\0' ?
-        remminafile->ssh_username : g_get_user_name ()));
+    ssh->user = g_strdup (ssh_username ? ssh_username : g_get_user_name ());
     ssh->password = NULL;
-    ssh->auth = remminafile->ssh_auth;
-    ssh->charset = g_strdup (remminafile->ssh_charset);
+    ssh->auth = remmina_file_get_int (remminafile, "ssh_auth", 0);
+    ssh->charset = g_strdup (remmina_file_get_string (remminafile, "ssh_charset"));
 
     /* Public/Private keys */
-    s = (remminafile->ssh_privatekey && remminafile->ssh_privatekey[0] != '\0' ?
-        g_strdup (remminafile->ssh_privatekey) : remmina_ssh_find_identity ());
+    s = (ssh_privatekey ? g_strdup (ssh_privatekey) : remmina_ssh_find_identity ());
     if (s)
     {
         ssh->privkeyfile = remmina_ssh_identity_path (s);
@@ -580,7 +586,7 @@ remmina_ssh_tunnel_add_channel (RemminaSSHTunnel *tunnel, ssh_channel channel, g
 }
 
 static gpointer
-remmina_ssh_tunnel_main_thread (gpointer data)
+remmina_ssh_tunnel_main_thread_proc (gpointer data)
 {
     RemminaSSHTunnel *tunnel = (RemminaSSHTunnel*) data;
     gchar *ptr;
@@ -598,8 +604,6 @@ remmina_ssh_tunnel_main_thread (gpointer data)
     gint ret;
     struct sockaddr_in sin;
 
-    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-
     g_get_current_time (&t1);
     t2 = t1;
 
@@ -614,8 +618,6 @@ remmina_ssh_tunnel_main_thread (gpointer data)
             tunnel->thread = 0;
             return NULL;
         }
-        close (tunnel->server_sock);
-        tunnel->server_sock = -1;
 
         if ((channel = channel_new (tunnel->ssh.session)) == NULL)
         {
@@ -964,10 +966,35 @@ remmina_ssh_tunnel_main_thread (gpointer data)
         }
     }
 
-    tunnel->thread = 0;
     remmina_ssh_tunnel_close_all_channels (tunnel);
 
     return NULL;
+}
+
+static gpointer
+remmina_ssh_tunnel_main_thread (gpointer data)
+{
+    RemminaSSHTunnel *tunnel = (RemminaSSHTunnel*) data;
+
+    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
+
+    while (TRUE)
+    {
+        remmina_ssh_tunnel_main_thread_proc (data);
+        if (tunnel->server_sock < 0 || tunnel->thread == 0 || !tunnel->running) break;
+    }
+    tunnel->thread = 0;
+    return NULL;
+}
+
+void
+remmina_ssh_tunnel_cancel_accept (RemminaSSHTunnel *tunnel)
+{
+    if (tunnel->server_sock >= 0)
+    {
+        close (tunnel->server_sock);
+        tunnel->server_sock = -1;
+    }
 }
 
 gboolean
@@ -1185,7 +1212,7 @@ remmina_ssh_shell_new_from_file (RemminaFile *remminafile)
 
     shell->master = -1;
     shell->slave = -1;
-    shell->exec = g_strdup (remminafile->exec);
+    shell->exec = g_strdup (remmina_file_get_string (remminafile, "exec"));
 
     return shell;
 }

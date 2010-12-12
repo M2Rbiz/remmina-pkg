@@ -60,7 +60,9 @@ am_remmina_OBJECTS = remmina.$(OBJEXT) remminamain.$(OBJEXT) \
 	remminacrypt.$(OBJEXT) remminachainbutton.$(OBJEXT) \
 	remminascaler.$(OBJEXT) remminawidgetpool.$(OBJEXT) \
 	remminapluginmanager.$(OBJEXT) remminalog.$(OBJEXT) \
-	remminakeychooser.$(OBJEXT)
+	remminakeychooser.$(OBJEXT) remminaexec.$(OBJEXT) \
+	remminaicon.$(OBJEXT) remminaavahi.$(OBJEXT) \
+	remminaappletmenuitem.$(OBJEXT) remminaappletmenu.$(OBJEXT)
 remmina_OBJECTS = $(am_remmina_OBJECTS)
 remmina_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -241,7 +243,12 @@ remmina_SOURCES = remmina.c \
     remminawidgetpool.h remminawidgetpool.c \
     remminapluginmanager.h remminapluginmanager.c \
     remminalog.h remminalog.c \
-    remminakeychooser.h remminakeychooser.c
+    remminakeychooser.h remminakeychooser.c \
+    remminaexec.h remminaexec.c \
+    remminaicon.h remminaicon.c \
+    remminaavahi.h remminaavahi.c \
+    remminaappletmenuitem.h remminaappletmenuitem.c \
+    remminaappletmenu.h remminaappletmenu.c
 
 remmina_LDADD = @REMMINA_LIBS@ @LIBGCRYPT_LIBS@
 EXTRA_DIST = remminamarshals.list
@@ -328,14 +335,19 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remmina.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaabout.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaappletmenu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaappletmenuitem.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaavahi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminachainbutton.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminachatwindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaconnectionwindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminacrypt.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaexec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminafile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminafileeditor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminafilemanager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaftpclient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminaicon.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminainitdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminakeychooser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remminalog.Po@am__quote@
