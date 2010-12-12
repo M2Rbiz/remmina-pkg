@@ -248,20 +248,45 @@ remmina_pref_init (void)
     else
         remmina_pref.main_sort_order = 0;
 
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "expanded_group", NULL))
+        remmina_pref.expanded_group = g_key_file_get_string (gkeyfile, "remmina_pref", "expanded_group", NULL);
+    else
+        remmina_pref.expanded_group = g_strdup ("");
+
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "toolbar_pin_down", NULL))
+        remmina_pref.toolbar_pin_down = g_key_file_get_boolean (gkeyfile, "remmina_pref", "toolbar_pin_down", NULL);
+    else
+        remmina_pref.toolbar_pin_down = FALSE;
+
     if (g_key_file_has_key (gkeyfile, "remmina_pref", "sshtunnel_port", NULL))
         remmina_pref.sshtunnel_port = g_key_file_get_integer (gkeyfile, "remmina_pref", "sshtunnel_port", NULL);
     else
         remmina_pref.sshtunnel_port = DEFAULT_SSHTUNNEL_PORT;
 
-    if (g_key_file_has_key (gkeyfile, "remmina_pref", "applet_quick_ontop", NULL))
-        remmina_pref.applet_quick_ontop = g_key_file_get_boolean (gkeyfile, "remmina_pref", "applet_quick_ontop", NULL);
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "applet_new_ontop", NULL))
+        remmina_pref.applet_new_ontop = g_key_file_get_boolean (gkeyfile, "remmina_pref", "applet_new_ontop", NULL);
     else
-        remmina_pref.applet_quick_ontop = FALSE;
+        remmina_pref.applet_new_ontop = FALSE;
 
     if (g_key_file_has_key (gkeyfile, "remmina_pref", "applet_hide_count", NULL))
         remmina_pref.applet_hide_count = g_key_file_get_boolean (gkeyfile, "remmina_pref", "applet_hide_count", NULL);
     else
         remmina_pref.applet_hide_count = FALSE;
+
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "applet_enable_avahi", NULL))
+        remmina_pref.applet_enable_avahi = g_key_file_get_boolean (gkeyfile, "remmina_pref", "applet_enable_avahi", NULL);
+    else
+        remmina_pref.applet_enable_avahi = FALSE;
+
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "disable_tray_icon", NULL))
+        remmina_pref.disable_tray_icon = g_key_file_get_boolean (gkeyfile, "remmina_pref", "disable_tray_icon", NULL);
+    else
+        remmina_pref.disable_tray_icon = FALSE;
+
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "minimize_to_tray", NULL))
+        remmina_pref.minimize_to_tray = g_key_file_get_boolean (gkeyfile, "remmina_pref", "minimize_to_tray", NULL);
+    else
+        remmina_pref.minimize_to_tray = FALSE;
 
     if (g_key_file_has_key (gkeyfile, "remmina_pref", "recent_maximum", NULL))
         remmina_pref.recent_maximum = g_key_file_get_integer (gkeyfile, "remmina_pref", "recent_maximum", NULL);
@@ -311,7 +336,7 @@ remmina_pref_init (void)
     if (g_key_file_has_key (gkeyfile, "remmina_pref", "shortcutkey_grab", NULL))
         remmina_pref.shortcutkey_grab = g_key_file_get_integer (gkeyfile, "remmina_pref", "shortcutkey_grab", NULL);
     else
-        remmina_pref.shortcutkey_grab = GDK_k;
+        remmina_pref.shortcutkey_grab = GDK_Control_R;
 
     if (g_key_file_has_key (gkeyfile, "remmina_pref", "shortcutkey_minimize", NULL))
         remmina_pref.shortcutkey_minimize = g_key_file_get_integer (gkeyfile, "remmina_pref", "shortcutkey_minimize", NULL);
@@ -332,6 +357,16 @@ remmina_pref_init (void)
         remmina_pref.secret = g_key_file_get_string (gkeyfile, "remmina_pref", "secret", NULL);
     else
         remmina_pref.secret = NULL;
+
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "vte_font", NULL))
+        remmina_pref.vte_font = g_key_file_get_string (gkeyfile, "remmina_pref", "vte_font", NULL);
+    else
+        remmina_pref.vte_font = NULL;
+
+    if (g_key_file_has_key (gkeyfile, "remmina_pref", "vte_lines", NULL))
+        remmina_pref.vte_lines = g_key_file_get_integer (gkeyfile, "remmina_pref", "vte_lines", NULL);
+    else
+        remmina_pref.vte_lines = 512;
 
     g_key_file_free (gkeyfile);
 
@@ -369,9 +404,14 @@ remmina_pref_save (void)
     g_key_file_set_boolean (gkeyfile, "remmina_pref", "main_maximize", remmina_pref.main_maximize);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "main_sort_column_id", remmina_pref.main_sort_column_id);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "main_sort_order", remmina_pref.main_sort_order);
+    g_key_file_set_string (gkeyfile, "remmina_pref", "expanded_group", remmina_pref.expanded_group);
+    g_key_file_set_boolean (gkeyfile, "remmina_pref", "toolbar_pin_down", remmina_pref.toolbar_pin_down);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "sshtunnel_port", remmina_pref.sshtunnel_port);
-    g_key_file_set_boolean (gkeyfile, "remmina_pref", "applet_quick_ontop", remmina_pref.applet_quick_ontop);
+    g_key_file_set_boolean (gkeyfile, "remmina_pref", "applet_new_ontop", remmina_pref.applet_new_ontop);
     g_key_file_set_boolean (gkeyfile, "remmina_pref", "applet_hide_count", remmina_pref.applet_hide_count);
+    g_key_file_set_boolean (gkeyfile, "remmina_pref", "applet_enable_avahi", remmina_pref.applet_enable_avahi);
+    g_key_file_set_boolean (gkeyfile, "remmina_pref", "disable_tray_icon", remmina_pref.disable_tray_icon);
+    g_key_file_set_boolean (gkeyfile, "remmina_pref", "minimize_to_tray", remmina_pref.minimize_to_tray);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "recent_maximum", remmina_pref.recent_maximum);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "default_mode", remmina_pref.default_mode);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "tab_mode", remmina_pref.tab_mode);
@@ -385,6 +425,8 @@ remmina_pref_save (void)
     g_key_file_set_integer (gkeyfile, "remmina_pref", "shortcutkey_minimize", remmina_pref.shortcutkey_minimize);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "shortcutkey_disconnect", remmina_pref.shortcutkey_disconnect);
     g_key_file_set_integer (gkeyfile, "remmina_pref", "shortcutkey_toolbar", remmina_pref.shortcutkey_toolbar);
+    g_key_file_set_string (gkeyfile, "remmina_pref", "vte_font", remmina_pref.vte_font ? remmina_pref.vte_font : "");
+    g_key_file_set_integer (gkeyfile, "remmina_pref", "vte_lines", remmina_pref.vte_lines);
 
     content = g_key_file_to_data (gkeyfile, &length, NULL);
     g_file_set_contents (remmina_pref_file, content, length, NULL);
@@ -502,36 +544,28 @@ remmina_pref_keymap_get_keyval (const gchar *keymap, guint keyval)
     return keyval;
 }
 
-gchar*
+gchar**
 remmina_pref_keymap_groups (void)
 {
     GList *list;
     guint len;
-    GString *keys;
+    gchar **keys;
     guint i;
-    gboolean first;
 
     list = g_hash_table_get_keys (remmina_keymap_table);
     len = g_list_length (list);
 
-    keys = g_string_new (NULL);
-    first = TRUE;
+    keys = g_new0 (gchar*, (len + 1) * 2 + 1);
+    keys[0] = g_strdup ("");
+    keys[1] = g_strdup ("");
     for (i = 0; i < len; i++)
     {
-        if (first)
-        {
-            first = FALSE;
-        }
-        else
-        {
-            g_string_append (keys, ",");
-        }
-        g_string_append (keys, (gchar*) g_list_nth_data (list, i));
+        keys[(i + 1) * 2] = g_strdup ((gchar*) g_list_nth_data (list, i));
+        keys[(i + 1) * 2 + 1] = g_strdup ((gchar*) g_list_nth_data (list, i));
     }
-
     g_list_free (list);
 
-    return g_string_free (keys, FALSE);
+    return keys;
 }
 
 gint

@@ -227,7 +227,9 @@ EXTRA_DIST = \
     $(icon48_DATA) \
     $(iconsvg_DATA)
 
-CLEANFILES = $(desktop_DATA)
+CLEANFILES = \
+    $(desktop_DATA)
+
 all: all-am
 
 .SUFFIXES:

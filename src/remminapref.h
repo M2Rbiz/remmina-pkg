@@ -73,8 +73,11 @@ typedef struct _RemminaPref
     gint default_mode;
     gint tab_mode;
 
-    gboolean applet_quick_ontop;
+    gboolean applet_new_ontop;
     gboolean applet_hide_count;
+    gboolean applet_enable_avahi;
+    gboolean disable_tray_icon;
+    gboolean minimize_to_tray;
 
     guint hostkey;
     guint shortcutkey_fullscreen;
@@ -100,9 +103,15 @@ typedef struct _RemminaPref
     gboolean main_maximize;
     gint main_sort_column_id;
     gint main_sort_order;
+    gchar *expanded_group;
+    gboolean toolbar_pin_down;
 
     /* Crypto */
     gchar *secret;
+
+    /* VTE */
+    gchar *vte_font;
+    gint vte_lines;
 } RemminaPref;
 
 #define DEFAULT_SSHTUNNEL_PORT 4732
@@ -120,7 +129,7 @@ gchar* remmina_pref_get_recent (const gchar *protocol);
 void remmina_pref_clear_recent (void);
 
 guint remmina_pref_keymap_get_keyval (const gchar *keymap, guint keyval);
-gchar* remmina_pref_keymap_groups (void);
+gchar** remmina_pref_keymap_groups (void);
 
 gint remmina_pref_get_scale_quality (void);
 gint remmina_pref_get_sshtunnel_port (void);

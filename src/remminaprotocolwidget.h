@@ -28,6 +28,9 @@
 
 G_BEGIN_DECLS
 
+#define REMMINA_PROTOCOL_FEATURE_TOOL_SSH  -1
+#define REMMINA_PROTOCOL_FEATURE_TOOL_SFTP -2
+
 #define REMMINA_TYPE_PROTOCOL_WIDGET                  (remmina_protocol_widget_get_type ())
 #define REMMINA_PROTOCOL_WIDGET(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), REMMINA_TYPE_PROTOCOL_WIDGET, RemminaProtocolWidget))
 #define REMMINA_PROTOCOL_WIDGET_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), REMMINA_TYPE_PROTOCOL_WIDGET, RemminaProtocolWidgetClass))
@@ -76,8 +79,12 @@ RemminaFile* remmina_protocol_widget_get_file (RemminaProtocolWidget *gp);
 void remmina_protocol_widget_open_connection (RemminaProtocolWidget *gp, RemminaFile *remminafile);
 gboolean remmina_protocol_widget_close_connection (RemminaProtocolWidget *gp);
 void remmina_protocol_widget_grab_focus (RemminaProtocolWidget *gp);
-gpointer remmina_protocol_widget_query_feature (RemminaProtocolWidget *gp, RemminaProtocolFeature feature);
-void remmina_protocol_widget_call_feature (RemminaProtocolWidget *gp, RemminaProtocolFeature feature, const gpointer data);
+const RemminaProtocolFeature* remmina_protocol_widget_get_features (RemminaProtocolWidget *gp);
+const gchar* remmina_protocol_widget_get_domain (RemminaProtocolWidget *gp);
+gboolean remmina_protocol_widget_query_feature_by_type (RemminaProtocolWidget *gp, RemminaProtocolFeatureType type);
+gboolean remmina_protocol_widget_query_feature_by_ref (RemminaProtocolWidget *gp, const RemminaProtocolFeature *feature);
+void remmina_protocol_widget_call_feature_by_type (RemminaProtocolWidget *gp, RemminaProtocolFeatureType type, gint id);
+void remmina_protocol_widget_call_feature_by_ref (RemminaProtocolWidget *gp, const RemminaProtocolFeature *feature);
 /* Provide thread-safe way to emit signals */
 void remmina_protocol_widget_emit_signal (RemminaProtocolWidget *gp, const gchar *signal);
 void remmina_protocol_widget_register_hostkey (RemminaProtocolWidget *gp, GtkWidget *widget);

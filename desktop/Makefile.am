@@ -37,5 +37,6 @@ EXTRA_DIST = \
     $(icon32_DATA) \
     $(icon48_DATA) \
     $(iconsvg_DATA)
-CLEANFILES = $(desktop_DATA)
+CLEANFILES = \
+    $(desktop_DATA)
 
