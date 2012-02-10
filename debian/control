@@ -24,8 +24,7 @@ Package: remmina
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- remmina-common (>= ${source:Version}),
- remmina-common (<< ${source:Version}.1~),
+ remmina-common (== ${source:Version})
 Recommends: remmina-plugin-rdp,
  remmina-plugin-vnc
 Breaks: remmina-plugin-data (<= 0.9)
@@ -40,6 +39,7 @@ Description: remote desktop client for GNOME desktop environment
 Package: remmina-common
 Architecture: all
 Depends: ${misc:Depends}
+Recommends: remmina
 Breaks: remmina (<< 1.0.0),
  remmina-plugin-data
 Replaces: remmina (<< 1.0.0),
@@ -54,9 +54,7 @@ Package: remmina-plugin-rdp
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- remmina (>= ${binary:Version}),
- remmina-common (>= ${source:Version}),
- remmina-common (<< ${source:Version}.1~),
+ remmina (== ${binary:Version}),
  libfreerdp-plugins-standard
 Description: RDP plugin for remmina remote desktop client
  Remmina is a remote desktop connection client able to display and control a
@@ -68,9 +66,7 @@ Package: remmina-plugin-vnc
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- remmina (>= ${binary:Version}),
- remmina-common (>= ${source:Version}),
- remmina-common (<< ${source:Version}.1~)
+ remmina (== ${binary:Version})
 Description: VNC plugin for remmina remote desktop client
  Remmina is a remote desktop connection client able to display and control a
  remote desktop session.
@@ -81,9 +77,7 @@ Package: remmina-plugin-xdmcp
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- remmina (>= ${binary:Version}),
- remmina-common (>= ${source:Version}),
- remmina-common (<< ${source:Version}.1~),
+ remmina (== ${binary:Version}),
  xserver-xephyr
 Description: XDMCP plugin for remmina remote desktop client
  Remmina is a remote desktop connection client able to display and control a
@@ -95,9 +89,7 @@ Package: remmina-plugin-nx
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- remmina (>= ${binary:Version}),
- remmina-common (>= ${source:Version}),
- remmina-common (<< ${source:Version}.1~),
+ remmina (== ${binary:Version}),
  nxproxy
 Description: NX plugin for remmina remote desktop client
  Remmina is a remote desktop connection client able to display and control a
@@ -109,11 +101,20 @@ Package: remmina-plugin-telepathy
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- remmina (>= ${binary:Version}),
- remmina-common (>= ${source:Version}),
- remmina-common (<< ${source:Version}.1~)
+ remmina (== ${binary:Version})
 Description: Telepathy plugin for remmina remote desktop client
  Remmina is a remote desktop connection client able to display and control a
  remote desktop session.
  .
  This package contains the Telepathy plugin for Remmina.
+
+Package: remmina-plugin-gnome
+Architecture: any
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ remmina (== ${binary:Version})
+Description: Telepathy plugin for remmina remote desktop client
+ Remmina is a remote desktop connection client able to display and control a
+ remote desktop session.
+ .
+ This package contains the GNOME plugin for Remmina.
