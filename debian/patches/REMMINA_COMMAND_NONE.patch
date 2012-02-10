@@ -2,16 +2,16 @@ Description: Adjust REMMINA_COMMAND_NONE value to match libunique command ID
 Author: Petr Gajdůšek
 Forwarded: https://sourceforge.net/tracker/?func=detail&aid=3403907&group_id=278330&atid=1181674
 
-Index: remmina/src/remminaexec.h
+Index: remmina/remmina/src/remmina_exec.h
 ===================================================================
---- remmina.orig/src/remminaexec.h	2011-10-01 23:06:50.336769116 +0200
-+++ remmina/src/remminaexec.h	2011-10-01 23:08:12.256772379 +0200
+--- remmina.orig/remmina/src/remmina_exec.h	2012-02-10 21:24:32.217764939 +0100
++++ remmina/remmina/src/remmina_exec.h	2012-02-10 21:24:42.257765245 +0100
 @@ -25,7 +25,7 @@
  
  typedef enum
  {
--    REMMINA_COMMAND_NONE        = 0,
-+    REMMINA_COMMAND_NONE        = -1,
-     REMMINA_COMMAND_MAIN        = 1,
-     REMMINA_COMMAND_PREF        = 2,
-     REMMINA_COMMAND_NEW         = 3,
+-	REMMINA_COMMAND_NONE = 0,
++	REMMINA_COMMAND_NONE = -1,
+ 	REMMINA_COMMAND_MAIN = 1,
+ 	REMMINA_COMMAND_PREF = 2,
+ 	REMMINA_COMMAND_NEW = 3,
