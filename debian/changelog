@@ -15,12 +15,15 @@ remmina (1.0.0-1) UNRELEASED; urgency=low
     - Documentation is no longer accurate, do not ship it anymore.
   * debian/remmina-dev.install:
     - Drop remmina-dev package, no longer used.
+  * debian/remmina-plugin-telepathy.install:
+    - Adjust location for Remmina.client.
+    - Disable D-BUS support for now.
   * debian/rules:
     - Compile with -DWITH_APPINDICATOR=OFF.
   * debian/watch:
     - Adjust watch file to match new download location.
 
- -- Luca Falavigna <dktrkranz@debian.org>  Fri, 10 Feb 2012 22:45:30 +0100
+ -- Luca Falavigna <dktrkranz@debian.org>  Fri, 10 Feb 2012 22:47:09 +0100
 
 remmina (0.9.3-3) unstable; urgency=low
 
