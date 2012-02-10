@@ -1,22 +1,45 @@
-To compile with full feature support in Debian, please install the following packages:
+Remmina: The GTK+ Remote Desktop Client
+=======================================
 
-libgtk2.0-dev libssh-dev libavahi-ui-dev libvte-dev libgcrypt11-dev libunique-dev
+Remmina is a remote desktop client written in GTK+, aiming to be useful for
+system administrators and travellers, who need to work with lots of remote
+computers in front of either large monitors or tiny netbooks. Remmina supports
+multiple network protocols in an integrated and consistant user interface.
+Currently RDP, VNC, NX, XDMCP and SSH are supported.
 
-(libpthread is recommended for VNC support and required for SSH support. libpthread-stub0-dev package will be installed as dependency in the above packages in Debian)
+Remmina is released in separated source packages:
+* "remmina", the main GTK+ application
+* "remmina-plugins", a set of plugins
 
-To compile and install Remmina, please run the following command as root:
+Remmina is free and open-source software, released under GNU GPL license.
 
-$ ./configure
-$ make
-$ make install
+Resources
+---------
 
-Please visit the following projects that Remmina depends on:
+Website: http://remmina.sourceforge.net
+Wiki: http://sourceforge.net/apps/mediawiki/remmina/
+Forums: http://sourceforge.net/apps/phpbb/remmina/
+Mailing List: https://lists.sourceforge.net/mailman/listinfo/remmina-common
 
-Gnome: http://www.gnome.org
-LibVNCServer: http://libvncserver.sourceforge.net
-rdesktop: http://www.rdesktop.org
-libssh: http://www.libssh.org
-Avahi: http://avahi.org
-libvte: http://library.gnome.org/devel/vte/
-libgcrypt: http://www.gnupg.org
+Prerequisites
+-------------
 
+On Ubuntu 11.10 (Oneiric), install the following packages before compiling:
+
+sudo add-apt-repository ppa:chihchun/freerdp # for freerdp v1
+sudo apt-get update
+sudo apt-get install cmake intltool \
+  libgtk-3-dev libssh-dev libavahi-ui-gtk3-dev libvte-2.90-dev libxkbfile-dev \ 
+  libtelepathy-glib-dev libgnome-keyring-dev \
+  libappindicator3-dev libgcrypt11-dev libgnutls-dev \
+  libfreerdp-dev libjpeg-dev
+
+Compilation
+-----------
+
+To compile and install, perform the following for all of the three main packages:
+
+mkdir build
+cmake --build=build .
+make
+sudo make install
