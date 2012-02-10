@@ -5,14 +5,17 @@ remmina (1.0.0-1) UNRELEASED; urgency=low
     - Refresh for new upstream release.
   * debian/control:
     - Refresh build-dependencies to match new structure.
+    - Drop remmina-dev package, no longer used.
   * debian/copyright:
     - Refresh copyright information.
+  * debian/remmina-dev.install:
+    - Drop remmina-dev package, no longer used.
   * debian/rules:
     - Compile with -DWITH_APPINDICATOR=OFF.
   * debian/watch:
     - Adjust watch file to match new download location.
 
- -- Luca Falavigna <dktrkranz@debian.org>  Fri, 10 Feb 2012 22:06:04 +0100
+ -- Luca Falavigna <dktrkranz@debian.org>  Fri, 10 Feb 2012 22:21:09 +0100
 
 remmina (0.9.3-3) unstable; urgency=low
 
