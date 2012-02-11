@@ -1,0 +1,15 @@
+Description: Do not use deprecated g_thread_init function.
+Author: Luca Falavigna <dktrkranz@debian.org>
+
+Index: remmina/remmina/src/remmina.c
+===================================================================
+--- remmina.orig/remmina/src/remmina.c	2012-02-10 20:44:51.097691992 +0100
++++ remmina/remmina/src/remmina.c	2012-02-11 15:15:24.286816705 +0100
+@@ -194,7 +194,6 @@
+ 	textdomain(GETTEXT_PACKAGE);
+ 
+ #ifdef HAVE_PTHREAD
+-	g_thread_init (NULL);
+ 	gdk_threads_init ();
+ #endif
+ 
