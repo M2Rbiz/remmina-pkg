@@ -1,6 +1,10 @@
 remmina (1.0.0-1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - Compatible with FreeRDP 1.0 (Closes: #658363).
+    - Ported to GTK3, this also fixes an incompatibility with
+      GTK2 and recent Avahi with GTK3 support, which lead to
+      crashes when scanning network services (Closes: #626499).
   * debian/patches/REMMINA_COMMAND_NONE.patch:
     - Refresh for new upstream release.
   * debian/clean:
@@ -28,7 +32,7 @@ remmina (1.0.0-1) UNRELEASED; urgency=low
   * debian/watch:
     - Adjust watch file to match new download location.
 
- -- Luca Falavigna <dktrkranz@debian.org>  Fri, 10 Feb 2012 23:48:23 +0100
+ -- Luca Falavigna <dktrkranz@debian.org>  Sat, 11 Feb 2012 09:59:18 +0100
 
 remmina (0.9.3-3) unstable; urgency=low
 
