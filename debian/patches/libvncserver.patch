@@ -1,0 +1,30 @@
+Description: Do not use convenience copy of libvncserver
+Author: Pino Toscano <pino@debian.org>
+Bug: http://bugs.debian.org/639891
+Forwarded: https://github.com/FreeRDP/Remmina/issues/15
+
+Index: remmina/remmina-plugins/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins/CMakeLists.txt	2012-02-10 20:44:51.073691991 +0100
++++ remmina/remmina-plugins/CMakeLists.txt	2012-02-11 12:53:15.536569918 +0100
+@@ -53,7 +53,6 @@
+ find_suggested_package(ZLIB)
+ 
+ if(ZLIB_FOUND)
+-	add_subdirectory(vnc/libvncserver)
+ 	add_subdirectory(vnc)
+ endif()
+ 
+Index: remmina/remmina-plugins/vnc/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins/vnc/CMakeLists.txt	2012-02-10 20:44:51.081691991 +0100
++++ remmina/remmina-plugins/vnc/CMakeLists.txt	2012-02-11 12:53:25.968570238 +0100
+@@ -17,7 +17,7 @@
+ # Foundation, Inc., 59 Temple Place, Suite 330, 
+ # Boston, MA 02111-1307, USA.
+ 
+-set(LIBVNCSERVER_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/libvncserver)
++set(LIBVNCSERVER_INCLUDE_DIRS)
+ set(LIBVNCSERVER_LIBRARIES vncclient)
+ 
+ set(REMMINA_PLUGIN_VNC_SRCS
