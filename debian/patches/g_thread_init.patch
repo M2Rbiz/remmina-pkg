@@ -3,13 +3,14 @@ Author: Luca Falavigna <dktrkranz@debian.org>
 
 Index: remmina/remmina/src/remmina.c
 ===================================================================
---- remmina.orig/remmina/src/remmina.c	2012-02-10 20:44:51.097691992 +0100
-+++ remmina/remmina/src/remmina.c	2012-02-11 15:15:24.286816705 +0100
-@@ -194,7 +194,6 @@
+--- remmina.orig/remmina/src/remmina.c	2012-02-11 15:17:12.654820026 +0100
++++ remmina/remmina/src/remmina.c	2012-02-11 16:42:36.882977020 +0100
+@@ -194,7 +194,7 @@
  	textdomain(GETTEXT_PACKAGE);
  
  #ifdef HAVE_PTHREAD
 -	g_thread_init (NULL);
++	g_type_init ();
  	gdk_threads_init ();
  #endif
  
