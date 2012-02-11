@@ -1,4 +1,4 @@
-remmina (1.0.0-1) UNRELEASED; urgency=low
+remmina (1.0.0-1) unstable; urgency=low
 
   * New upstream release.
     - Compatible with FreeRDP 1.0 (Closes: #658363).
@@ -11,7 +11,6 @@ remmina (1.0.0-1) UNRELEASED; urgency=low
     - Do not use deprecated g_thread_init function.
   * debian/patches/REMMINA_COMMAND_NONE.patch:
     - Removed, obsoleted by GApplication port.
-    - Refresh for new upstream release.
   * debian/clean:
     - Remove spurious files created at build-time.
   * debian/compat:
@@ -37,7 +36,7 @@ remmina (1.0.0-1) UNRELEASED; urgency=low
   * debian/watch:
     - Adjust watch file to match new download location.
 
- -- Luca Falavigna <dktrkranz@debian.org>  Sat, 11 Feb 2012 15:16:29 +0100
+ -- Luca Falavigna <dktrkranz@debian.org>  Sat, 11 Feb 2012 17:28:48 +0100
 
 remmina (0.9.3-3) unstable; urgency=low
 
