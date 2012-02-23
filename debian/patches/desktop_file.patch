@@ -1,0 +1,47 @@
+Description: Install .desktop file
+Author: Jeremy Bicha <jeremy@bicha.net >
+Bug: http://bugs.debian.org/659542
+
+Index: remmina/remmina/desktop/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina/desktop/CMakeLists.txt	2012-02-23 22:31:49.813792008 +0100
++++ remmina/remmina/desktop/CMakeLists.txt	2012-02-23 22:32:25.425793099 +0100
+@@ -38,3 +38,4 @@
+ install(FILES ${ICON48_DATA} DESTINATION ${ICON48_DIR})
+ install(FILES ${ICONSVG_DATA} DESTINATION ${ICONSVG_DIR})
+ 
++install(FILES remmina.desktop DESTINATION share/applications/remmina.desktop)
+Index: remmina/remmina/desktop/remmina.desktop
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ remmina/remmina/desktop/remmina.desktop	2012-02-23 22:31:18.685791053 +0100
+@@ -0,0 +1,12 @@
++[Desktop Entry]
++Version=1.0
++_Name=Remmina Remote Desktop Client
++_Comment=Connect to remote desktops
++TryExec=remmina
++Exec=remmina
++Icon=remmina
++Terminal=false
++Type=Application
++Actions=
++Categories=GTK;GNOME;X-GNOME-NetworkSettings;Network;
++
+Index: remmina/remmina/desktop/remmina.desktop.in
+===================================================================
+--- remmina.orig/remmina/desktop/remmina.desktop.in	2012-02-23 22:31:18.685791053 +0100
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,12 +0,0 @@
+-[Desktop Entry]
+-Version=1.0
+-_Name=Remmina Remote Desktop Client
+-_Comment=Connect to remote desktops
+-TryExec=remmina
+-Exec=remmina
+-Icon=remmina
+-Terminal=false
+-Type=Application
+-Actions=
+-Categories=GTK;GNOME;X-GNOME-NetworkSettings;Network;
+-
