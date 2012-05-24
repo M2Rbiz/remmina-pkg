@@ -1,0 +1,95 @@
+Description: Fix some issues with scrolling
+Author: Luca Falavigna <dktrkranz@debian.org>
+
+Index: remmina/remmina-plugins/rdp/rdp_event.c
+===================================================================
+--- remmina.orig/remmina-plugins/rdp/rdp_event.c	2012-05-24 21:48:37.814112422 +0200
++++ remmina/remmina-plugins/rdp/rdp_event.c	2012-05-24 21:56:56.306127693 +0200
+@@ -377,6 +377,17 @@
+ 		case GDK_SCROLL_DOWN:
+ 			flag = PTR_FLAGS_WHEEL | PTR_FLAGS_WHEEL_NEGATIVE | 0x0088;
+ 			break;
++		
++#ifdef GDK_SCROLL_SMOOTH
++		case GDK_SCROLL_SMOOTH:
++			if (event->delta_y < 0)
++				flag = PTR_FLAGS_WHEEL | 0x0078;
++			if (event->delta_y > 0)
++				flag = PTR_FLAGS_WHEEL | PTR_FLAGS_WHEEL_NEGATIVE | 0x0088;
++			if (!flag)
++				return FALSE;
++			break;
++#endif
+ 
+ 		default:
+ 			return FALSE;
+@@ -479,7 +490,7 @@
+ 	gtk_container_add(GTK_CONTAINER(gp), rfi->drawing_area);
+ 
+ 	gtk_widget_add_events(rfi->drawing_area, GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK
+-		| GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
++		| GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK);
+ 	gtk_widget_set_can_focus(rfi->drawing_area, TRUE);
+ 
+ 	remmina_plugin_service->protocol_plugin_register_hostkey(gp, rfi->drawing_area);
+Index: remmina/remmina-plugins/vnc/vnc_plugin.c
+===================================================================
+--- remmina.orig/remmina-plugins/vnc/vnc_plugin.c	2012-05-24 21:24:24.208360890 +0200
++++ remmina/remmina-plugins/vnc/vnc_plugin.c	2012-05-24 21:56:56.310127694 +0200
+@@ -1426,6 +1426,20 @@
+ 		case GDK_SCROLL_RIGHT:
+ 			mask = (1 << 6);
+ 			break;
++#ifdef GDK_SCROLL_SMOOTH
++		case GDK_SCROLL_SMOOTH:
++			if (event->delta_y < 0)
++				mask = (1 << 3);
++			if (event->delta_y > 0)
++				mask = (1 << 4);
++			if (event->delta_x < 0)
++				mask = (1 << 5);
++			if (event->delta_x > 0)
++				mask = (1 << 6);
++			if (!mask)
++				return FALSE;
++			break;
++#endif
+ 		default:
+ 			return FALSE;
+ 	}
+@@ -1847,7 +1861,7 @@
+ 	gtk_widget_add_events(
+ 			gpdata->drawing_area,
+ 			GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK
+-					| GDK_KEY_RELEASE_MASK);
++					| GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK);
+ 	gtk_widget_set_can_focus(gpdata->drawing_area, TRUE);
+ 
+ #if GTK_VERSION == 3
+Index: remmina/remmina/src/remmina_connection_window.c
+===================================================================
+--- remmina.orig/remmina/src/remmina_connection_window.c	2012-05-24 21:24:24.228350890 +0200
++++ remmina/remmina/src/remmina_connection_window.c	2012-05-24 21:55:50.294125671 +0200
+@@ -1477,6 +1477,22 @@
+ 				return TRUE;
+ 			}
+ 			break;
++#ifdef GDK_SCROLL_SMOOTH
++		case GDK_SCROLL_SMOOTH:
++			if (event->delta_y < 0 && opacity > 0)
++                        {
++                                remmina_file_set_int(cnnobj->remmina_file, "toolbar_opacity", opacity - 1);
++                                remmina_connection_holder_update_toolbar_opacity(cnnhld);
++                                return TRUE;
++                        }
++			if (event->delta_y > 0 && opacity < TOOLBAR_OPACITY_LEVEL)
++                        {
++                                remmina_file_set_int(cnnobj->remmina_file, "toolbar_opacity", opacity + 1);
++                                remmina_connection_holder_update_toolbar_opacity(cnnhld);
++                                return TRUE;
++                        }
++                        break;
++#endif
+ 		default:
+ 			break;
+ 	}
