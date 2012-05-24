@@ -1,0 +1,22 @@
+Description: Use X-GNOME-FullName in .desktop file
+Author: Luca Falavigna <dktrkranz@debian.org>
+
+Index: remmina/remmina/desktop/remmina.desktop
+===================================================================
+--- remmina.orig/remmina/desktop/remmina.desktop	2012-05-24 21:33:31.762084665 +0200
++++ remmina/remmina/desktop/remmina.desktop	2012-05-24 21:34:30.650086470 +0200
+@@ -1,6 +1,8 @@
+ [Desktop Entry]
+ Version=1.0
+-Name=Remmina Remote Desktop Client
++Name=Remmina
++GenericName=Remote Desktop Client
++X-GNOME-FullName=Remmina Remote Desktop Client
+ Comment=Connect to remote desktops
+ TryExec=remmina
+ Exec=remmina
+@@ -9,4 +11,3 @@
+ Type=Application
+ Actions=
+ Categories=GTK;GNOME;X-GNOME-NetworkSettings;Network;
+-
