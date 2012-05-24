@@ -25,7 +25,8 @@ Package: remmina
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- remmina-common (= ${source:Version})
+ remmina-common (= ${source:Version}),
+ dbus-x11
 Recommends: remmina-plugin-rdp,
  remmina-plugin-vnc
 Breaks: remmina-plugin-data (<= 0.9)
