@@ -12,6 +12,9 @@ override_dh_install:
 		find $(CURDIR)/debian/remmina-common -name "*remmina.desktop" -delete && \
 		find $(CURDIR)/debian/remmina-common -type d -empty -delete || true
 
+override_dh_installchangelogs:
+	dh_installchangelogs remmina/ChangeLog
+
 override_dh_makeshlibs:
 	for plugin in rdp vnc xdmcp nx telepathy; do \
 		dh_makeshlibs -premmina-plugin-$$plugin -Xremmina-plugin-$$plugin.so; \
