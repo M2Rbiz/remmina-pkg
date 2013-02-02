@@ -14,6 +14,7 @@ remmina (1.0.0-5) UNRELEASED; urgency=low
   * debian/remmina-plugin-{nx,vnc}.lintian-overrides:
     - hardening-check discovers unprotected functions only.
   * debian/rules:
+    - Pass "-Wl,--as-needed" to LDFLAGS.
     - Install upstream changelog.
     - Overriding dh_makeshlibs is no longer required.
 
