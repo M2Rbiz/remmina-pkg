@@ -1,0 +1,75 @@
+Description: Do not define any SONAME for the plugins
+Author: Luca Falavigna <dktrkranz@debian.org>
+
+Index: remmina/remmina-plugins-gnome/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins-gnome/CMakeLists.txt	2013-02-01 20:37:20.321446264 +0100
++++ remmina/remmina-plugins-gnome/CMakeLists.txt	2013-02-01 20:54:33.265477907 +0100
+@@ -23,6 +23,7 @@
+ 
+ add_library(remmina-plugins-gnome ${REMMINA_PLUGINS_GNOME_SRCS})
+ set_target_properties(remmina-plugins-gnome PROPERTIES PREFIX "")
++set_target_properties(remmina-plugins-gnome PROPERTIES NO_SONAME 1)
+ 
+ include_directories(${GTK_INCLUDE_DIRS})
+ target_link_libraries(remmina-plugins-gnome ${GTK_LIBRARY_DIRS})
+Index: remmina/remmina-plugins/nx/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins/nx/CMakeLists.txt	2013-02-01 20:37:20.321446264 +0100
++++ remmina/remmina-plugins/nx/CMakeLists.txt	2013-02-01 20:53:27.201475885 +0100
+@@ -28,6 +28,7 @@
+ 
+ add_library(remmina-plugin-nx ${REMMINA_PLUGIN_NX_SRCS})
+ set_target_properties(remmina-plugin-nx PROPERTIES PREFIX "")
++set_target_properties(remmina-plugin-nx PROPERTIES NO_SONAME 1)
+ 
+ include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${XKBFILE_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS})
+ target_link_libraries(remmina-plugin-nx ${REMMINA_COMMON_LIBRARIES} ${XKBFILE_LIBRARIES} ${LIBSSH_LIBRARIES})
+Index: remmina/remmina-plugins/rdp/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins/rdp/CMakeLists.txt	2013-02-01 20:52:04.201473342 +0100
++++ remmina/remmina-plugins/rdp/CMakeLists.txt	2013-02-01 20:53:19.241475643 +0100
+@@ -39,6 +39,7 @@
+ 
+ add_library(remmina-plugin-rdp ${REMMINA_PLUGIN_RDP_SRCS})
+ set_target_properties(remmina-plugin-rdp PROPERTIES PREFIX "")
++set_target_properties(remmina-plugin-rdp PROPERTIES NO_SONAME 1)
+ 
+ include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${FREERDP_INCLUDE_DIRS})
+ target_link_libraries(remmina-plugin-rdp ${REMMINA_COMMON_LIBRARIES} ${FREERDP_LIBRARIES})
+Index: remmina/remmina-plugins/telepathy/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins/telepathy/CMakeLists.txt	2013-02-01 20:37:20.353446265 +0100
++++ remmina/remmina-plugins/telepathy/CMakeLists.txt	2013-02-01 20:53:44.801476423 +0100
+@@ -23,6 +23,7 @@
+ 
+ add_library(remmina-plugin-telepathy ${REMMINA_PLUGIN_TELEPATHY_SRCS})
+ set_target_properties(remmina-plugin-telepathy PROPERTIES PREFIX "")
++set_target_properties(remmina-plugin-telepathy PROPERTIES NO_SONAME 1)
+ 
+ find_required_package(GTK3)
+ 
+Index: remmina/remmina-plugins/vnc/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins/vnc/CMakeLists.txt	2013-02-01 20:52:04.077473338 +0100
++++ remmina/remmina-plugins/vnc/CMakeLists.txt	2013-02-01 20:54:07.265477109 +0100
+@@ -26,6 +26,7 @@
+ 
+ add_library(remmina-plugin-vnc ${REMMINA_PLUGIN_VNC_SRCS})
+ set_target_properties(remmina-plugin-vnc PROPERTIES PREFIX "")
++set_target_properties(remmina-plugin-vnc PROPERTIES NO_SONAME 1)
+ 
+ include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${LIBVNCSERVER_INCLUDE_DIRS})
+ target_link_libraries(remmina-plugin-vnc ${REMMINA_COMMON_LIBRARIES} ${LIBVNCSERVER_LIBRARIES})
+Index: remmina/remmina-plugins/xdmcp/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina-plugins/xdmcp/CMakeLists.txt	2013-02-01 20:37:20.361446265 +0100
++++ remmina/remmina-plugins/xdmcp/CMakeLists.txt	2013-02-01 20:53:34.601476111 +0100
+@@ -23,6 +23,7 @@
+ 
+ add_library(remmina-plugin-xdmcp ${REMMINA_PLUGIN_XDMCP_SRCS})
+ set_target_properties(remmina-plugin-xdmcp PROPERTIES PREFIX "")
++set_target_properties(remmina-plugin-xdmcp PROPERTIES NO_SONAME 1)
+ 
+ include_directories(${REMMINA_COMMON_INCLUDE_DIRS})
+ target_link_libraries(remmina-plugin-xdmcp ${REMMINA_COMMON_LIBRARIES})
