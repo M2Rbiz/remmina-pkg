@@ -9,6 +9,8 @@ remmina (1.0.0+git20140913-1) unstable; urgency=medium
     - OpenSSL license exception granted (Closes: #750870).
   * debian/patches/*.patch:
     - All patches integrated upstream.
+  * debian/patches/rfx_context_new.patch:
+    . rfx_context_new does not take any parameter, fix FTBFS.
   * debian/control:
     - Bump libfreerdp-dev dependency to 1.1.0 (Closes: #757605, 757821).
     - Build-depends on libgcrypt20-dev and libgnutls28-dev (Closes: #759000).

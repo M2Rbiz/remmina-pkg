@@ -1,0 +1,16 @@
+Description: rfx_context_new does not take any parameter
+Author: Luca Falavigna <dktrkranz@debian.org>
+
+Index: remmina/remmina-plugins/rdp/rdp_plugin.c
+===================================================================
+--- remmina.orig/remmina-plugins/rdp/rdp_plugin.c
++++ remmina/remmina-plugins/rdp/rdp_plugin.c
+@@ -251,7 +251,7 @@ static BOOL remmina_rdp_pre_connect(free
+ 		settings->LargePointerFlag = True;
+ 		settings->PerformanceFlags = PERF_FLAG_NONE;
+ 
+-		rfi->rfx_context = rfx_context_new(FALSE);
++		rfi->rfx_context = rfx_context_new();
+ 	}
+ 
+     freerdp_register_addin_provider(freerdp_channels_load_static_addin_entry, 0);
