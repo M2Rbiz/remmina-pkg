@@ -16,6 +16,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, 
 # Boston, MA 02111-1307, USA.
+#
+# In addition, as a special exception, the copyright holders give
+# permission to link the code of portions of this program with the
+# OpenSSL library under certain conditions as described in each
+# individual source file, and distribute linked combinations
+# including the two.
+# You must obey the GNU General Public License in all respects
+# for all of the code used other than OpenSSL. If you modify
+# file(s) with this exception, you may extend this exception to your
+# version of the file(s), but you are not obligated to do so. If you
+# do not wish to do so, delete this exception statement from your
+# version. If you delete this exception statement from all source
+# files in the program, then also delete it here.
+
+
+cmake_minimum_required(VERSION 2.8)
 
 set(REMMINA_SRCS
 	src/remmina_about.c
@@ -86,6 +102,8 @@ set(REMMINA_SRCS
 	src/remmina_string_list.h
 	src/remmina_widget_pool.c
 	src/remmina_widget_pool.h
+	src/remmina_external_tools.c
+	src/remmina_external_tools.h
 	)
 
 add_executable(remmina ${REMMINA_SRCS})
@@ -93,11 +111,20 @@ add_executable(remmina ${REMMINA_SRCS})
 include_directories(${GTK_INCLUDE_DIRS})
 target_link_libraries(remmina ${GTK_LIBRARIES})
 
+find_package(X11)
+include_directories(${X11_INCLUDE_DIR})
+target_link_libraries(remmina ${X11_LIBRARIES})
+
 find_suggested_package(LIBSSH)
 if(LIBSSH_FOUND)
 	add_definitions(-DHAVE_LIBSSH)
 	include_directories(${LIBSSH_INCLUDE_DIRS})
 	target_link_libraries(remmina ${LIBSSH_LIBRARIES})
+endif()
+
+if(PTHREAD_FOUND)
+	include_directories(${PTHREAD_INCLUDE_DIRS})
+	target_link_libraries(remmina ${PTHREAD_LIBRARIES})
 endif()
 
 if(GCRYPT_FOUND)
@@ -132,9 +159,12 @@ if(GTK3_FOUND)
 	endif()
 endif()
 
-add_subdirectory(po)
+if(WITH_TRANSLATIONS)
+	add_subdirectory(po)
+endif()
 add_subdirectory(icons)
 add_subdirectory(desktop)
+add_subdirectory(external_tools)
 
 install(TARGETS remmina DESTINATION ${CMAKE_INSTALL_BINDIR})
 

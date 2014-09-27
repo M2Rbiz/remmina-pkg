@@ -18,6 +18,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 /* rdp gdi functions, run inside the rdp thread */
@@ -28,10 +42,6 @@
 #include <freerdp/freerdp.h>
 #include <freerdp/constants.h>
 #include <freerdp/cache/cache.h>
-#include <freerdp/utils/memory.h>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <gdk/gdkx.h>
 
 static void rf_desktop_resize(rdpContext* context)
 {
@@ -43,8 +53,8 @@ static void rf_desktop_resize(rdpContext* context)
 
 	LOCK_BUFFER(TRUE)
 
-	remmina_plugin_service->protocol_plugin_set_width(gp, rfi->settings->width);
-	remmina_plugin_service->protocol_plugin_set_height(gp, rfi->settings->height);
+	remmina_plugin_service->protocol_plugin_set_width(gp, rfi->settings->DesktopWidth);
+	remmina_plugin_service->protocol_plugin_set_height(gp, rfi->settings->DesktopHeight);
 
 	UNLOCK_BUFFER(TRUE)
 
@@ -62,23 +72,6 @@ static void rf_gdi_palette(rdpContext* context, PALETTE_UPDATE* palette)
 
 static void rf_gdi_set_bounds(rdpContext* context, rdpBounds* bounds)
 {
-	/*
-	XRectangle clip;
-	rfContext* rfi = (rfContext*) context;
-
-	if (bounds != NULL)
-	{
-		clip.x = bounds->left;
-		clip.y = bounds->top;
-		clip.width = bounds->right - bounds->left + 1;
-		clip.height = bounds->bottom - bounds->top + 1;
-		XSetClipRectangles(rfi->display, rfi->gc, 0, 0, &clip, 1, YXBanded);
-	}
-	else
-	{
-		XSetClipMask(rfi->display, rfi->gc, None);
-	}
-	*/
 }
 
 static void rf_gdi_dstblt(rdpContext* context, DSTBLT_ORDER* dstblt)
@@ -128,12 +121,12 @@ static void rf_gdi_fast_index(rdpContext* context, FAST_INDEX_ORDER* fast_index)
 
 static void rf_gdi_surface_bits(rdpContext* context, SURFACE_BITS_COMMAND* surface_bits_command)
 {
-	uint8* bitmap;
+	UINT8* bitmap;
 	RFX_MESSAGE* message;
 	RemminaPluginRdpUiObject* ui;
 	rfContext* rfi = (rfContext*) context;
 
-	if (surface_bits_command->codecID == CODEC_ID_REMOTEFX && rfi->rfx_context)
+	if (surface_bits_command->codecID == RDP_CODEC_ID_REMOTEFX && rfi->rfx_context)
 	{
 		message = rfx_process_message(rfi->rfx_context, surface_bits_command->bitmapData,
 				surface_bits_command->bitmapDataLength);
@@ -146,9 +139,9 @@ static void rf_gdi_surface_bits(rdpContext* context, SURFACE_BITS_COMMAND* surfa
 
 		rf_queue_ui(rfi->protocol_widget, ui);
 	}
-	else if (surface_bits_command->codecID == CODEC_ID_NONE)
+	else if (surface_bits_command->codecID == RDP_CODEC_ID_NONE)
 	{
-		bitmap = (uint8*) xzalloc(surface_bits_command->width * surface_bits_command->height * 4);
+		bitmap = (UINT8*) calloc(1, surface_bits_command->width * surface_bits_command->height * 4);
 
 		freerdp_image_flip(surface_bits_command->bitmapData, bitmap,
 				surface_bits_command->width, surface_bits_command->height, 32);

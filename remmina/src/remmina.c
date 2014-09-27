@@ -16,6 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gdk/gdkx.h>
@@ -55,6 +69,7 @@ static gchar *remmina_option_plugin;
 static gboolean remmina_option_quit;
 static gchar *remmina_option_server;
 static gchar *remmina_option_protocol;
+static gchar *remmina_option_icon;
 
 static GOptionEntry remmina_options[] =
 {
@@ -68,6 +83,7 @@ static GOptionEntry remmina_options[] =
 { "quit", 'q', 0, G_OPTION_ARG_NONE, &remmina_option_quit, "Quit the application", NULL },
 { "server", 's', 0, G_OPTION_ARG_STRING, &remmina_option_server, "Use default server name S", "S" },
 { "protocol", 't', 0, G_OPTION_ARG_STRING, &remmina_option_protocol, "Use default protocol T", "T" },
+{ "icon", 'i', 0, G_OPTION_ARG_NONE, &remmina_option_icon, "Start as tray icon", NULL },
 { NULL } };
 
 static gint remmina_on_command_line(GApplication *app, GApplicationCommandLine *cmdline)
@@ -90,6 +106,7 @@ static gint remmina_on_command_line(GApplication *app, GApplicationCommandLine *
 	remmina_option_plugin = NULL;
 	remmina_option_server = NULL;
 	remmina_option_protocol = NULL;
+	remmina_option_icon = FALSE;
 
 	argv = g_application_command_line_get_arguments(cmdline, &argc);
 
@@ -157,6 +174,11 @@ static gint remmina_on_command_line(GApplication *app, GApplicationCommandLine *
 		remmina_exec_command(REMMINA_COMMAND_PLUGIN, remmina_option_plugin);
 		executed = TRUE;
 	}
+	if (remmina_option_icon)
+	{
+		remmina_exec_command(REMMINA_COMMAND_NONE, remmina_option_icon);
+		executed = TRUE;
+	}
 	if (!executed)
 	{
 		remmina_exec_command(REMMINA_COMMAND_MAIN, NULL);
@@ -194,7 +216,7 @@ int main(int argc, char* argv[])
 	textdomain(GETTEXT_PACKAGE);
 
 #ifdef HAVE_PTHREAD
-	g_thread_init (NULL);
+	g_type_init ();
 	gdk_threads_init ();
 #endif
 

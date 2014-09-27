@@ -16,12 +16,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <stdlib.h>
+#include "config.h"
 #include "remmina_public.h"
 #include "remmina_pref.h"
 #include "remmina_crypt.h"
@@ -30,12 +45,6 @@
 
 #define MIN_WINDOW_WIDTH 10
 #define MIN_WINDOW_HEIGHT 10
-
-struct _RemminaFile
-{
-	gchar *filename;
-	GHashTable *settings;
-};
 
 typedef struct _RemminaSetting
 {
@@ -405,6 +414,11 @@ remmina_file_dup(RemminaFile *remminafile)
 
 void remmina_file_update_screen_resolution(RemminaFile *remminafile)
 {
+#if GTK_VERSION == 3
+	GdkDisplay *display;
+	GdkDeviceManager *device_manager;
+	GdkDevice *device;
+#endif
 	GdkScreen *screen;
 	gchar *pos;
 	gchar *resolution;
@@ -415,7 +429,14 @@ void remmina_file_update_screen_resolution(RemminaFile *remminafile)
 	resolution = g_strdup(remmina_file_get_string(remminafile, "resolution"));
 	if (resolution == NULL || strchr(resolution, 'x') == NULL)
 	{
+#if GTK_VERSION == 3
+		display = gdk_display_get_default();
+		device_manager = gdk_display_get_device_manager(display);
+		device = gdk_device_manager_get_client_pointer(device_manager);
+		gdk_device_get_position(device, &screen, &x, &y);
+#elif GTK_VERSION == 2
 		gdk_display_get_pointer(gdk_display_get_default(), &screen, &x, &y, NULL);
+#endif
 		monitor = gdk_screen_get_monitor_at_point(screen, x, y);
 		gdk_screen_get_monitor_geometry(screen, monitor, &rect);
 		remmina_file_set_int(remminafile, "resolution_width", rect.width);

@@ -16,6 +16,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, 
 # Boston, MA 02111-1307, USA.
+#
+# In addition, as a special exception, the copyright holders give
+# permission to link the code of portions of this program with the
+# OpenSSL library under certain conditions as described in each
+# individual source file, and distribute linked combinations
+# including the two.
+# You must obey the GNU General Public License in all respects
+# for all of the code used other than OpenSSL. If you modify
+# file(s) with this exception, you may extend this exception to your
+# version of the file(s), but you are not obligated to do so. If you
+# do not wish to do so, delete this exception statement from your
+# version. If you delete this exception statement from all source
+# files in the program, then also delete it here.
+
 
 set(ICON16_DIR "${REMMINA_DATADIR}/icons/hicolor/16x16/apps")
 set(ICON22_DIR "${REMMINA_DATADIR}/icons/hicolor/22x22/apps")
@@ -38,3 +52,4 @@ install(FILES ${ICON32_DATA} DESTINATION ${ICON32_DIR})
 install(FILES ${ICON48_DATA} DESTINATION ${ICON48_DIR})
 install(FILES ${ICONSVG_DATA} DESTINATION ${ICONSVG_DIR})
 
+install(FILES remmina.desktop DESTINATION "${REMMINA_DATADIR}/applications")

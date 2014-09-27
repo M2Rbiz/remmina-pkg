@@ -16,6 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include "config.h"
@@ -394,8 +408,10 @@ void remmina_icon_init(void)
 	{
 #ifdef HAVE_LIBAPPINDICATOR
 		remmina_icon.icon = app_indicator_new ("remmina-icon", "remmina", APP_INDICATOR_CATEGORY_OTHER);
+		app_indicator_set_icon_theme_path (remmina_icon.icon, REMMINA_DATADIR G_DIR_SEPARATOR_S "icons");
 
 		app_indicator_set_status (remmina_icon.icon, APP_INDICATOR_STATUS_ACTIVE);
+		app_indicator_set_title (remmina_icon.icon, "Remmina");
 		remmina_icon_populate_menu ();
 #else
 		remmina_icon.icon = gtk_status_icon_new_from_icon_name("remmina");

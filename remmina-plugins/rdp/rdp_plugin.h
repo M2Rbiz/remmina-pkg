@@ -16,6 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #ifndef __REMMINA_RDP_H__
@@ -48,7 +62,7 @@ extern RemminaPluginService* remmina_plugin_service;
 struct rf_pointer
 {
 	rdpPointer pointer;
-	Cursor cursor;
+	GdkCursor* cursor;
 };
 typedef struct rf_pointer rfPointer;
 
@@ -56,6 +70,7 @@ struct rf_bitmap
 {
 	rdpBitmap bitmap;
 	Pixmap pixmap;
+	cairo_surface_t* surface;
 };
 typedef struct rf_bitmap rfBitmap;
 
@@ -82,6 +97,9 @@ struct rf_context
 	gboolean scale;
 	gboolean user_cancelled;
 
+	GMutex* gmutex;
+	GCond* gcond;
+
 	RDP_PLUGIN_DATA rdpdr_data[5];
 	RDP_PLUGIN_DATA drdynvc_data[5];
 	RDP_PLUGIN_DATA rdpsnd_data[5];
@@ -96,33 +114,21 @@ struct rf_context
 	gdouble scale_x;
 	gdouble scale_y;
 	guint scale_handler;
-	gboolean capslock_initstate;
-	gboolean numlock_initstate;
 	gboolean use_client_keymap;
 
 	HGDI_DC hdc;
 	gint srcBpp;
-	Display* display;
-	Visual* visual;
-	Drawable drawable;
-	Drawable drw_surface;
-	Pixmap rgb_surface;
-	GC gc;
-	GC gc_default;
-	Pixmap bitmap_mono;
-	GC gc_mono;
-	gint depth;
+	GdkDisplay* display;
+	GdkVisual* visual;
+	cairo_surface_t* surface;
+	cairo_format_t cairo_format;
 	gint bpp;
 	gint width;
 	gint height;
 	gint scanline_pad;
 	gint* colormap;
 	HCLRCONV clrconv;
-	Pixmap primary;
-	Pixmap drawing;
-	XImage* image;
-	uint8* primary_buffer;
-	cairo_surface_t* rgb_cairo_surface;
+	UINT8* primary_buffer;
 
 	guint object_id_seq;
 	GHashTable* object_table;
@@ -133,6 +139,11 @@ struct rf_context
 	GArray* pressed_keys;
 	GAsyncQueue* event_queue;
 	gint event_pipe[2];
+
+	GAsyncQueue* clipboard_queue;
+	UINT32 format;
+	gboolean clipboard_wait;
+	gulong clipboard_handler;
 };
 
 typedef enum
@@ -148,15 +159,15 @@ struct remmina_plugin_rdp_event
 	{
 		struct
 		{
-			boolean up;
-			boolean extended;
-			uint8 key_code;
+			BOOL up;
+			BOOL extended;
+			UINT8 key_code;
 		} key_event;
 		struct
 		{
-			uint16 flags;
-			uint16 x;
-			uint16 y;
+			UINT16 flags;
+			UINT16 x;
+			UINT16 y;
 		} mouse_event;
 	};
 };
@@ -166,9 +177,27 @@ typedef enum
 {
 	REMMINA_RDP_UI_UPDATE_REGION = 0,
 	REMMINA_RDP_UI_CONNECTED,
+	REMMINA_RDP_UI_CURSOR,
 	REMMINA_RDP_UI_RFX,
-	REMMINA_RDP_UI_NOCODEC
+	REMMINA_RDP_UI_NOCODEC,
+	REMMINA_RDP_UI_CLIPBOARD
 } RemminaPluginRdpUiType;
+
+typedef enum
+{
+	REMMINA_RDP_UI_CLIPBOARD_FORMATLIST,
+	REMMINA_RDP_UI_CLIPBOARD_GET_DATA,
+	REMMINA_RDP_UI_CLIPBOARD_SET_DATA
+} RemminaPluginRdpUiClipboardType;
+
+typedef enum
+{
+	REMMINA_RDP_POINTER_NEW,
+	REMMINA_RDP_POINTER_FREE,
+	REMMINA_RDP_POINTER_SET,
+	REMMINA_RDP_POINTER_NULL,
+	REMMINA_RDP_POINTER_DEFAULT
+} RemminaPluginRdpUiPointerType;
 
 struct remmina_plugin_rdp_ui_object
 {
@@ -184,6 +213,11 @@ struct remmina_plugin_rdp_ui_object
 		} region;
 		struct
 		{
+			rfPointer* pointer;
+			RemminaPluginRdpUiPointerType type;
+		} cursor;
+		struct
+		{
 			gint left;
 			gint top;
 			RFX_MESSAGE* message;
@@ -194,8 +228,14 @@ struct remmina_plugin_rdp_ui_object
 			gint top;
 			gint width;
 			gint height;
-			uint8* bitmap;
+			UINT8* bitmap;
 		} nocodec;
+		struct
+		{
+			RemminaPluginRdpUiClipboardType type;
+			GtkTargetList* targetlist;
+			UINT32 format;
+		} clipboard;
 	};
 };
 typedef struct remmina_plugin_rdp_ui_object RemminaPluginRdpUiObject;
@@ -203,7 +243,7 @@ typedef struct remmina_plugin_rdp_ui_object RemminaPluginRdpUiObject;
 void rf_init(RemminaProtocolWidget* gp);
 void rf_uninit(RemminaProtocolWidget* gp);
 void rf_get_fds(RemminaProtocolWidget* gp, void** rfds, int* rcount);
-boolean rf_check_fds(RemminaProtocolWidget* gp);
+BOOL rf_check_fds(RemminaProtocolWidget* gp);
 void rf_queue_ui(RemminaProtocolWidget* gp, RemminaPluginRdpUiObject* ui);
 void rf_object_free(RemminaProtocolWidget* gp, RemminaPluginRdpUiObject* obj);
 

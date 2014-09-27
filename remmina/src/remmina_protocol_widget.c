@@ -16,6 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
@@ -255,11 +269,28 @@ void remmina_protocol_widget_open_connection(RemminaProtocolWidget* gp, RemminaF
 
 gboolean remmina_protocol_widget_close_connection(RemminaProtocolWidget* gp)
 {
+#if GTK_VERSION == 3
+	GdkDisplay *display;
+	GdkDeviceManager *manager;
+	GdkDevice *device = NULL;
+#endif
+	gboolean retval;
+
 	if (!GTK_IS_WIDGET(gp) || gp->priv->closed)
 		return FALSE;
 
 	gp->priv->closed = TRUE;
+#if GTK_VERSION == 3
+	display = gtk_widget_get_display(GTK_WIDGET(gp));
+	manager = gdk_display_get_device_manager(display);
+	device = gdk_device_manager_get_client_pointer(manager);
+	if (device != NULL)
+	{
+		gdk_device_ungrab(device, GDK_CURRENT_TIME);
+	}
+#elif GTK_VERSION == 2
 	gdk_keyboard_ungrab(GDK_CURRENT_TIME);
+#endif
 
 	if (gp->priv->chat_window)
 	{
@@ -267,21 +298,23 @@ gboolean remmina_protocol_widget_close_connection(RemminaProtocolWidget* gp)
 		gp->priv->chat_window = NULL;
 	}
 
-#ifdef HAVE_LIBSSH
-	if (gp->priv->ssh_tunnel)
-	{
-		remmina_ssh_tunnel_free(gp->priv->ssh_tunnel);
-		gp->priv->ssh_tunnel = NULL;
-	}
-#endif
-
 	if (!gp->priv->plugin || !gp->priv->plugin->close_connection)
 	{
 		remmina_protocol_widget_emit_signal(gp, "disconnect");
 		return FALSE;
 	}
 
-	return gp->priv->plugin->close_connection(gp);
+	retval = gp->priv->plugin->close_connection(gp);
+
+	#ifdef HAVE_LIBSSH
+	if (gp->priv->ssh_tunnel)
+	{
+		remmina_ssh_tunnel_free(gp->priv->ssh_tunnel);
+		gp->priv->ssh_tunnel = NULL;
+	}
+	#endif
+
+	return retval;
 }
 
 static gboolean remmina_protocol_widget_emit_signal_timeout(gpointer user_data)
@@ -809,6 +842,10 @@ gint remmina_protocol_widget_init_authuserpwd(RemminaProtocolWidget* gp, gboolea
 gint remmina_protocol_widget_init_certificate(RemminaProtocolWidget* gp, const gchar* subject, const gchar* issuer, const gchar* fingerprint)
 {
 	return remmina_init_dialog_certificate(REMMINA_INIT_DIALOG(gp->priv->init_dialog), subject, issuer, fingerprint);
+}
+gint remmina_protocol_widget_changed_certificate(RemminaProtocolWidget *gp, const gchar* subject, const gchar* issuer, const gchar* new_fingerprint, const gchar* old_fingerprint)
+{
+	return remmina_init_dialog_certificate_changed(REMMINA_INIT_DIALOG(gp->priv->init_dialog), subject, issuer, new_fingerprint, old_fingerprint);
 }
 
 gchar* remmina_protocol_widget_init_get_username(RemminaProtocolWidget* gp)

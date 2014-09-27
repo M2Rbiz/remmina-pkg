@@ -16,10 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include "config.h"
 #include "remmina_chain_button.h"
 #include "remmina_scaler.h"
 
@@ -113,7 +128,7 @@ static void remmina_scaler_destroy(RemminaScaler *scaler, gpointer data)
 static void remmina_scaler_init(RemminaScaler *scaler)
 {
 	RemminaScalerPriv *priv;
-	GtkWidget *widget;
+	GtkWidget *widget = NULL;
 
 	priv = g_new(RemminaScalerPriv, 1);
 	scaler->priv = priv;
@@ -123,14 +138,22 @@ static void remmina_scaler_init(RemminaScaler *scaler)
 
 	gtk_table_resize(GTK_TABLE(scaler), 2, 2);
 
+#if GTK_VERSION == 3
+	widget = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, MIN_SCALE_VALUE, 1.0, 0.01);
+#elif GTK_VERSION == 2
 	widget = gtk_hscale_new_with_range(MIN_SCALE_VALUE, 1.0, 0.01);
+#endif
 	gtk_widget_show(widget);
 	gtk_widget_set_tooltip_text(widget, _("Horizontal scale"));
 	gtk_table_attach_defaults(GTK_TABLE(scaler), widget, 1, 2, 0, 1);
 	g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(remmina_scaler_format_scale_value), NULL);
 	priv->hscale_widget = widget;
 
+#if GTK_VERSION == 3
+	widget = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, MIN_SCALE_VALUE, 1.0, 0.01);
+#elif GTK_VERSION == 2
 	widget = gtk_hscale_new_with_range(MIN_SCALE_VALUE, 1.0, 0.01);
+#endif
 	gtk_widget_show(widget);
 	gtk_widget_set_tooltip_text(widget, _("Vertical scale"));
 	gtk_table_attach_defaults(GTK_TABLE(scaler), widget, 1, 2, 1, 2);
