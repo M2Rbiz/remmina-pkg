@@ -15,4 +15,4 @@ override_dh_install:
 		find $(CURDIR)/debian/remmina-common -type d -empty -delete || true
 
 override_dh_installchangelogs:
-	dh_installchangelogs remmina/ChangeLog
+	dh_installchangelogs ChangeLog
