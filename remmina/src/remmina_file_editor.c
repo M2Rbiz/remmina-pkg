@@ -16,6 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
@@ -40,6 +54,7 @@
 
 G_DEFINE_TYPE( RemminaFileEditor, remmina_file_editor, GTK_TYPE_DIALOG)
 
+#ifdef HAVE_LIBSSH
 static const gchar* charset_list = "ASCII,BIG5,"
 		"CP437,CP720,CP737,CP775,CP850,CP852,CP855,"
 		"CP857,CP858,CP862,CP866,CP874,CP1125,CP1250,"
@@ -51,6 +66,7 @@ static const gchar* charset_list = "ASCII,BIG5,"
 		"ISO-8859-9,ISO-8859-10,ISO-8859-11,ISO-8859-12,"
 		"ISO-8859-13,ISO-8859-14,ISO-8859-15,ISO-8859-16,"
 		"KOI8-R,SJIS,UTF-8";
+#endif
 
 static const gchar* server_tips = N_("<tt><big>"
 		"Supported formats\n"
@@ -59,6 +75,7 @@ static const gchar* server_tips = N_("<tt><big>"
 		"* [server]:port"
 		"</big></tt>");
 
+#ifdef HAVE_LIBSSH
 static const gchar* server_tips2 = N_("<tt><big>"
 		"Supported formats\n"
 		"* :port\n"
@@ -66,6 +83,7 @@ static const gchar* server_tips2 = N_("<tt><big>"
 		"* server:port\n"
 		"* [server]:port"
 		"</big></tt>");
+#endif
 
 struct _RemminaFileEditorPriv
 {
@@ -195,7 +213,11 @@ static GtkWidget* remmina_file_editor_create_notebook_tab(RemminaFileEditor* gfe
 	GtkWidget* table;
 	GtkWidget* widget;
 
+#if GTK_VERSION == 3
+	tablabel = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif GTK_VERSION == 2
 	tablabel = gtk_hbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(tablabel);
 
 	widget = gtk_image_new_from_stock(stock_id, GTK_ICON_SIZE_MENU);
@@ -206,7 +228,11 @@ static GtkWidget* remmina_file_editor_create_notebook_tab(RemminaFileEditor* gfe
 	gtk_box_pack_start(GTK_BOX(tablabel), widget, FALSE, FALSE, 0);
 	gtk_widget_show(widget);
 
+#if GTK_VERSION == 3
+	tabbody = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	tabbody = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(tabbody);
 	gtk_notebook_append_page(GTK_NOTEBOOK(gfe->priv->config_container), tabbody, tablabel);
 
@@ -354,7 +380,7 @@ static void remmina_file_editor_create_server(RemminaFileEditor* gfe, const Remm
 	{
 		gfe->priv->avahi_service_type = (const gchar*) setting->opt1;
 
-		hbox = gtk_hbox_new (FALSE, 0);
+		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 		gtk_widget_show(hbox);
 		gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
@@ -433,7 +459,11 @@ static void remmina_file_editor_create_resolution(RemminaFileEditor* gfe, const 
 	gtk_table_attach_defaults(GTK_TABLE(table), widget, 1, 2, row, row + 1);
 	gfe->priv->resolution_auto_radio = widget;
 
-	hbox = gtk_hbox_new(FALSE, 0);
+#if GTK_VERSION == 3
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif GTK_VERSION == 2
+	hbox = gtk_hbox_new (FALSE, 0);
+#endif
 	gtk_widget_show(hbox);
 	gtk_table_attach_defaults(GTK_TABLE(table), hbox, 1, 2, row + 1, row + 2);
 
@@ -556,7 +586,11 @@ remmina_file_editor_create_chooser(RemminaFileEditor* gfe, GtkWidget* table, gin
 	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(table), widget, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
 
+#if GTK_VERSION == 3
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif GTK_VERSION == 2
 	hbox = gtk_hbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(hbox);
 	gtk_table_attach_defaults(GTK_TABLE(table), hbox, col + 1, col + 2, row, row + 1);
 
@@ -594,7 +628,11 @@ static void remmina_file_editor_create_settings(RemminaFileEditor* gfe, GtkWidge
 		{
 			if (hbox == NULL)
 			{
-				hbox = gtk_hbox_new(TRUE, 0);
+#if GTK_VERSION == 3
+				hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif GTK_VERSION == 2
+				hbox = gtk_hbox_new(FALSE, 0);
+#endif
 				gtk_widget_show(hbox);
 				gtk_table_attach_defaults(GTK_TABLE(table), hbox, 0, 2, row, row + 1);
 			}
@@ -734,7 +772,11 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor* gfe, RemminaPr
 		table = remmina_file_editor_create_notebook_tab (gfe, GTK_STOCK_DIALOG_AUTHENTICATION,
 				"SSH", 9, 3);
 
-		hbox = gtk_hbox_new (TRUE, 0);
+#if GTK_VERSION == 3
+		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#elif GTK_VERSION == 2
+		hbox = gtk_hbox_new(FALSE, 0);
+#endif
 		gtk_widget_show(hbox);
 		gtk_table_attach_defaults (GTK_TABLE(table), hbox, 0, 3, 0, 1);
 		row++;

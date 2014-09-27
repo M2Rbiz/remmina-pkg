@@ -16,11 +16,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <stdlib.h>
+#include "config.h"
 #include "remmina_public.h"
 #include "remmina_string_list.h"
 #include "remmina_widget_pool.h"
@@ -265,7 +280,11 @@ static gboolean remmina_pref_dialog_add_pref_plugin(gchar *name, RemminaPlugin *
 	widget = gtk_label_new(pref_plugin->pref_label);
 	gtk_widget_show(widget);
 
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(vbox);
 	gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), vbox, widget);
 
@@ -324,7 +343,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_widget_show(tablabel);
 
 	/* Options body */
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(vbox);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, tablabel);
 
@@ -443,7 +466,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
 	gtk_table_attach_defaults(GTK_TABLE(table), widget, 0, 1, 11, 12);
 
+#if GTK_VERSION == 3
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+#elif GTK_VERSION == 2
 	hbox = gtk_hbox_new(FALSE, 2);
+#endif
 	gtk_widget_show(hbox);
 	gtk_table_attach_defaults(GTK_TABLE(table), hbox, 1, 2, 11, 12);
 
@@ -465,7 +492,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_widget_show(tablabel);
 
 	/* Resolutions body */
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 2);
+#endif
 	gtk_widget_show(vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, tablabel);
@@ -484,7 +515,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_widget_show(tablabel);
 
 	/* Applet body */
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(vbox);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, tablabel);
 
@@ -535,7 +570,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_widget_show(tablabel);
 
 	/* Keyboard body */
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(vbox);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, tablabel);
 
@@ -581,7 +620,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(table), widget, 0, 1, 3, 4, GTK_FILL, 0, 0, 0);
 
+#if GTK_VERSION == 3
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+#elif GTK_VERSION == 2
 	hbox = gtk_hbox_new(TRUE, 2);
+#endif
 	gtk_widget_show(hbox);
 	gtk_table_attach_defaults(GTK_TABLE(table), hbox, 1, 2, 3, 4);
 
@@ -650,7 +693,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_widget_show(tablabel);
 
 	/* Terminal body */
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(vbox);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, tablabel);
 
@@ -715,7 +762,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(table), widget, 0, 1, 4, 5, GTK_FILL, 0, 0, 0);
 
+#if GTK_VERSION == 3
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+#elif GTK_VERSION == 2
 	hbox = gtk_hbox_new(FALSE, 2);
+#endif
 	gtk_widget_show(hbox);
 	gtk_table_attach_defaults(GTK_TABLE(table), hbox, 1, 2, 4, 5);
 
@@ -736,7 +787,11 @@ static void remmina_pref_dialog_init(RemminaPrefDialog *dialog)
 	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 	priv->vte_shortcutkey_copy_chooser = widget;
 
+#if GTK_VERSION == 3
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+#elif GTK_VERSION == 2
 	hbox = gtk_hbox_new(FALSE, 2);
+#endif
 	gtk_widget_show(hbox);
 	gtk_table_attach_defaults(GTK_TABLE(table), hbox, 1, 2, 5, 6);
 

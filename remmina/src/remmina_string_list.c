@@ -16,10 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
 #include <string.h>
+#include "config.h"
 #include "remmina_public.h"
 #include "remmina_string_list.h"
 
@@ -206,7 +221,11 @@ static void remmina_string_list_init(RemminaStringList *gsl)
 	gtk_tree_view_append_column(GTK_TREE_VIEW(gsl->list), column);
 
 	/* buttons packed into a vbox */
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_widget_show(vbox);
 	gtk_table_attach(GTK_TABLE(gsl), vbox, 1, 2, 0, 3, 0, GTK_EXPAND | GTK_FILL, 0, 0);
 

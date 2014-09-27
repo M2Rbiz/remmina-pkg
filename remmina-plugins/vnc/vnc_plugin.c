@@ -16,6 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include "common/remmina_plugin.h"
@@ -350,7 +364,11 @@ gboolean remmina_plugin_vnc_setcursor(RemminaProtocolWidget *gp)
 		cur = gdk_cursor_new_from_pixbuf(gdk_display_get_default(), gpdata->queuecursor_pixbuf, gpdata->queuecursor_x,
 				gpdata->queuecursor_y);
 		gdk_window_set_cursor(gtk_widget_get_window(gpdata->drawing_area), cur);
+#if GTK_VERSION == 3
+		g_object_unref(cur);
+#else
 		gdk_cursor_unref(cur);
+#endif
 		g_object_unref(gpdata->queuecursor_pixbuf);
 		gpdata->queuecursor_pixbuf = NULL;
 	}
@@ -1426,6 +1444,20 @@ static gboolean remmina_plugin_vnc_on_scroll(GtkWidget *widget, GdkEventScroll *
 		case GDK_SCROLL_RIGHT:
 			mask = (1 << 6);
 			break;
+#ifdef GDK_SCROLL_SMOOTH
+		case GDK_SCROLL_SMOOTH:
+			if (event->delta_y < 0)
+				mask = (1 << 3);
+			if (event->delta_y > 0)
+				mask = (1 << 4);
+			if (event->delta_x < 0)
+				mask = (1 << 5);
+			if (event->delta_x > 0)
+				mask = (1 << 6);
+			if (!mask)
+				return FALSE;
+			break;
+#endif
 		default:
 			return FALSE;
 	}
@@ -1497,7 +1529,7 @@ static gboolean remmina_plugin_vnc_on_key(GtkWidget *widget, GdkEventKey *event,
 	if (remmina_plugin_service->file_get_int(remminafile, "viewonly", FALSE))
 		return FALSE;
 
-	keyval = remmina_plugin_service->pref_keymap_get_keyval(remmina_plugin_service->file_get_string(remminafile, "gkeymap"),
+	keyval = remmina_plugin_service->pref_keymap_get_keyval(remmina_plugin_service->file_get_string(remminafile, "keymap"),
 			event->keyval);
 
 	remmina_plugin_vnc_event_push(gp, REMMINA_PLUGIN_VNC_EVENT_KEY, GUINT_TO_POINTER(keyval),
@@ -1568,9 +1600,13 @@ static void remmina_plugin_vnc_on_realize(RemminaProtocolWidget *gp, gpointer da
 		/* Hide local cursor (show a small dot instead) */
 		pixbuf = gdk_pixbuf_new_from_xpm_data(dot_cursor_xpm);
 		cursor = gdk_cursor_new_from_pixbuf(gdk_display_get_default(), pixbuf, dot_cursor_x_hot, dot_cursor_y_hot);
-		gdk_pixbuf_unref(pixbuf);
+		g_object_unref(pixbuf);
 		gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(gp)), cursor);
+#if GTK_VERSION == 3
+		g_object_unref(cursor);
+#else
 		gdk_cursor_unref(cursor);
+#endif
 	}
 }
 
@@ -1847,7 +1883,7 @@ static void remmina_plugin_vnc_init(RemminaProtocolWidget *gp)
 	gtk_widget_add_events(
 			gpdata->drawing_area,
 			GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK
-					| GDK_KEY_RELEASE_MASK);
+					| GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK);
 	gtk_widget_set_can_focus(gpdata->drawing_area, TRUE);
 
 #if GTK_VERSION == 3

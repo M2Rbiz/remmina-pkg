@@ -16,6 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include "config.h"
@@ -189,7 +203,11 @@ remmina_plugin_ssh_init (RemminaProtocolWidget *gp)
 	gpdata = g_new0 (RemminaPluginSshData, 1);
 	g_object_set_data_full (G_OBJECT(gp), "plugin-data", gpdata, g_free);
 
+#if GTK_VERSION == 3
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#elif GTK_VERSION == 2
 	hbox = gtk_hbox_new (FALSE, 0);
+#endif
 	gtk_widget_show(hbox);
 	gtk_container_add(GTK_CONTAINER (gp), hbox);
 	g_signal_connect(G_OBJECT(hbox), "focus-in-event", G_CALLBACK(remmina_plugin_ssh_on_focus_in), gp);
@@ -205,7 +223,11 @@ remmina_plugin_ssh_init (RemminaProtocolWidget *gp)
 
 	remmina_plugin_service->protocol_plugin_register_hostkey (gp, vte);
 
+#if GTK_VERSION == 3
+	vscrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL, vte_terminal_get_adjustment (VTE_TERMINAL (vte)));
+#elif GTK_VERSION == 2
 	vscrollbar = gtk_vscrollbar_new (vte_terminal_get_adjustment (VTE_TERMINAL (vte)));
+#endif
 	gtk_widget_show(vscrollbar);
 	gtk_box_pack_start (GTK_BOX (hbox), vscrollbar, FALSE, TRUE, 0);
 }

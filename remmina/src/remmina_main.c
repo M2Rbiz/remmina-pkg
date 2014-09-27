@@ -16,10 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include "config.h"
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include "remmina_string_array.h"
 #include "remmina_public.h"
@@ -35,34 +50,11 @@
 #include "remmina_log.h"
 #include "remmina_icon.h"
 #include "remmina_main.h"
+#include "remmina_external_tools.h"
 
 G_DEFINE_TYPE( RemminaMain, remmina_main, GTK_TYPE_WINDOW)
 
-struct _RemminaMainPriv
-{
-	GtkWidget *file_list;
-	GtkTreeModel *file_model;
-	GtkTreeModel *file_model_filter;
-	GtkTreeModel *file_model_sort;
-	GtkUIManager *uimanager;
-	GtkWidget *toolbar;
-	GtkWidget *statusbar;
 
-	GtkToolItem *quick_search_separator;
-	GtkToolItem *quick_search_item;
-	GtkWidget *quick_search_entry;
-
-	GtkTreeViewColumn *group_column;
-
-	GtkActionGroup *main_group;
-	GtkActionGroup *file_sensitive_group;
-
-	gboolean initialized;
-
-	gchar *selected_filename;
-	gchar *selected_name;
-	RemminaStringArray *expanded_group;
-};
 
 static void remmina_main_class_init(RemminaMainClass *klass)
 {
@@ -480,6 +472,11 @@ static void remmina_main_action_connection_connect(GtkAction *action, RemminaMai
 	remmina_connection_window_open_from_filename(remminamain->priv->selected_filename);
 }
 
+static void remmina_main_action_connection_external_tools(GtkAction *action, RemminaMain *remminamain)
+{
+	remmina_external_tools_from_filename(remminamain, remminamain->priv->selected_filename);
+}
+
 static void remmina_main_file_editor_destroy(GtkWidget *widget, RemminaMain *remminamain)
 {
 	if (GTK_IS_WIDGET(remminamain))
@@ -853,6 +850,7 @@ static const gchar *remmina_main_ui_xml = "<ui>"
 		"    <menuitem action='ConnectionCopy'/>"
 		"    <menuitem action='ConnectionEdit'/>"
 		"    <menuitem action='ConnectionDelete'/>"
+		"    <menuitem action='ConnectionExternalTools'/>"
 		"  </popup>"
 		"</ui>";
 
@@ -898,7 +896,12 @@ static const GtkActionEntry remmina_main_ui_file_sensitive_menu_entries[] =
 { "ConnectionDelete", GTK_STOCK_DELETE, NULL, "<control>D", N_("Delete the selected remote desktop file"), G_CALLBACK(
 		remmina_main_action_connection_delete) },
 
-{ "ToolsExport", NULL, N_("Export"), NULL, NULL, G_CALLBACK(remmina_main_action_tools_export) } };
+{ "ToolsExport", NULL, N_("Export"), NULL, NULL, G_CALLBACK(remmina_main_action_tools_export) },
+
+{ "ConnectionExternalTools", NULL, N_("External Tools"), "<control>T", NULL,
+		G_CALLBACK(remmina_main_action_connection_external_tools) }
+
+};
 
 static const GtkToggleActionEntry remmina_main_ui_toggle_menu_entries[] =
 {
@@ -915,6 +918,62 @@ static const GtkRadioActionEntry remmina_main_ui_view_file_mode_entries[] =
 {
 { "ViewFileList", NULL, N_("List View"), NULL, NULL, REMMINA_VIEW_FILE_LIST },
 { "ViewFileTree", NULL, N_("Tree View"), NULL, NULL, REMMINA_VIEW_FILE_TREE } };
+
+static gboolean remmina_main_quickconnect(RemminaMain *remminamain)
+{
+	RemminaFile* remminafile;
+	gint index;
+	gchar* server;
+	gchar* protocol;
+
+	remminafile = remmina_file_new();
+	server = strdup(gtk_entry_get_text(GTK_ENTRY(remminamain->priv->quickconnect_server)));
+	index = gtk_combo_box_get_active(GTK_COMBO_BOX(remminamain->priv->quickconnect_protocol));
+
+	switch (index)
+	{
+		case 0:
+			protocol = "RDP";
+			break;
+		case 1:
+			protocol = "VNC";
+			break;
+		case 2:
+			protocol = "NX";
+			break;
+		case 3:
+			protocol = "SSH";
+			break;
+		default:
+			protocol = "RDP";
+			break;
+	}
+
+	remmina_file_set_string(remminafile, "sound", "off");
+	remmina_file_set_string(remminafile, "server", server);
+	remmina_file_set_string(remminafile, "name", server);
+	remmina_file_set_string(remminafile, "protocol", protocol);
+
+	remmina_connection_window_open_from_file(remminafile);
+
+	return FALSE;
+}
+static gboolean remmina_main_quickconnect_on_click(GtkWidget *widget, RemminaMain *remminamain)
+{
+	return remmina_main_quickconnect(remminamain);
+}
+static gboolean remmina_main_quickconnect_on_key_press(GtkWidget *widget, GdkEventKey *event, RemminaMain *remminamain)
+{
+#if GTK_VERSION == 3
+    if (event->type == GDK_KEY_PRESS && (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter))
+#else
+    if (event->type == GDK_KEY_PRESS && (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter))
+#endif
+    {
+		return remmina_main_quickconnect(remminamain);
+    }
+    return FALSE;
+}
 
 static gboolean remmina_main_file_list_on_button_press(GtkWidget *widget, GdkEventButton *event, RemminaMain *remminamain)
 {
@@ -942,6 +1001,27 @@ static gboolean remmina_main_file_list_on_button_press(GtkWidget *widget, GdkEve
 					break;
 			}
 		}
+	return FALSE;
+}
+static gboolean remmina_main_file_list_on_key_press(GtkWidget *widget, GdkEventKey *event, RemminaMain *remminamain)
+{
+#if GTK_VERSION == 3
+	if (event->type == GDK_KEY_PRESS && (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) && remminamain->priv->selected_filename)
+#else
+	if (event->type == GDK_KEY_PRESS && (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) && remminamain->priv->selected_filename)
+#endif
+	{
+		switch (remmina_pref.default_action)
+		{
+			case REMMINA_ACTION_EDIT:
+				remmina_main_action_connection_edit(NULL, remminamain);
+				break;
+			case REMMINA_ACTION_CONNECT:
+			default:
+				remmina_main_action_connection_connect(NULL, remminamain);
+				break;
+		}
+	}
 	return FALSE;
 }
 
@@ -1048,6 +1128,9 @@ static void remmina_main_init(RemminaMain *remminamain)
 	RemminaMainPriv *priv;
 	GtkWidget *vbox;
 	GtkWidget *menubar;
+	GtkWidget *hbox;
+	GtkWidget *quickconnect;
+	GtkWidget *tool_item;
 	GtkUIManager *uimanager;
 	GtkActionGroup *action_group;
 	GtkWidget *scrolledwindow;
@@ -1075,7 +1158,11 @@ static void remmina_main_init(RemminaMain *remminamain)
 	}
 
 	/* Create the main container */
+#if GTK_VERSION == 3
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif GTK_VERSION == 2
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_container_add(GTK_CONTAINER(remminamain), vbox);
 	gtk_widget_show(vbox);
 
@@ -1120,13 +1207,61 @@ static void remmina_main_init(RemminaMain *remminamain)
 	gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
 
 	priv->toolbar = gtk_ui_manager_get_widget(uimanager, "/ToolBar");
+#if GTK_VERSION == 3
+	gtk_style_context_add_class(gtk_widget_get_style_context(priv->toolbar), GTK_STYLE_CLASS_PRIMARY_TOOLBAR);
+#endif
 	gtk_box_pack_start(GTK_BOX(vbox), priv->toolbar, FALSE, FALSE, 0);
+
+	tool_item = gtk_ui_manager_get_widget(uimanager, "/ToolBar/ConnectionConnect");
+	gtk_tool_item_set_is_important (GTK_TOOL_ITEM(tool_item), TRUE);
+
+	tool_item = gtk_ui_manager_get_widget(uimanager, "/ToolBar/ConnectionNew");
+	gtk_tool_item_set_is_important (GTK_TOOL_ITEM(tool_item), TRUE);
 
 	remmina_main_create_quick_search(remminamain);
 
 	gtk_window_add_accel_group(GTK_WINDOW(remminamain), gtk_ui_manager_get_accel_group(uimanager));
 
 	gtk_action_group_set_sensitive(priv->file_sensitive_group, FALSE);
+
+	/* Add a Fast Connection box */
+#if GTK_VERSION == 3
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif GTK_VERSION == 2
+	hbox = gtk_hbox_new(FALSE, 0);
+#endif
+
+	
+#if GTK_VERSION == 3
+	priv->quickconnect_protocol = gtk_combo_box_text_new();
+	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(priv->quickconnect_protocol), "RDP", "RDP");
+	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(priv->quickconnect_protocol), "VNC", "VNC");
+	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(priv->quickconnect_protocol), "NX", "NX");
+	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(priv->quickconnect_protocol), "SSH", "SSH");
+#elif GTK_VERSION == 2
+	priv->quickconnect_protocol = gtk_combo_box_new_text();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(priv->quickconnect_protocol), "RDP");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(priv->quickconnect_protocol), "VNC");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(priv->quickconnect_protocol), "NX");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(priv->quickconnect_protocol), "SSH");
+#endif
+	gtk_combo_box_set_active(GTK_COMBO_BOX(priv->quickconnect_protocol), 0);
+	gtk_widget_show(priv->quickconnect_protocol);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->quickconnect_protocol, FALSE, FALSE, 0);
+
+	priv->quickconnect_server = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(priv->quickconnect_server), 25);
+	gtk_widget_show(priv->quickconnect_server);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->quickconnect_server, FALSE, FALSE, 0);
+	g_signal_connect(G_OBJECT(priv->quickconnect_server), "key-press-event", G_CALLBACK(remmina_main_quickconnect_on_key_press), remminamain);
+
+	quickconnect = gtk_button_new_with_label("Connect !");
+	gtk_widget_show(quickconnect);
+	gtk_box_pack_start(GTK_BOX(hbox), quickconnect, FALSE, FALSE, 0);
+	g_signal_connect(G_OBJECT(quickconnect), "clicked", G_CALLBACK(remmina_main_quickconnect_on_click), remminamain);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_widget_show(hbox);
 
 	/* Create the scrolled window for the file list */
 	scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
@@ -1169,6 +1304,7 @@ static void remmina_main_init(RemminaMain *remminamain)
 	gtk_tree_selection_set_select_function(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), remmina_main_selection_func,
 			remminamain, NULL);
 	g_signal_connect(G_OBJECT(tree), "button-press-event", G_CALLBACK(remmina_main_file_list_on_button_press), remminamain);
+	g_signal_connect(G_OBJECT(tree), "key-press-event", G_CALLBACK(remmina_main_file_list_on_key_press), remminamain);
 
 	priv->file_list = tree;
 

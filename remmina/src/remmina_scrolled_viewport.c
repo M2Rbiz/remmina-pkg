@@ -16,9 +16,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
+#include "config.h"
 #include "remmina_scrolled_viewport.h"
 #include "remmina_pref.h"
 
@@ -30,6 +45,10 @@ static gboolean remmina_scrolled_viewport_motion_timeout(gpointer data)
 	RemminaScrolledViewport *gsv;
 	GtkWidget *child;
 	GdkDisplay *display;
+#if GTK_VERSION == 3
+	GdkDeviceManager *device_manager;
+	GdkDevice  *pointer;
+#endif
 	GdkScreen *screen;
 	gint x, y, mx, my, w, h;
 	GtkAdjustment *adj;
@@ -49,7 +68,13 @@ static gboolean remmina_scrolled_viewport_motion_timeout(gpointer data)
 	display = gdk_display_get_default();
 	if (!display)
 		return FALSE;
+#if GTK_VERSION == 3
+	device_manager = gdk_display_get_device_manager (display);
+	pointer = gdk_device_manager_get_client_pointer (device_manager);
+	gdk_device_get_position(pointer, &screen, &x, &y);
+#elif GTK_VERSION == 2
 	gdk_display_get_pointer(display, &screen, &x, &y, NULL);
+#endif
 
 	w = gdk_screen_get_width(screen);
 	h = gdk_screen_get_height(screen);
@@ -58,7 +83,11 @@ static gboolean remmina_scrolled_viewport_motion_timeout(gpointer data)
 	if (mx != 0)
 	{
 		gint step = MAX(10, MIN(remmina_pref.auto_scroll_step, w / 5));
+#if GTK_VERSION == 3
+		adj = gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(child));
+#elif GTK_VERSION == 2
 		adj = gtk_viewport_get_hadjustment(GTK_VIEWPORT(child));
+#endif
 		value = gtk_adjustment_get_value(GTK_ADJUSTMENT(adj)) + (gdouble)(mx * step);
 		value = MAX(0, MIN(value, gtk_adjustment_get_upper(GTK_ADJUSTMENT(adj)) - (gdouble) w + 2.0));
 		gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), value);
@@ -66,7 +95,11 @@ static gboolean remmina_scrolled_viewport_motion_timeout(gpointer data)
 	if (my != 0)
 	{
 		gint step = MAX(10, MIN(remmina_pref.auto_scroll_step, h / 5));
+#if GTK_VERSION == 3
+		adj = gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(child));
+#elif GTK_VERSION == 2
 		adj = gtk_viewport_get_vadjustment(GTK_VIEWPORT(child));
+#endif
 		value = gtk_adjustment_get_value(GTK_ADJUSTMENT(adj)) + (gdouble)(my * step);
 		value = MAX(0, MIN(value, gtk_adjustment_get_upper(GTK_ADJUSTMENT(adj)) - (gdouble) h + 2.0));
 		gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), value);

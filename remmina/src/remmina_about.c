@@ -16,6 +16,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA.
+ *
+ * In addition, as a special exception, the copyright holders give
+ * permission to link the code of portions of this program with the
+ * OpenSSL library under certain conditions as described in each
+ * individual source file, and distribute linked combinations
+ * including the two.
+ * You must obey the GNU General Public License in all respects
+ * for all of the code used other than OpenSSL.
+ * If you modify file(s) with this exception, you may extend this exception
+ * to your version of the file(s), but you are not obligated to do so.
+ * If you do not wish to do so, delete this exception statement from your
+ * version.
+ * If you delete this exception statement from all source
+ * files in the program, then also delete it here.
+ *
  */
 
 #include <gtk/gtk.h>
@@ -68,7 +83,7 @@ void remmina_about_open(GtkWindow* parent)
 
 	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "Remmina");
 	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), VERSION);
-	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright (C) 2009-2010 Vic Lee");
+	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright (C) 2009-2012 Vic Lee");
 	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("The GTK+ Remote Desktop Client")), gtk_about_dialog_set_license(
 			GTK_ABOUT_DIALOG(dialog), license);
 	gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(dialog), TRUE);
