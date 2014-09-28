@@ -3,6 +3,8 @@ remmina (1.0.0+git20140913-2) UNRELEASED; urgency=medium
   * debian/patches/external_tools.patch:
     - Look for external tools into a system directory, instead of user's
       home. Current default makes Debian buildds to fail (rightly).
+  * debian/patches/shebang.patch:
+    - Add shebangs to external tool scripts.
   * debian/remmina-common.install:
     - Install external tools under /usr/share.
 
