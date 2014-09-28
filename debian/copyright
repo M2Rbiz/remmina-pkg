@@ -1,54 +1,24 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: remmina
-Upstream-Contact: Vic Lee <llyzs@163.com>
+Upstream-Contact: Marc-Andre Moreau <marcandre.moreau@gmail.com>
 Source:  http://remmina.sourceforge.net
 
 Files: *
-Copyright: 2009-2011, Vic Lee <llyzs@163.com>
-           2011, Marc-Andre Moreau <marcandre.moreau@gmail.com>
-           2012, Daniel M. Weeks <dan@danweeks.net>
+Copyright: 2009-2011, Vic Lee
+           2010, Jay Sorg
+           2011, Marc-Andre Moreau
+           2012, Daniel M. Weeks
+           2012, Jean-Louis Dupond
+           2012, Andrey Gankov
+           2012, Luca Falavigna
 License: GPL-2+
 
-Files: remmina-plugins/vnc/libvncserver/common/d3des.*
-Copyright: 1999, AT&T Laboratories Cambridge
-License: public-domain
-
-Files: remmina-plugins/vnc/libvncserver/common/*lzo*
-Copyright: 1996-2010, Markus Franz Xaver Johannes Oberhumer
-License: GPL-2+
-
-Files: remmina-plugins/vnc/libvncserver/common/vncauth.c
-Copyright: 1999, AT&T Laboratories Cambridge
-License: GPL-2+
-
-Files: remmina-plugins/vnc/libvncserver/common/zywrletemplate.c
-Copyright: 2006, Hitachi Systems & Services, Ltd.
-License: BSD-3-clause
-
-Files: remmina-plugins/vnc/libvncserver/libvncserver/*
-Copyright: 1999, AT&T Laboratories Cambridge
-           2001-2002, Constantin Kaplinsky
-           2000, Tridia Corporation
-           2009, Vic Lee
-           2005, Johannes E. Schindelin
-License: GPL-2+
-
-Files: remmina-plugins/vnc/libvncserver/rfb/*
-Copyright: 2005, Rohit Kumar
-           2005, Johannes E. Schindelin
-           2002, RealVNC Ltd.
-           2001-2002, Constantin Kaplinsky
-           2000, Tridia Corporation
-           1999, AT&T Laboratories Cambridge
-           2001, James Weatherhall
-License: GPL-2+
-
-Files: libvncserver/rfb/keysym.h
-Copyright: 1987, X Consortium
-License: MIT
+Files: cmake/FindOptionalPackage.cmake
+Copyright: 2011, Nils Andresen
+License: Apache-2.0
 
 Files: debian/*
-Copyright: 2009-2013 Luca Falavigna <dktrkranz@debian.org>
+Copyright: 2009-2014 Luca Falavigna <dktrkranz@debian.org>
 License: GPL-2+
 
 License: GPL-2+
@@ -68,82 +38,34 @@ License: GPL-2+
  .
  On Debian systems, the full text of the GNU General Public License
  version 2 can be found in the file `/usr/share/common-licenses/GPL-2'.
+ .
+ In addition, as a special exception, the copyright holders give
+ permission to link the code of portions of this program with the
+ OpenSSL library under certain conditions as described in each
+ individual source file, and distribute linked combinations including
+ the two.
+ You must obey the GNU General Public License in all respects for all of
+ the code used other than OpenSSL.
+ If you modify file(s) with this exception, you may extend this
+ exception to your version of the file(s), but you are not obligated to
+ do so.
+ If you do not wish to do so, delete this exception statement from your
+ version.
+ If you delete this exception statement from all source files in the
+ program, then also delete it here.
 
-License: public-domain
- This software is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-License: BSD-3-clause
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
  .
- * Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
+     http://www.apache.org/licenses/LICENSE-2.0
  .
- * Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  .
- * Neither the name of the Hitachi Systems & Services, Ltd. nor
-   the names of its contributors may be used to endorse or promote
-   products derived from this software without specific prior written
-   permission.
- .
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION
- OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-License: MIT
- Permission is hereby granted, free of charge, to any person obtaining a
- copy of this software and associated documentation files (the 
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
- .
- The above copyright notice and this permission notice shall be included
- in all copies or substantial portions of the Software.
- .
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR
- OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- OTHER DEALINGS IN THE SOFTWARE.
- .
- Except as contained in this notice, the name of the X Consortium shall
- not be used in advertising or otherwise to promote the sale, use or
- other dealings in this Software without prior written authorization
- from the X Consortium.
- .
- Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
- .
-                         All Rights Reserved
- .
- Permission to use, copy, modify, and distribute this software and its 
- documentation for any purpose and without fee is hereby granted,
- provided that the above copyright notice appear in all copies and that
- both that copyright notice and this permission notice appear in 
- supporting documentation, and that the name of Digital not be used in
- advertising or publicity pertaining to distribution of the software
- without specific, written prior permission.  
- .
- DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- EVENT SHALL DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
- USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
- OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- PERFORMANCE OF THIS SOFTWARE.
+ On Debian systems, the full text of the Apache License version 2.0
+ can be found in the file `/usr/share/common-licenses/Apache-2.0'.
