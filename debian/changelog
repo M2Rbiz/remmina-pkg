@@ -5,6 +5,9 @@ remmina (1.0.0+git20140913-2) UNRELEASED; urgency=medium
       home. Current default makes Debian buildds to fail (rightly).
   * debian/patches/shebang.patch:
     - Add shebangs to external tool scripts.
+  * debian/patches/CLIENT_TLS.patch:
+    - Drop LIBVNCSERVER_WITH_CLIENT_TLS ifdef's to enable GNUTLS support,
+      which got disabled after using system libvncserver (Closes: #741524).
   * debian/remmina-common.install:
     - Install external tools under /usr/share.
 
