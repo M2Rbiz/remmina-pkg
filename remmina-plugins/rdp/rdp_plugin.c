@@ -54,6 +54,7 @@
 #define REMMINA_RDP_FEATURE_UNFOCUS			3
 
 RemminaPluginService* remmina_plugin_service = NULL;
+static char remmina_rdp_plugin_default_drive_name[]="RemminaDisk";
 
 void rf_get_fds(RemminaProtocolWidget* gp, void** rfds, int* rcount)
 {
@@ -220,26 +221,26 @@ static BOOL remmina_rdp_pre_connect(freerdp* instance)
 	settings->BitmapCacheEnabled = True;
 	settings->OffscreenSupportLevel = True;
 
-	settings->OrderSupport[NEG_DSTBLT_INDEX] = False;
-	settings->OrderSupport[NEG_PATBLT_INDEX] = False;
-	settings->OrderSupport[NEG_SCRBLT_INDEX] = False;
-	settings->OrderSupport[NEG_OPAQUE_RECT_INDEX] = False;
+	settings->OrderSupport[NEG_DSTBLT_INDEX] = True;
+	settings->OrderSupport[NEG_PATBLT_INDEX] = True;
+	settings->OrderSupport[NEG_SCRBLT_INDEX] = True;
+	settings->OrderSupport[NEG_OPAQUE_RECT_INDEX] = True;
 	settings->OrderSupport[NEG_DRAWNINEGRID_INDEX] = False;
 	settings->OrderSupport[NEG_MULTIDSTBLT_INDEX] = False;
 	settings->OrderSupport[NEG_MULTIPATBLT_INDEX] = False;
 	settings->OrderSupport[NEG_MULTISCRBLT_INDEX] = False;
-	settings->OrderSupport[NEG_MULTIOPAQUERECT_INDEX] = False;
+	settings->OrderSupport[NEG_MULTIOPAQUERECT_INDEX] = True;
 	settings->OrderSupport[NEG_MULTI_DRAWNINEGRID_INDEX] = False;
-	settings->OrderSupport[NEG_LINETO_INDEX] = False;
-	settings->OrderSupport[NEG_POLYLINE_INDEX] = False;
-	settings->OrderSupport[NEG_MEMBLT_INDEX] = False;
-	settings->OrderSupport[NEG_MEM3BLT_INDEX] = False;
-	settings->OrderSupport[NEG_MEMBLT_V2_INDEX] = False;
+	settings->OrderSupport[NEG_LINETO_INDEX] = True;
+	settings->OrderSupport[NEG_POLYLINE_INDEX] = True;
+	settings->OrderSupport[NEG_MEMBLT_INDEX] = settings->BitmapCacheEnabled;
+	settings->OrderSupport[NEG_MEM3BLT_INDEX] = True;
+	settings->OrderSupport[NEG_MEMBLT_V2_INDEX] = settings->BitmapCacheEnabled;
 	settings->OrderSupport[NEG_MEM3BLT_V2_INDEX] = False;
 	settings->OrderSupport[NEG_SAVEBITMAP_INDEX] = False;
-	settings->OrderSupport[NEG_GLYPH_INDEX_INDEX] = False;
-	settings->OrderSupport[NEG_FAST_INDEX_INDEX] = False;
-	settings->OrderSupport[NEG_FAST_GLYPH_INDEX] = False;
+	settings->OrderSupport[NEG_GLYPH_INDEX_INDEX] = True;
+	settings->OrderSupport[NEG_FAST_INDEX_INDEX] = True;
+	settings->OrderSupport[NEG_FAST_GLYPH_INDEX] = True;
 	settings->OrderSupport[NEG_POLYGON_SC_INDEX] = False;
 	settings->OrderSupport[NEG_POLYGON_CB_INDEX] = False;
 	settings->OrderSupport[NEG_ELLIPSE_SC_INDEX] = False;
@@ -251,7 +252,7 @@ static BOOL remmina_rdp_pre_connect(freerdp* instance)
 		settings->LargePointerFlag = True;
 		settings->PerformanceFlags = PERF_FLAG_NONE;
 
-		rfi->rfx_context = rfx_context_new(FALSE);
+		rfi->rfx_context = rfx_context_new();
 	}
 
     freerdp_register_addin_provider(freerdp_channels_load_static_addin_entry, 0);
@@ -773,16 +774,26 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 	if (cs && cs[0] == '/')
 	{
-        RDPDR_DRIVE* drive;
-        drive = (RDPDR_DRIVE*) malloc(sizeof(RDPDR_DRIVE));
-        ZeroMemory(drive, sizeof(RDPDR_DRIVE));
+		RDPDR_DRIVE* drive;
+		gsize sz;
 
-        drive->Type = RDPDR_DTYP_FILESYSTEM;
-        drive->Name = _strdup(s);
-        drive->Path = _strdup(cs);
+		drive = (RDPDR_DRIVE*) malloc(sizeof(RDPDR_DRIVE));
+		ZeroMemory(drive, sizeof(RDPDR_DRIVE));
 
-        freerdp_device_collection_add(rfi->settings, (RDPDR_DEVICE*) drive);
-        rfi->settings->DeviceRedirection = TRUE;
+		s = strrchr( cs, '/' );
+		if ( s == NULL || s[1] == 0 )
+			s = remmina_rdp_plugin_default_drive_name;
+		else
+			s++;
+		s = g_convert_with_fallback(s, -1, "ascii", "utf-8", "_", NULL, &sz, NULL);
+
+		drive->Type = RDPDR_DTYP_FILESYSTEM;
+		drive->Name = _strdup(s);
+		drive->Path = _strdup(cs);
+		g_free(s);
+
+		freerdp_device_collection_add(rfi->settings, (RDPDR_DEVICE*) drive);
+		rfi->settings->DeviceRedirection = TRUE;
 		rdpdr_num++;
 	}
 
@@ -1123,6 +1134,9 @@ G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService* service)
 		return FALSE;
 
 	remmina_rdp_settings_init();
+
+	freerdp_handle_signals();
+	freerdp_channels_global_init();
 
 	return TRUE;
 }

@@ -299,7 +299,7 @@ static gboolean remmina_connection_holder_floating_toolbar_motion(RemminaConnect
 {
 	RemminaConnectionWindowPriv* priv = cnnhld->cnnwin->priv;
 	GtkRequisition req;
-	gint x, y, t;
+	gint x, y, t, cnnwin_x, cnnwin_y;
 
 	if (priv->floating_toolbar == NULL)
 	{
@@ -312,7 +312,11 @@ static gboolean remmina_connection_holder_floating_toolbar_motion(RemminaConnect
 #elif GTK_VERSION == 2
 	gtk_widget_size_request(priv->floating_toolbar, &req);
 #endif
+
 	gtk_window_get_position(GTK_WINDOW(priv->floating_toolbar), &x, &y);
+	gtk_window_get_position(GTK_WINDOW(cnnhld->cnnwin), &cnnwin_x, &cnnwin_y );
+	x -= cnnwin_x;
+	y -= cnnwin_y;
 
 	if (priv->floating_toolbar_motion_show || priv->floating_toolbar_motion_visible)
 	{
@@ -326,7 +330,7 @@ static gboolean remmina_connection_holder_floating_toolbar_motion(RemminaConnect
 		if (y < t)
 			y = t;
 
-		gtk_window_move(GTK_WINDOW(priv->floating_toolbar), x, y);
+		gtk_window_move(GTK_WINDOW(priv->floating_toolbar), x + cnnwin_x, y + cnnwin_y);
 		if (remmina_pref.invisible_toolbar && !priv->pin_down)
 		{
 			gtk_window_set_opacity(GTK_WINDOW(priv->floating_toolbar),
@@ -340,7 +344,7 @@ static gboolean remmina_connection_holder_floating_toolbar_motion(RemminaConnect
 	}
 	else
 	{
-		gtk_window_move(GTK_WINDOW(priv->floating_toolbar), x, -20 - req.height);
+		gtk_window_move(GTK_WINDOW(priv->floating_toolbar), x + cnnwin_x, -20 - req.height + cnnwin_y);
 		priv->floating_toolbar_motion_handler = 0;
 		return FALSE;
 	}
@@ -483,27 +487,6 @@ static void remmina_connection_holder_toolbar_autofit(GtkWidget* widget, Remmina
 
 }
 
-static void remmina_connection_object_init_adjustment(RemminaConnectionObject* cnnobj)
-{
-	GdkScreen* screen;
-	GtkAdjustment* adjh;
-	GtkAdjustment* adjv;
-	gint screen_width, screen_height;
-
-	screen = gdk_screen_get_default();
-	screen_width = gdk_screen_get_width(screen);
-	screen_height = gdk_screen_get_height(screen);
-
-#if GTK_VERSION == 3
-	adjh = gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(cnnobj->viewport));
-	adjv = gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(cnnobj->viewport));
-#elif GTK_VERSION == 2
-	adjh = gtk_viewport_get_hadjustment(GTK_VIEWPORT(cnnobj->viewport));
-	adjv = gtk_viewport_get_vadjustment(GTK_VIEWPORT(cnnobj->viewport));
-#endif
-	gtk_adjustment_set_page_size(adjh, screen_width);
-	gtk_adjustment_set_page_size(adjv, screen_height);
-}
 
 static void remmina_connection_holder_check_resize(RemminaConnectionHolder* cnnhld)
 {
@@ -951,7 +934,6 @@ static void remmina_connection_holder_toolbar_scale_option(GtkWidget* widget, Re
 			gtk_container_add(GTK_CONTAINER(frame), scaler);
 			g_signal_connect(G_OBJECT(scaler), "scaled",
 					G_CALLBACK(remmina_connection_holder_scale_option_on_scaled), cnnhld);
-
 			g_signal_connect(G_OBJECT(window), "key-press-event",
 					G_CALLBACK(remmina_connection_holder_scale_option_on_key), cnnhld);
 			g_signal_connect(G_OBJECT(window), "button-press-event",
@@ -1761,7 +1743,7 @@ static void remmina_connection_holder_create_floating_toolbar(RemminaConnectionH
 	priv->floating_toolbar_label = widget;
 
 	/* The position will be moved in configure event instead during maximizing. Just make it invisible here */
-	gtk_window_move(GTK_WINDOW(window), 0, -200);
+	gtk_window_move(GTK_WINDOW(window), 0, 6000);
 	gtk_window_set_accept_focus(GTK_WINDOW(window), FALSE);
 
 	priv->floating_toolbar = window;
@@ -2495,7 +2477,6 @@ static void remmina_connection_object_on_connect(RemminaProtocolWidget* gp, Remm
 		gtk_window_present(GTK_WINDOW(cnnhld->cnnwin));
 		gtk_notebook_set_current_page(GTK_NOTEBOOK(cnnhld->cnnwin->priv->notebook), i);
 	}
-	remmina_connection_object_init_adjustment(cnnobj);
 
 	if (cnnhld->cnnwin->priv->floating_toolbar)
 	{

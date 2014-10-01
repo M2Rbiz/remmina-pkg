@@ -99,11 +99,12 @@ static void remmina_rdp_event_event_push(RemminaProtocolWidget* gp, const Remmin
 	}
 }
 
-static void remmina_rdp_event_release_key(RemminaProtocolWidget* gp, gint scancode)
+static void remmina_rdp_event_release_key(RemminaProtocolWidget* gp, DWORD scancode)
 {
 	gint i, k;
 	rfContext* rfi;
 	RemminaPluginRdpEvent rdp_event = { 0 };
+	DWORD pressed_scancode;
 
 	rfi = GET_DATA(gp);
 	rdp_event.type = REMMINA_RDP_EVENT_TYPE_SCANCODE;
@@ -115,7 +116,10 @@ static void remmina_rdp_event_release_key(RemminaProtocolWidget* gp, gint scanco
 
 		for (i = 0; i < rfi->pressed_keys->len; i++)
 		{
-			rdp_event.key_event.key_code = g_array_index(rfi->pressed_keys, gint, i);
+			pressed_scancode = g_array_index(rfi->pressed_keys, DWORD, i);
+			rdp_event.key_event.key_code = pressed_scancode & 0xFF;
+			rdp_event.key_event.extended = pressed_scancode & 0x100;
+			rdp_event.key_event.up = 1;
 			remmina_rdp_event_event_push(gp, &rdp_event);
 		}
 
@@ -126,7 +130,7 @@ static void remmina_rdp_event_release_key(RemminaProtocolWidget* gp, gint scanco
 		/* Unregister the keycode only */
 		for (i = 0; i < rfi->pressed_keys->len; i++)
 		{
-			k = g_array_index(rfi->pressed_keys, gint, i);
+			k = g_array_index(rfi->pressed_keys, DWORD, i);
 
 			if (k == scancode)
 			{
@@ -303,6 +307,7 @@ static gboolean remmina_rdp_event_on_draw(GtkWidget* widget, cairo_t* context, R
 	cairo_fill(context);
 	cairo_destroy(context);
 #else
+	cairo_set_operator (context, CAIRO_OPERATOR_SOURCE);	// Ignore alpha channel from FreeRDP
 	cairo_paint(context);
 #endif
 
@@ -500,9 +505,9 @@ static gboolean remmina_rdp_event_on_key(GtkWidget* widget, GdkEventKey* event, 
 	if (rdp_event.key_event.key_code)
 	{
 		if (event->type == GDK_KEY_PRESS)
-			g_array_append_val(rfi->pressed_keys, rdp_event.key_event.key_code);
+			g_array_append_val(rfi->pressed_keys, scancode);
 		else
-			remmina_rdp_event_release_key(gp, rdp_event.key_event.key_code);
+			remmina_rdp_event_release_key(gp, scancode);
 	}
 
 	return TRUE;
@@ -573,7 +578,7 @@ void remmina_rdp_event_init(RemminaProtocolWidget* gp)
 		rfi->clipboard_handler = g_signal_connect(clipboard, "owner-change", G_CALLBACK(remmina_rdp_event_on_clipboard), gp);
 	}
 
-	rfi->pressed_keys = g_array_new(FALSE, TRUE, sizeof (gint));
+	rfi->pressed_keys = g_array_new(FALSE, TRUE, sizeof (DWORD));
 	rfi->event_queue = g_async_queue_new_full(g_free);
 	rfi->ui_queue = g_async_queue_new();
 
