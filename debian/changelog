@@ -1,9 +1,10 @@
 remmina (1.1.1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
-  * debian/patches/G_MODULE_BIND_LOCAL.patch:
     - Fix load of RDP plugin when FreeRDP is compiled with
       -DSTATIC_CHANNELS=off (Closes: #764142).
+  * debian/patches/freerdp_get_last_error.patch:
+    - Removed, applied upstream.
   * debian/README.NX, debian/remmina-plugin-nx.docs:
     - Add a short notice about NX security implications (Closes: #714778).
   * debian/watch:
