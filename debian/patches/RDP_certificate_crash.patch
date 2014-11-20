@@ -1,0 +1,154 @@
+Description: Fix crash when not accepting certificate for RDP server
+Author: Giovanni Panozzo <giovanni@panozzo.it>
+
+Index: remmina/remmina-plugins/rdp/rdp_event.c
+===================================================================
+--- remmina.orig/remmina-plugins/rdp/rdp_event.c
++++ remmina/remmina-plugins/rdp/rdp_event.c
+@@ -54,6 +54,9 @@ static void remmina_rdp_event_on_focus_i
+ #endif
+ 
+ 	rfi = GET_DATA(gp);
++	if ( !rfi )
++		return;
++
+ 	input = rfi->instance->input;
+ 	UINT32 toggle_keys_state = 0;
+ 
+@@ -88,6 +91,8 @@ static void remmina_rdp_event_event_push
+ 	RemminaPluginRdpEvent* event;
+ 
+ 	rfi = GET_DATA(gp);
++	if ( !rfi )
++		return;
+ 
+ 	if (rfi->event_queue)
+ 	{
+@@ -454,6 +459,8 @@ static gboolean remmina_rdp_event_on_key
+ 	DWORD scancode;
+ 
+ 	rfi = GET_DATA(gp);
++	if ( !rfi ) return TRUE;
++
+ 	rdp_event.type = REMMINA_RDP_EVENT_TYPE_SCANCODE;
+ 	rdp_event.key_event.up = (event->type == GDK_KEY_PRESS ? False : True);
+ 	rdp_event.key_event.extended = False;
+@@ -535,6 +542,8 @@ void remmina_rdp_event_init(RemminaProto
+ 	GtkClipboard* clipboard;
+ 
+ 	rfi = GET_DATA(gp);
++	if ( !rfi ) return;
++
+ 	rfi->drawing_area = gtk_drawing_area_new();
+ 	gtk_widget_show(rfi->drawing_area);
+ 	gtk_container_add(GTK_CONTAINER(gp), rfi->drawing_area);
+@@ -608,7 +617,7 @@ void remmina_rdp_event_uninit(RemminaPro
+ 	RemminaPluginRdpUiObject* ui;
+ 
+ 	rfi = GET_DATA(gp);
+-
++	if ( !rfi ) return;
+ 
+ 	/* unregister the clipboard monitor */
+ 	if (rfi->clipboard_handler)
+Index: remmina/remmina-plugins/rdp/rdp_plugin.c
+===================================================================
+--- remmina.orig/remmina-plugins/rdp/rdp_plugin.c
++++ remmina/remmina-plugins/rdp/rdp_plugin.c
+@@ -338,6 +338,7 @@ static BOOL remmina_rdp_post_connect(fre
+ 	instance->update->DesktopResize = rf_desktop_resize;
+ 
+ 	freerdp_channels_post_connect(instance->context->channels, instance);
++	rfi->connected = True;
+ 
+ 	remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+ 
+@@ -664,7 +665,7 @@ static gboolean remmina_rdp_main(Remmina
+ 		dest_server = remmina_plugin_service->file_get_string(remminafile, "server");
+ 		if ( dest_server ) {
+ 			remmina_plugin_service->get_server_port(dest_server, 0, &dest_host, &dest_port);
+-			rfi->settings->CertificateName = _strdup( dest_host );
++			rfi->settings->CertificateName = strdup( dest_host );
+ 			g_free(dest_host);
+ 		}
+ 	}
+@@ -701,12 +702,17 @@ static gboolean remmina_rdp_main(Remmina
+ 
+ 	if (remmina_plugin_service->file_get_string(remminafile, "clientname"))
+ 	{
+-		strncpy(rfi->settings->ClientHostname, remmina_plugin_service->file_get_string(remminafile, "clientname"),
+-			sizeof(rfi->settings->ClientHostname) - 1);
++		s = remmina_plugin_service->file_get_string(remminafile, "clientname");
++		if ( s ) {
++			free( rfi->settings->ClientHostname );
++			rfi->settings->ClientHostname = strdup(s);
++			g_free(s);
++		}
+ 	}
+ 	else
+ 	{
+-		strncpy(rfi->settings->ClientHostname, g_get_host_name(), sizeof(rfi->settings->ClientHostname) - 1);
++		free( rfi->settings->ClientHostname );
++		rfi->settings->ClientHostname = strdup( g_get_host_name() );
+ 	}
+ 
+ 	if (remmina_plugin_service->file_get_string(remminafile, "exec"))
+@@ -938,6 +944,7 @@ static void remmina_rdp_init(RemminaProt
+ 	rfi->instance = instance;
+ 	rfi->settings = instance->settings;
+ 	rfi->instance->context->channels = freerdp_channels_new();
++	rfi->connected = False;
+ 
+ 	pthread_mutex_init(&rfi->mutex, NULL);
+ 
+@@ -995,13 +1002,12 @@ static gboolean remmina_rdp_close_connec
+ 
+ 	if (instance)
+ 	{
+-		if (instance->context->channels)
+-		{
+-			//freerdp_channels_close(rfi->channels, instance);
+-			freerdp_channels_free(instance->context->channels);
+-			instance->context->channels = NULL;
++		if ( rfi->connected ) {
++			if (instance->context->channels)
++				freerdp_channels_close(instance->context->channels, instance);
++			freerdp_disconnect(instance);
++			rfi->connected = False;
+ 		}
+-		freerdp_disconnect(instance);
+ 	}
+ 
+ 	if (rfi->rfx_context)
+@@ -1012,8 +1018,17 @@ static gboolean remmina_rdp_close_connec
+ 
+ 	if (instance)
+ 	{
+-		//freerdp_context_free(instance); /* context is rfContext* rfi */
++		/* Remove instance->context from gp object data to avoid double free */
++		g_object_steal_data(G_OBJECT(gp), "plugin-data");
++
++		if (instance->context->channels) {
++			freerdp_channels_free(instance->context->channels);
++			instance->context->channels = NULL;
++		}
++
++		freerdp_context_free(instance); /* context is rfContext* rfi */
+ 		freerdp_free(instance);
++		rfi->instance = NULL;
+ 	}
+ 
+ 	return FALSE;
+Index: remmina/remmina-plugins/rdp/rdp_plugin.h
+===================================================================
+--- remmina.orig/remmina-plugins/rdp/rdp_plugin.h
++++ remmina/remmina-plugins/rdp/rdp_plugin.h
+@@ -106,6 +106,8 @@ struct rf_context
+ 
+ 	RFX_CONTEXT* rfx_context;
+ 
++	gboolean connected;
++
+ 	gboolean sw_gdi;
+ 	GtkWidget* drawing_area;
+ 	gint scale_width;
