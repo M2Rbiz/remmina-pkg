@@ -1,2 +1,4 @@
 version=3
-https://github.com/FreeRDP/Remmina/tags .*/v?(\d\S*)\.tar\.gz
+opts=uversionmangle=s/^(\S+-rcgit)/0.0.$1/ \
+https://github.com/FreeRDP/Remmina/releases \
+.*[^n]/(?:|v|version-|release-|r|REL_|rel-|remmina(?:_|-))(\d[^\s/]*)\.(?:tar\.xz|txz|tar\.bz2|tbz2|tar\.gz|tgz)
