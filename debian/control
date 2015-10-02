@@ -32,8 +32,6 @@ Depends:
 Recommends:
  remmina-plugin-rdp,
  remmina-plugin-vnc
-Breaks: remmina-plugin-data (<= 0.9)
-Replaces: remmina-gnome, remmina-xfce
 Description: remote desktop client for GNOME desktop environment
  Remmina is a remote desktop connection client able to display and control a
  remote desktop session.
@@ -45,12 +43,6 @@ Package: remmina-common
 Architecture: all
 Depends: ${misc:Depends}
 Recommends: remmina
-Breaks: 
- remmina (<< 1.0.0),
- remmina-plugin-data
-Replaces: 
- remmina (<< 1.0.0),
- remmina-plugin-data
 Description: common files for remmina remote desktop client
  Remmina is a remote desktop connection client able to display and control a
  remote desktop session.
