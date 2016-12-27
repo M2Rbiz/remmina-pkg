@@ -1,3 +1,10 @@
+Description: Set allowed backends to "x11,broadway,quartz" to
+ prevend crashes with wayland.
+Bug: https://github.com/FreeRDP/Remmina/pull/680
+Bug-Debian: https://bugs.debian.org/801963
+Last-Update: 2016-12-27
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 Index: trunk/remmina/src/remmina.c
 ===================================================================
 --- trunk.orig/remmina/src/remmina.c
