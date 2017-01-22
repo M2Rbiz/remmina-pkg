@@ -1,6 +1,7 @@
 # Remmina - The GTK+ Remote Desktop Client
 #
 # Copyright (C) 2011 Marc-Andre Moreau
+# Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, 
-# Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
 #
 # In addition, as a special exception, the copyright holders give
 # permission to link the code of portions of this program with the
@@ -49,7 +50,7 @@ include(FindOptionalPackage)
 include(ConfigOptions)
 
 if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE "Release")
+        set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
@@ -57,29 +58,33 @@ if(NOT BUILD_SHARED_LIBS)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-	if(WITH_SSE2)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
-	endif()
-	CHECK_C_COMPILER_FLAG(-Wno-unused-result Wno-unused-result)
-	if(Wno-unused-result)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-result")
-	endif()
-	CHECK_C_COMPILER_FLAG(-Wno-unused-but-set-variable Wno-unused-but-set-variable)
-	if(Wno-unused-but-set-variable)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable")
-	endif()
-	CHECK_C_COMPILER_FLAG(-Wno-unused-function Wno-unused-function)
-	if(Wno-unused-function)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
-	endif()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+        if(WITH_GCC_SANITIZE_ADDRESS)
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+        endif()
+        if(WITH_SSE2)
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
+        endif()
+        CHECK_C_COMPILER_FLAG(-Wno-unused-result Wno-unused-result)
+        if(Wno-unused-result)
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-result")
+        endif()
+        CHECK_C_COMPILER_FLAG(-Wno-unused-but-set-variable Wno-unused-but-set-variable)
+        if(Wno-unused-but-set-variable)
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable")
+        endif()
+        CHECK_C_COMPILER_FLAG(-Wno-unused-function Wno-unused-function)
+        if(Wno-unused-function)
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
+        endif()
 endif()
 
 check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
+check_include_files(netinet/tcp.h HAVE_NETINET_TCP_H)
 check_include_files(termios.h HAVE_TERMIOS_H)
 check_include_files(netdb.h HAVE_NETDB_H)
 check_include_files(fcntl.h HAVE_FCNTL_H)
@@ -90,42 +95,100 @@ check_include_files(errno.h HAVE_ERRNO_H)
 include_directories(.)
 include_directories(remmina/include)
 
+# FreeBSD
+
+if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+        set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-rdynamic")
+        include_directories(/usr/local/include /usr/include)
+        link_directories(/usr/local/lib /usr/lib)
+        set(CMAKE_REQUIRED_INCLUDES /usr/local/include)
+        set(CMAKE_SHARED_LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX} /usr/local/lib)
+endif()
+
 # Versioning
 set(WITH_LIBRARY_VERSIONING "ON")
 set(REMMINA_VERSION_MAJOR "1")
-set(REMMINA_VERSION_MINOR "1")
-set(REMMINA_VERSION_REVISION "2")
-#^set(REMMINA_VERSION_SUFFIX "")
+set(REMMINA_VERSION_MINOR "2")
+set(REMMINA_VERSION_REVISION "0")
+set(REMMINA_VERSION_SUFFIX "rcgit-17")
 set(REMMINA_VERSION "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}")
+if (NOT ${REMMINA_VERSION_SUFFIX} STREQUAL "")
+        set(REMMINA_VERSION "${REMMINA_VERSION}-${REMMINA_VERSION_SUFFIX}")
+endif()
 
-set(REMMINA_DATADIR "${CMAKE_INSTALL_FULL_DATADIR}")
-set(REMMINA_LOCALEDIR "${CMAKE_INSTALL_FULL_DATADIR}/locale")
-set(REMMINA_PLUGINDIR "${CMAKE_INSTALL_FULL_LIBDIR}/remmina/plugins")
+
+include(GetGitRevisionDescription)
+git_get_exact_tag(GIT_REVISION --tags --always)
+if (${GIT_REVISION} STREQUAL "n/a")
+        git_rev_parse(GIT_REVISION --short)
+endif()
+
+if(NOT GIT_REVISION)
+    set(GIT_REVISION ${REMMINA_VERSION_SUFFIX})
+endif()
+message(STATUS "Git Revision ${GIT_REVISION}")
+
+if(NOT UNIQUE_APPNAME)
+    set(UNIQUE_APPNAME "org.Remmina")
+endif()
+
+if(NOT REMMINA_DATADIR)
+    set(REMMINA_DATADIR "${CMAKE_INSTALL_FULL_DATADIR}")
+endif()
+if(NOT REMMINA_LOCALEDIR)
+    set(REMMINA_LOCALEDIR "${CMAKE_INSTALL_FULL_LOCALEDIR}")
+endif()
+if(NOT REMMINA_PLUGINDIR)
+    set(REMMINA_PLUGINDIR "${CMAKE_INSTALL_FULL_LIBDIR}/remmina/plugins")
+endif()
+if(NOT REMMINA_UIDIR)
+    set(REMMINA_UIDIR "${REMMINA_DATADIR}/remmina/ui")
+endif()
+
+# Uninstall support
+configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
+add_custom_target(uninstall
+        "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 find_required_package(GTK)
-find_suggested_package(PTHREAD)
+find_required_package(PTHREAD)
 find_suggested_package(GCRYPT)
 find_suggested_package(AVAHI)
 
-if(PTHREAD_FOUND)
-	add_definitions(-DHAVE_PTHREAD)
+if(WITH_TRACE_CALLS)
+        message(STATUS "Enabling trace calls.")
+        add_definitions(-DWITH_TRACE_CALLS)
+endif()
+
+option(WITH_MANPAGES "Build with MANPAGES" ON)
+if(WITH_MANPAGES)
+    message(STATUS "Enabling man pages.")
+    add_definitions(-DWITH_MANPAGES)
+else()
+    message(STATUS "Man pages disabled")
 endif()
 
 if(GCRYPT_FOUND)
-	add_definitions(-DHAVE_LIBGCRYPT)
+        add_definitions(-DHAVE_LIBGCRYPT)
 endif()
 
 if(AVAHI_FOUND)
-	add_definitions(-DHAVE_LIBAVAHI_UI)
-	add_definitions(-DHAVE_LIBAVAHI_CLIENT)
+        add_definitions(-DHAVE_LIBAVAHI_UI)
+        add_definitions(-DHAVE_LIBAVAHI_CLIENT)
 endif()
 
 if(GTK_FOUND)
-	add_subdirectory(remmina)
-	add_subdirectory(remmina-plugins)
-	add_subdirectory(remmina-plugins-gnome)
+        add_subdirectory(remmina)
+        add_subdirectory(remmina-plugins)
+        add_subdirectory(remmina-plugins-gnome)
+endif()
+
+if(WITH_EXAMPLES)
+        message(STATUS "Enabling examples and test plugins.")
+        add_definitions(-DWITH_EXAMPLES)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
-
-install(DIRECTORY include/remmina DESTINATION include/remmina FILES_MATCHING PATTERN "*.h")

@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -32,7 +33,7 @@
  *
  */
 
-#include "remmina/types.h" 
+#include "remmina/types.h"
 
 #ifndef __REMMINAFILE_H__
 #define __REMMINAFILE_H__
@@ -47,7 +48,7 @@ struct _RemminaFile
 
 enum
 {
-	SSH_AUTH_PASSWORD, SSH_AUTH_PUBLICKEY, SSH_AUTH_AUTO_PUBLICKEY
+	SSH_AUTH_PASSWORD, SSH_AUTH_PUBLICKEY, SSH_AUTH_AGENT, SSH_AUTH_AUTO_PUBLICKEY
 };
 
 typedef enum
@@ -94,6 +95,11 @@ RemminaFile* remmina_file_dup_temp_protocol(RemminaFile *remminafile, const gcha
 void remmina_file_delete(const gchar *filename);
 /* Delete a "password" field and save into .remmina file */
 void remmina_file_unsave_password(RemminaFile *remminafile);
+/* Function used to update the atime and mtime of a given remmina file, partially
+ * taken from suckless sbase */
+gchar* remmina_file_get_datetime(RemminaFile *remminafile);
+/* Function used to update the atime and mtime of a given remmina file */
+void remmina_file_touch(RemminaFile *remminafilefile);
 
 G_END_DECLS
 

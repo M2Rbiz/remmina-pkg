@@ -1,6 +1,7 @@
 # remmina-plugin-rdp - The GTK+ Remote Desktop Client
 #
 # Copyright (C) 2011 Marc-Andre Moreau
+# Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, 
-# Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
 #
 # In addition, as a special exception, the copyright holders give
 # permission to link the code of portions of this program with the
@@ -33,6 +34,7 @@
 
 set(CMAKE_THREAD_PREFER_PTHREAD)
 find_package(Threads)
+find_package(X11)
 
 set(REMMINA_PLUGIN_RDP_SRCS
 	rdp_plugin.c
@@ -43,20 +45,24 @@ set(REMMINA_PLUGIN_RDP_SRCS
 	rdp_file.h
 	rdp_settings.c
 	rdp_settings.h
-	rdp_gdi.c
-	rdp_gdi.h
 	rdp_graphics.c
 	rdp_graphics.h
 	rdp_cliprdr.c
 	rdp_cliprdr.h
+	rdp_channels.c
+	rdp_channels.h
 	)
 
-add_library(remmina-plugin-rdp ${REMMINA_PLUGIN_RDP_SRCS})
+add_definitions(-DFREERDP_REQUIRED_MAJOR=${FREERDP_REQUIRED_MAJOR})
+add_definitions(-DFREERDP_REQUIRED_MINOR=${FREERDP_REQUIRED_MINOR})
+add_definitions(-DFREERDP_REQUIRED_REVISION=${FREERDP_REQUIRED_REVISION})
+
+add_library(remmina-plugin-rdp MODULE ${REMMINA_PLUGIN_RDP_SRCS})
 set_target_properties(remmina-plugin-rdp PROPERTIES PREFIX "")
 set_target_properties(remmina-plugin-rdp PROPERTIES NO_SONAME 1)
 
-include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${FREERDP_INCLUDE_DIRS})
-target_link_libraries(remmina-plugin-rdp ${REMMINA_COMMON_LIBRARIES} ${FREERDP_LIBRARIES})
+include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${FREERDP_INCLUDE_DIRS} ${X11_INCLUDE_DIR})
+target_link_libraries(remmina-plugin-rdp ${REMMINA_COMMON_LIBRARIES} ${FREERDP_LIBRARIES} ${X11_LIBRARIES})
 
 install(TARGETS remmina-plugin-rdp DESTINATION ${REMMINA_PLUGINDIR})
 

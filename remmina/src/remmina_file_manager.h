@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009-2010 Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -43,9 +43,11 @@ typedef struct _RemminaGroupData
 {
 	gchar *name;
 	gchar *group;
+	gchar *datetime;
 } RemminaGroupData;
 
 /* Initialize */
+gchar* remmina_file_get_datadir(void);
 void remmina_file_manager_init(void);
 /* Iterate all .remmina connections in the home directory */
 gint remmina_file_manager_iterate(GFunc func, gpointer user_data);
