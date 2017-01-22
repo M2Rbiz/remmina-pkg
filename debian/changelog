@@ -1,10 +1,23 @@
-remmina (1.2.0-rcgit.17-1) UNRELEASED; urgency=medium
+remmina (1.2.0-rcgit.17-1) experimental; urgency=medium
 
   * New upstream release.
   * debian/copyright:
     - Update copyright years for 2017.
+    - Refresh authors.
+  * debian/control:
+    - Rewrite and refresh Buld-Depends.
+    - Because of incompatibility during the libssl transition:
+      + Comment out libssh-dev.
+      + Comment out binary remmina-plugin-nx.
+  * debian/rules:
+    - Add -DWITH_LIBSSH=OFF to dh_auto_configure.
+  * debian/docs:
+    - Rename README to README.md.
+  * debian/patches:
+    - Refresh 0700-desktop.patch.
+    - Disable unused patches.
 
- -- Jörg Frings-Fürst <debian@jff-webhosting.net>  Sun, 22 Jan 2017 13:19:09 +0100
+ -- Jörg Frings-Fürst <debian@jff-webhosting.net>  Sun, 22 Jan 2017 17:36:16 +0100
 
 remmina (1.1.2-4) unstable; urgency=medium
 
