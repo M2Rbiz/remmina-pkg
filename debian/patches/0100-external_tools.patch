@@ -1,0 +1,37 @@
+Description: Look for external tools into a system directory
+Author: Luca Falavigna <dktrkranz@debian.org>
+
+Index: remmina/remmina/src/remmina_external_tools.c
+===================================================================
+--- remmina.orig/remmina/src/remmina_external_tools.c
++++ remmina/remmina/src/remmina_external_tools.c
+@@ -33,7 +33,7 @@ gboolean remmina_external_tools_from_fil
+ 	GNode* root;
+ 	root = g_node_new(NULL);
+ 
+-	g_snprintf(dirname, MAX_PATH_LEN, "%s/.remmina/external_tools", g_get_home_dir());
++	g_snprintf(dirname, MAX_PATH_LEN, "/usr/share/remmina/external_tools");
+ 	dir = g_dir_open(dirname, 0, NULL);
+ 
+ 	if (dir == NULL)
+@@ -72,7 +72,7 @@ gboolean remmina_external_tools_launcher
+ {
+ 	RemminaFile *remminafile;
+ 	gchar launcher[MAX_PATH_LEN];
+-	g_snprintf(launcher, MAX_PATH_LEN, "%s/.remmina/external_tools/launcher.sh", g_get_home_dir());
++	g_snprintf(launcher, MAX_PATH_LEN, "/usr/share/remmina/external_tools/launcher.sh");
+ 
+ 	remminafile = remmina_file_load(filename);
+ 	GHashTableIter iter;
+Index: remmina/remmina/CMakeLists.txt
+===================================================================
+--- remmina.orig/remmina/CMakeLists.txt
++++ remmina/remmina/CMakeLists.txt
+@@ -173,7 +173,6 @@ if(WITH_TRANSLATIONS)
+ endif()
+ add_subdirectory(icons)
+ add_subdirectory(desktop)
+-add_subdirectory(external_tools)
+ 
+ install(TARGETS remmina DESTINATION ${CMAKE_INSTALL_BINDIR})
+ 
