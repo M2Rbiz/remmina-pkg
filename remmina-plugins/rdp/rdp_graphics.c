@@ -3,6 +3,7 @@
  * Copyright (C) 2010 Jay Sorg
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2011 Marc-Andre Moreau <marcandre.moreau@gmail.com>
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -47,8 +48,9 @@
 
 /* Bitmap Class */
 
-void rf_Bitmap_New(rdpContext* context, rdpBitmap* bitmap)
+BOOL rf_Bitmap_New(rdpContext* context, rdpBitmap* bitmap)
 {
+	TRACE_CALL("rf_Bitmap_New");
 #ifdef RF_BITMAP
 	UINT8* data;
 	Pixmap pixmap;
@@ -85,10 +87,12 @@ void rf_Bitmap_New(rdpContext* context, rdpBitmap* bitmap)
 
 	((rfBitmap*) bitmap)->pixmap = pixmap;
 #endif
+	return TRUE;
 }
 
 void rf_Bitmap_Free(rdpContext* context, rdpBitmap* bitmap)
 {
+	TRACE_CALL("rf_Bitmap_Free");
 #ifdef RF_BITMAP
 	rfContext* rfi = (rfContext*) context;
 
@@ -99,8 +103,9 @@ void rf_Bitmap_Free(rdpContext* context, rdpBitmap* bitmap)
 #endif
 }
 
-void rf_Bitmap_Paint(rdpContext* context, rdpBitmap* bitmap)
+BOOL rf_Bitmap_Paint(rdpContext* context, rdpBitmap* bitmap)
 {
+	TRACE_CALL("rf_Bitmap_Paint");
 #ifdef RF_BITMAP
 	XImage* image;
 	int width, height;
@@ -126,11 +131,13 @@ void rf_Bitmap_Paint(rdpContext* context, rdpBitmap* bitmap)
 
 	//gdi_InvalidateRegion(rfi->hdc, bitmap->left, bitmap->top, width, height);
 #endif
+	return FALSE;
 }
 
-void rf_Bitmap_Decompress(rdpContext* context, rdpBitmap* bitmap,
-	BYTE* data, int width, int height, int bpp, int length, BOOL compressed, int codec_id)
+BOOL rf_Bitmap_Decompress(rdpContext* context, rdpBitmap* bitmap,
+	const BYTE* data, UINT32 width, UINT32 height, UINT32 bpp, UINT32 length, BOOL compressed, UINT32 codec_id)
 {
+	TRACE_CALL("rf_Bitmap_Decompress");
 #ifdef RF_BITMAP
 	UINT16 size;
 
@@ -163,10 +170,12 @@ void rf_Bitmap_Decompress(rdpContext* context, rdpBitmap* bitmap,
 	bitmap->length = size;
 	bitmap->bpp = bpp;
 #endif
+	return TRUE;
 }
 
-void rf_Bitmap_SetSurface(rdpContext* context, rdpBitmap* bitmap, BOOL primary)
+BOOL rf_Bitmap_SetSurface(rdpContext* context, rdpBitmap* bitmap, BOOL primary)
 {
+	TRACE_CALL("rf_Bitmap_SetSurface");
 #ifdef RF_BITMAP
 	rfContext* rfi = (rfContext*) context;
 
@@ -175,12 +184,14 @@ void rf_Bitmap_SetSurface(rdpContext* context, rdpBitmap* bitmap, BOOL primary)
 	else
 		rfi->drawing = ((rfBitmap*) bitmap)->pixmap;
 #endif
+	return TRUE;
 }
 
 /* Pointer Class */
 
-void rf_Pointer_New(rdpContext* context, rdpPointer* pointer)
+BOOL rf_Pointer_New(rdpContext* context, rdpPointer* pointer)
 {
+	TRACE_CALL("rf_Pointer_New");
 	RemminaPluginRdpUiObject* ui;
 	rfContext* rfi = (rfContext*) context;
 
@@ -188,15 +199,17 @@ void rf_Pointer_New(rdpContext* context, rdpPointer* pointer)
 	{
 		ui = g_new0(RemminaPluginRdpUiObject, 1);
 		ui->type = REMMINA_RDP_UI_CURSOR;
+		ui->cursor.context = context;
 		ui->cursor.pointer = (rfPointer*) pointer;
 		ui->cursor.type = REMMINA_RDP_POINTER_NEW;
-
-		rf_queue_ui(rfi->protocol_widget, ui);
+		return remmina_rdp_event_queue_ui_sync_retint(rfi->protocol_widget, ui) ? TRUE : FALSE;
 	}
+	return FALSE;
 }
 
 void rf_Pointer_Free(rdpContext* context, rdpPointer* pointer)
 {
+	TRACE_CALL("rf_Pointer_Free");
 	RemminaPluginRdpUiObject* ui;
 	rfContext* rfi = (rfContext*) context;
 
@@ -208,26 +221,16 @@ void rf_Pointer_Free(rdpContext* context, rdpPointer* pointer)
 	{
 		ui = g_new0(RemminaPluginRdpUiObject, 1);
 		ui->type = REMMINA_RDP_UI_CURSOR;
+		ui->cursor.context = context;
 		ui->cursor.pointer = (rfPointer*) pointer;
 		ui->cursor.type = REMMINA_RDP_POINTER_FREE;
-
-		rf_queue_ui(rfi->protocol_widget, ui);
-
-		g_mutex_lock(rfi->gmutex);
-#if GTK_VERSION == 2
-		while (((rfPointer*) pointer)->cursor != NULL)
-#else	
-		while (G_IS_OBJECT(((rfPointer*) pointer)->cursor))
-#endif
-		{
-			g_cond_wait(rfi->gcond, rfi->gmutex);
-		}
-		g_mutex_unlock(rfi->gmutex);
+		remmina_rdp_event_queue_ui_sync_retint(rfi->protocol_widget, ui);
 	}
 }
 
-void rf_Pointer_Set(rdpContext* context, rdpPointer* pointer)
+BOOL rf_Pointer_Set(rdpContext* context, const rdpPointer* pointer)
 {
+	TRACE_CALL("rf_Pointer_Set");
 	RemminaPluginRdpUiObject* ui;
 	rfContext* rfi = (rfContext*) context;
 
@@ -236,11 +239,13 @@ void rf_Pointer_Set(rdpContext* context, rdpPointer* pointer)
 	ui->cursor.pointer = (rfPointer*) pointer;
 	ui->cursor.type = REMMINA_RDP_POINTER_SET;
 
-	rf_queue_ui(rfi->protocol_widget, ui);
+	return remmina_rdp_event_queue_ui_sync_retint(rfi->protocol_widget, ui) ? TRUE : FALSE;
+
 }
 
-void rf_Pointer_SetNull(rdpContext* context)
+BOOL rf_Pointer_SetNull(rdpContext* context)
 {
+	TRACE_CALL("rf_Pointer_SetNull");
 	RemminaPluginRdpUiObject* ui;
 	rfContext* rfi = (rfContext*) context;
 
@@ -248,11 +253,12 @@ void rf_Pointer_SetNull(rdpContext* context)
 	ui->type = REMMINA_RDP_UI_CURSOR;
 	ui->cursor.type = REMMINA_RDP_POINTER_NULL;
 
-	rf_queue_ui(rfi->protocol_widget, ui);
+	return remmina_rdp_event_queue_ui_sync_retint(rfi->protocol_widget, ui) ? TRUE : FALSE;
 }
 
-void rf_Pointer_SetDefault(rdpContext* context)
+BOOL rf_Pointer_SetDefault(rdpContext* context)
 {
+	TRACE_CALL("rf_Pointer_SetDefault");
 	RemminaPluginRdpUiObject* ui;
 	rfContext* rfi = (rfContext*) context;
 
@@ -260,13 +266,28 @@ void rf_Pointer_SetDefault(rdpContext* context)
 	ui->type = REMMINA_RDP_UI_CURSOR;
 	ui->cursor.type = REMMINA_RDP_POINTER_DEFAULT;
 
-	rf_queue_ui(rfi->protocol_widget, ui);
+	return remmina_rdp_event_queue_ui_sync_retint(rfi->protocol_widget, ui) ? TRUE : FALSE;
+}
+
+BOOL rf_Pointer_SetPosition(rdpContext* context, UINT32 x, UINT32 y)
+{
+	TRACE_CALL("rf_Pointer_SePosition");
+	RemminaPluginRdpUiObject* ui;
+	rfContext* rfi = (rfContext*) context;
+	ui = g_new0(RemminaPluginRdpUiObject, 1);
+	ui->type = REMMINA_RDP_UI_CURSOR;
+	ui->cursor.type = REMMINA_RDP_POINTER_SETPOS;
+	ui->pos.x = x;
+	ui->pos.y = y;
+
+	return remmina_rdp_event_queue_ui_sync_retint(rfi->protocol_widget, ui) ? TRUE : FALSE;
 }
 
 /* Glyph Class */
 
-void rf_Glyph_New(rdpContext* context, rdpGlyph* glyph)
+BOOL rf_Glyph_New(rdpContext* context, const rdpGlyph* glyph)
 {
+	TRACE_CALL("rf_Glyph_New");
 #ifdef RF_GLYPH
 	int scanline;
 	XImage* image;
@@ -290,10 +311,12 @@ void rf_Glyph_New(rdpContext* context, rdpGlyph* glyph)
 	XPutImage(rfi->display, rf_glyph->pixmap, rfi->gc_mono, image, 0, 0, 0, 0, glyph->cx, glyph->cy);
 	XFree(image);
 #endif
+	return TRUE;
 }
 
 void rf_Glyph_Free(rdpContext* context, rdpGlyph* glyph)
 {
+	TRACE_CALL("rf_Glyph_Free");
 #ifdef RF_GLYPH
 	rfContext* rfi = (rfContext*) context;
 
@@ -302,8 +325,11 @@ void rf_Glyph_Free(rdpContext* context, rdpGlyph* glyph)
 #endif
 }
 
-void rf_Glyph_Draw(rdpContext* context, rdpGlyph* glyph, int x, int y)
+static BOOL rf_Glyph_Draw(rdpContext* context, const rdpGlyph* glyph, UINT32 x,
+		UINT32 y, UINT32 w, UINT32 h, UINT32 sx, UINT32 sy,
+		BOOL fOpRedundant)
 {
+	TRACE_CALL("rf_Glyph_Draw");
 #ifdef RF_GLYPH
 	rfGlyph* rf_glyph;
 	rfContext* rfi = (rfContext*) context;
@@ -315,10 +341,14 @@ void rf_Glyph_Draw(rdpContext* context, rdpGlyph* glyph, int x, int y)
 	XFillRectangle(rfi->display, rfi->drawing, rfi->gc, x, y, glyph->cx, glyph->cy);
 	XSetStipple(rfi->display, rfi->gc, rfi->bitmap_mono);
 #endif
+	return TRUE;
 }
 
-void rf_Glyph_BeginDraw(rdpContext* context, int x, int y, int width, int height, UINT32 bgcolor, UINT32 fgcolor)
+static BOOL rf_Glyph_BeginDraw(rdpContext* context, UINT32 x, UINT32 y,
+                               UINT32 width, UINT32 height, UINT32 bgcolor,
+                               UINT32 fgcolor, BOOL fOpRedundant)
 {
+	TRACE_CALL("rf_Glyph_BeginDraw");
 #ifdef RF_GLYPH
 	rfContext* rfi = (rfContext*) context;
 
@@ -339,10 +369,14 @@ void rf_Glyph_BeginDraw(rdpContext* context, int x, int y, int width, int height
 	XSetBackground(rfi->display, rfi->gc, fgcolor);
 	XSetFillStyle(rfi->display, rfi->gc, FillStippled);
 #endif
+	return TRUE;
 }
 
-void rf_Glyph_EndDraw(rdpContext* context, int x, int y, int width, int height, UINT32 bgcolor, UINT32 fgcolor)
+static BOOL rf_Glyph_EndDraw(rdpContext* context, UINT32 x, UINT32 y,
+                             UINT32 width, UINT32 height,
+                             UINT32 bgcolor, UINT32 fgcolor)
 {
+	TRACE_CALL("rf_Glyph_EndDraw");
 #ifdef RF_GLYPH
 	rfContext* rfi = (rfContext*) context;
 
@@ -352,12 +386,14 @@ void rf_Glyph_EndDraw(rdpContext* context, int x, int y, int width, int height, 
 		//gdi_InvalidateRegion(rfi->hdc, x, y, width, height);
 	}
 #endif
+	return TRUE;
 }
 
 /* Graphics Module */
 
 void rf_register_graphics(rdpGraphics* graphics)
 {
+	TRACE_CALL("rf_register_graphics");
 	rdpBitmap* bitmap;
 	rdpPointer* pointer;
 	rdpGlyph* glyph;
@@ -385,6 +421,7 @@ void rf_register_graphics(rdpGraphics* graphics)
 	pointer->Set = rf_Pointer_Set;
 	pointer->SetNull = rf_Pointer_SetNull;
 	pointer->SetDefault = rf_Pointer_SetDefault;
+	pointer->SetPosition = rf_Pointer_SetPosition;
 
 	graphics_register_pointer(graphics, pointer);
 

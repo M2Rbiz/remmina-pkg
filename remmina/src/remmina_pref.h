@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -64,55 +65,84 @@ enum
 
 enum
 {
+	FLOATING_TOOLBAR_PLACEMENT_TOP = 0,
+	FLOATING_TOOLBAR_PLACEMENT_BOTTOM = 1
+};
+
+enum
+{
+	TOOLBAR_PLACEMENT_TOP = 0,
+	TOOLBAR_PLACEMENT_RIGHT = 1,
+	TOOLBAR_PLACEMENT_BOTTOM = 2,
+	TOOLBAR_PLACEMENT_LEFT = 3
+ };
+
+enum
+{
 	REMMINA_TAB_BY_GROUP = 0,
 	REMMINA_TAB_BY_PROTOCOL = 1,
-	REMMINA_TAB_ALL = 8,
-	REMMINA_TAB_NONE = 9
+	REMMINA_TAB_ALL = 2,
+	REMMINA_TAB_NONE = 3
 };
 
 typedef struct _RemminaPref
 {
-	/* In RemminaPrefDialog */
+	/* In RemminaPrefDialog options tab */
 	gboolean save_view_mode;
 	gboolean save_when_connect;
+	gint default_action;
+	gint scale_quality;
+	const gchar *screenshot_path;
+	gint auto_scroll_step;
+	gint recent_maximum;
+	gchar *resolutions;
+	gchar *keystrokes;
+	/* In RemminaPrefDialog appearance tab */
 	gboolean invisible_toolbar;
 	gboolean always_show_tab;
 	gboolean hide_connection_toolbar;
-	gint default_action;
-	gint scale_quality;
-	gchar *resolutions;
-	gint sshtunnel_port;
-	gint recent_maximum;
 	gint default_mode;
 	gint tab_mode;
-	gint auto_scroll_step;
-
+	gint show_buttons_icons;
+	gint show_menu_icons;
+	/* In RemminaPrefDialog applet tab */
 	gboolean applet_new_ontop;
 	gboolean applet_hide_count;
-	gboolean applet_enable_avahi;
 	gboolean disable_tray_icon;
-#ifdef ENABLE_MINIMIZE_TO_TRAY
-	gboolean minimize_to_tray;
-#endif
-
+	gboolean dark_tray_icon;
+	/* In RemminaPrefDialog SSH Option tab */
+	gint ssh_loglevel;
+	gboolean ssh_parseconfig;
+	gint sshtunnel_port;
+	/* In RemminaPrefDialog keyboard tab */
 	guint hostkey;
 	guint shortcutkey_fullscreen;
 	guint shortcutkey_autofit;
-	guint shortcutkey_nexttab;
 	guint shortcutkey_prevtab;
+	guint shortcutkey_nexttab;
 	guint shortcutkey_scale;
 	guint shortcutkey_grab;
+	guint shortcutkey_screenshot;
 	guint shortcutkey_minimize;
 	guint shortcutkey_disconnect;
 	guint shortcutkey_toolbar;
-
+	/* In RemminaPrefDialog terminal tab */
+	gchar *vte_font;
+	gboolean vte_allow_bold_text;
+	gboolean vte_system_colors;
+	gchar *vte_foreground_color;
+	gchar *vte_background_color;
+	gint vte_lines;
+	guint vte_shortcutkey_copy;
+	guint vte_shortcutkey_paste;
+	guint vte_shortcutkey_select_all;
 	/* In View menu */
 	gboolean hide_toolbar;
 	gboolean hide_statusbar;
-	gboolean show_quick_search;
 	gboolean small_toolbutton;
 	gint view_file_mode;
-
+	/* In tray icon */
+	gboolean applet_enable_avahi;
 	/* Auto */
 	gint main_width;
 	gint main_height;
@@ -121,20 +151,23 @@ typedef struct _RemminaPref
 	gint main_sort_order;
 	gchar *expanded_group;
 	gboolean toolbar_pin_down;
+	gint floating_toolbar_placement;
+	gint toolbar_placement;
 
 	/* Crypto */
 	gchar *secret;
 
-	/* VTE */
-	gchar *vte_font;
-	gboolean vte_allow_bold_text;
-	gint vte_lines;
-	guint vte_shortcutkey_copy;
-	guint vte_shortcutkey_paste;
+	/* UID */
+	gchar *uid;
+
+	/* Remmina birthday julian format*/
+	guint32 bdate;
 } RemminaPref;
 
+#define DEFAULT_SSH_PARSECONFIG TRUE
 #define DEFAULT_SSHTUNNEL_PORT 4732
 #define DEFAULT_SSH_PORT 22
+#define DEFAULT_SSH_LOGLEVEL 1
 
 extern const gchar *default_resolutions;
 extern gchar *remmina_pref_file;
@@ -151,6 +184,8 @@ guint remmina_pref_keymap_get_keyval(const gchar *keymap, guint keyval);
 gchar** remmina_pref_keymap_groups(void);
 
 gint remmina_pref_get_scale_quality(void);
+gint remmina_pref_get_ssh_loglevel(void);
+gboolean remmina_pref_get_ssh_parseconfig(void);
 gint remmina_pref_get_sshtunnel_port(void);
 
 void remmina_pref_set_value(const gchar *key, const gchar *value);

@@ -14,8 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330,
-# Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
 #
 # In addition, as a special exception, the copyright holders give
 # permission to link the code of portions of this program with the
@@ -30,7 +30,6 @@
 # version. If you delete this exception statement from all source
 # files in the program, then also delete it here.
 
-set(EXTERNAL_TOOLS_DIR "${CMAKE_INSTALL_FULL_DATADIR}/remmina/external_tools")
+INSTALL(PROGRAMS launcher.sh functions.sh remmina_filezilla_sftp.sh remmina_filezilla_sftp_pki.sh remmina_nslookup.sh remmina_ping.sh remmina_traceroute.sh DESTINATION ${REMMINA_EXTERNAL_TOOLS_DIR})
 
-INSTALL(PROGRAMS launcher.sh pause.sh remmina_filezilla_sftp.sh remmina_filezilla_sftp_pki.sh remmina_nslookup.sh remmina_ping.sh remmina_traceroute.sh DESTINATION ${EXTERNAL_TOOLS_DIR})
 

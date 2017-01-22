@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009-2010 Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -33,164 +34,159 @@
  */
 
 #include <gdk/gdkx.h>
-#include <gtk/gtk.h>
+#include <gio/gio.h>
 #include <glib/gi18n.h>
+#include <gtk/gtk.h>
 #include <stdlib.h>
+
 #include "config.h"
-#include "remmina_public.h"
-#include "remmina_main.h"
+#include "remmina_exec.h"
 #include "remmina_file_manager.h"
-#include "remmina_pref.h"
-#include "remmina_widget_pool.h"
+#include "remmina_icon.h"
+#include "remmina_main.h"
+#include "remmina_masterthread_exec.h"
 #include "remmina_plugin_manager.h"
+#include "remmina_pref.h"
+#include "remmina_public.h"
 #include "remmina_sftp_plugin.h"
 #include "remmina_ssh_plugin.h"
-#include "remmina_exec.h"
-#include "remmina_icon.h"
+#include "remmina_widget_pool.h"
+#include "remmina/remmina_trace_calls.h"
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
 #endif
-#ifdef HAVE_PTHREAD
 #include <pthread.h>
-#endif
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
+# if GCRYPT_VERSION_NUMBER < 0x010600
 GCRY_THREAD_OPTION_PTHREAD_IMPL;
-#endif
+#endif /* !GCRYPT_VERSION_NUMBER */
+#endif /* HAVE_LIBGCRYPT */
 
-static gboolean remmina_option_about;
-static gchar *remmina_option_connect;
-static gchar *remmina_option_edit;
-static gboolean remmina_option_help;
-static gboolean remmina_option_new;
-static gchar *remmina_option_pref;
-static gchar *remmina_option_plugin;
-static gboolean remmina_option_quit;
-static gchar *remmina_option_server;
-static gchar *remmina_option_protocol;
-static gchar *remmina_option_icon;
+#ifdef HAVE_LIBGCRYPT
+# if GCRYPT_VERSION_NUMBER < 0x010600
+static int gcrypt_thread_initialized = 0;
+#endif /* !GCRYPT_VERSION_NUMBER */
+#endif /* HAVE_LIBGCRYPT */
 
 static GOptionEntry remmina_options[] =
 {
-{ "about", 'a', 0, G_OPTION_ARG_NONE, &remmina_option_about, "Show about dialog", NULL },
-{ "connect", 'c', 0, G_OPTION_ARG_FILENAME, &remmina_option_connect, "Connect to a .remmina file F", "F" },
-{ "edit", 'e', 0, G_OPTION_ARG_FILENAME, &remmina_option_edit, "Edit a .remmina file F", "F" },
-{ "help", '?', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &remmina_option_help, NULL, NULL },
-{ "new", 'n', 0, G_OPTION_ARG_NONE, &remmina_option_new, "Create a new connection profile", NULL },
-{ "pref", 'p', 0, G_OPTION_ARG_STRING, &remmina_option_pref, "Show preference dialog", NULL },
-{ "plugin", 'x', 0, G_OPTION_ARG_STRING, &remmina_option_plugin, "Execute plugin P", "P" },
-{ "quit", 'q', 0, G_OPTION_ARG_NONE, &remmina_option_quit, "Quit the application", NULL },
-{ "server", 's', 0, G_OPTION_ARG_STRING, &remmina_option_server, "Use default server name S", "S" },
-{ "protocol", 't', 0, G_OPTION_ARG_STRING, &remmina_option_protocol, "Use default protocol T", "T" },
-{ "icon", 'i', 0, G_OPTION_ARG_NONE, &remmina_option_icon, "Start as tray icon", NULL },
-{ NULL } };
+	{ "about", 'a', 0, G_OPTION_ARG_NONE, NULL, N_("Show about dialog"), NULL },
+	{ "connect", 'c', 0, G_OPTION_ARG_FILENAME, NULL, N_("Connect to a .remmina file"), "FILE" },
+	{ "edit", 'e', 0, G_OPTION_ARG_FILENAME, NULL, N_("Edit a .remmina file"), "FILE" },
+	{ "help", '?', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, NULL, NULL, NULL },
+	{ "new", 'n', 0, G_OPTION_ARG_NONE, NULL, N_("Create a new connection profile"), NULL },
+	{ "pref", 'p', 0, G_OPTION_ARG_STRING, NULL, N_("Show preferences dialog page"), "PAGENR" },
+	{ "plugin", 'x', 0, G_OPTION_ARG_STRING, NULL, N_("Execute the plugin"), "PLUGIN" },
+	{ "quit", 'q', 0, G_OPTION_ARG_NONE, NULL, N_("Quit the application"), NULL },
+	{ "server", 's', 0, G_OPTION_ARG_STRING, NULL, N_("Use default server name (for --new)"), "SERVER" },
+	{ "protocol", 't', 0, G_OPTION_ARG_STRING, NULL, N_("Use default protocol (for --new)"), "PROTOCOL" },
+	{ "icon", 'i', 0, G_OPTION_ARG_NONE, NULL, N_("Start as tray icon"), NULL },
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, NULL, N_("Show the application's version"), NULL },
+	{ NULL }
+};
+
+#ifdef WITH_LIBGCRYPT
+	static int
+_gpg_error_to_errno (gcry_error_t e)
+{
+	/* be lazy right now */
+	if (e == GPG_ERR_NO_ERROR)
+		return (0);
+	else
+		return (EINVAL);
+}
+#endif /* !WITH_LIBGCRYPT */
 
 static gint remmina_on_command_line(GApplication *app, GApplicationCommandLine *cmdline)
 {
+	TRACE_CALL("remmina_on_command_line");
+
 	gint status = 0;
-	gint argc;
-	gchar **argv;
-	GError *error = NULL;
-	GOptionContext *context;
-	gboolean parsed;
-	gchar *s;
 	gboolean executed = FALSE;
+	GVariantDict *opts;
+	gchar *str;
+	gchar *protocol;
+	gchar *server;
 
-	remmina_option_about = FALSE;
-	remmina_option_connect = NULL;
-	remmina_option_edit = NULL;
-	remmina_option_help = FALSE;
-	remmina_option_new = FALSE;
-	remmina_option_pref = NULL;
-	remmina_option_plugin = NULL;
-	remmina_option_server = NULL;
-	remmina_option_protocol = NULL;
-	remmina_option_icon = FALSE;
+	opts = g_application_command_line_get_options_dict(cmdline);
 
-	argv = g_application_command_line_get_arguments(cmdline, &argc);
-
-	context = g_option_context_new("- The GTK+ Remote Desktop Client");
-	g_option_context_add_main_entries(context, remmina_options, GETTEXT_PACKAGE);
-	g_option_context_set_help_enabled(context, FALSE);
-	parsed = g_option_context_parse(context, &argc, &argv, &error);
-	g_strfreev(argv);
-
-	if (!parsed)
+	if (g_variant_dict_lookup_value(opts, "quit", NULL))
 	{
-		g_print("option parsing failed: %s\n", error->message);
+		remmina_exec_command(REMMINA_COMMAND_EXIT, NULL);
+		executed = TRUE;
 		status = 1;
 	}
 
-	if (remmina_option_quit)
-	{
-		gtk_main_quit();
-		status = 1;
-	}
-
-	if (remmina_option_about)
+	if (g_variant_dict_lookup_value(opts, "about", NULL))
 	{
 		remmina_exec_command(REMMINA_COMMAND_ABOUT, NULL);
 		executed = TRUE;
 	}
-	if (remmina_option_connect)
+
+	if (g_variant_dict_lookup(opts, "connect", "^ay", &str))
 	{
-		remmina_exec_command(REMMINA_COMMAND_CONNECT, remmina_option_connect);
+		remmina_exec_command(REMMINA_COMMAND_CONNECT, str);
+		g_free(str);
 		executed = TRUE;
 	}
-	if (remmina_option_edit)
+
+	if (g_variant_dict_lookup(opts, "edit", "^ay", &str))
 	{
-		remmina_exec_command(REMMINA_COMMAND_EDIT, remmina_option_edit);
+		remmina_exec_command(REMMINA_COMMAND_EDIT, str);
+		g_free(str);
 		executed = TRUE;
 	}
-	if (remmina_option_help)
+
+	if (g_variant_dict_lookup_value(opts, "new", NULL))
 	{
-		s = g_option_context_get_help(context, TRUE, NULL);
-		g_print("%s", s);
-		g_free(s);
-		status = 1;
-	}
-	if (remmina_option_new)
-	{
-		if (remmina_option_server)
+		if (!g_variant_dict_lookup(opts, "protocol", "&s", &protocol))
+			protocol = NULL;
+
+		if (g_variant_dict_lookup(opts, "server", "&s", &server))
 		{
-			s = g_strdup_printf("%s,%s", remmina_option_protocol, remmina_option_server);
+			str = g_strdup_printf("%s,%s", protocol, server);
 		}
 		else
 		{
-			s = g_strdup(remmina_option_protocol);
+			str = g_strdup(protocol);
 		}
-		remmina_exec_command(REMMINA_COMMAND_NEW, s);
-		g_free(s);
+
+		remmina_exec_command(REMMINA_COMMAND_NEW, str);
+		g_free(str);
 		executed = TRUE;
 	}
-	if (remmina_option_pref)
+
+	if (g_variant_dict_lookup(opts, "pref", "&s", &str))
 	{
-		remmina_exec_command(REMMINA_COMMAND_PREF, remmina_option_pref);
+		remmina_exec_command(REMMINA_COMMAND_PREF, str);
 		executed = TRUE;
 	}
-	if (remmina_option_plugin)
+
+	if (g_variant_dict_lookup(opts, "plugin", "&s", &str))
 	{
-		remmina_exec_command(REMMINA_COMMAND_PLUGIN, remmina_option_plugin);
+		remmina_exec_command(REMMINA_COMMAND_PLUGIN, str);
 		executed = TRUE;
 	}
-	if (remmina_option_icon)
+
+	if (g_variant_dict_lookup_value(opts, "icon", NULL))
 	{
-		remmina_exec_command(REMMINA_COMMAND_NONE, remmina_option_icon);
+		remmina_exec_command(REMMINA_COMMAND_NONE, NULL);
 		executed = TRUE;
 	}
+
 	if (!executed)
 	{
 		remmina_exec_command(REMMINA_COMMAND_MAIN, NULL);
 	}
-
-	g_option_context_free(context);
 
 	return status;
 }
 
 static void remmina_on_startup(GApplication *app)
 {
+	TRACE_CALL("remmina_on_startup");
 	remmina_file_manager_init();
 	remmina_pref_init();
 	remmina_plugin_manager_init();
@@ -202,49 +198,69 @@ static void remmina_on_startup(GApplication *app)
 	g_set_application_name("Remmina");
 	gtk_window_set_default_icon_name("remmina");
 
-gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
-		REMMINA_DATADIR G_DIR_SEPARATOR_S "icons");
+	gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
+	                                   REMMINA_DATADIR G_DIR_SEPARATOR_S "icons");
+	g_application_hold(app);
+}
+
+static gint remmina_on_local_cmdline (GApplication *app, GVariantDict *options, gpointer user_data)
+{
+	TRACE_CALL("remmina_on_local_cmdline");
+
+	int status = -1;
+
+	if (g_variant_dict_lookup_value(options, "version", NULL))
+	{
+		remmina_exec_command(REMMINA_COMMAND_VERSION, NULL);
+		status = 1;
+	}
+
+	return status;
 }
 
 int main(int argc, char* argv[])
 {
-	GApplication* app;
+	TRACE_CALL("main");
+	GtkApplication *app;
+	const gchar *app_id;
 	int status;
+
+	gdk_set_allowed_backends("x11,broadway,quartz,wayland,mir");
+
+	remmina_masterthread_exec_save_main_thread_id();
 
 	bindtextdomain(GETTEXT_PACKAGE, REMMINA_LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 
-#ifdef HAVE_PTHREAD
-	g_type_init ();
-	gdk_threads_init ();
-#endif
-
 #ifdef HAVE_LIBGCRYPT
-	gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+# if GCRYPT_VERSION_NUMBER < 0x010600
+	gcry_error_t e;
+	if (!gcrypt_thread_initialized)
+	{
+		if ((e = gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread)) != GPG_ERR_NO_ERROR)
+		{
+			return (-1);
+		}
+		gcrypt_thread_initialized++;
+	}
+#endif /* !GCRYPT_VERSION_NUMBER */
 	gcry_check_version (NULL);
 	gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
 	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
-#endif
+#endif /* !HAVE_LIBGCRYPT */
 
-	gtk_init(&argc, &argv);
-
-	app = g_application_new("org.Remmina", G_APPLICATION_HANDLES_COMMAND_LINE);
+	app_id = g_application_id_is_valid(UNIQUE_APPNAME) ? UNIQUE_APPNAME : NULL;
+	app = gtk_application_new(app_id, G_APPLICATION_HANDLES_COMMAND_LINE);
 	g_signal_connect(app, "startup", G_CALLBACK(remmina_on_startup), NULL);
 	g_signal_connect(app, "command-line", G_CALLBACK(remmina_on_command_line), NULL);
-	g_application_set_inactivity_timeout(app, 10000);
+	g_signal_connect(app, "handle-local-options", G_CALLBACK(remmina_on_local_cmdline), NULL);
 
-	status = g_application_run(app, argc, argv);
+	g_application_add_main_option_entries(G_APPLICATION(app), remmina_options);
 
-	if (status == 0 && !g_application_get_is_remote(app))
-	{
-		THREADS_ENTER
-		gtk_main();
-		THREADS_LEAVE
-	}
-
+	g_application_set_inactivity_timeout(G_APPLICATION(app), 10000);
+	status = g_application_run(G_APPLICATION(app), argc, argv);
 	g_object_unref(app);
 
 	return status;
 }
-

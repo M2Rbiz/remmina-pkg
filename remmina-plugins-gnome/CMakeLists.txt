@@ -14,8 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, 
-# Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
 #
 # In addition, as a special exception, the copyright holders give
 # permission to link the code of portions of this program with the
@@ -31,21 +31,21 @@
 # files in the program, then also delete it here.
 
 
-find_suggested_package(GNOMEKEYRING)
-if(GNOMEKEYRING_FOUND)
+find_suggested_package(Libsecret)
+if(LIBSECRET_FOUND)
 	set(REMMINA_PLUGINS_GNOME_SRCS
-		src/gkeyring_plugin.c
+		src/glibsecret_plugin.c
 		)
 
-	add_library(remmina-plugins-gnome ${REMMINA_PLUGINS_GNOME_SRCS})
+	add_library(remmina-plugins-gnome MODULE ${REMMINA_PLUGINS_GNOME_SRCS})
 	set_target_properties(remmina-plugins-gnome PROPERTIES PREFIX "")
 	set_target_properties(remmina-plugins-gnome PROPERTIES NO_SONAME 1)
 
 	include_directories(${GTK_INCLUDE_DIRS})
 	target_link_libraries(remmina-plugins-gnome ${GTK_LIBRARY_DIRS})
 
-		include_directories(${GNOMEKEYRING_INCLUDE_DIRS})
-		target_link_libraries(remmina-plugins-gnome ${GNOMEKEYRING_LIBRARIES})
+		include_directories(SYSTEM ${LIBSECRET_INCLUDE_DIRS})
+		target_link_libraries(remmina-plugins-gnome ${LIBSECRET_LIBRARIES} ${GLIB2_LIBRARY})
 
 	install(TARGETS remmina-plugins-gnome DESTINATION ${REMMINA_PLUGINDIR})
 endif()

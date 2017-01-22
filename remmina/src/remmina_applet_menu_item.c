@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009-2010 Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -37,13 +38,15 @@
 #include <string.h>
 #include <stdarg.h>
 #include "remmina_applet_menu_item.h"
+#include "remmina/remmina_trace_calls.h"
 
-G_DEFINE_TYPE( RemminaAppletMenuItem, remmina_applet_menu_item, GTK_TYPE_IMAGE_MENU_ITEM)
+G_DEFINE_TYPE( RemminaAppletMenuItem, remmina_applet_menu_item, GTK_TYPE_MENU_ITEM)
 
 #define IS_EMPTY(s) ((!s)||(s[0]==0))
 
 static void remmina_applet_menu_item_destroy(RemminaAppletMenuItem* item, gpointer data)
 {
+	TRACE_CALL("remmina_applet_menu_item_destroy");
 	g_free(item->filename);
 	g_free(item->name);
 	g_free(item->group);
@@ -53,10 +56,12 @@ static void remmina_applet_menu_item_destroy(RemminaAppletMenuItem* item, gpoint
 
 static void remmina_applet_menu_item_class_init(RemminaAppletMenuItemClass* klass)
 {
+	TRACE_CALL("remmina_applet_menu_item_class_init");
 }
 
 static void remmina_applet_menu_item_init(RemminaAppletMenuItem* item)
 {
+	TRACE_CALL("remmina_applet_menu_item_init");
 	item->filename = NULL;
 	item->name = NULL;
 	item->group = NULL;
@@ -68,6 +73,7 @@ static void remmina_applet_menu_item_init(RemminaAppletMenuItem* item)
 
 GtkWidget* remmina_applet_menu_item_new(RemminaAppletMenuItemType item_type, ...)
 {
+	TRACE_CALL("remmina_applet_menu_item_new");
 	va_list ap;
 	RemminaAppletMenuItem* item;
 	GKeyFile* gkeyfile;
@@ -82,33 +88,37 @@ GtkWidget* remmina_applet_menu_item_new(RemminaAppletMenuItemType item_type, ...
 
 	switch (item_type)
 	{
-		case REMMINA_APPLET_MENU_ITEM_FILE:
-			item->filename = g_strdup(va_arg(ap, const gchar*));
+	case REMMINA_APPLET_MENU_ITEM_FILE:
+		item->filename = g_strdup(va_arg(ap, const gchar*));
 
-			/* Load the file */
-			gkeyfile = g_key_file_new();
+		/* Load the file */
+		gkeyfile = g_key_file_new();
 
-			if (!g_key_file_load_from_file(gkeyfile, item->filename, G_KEY_FILE_NONE, NULL))
-				return NULL;
-
-			item->name = g_key_file_get_string(gkeyfile, "remmina", "name", NULL);
-			item->group = g_key_file_get_string(gkeyfile, "remmina", "group", NULL);
-			item->protocol = g_key_file_get_string(gkeyfile, "remmina", "protocol", NULL);
-			item->server = g_key_file_get_string(gkeyfile, "remmina", "server", NULL);
-			item->ssh_enabled = g_key_file_get_boolean(gkeyfile, "remmina", "ssh_enabled", NULL);
-
+		if (!g_key_file_load_from_file(gkeyfile, item->filename, G_KEY_FILE_NONE, NULL))
+		{
 			g_key_file_free(gkeyfile);
-			break;
+			va_end(ap);
+			return NULL;
+		}
 
-		case REMMINA_APPLET_MENU_ITEM_DISCOVERED:
-			item->name = g_strdup(va_arg(ap, const gchar *));
-			item->group = g_strdup(_("Discovered"));
-			item->protocol = g_strdup("VNC");
-			break;
+		item->name = g_key_file_get_string(gkeyfile, "remmina", "name", NULL);
+		item->group = g_key_file_get_string(gkeyfile, "remmina", "group", NULL);
+		item->protocol = g_key_file_get_string(gkeyfile, "remmina", "protocol", NULL);
+		item->server = g_key_file_get_string(gkeyfile, "remmina", "server", NULL);
+		item->ssh_enabled = g_key_file_get_boolean(gkeyfile, "remmina", "ssh_enabled", NULL);
 
-		case REMMINA_APPLET_MENU_ITEM_NEW:
-			item->name = g_strdup(_("New Connection"));
-			break;
+		g_key_file_free(gkeyfile);
+		break;
+
+	case REMMINA_APPLET_MENU_ITEM_DISCOVERED:
+		item->name = g_strdup(va_arg(ap, const gchar *));
+		item->group = g_strdup(_("Discovered"));
+		item->protocol = g_strdup("VNC");
+		break;
+
+	case REMMINA_APPLET_MENU_ITEM_NEW:
+		item->name = g_strdup(_("New Connection"));
+		break;
 	}
 
 	va_end(ap);
@@ -116,10 +126,12 @@ GtkWidget* remmina_applet_menu_item_new(RemminaAppletMenuItemType item_type, ...
 	/* Create the label */
 	widget = gtk_label_new(item->name);
 	gtk_widget_show(widget);
-	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
+	gtk_widget_set_valign (widget, GTK_ALIGN_START);
+	gtk_widget_set_halign (widget, GTK_ALIGN_START);
 	gtk_container_add(GTK_CONTAINER(item), widget);
 
 	/* Create the image */
+
 	if (item_type == REMMINA_APPLET_MENU_ITEM_FILE || item_type == REMMINA_APPLET_MENU_ITEM_DISCOVERED)
 	{
 		if (g_strcmp0(item->protocol, "SFTP") == 0)
@@ -169,6 +181,7 @@ GtkWidget* remmina_applet_menu_item_new(RemminaAppletMenuItemType item_type, ...
 
 gint remmina_applet_menu_item_compare(gconstpointer a, gconstpointer b, gpointer user_data)
 {
+	TRACE_CALL("remmina_applet_menu_item_compare");
 	gint cmp;
 	RemminaAppletMenuItem* itema;
 	RemminaAppletMenuItem* itemb;

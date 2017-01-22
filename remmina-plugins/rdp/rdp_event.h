@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2010-2011 Vic Lee 
+ * Copyright (C) 2010-2011 Vic Lee
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -37,12 +37,15 @@
 
 G_BEGIN_DECLS
 
+
 void remmina_rdp_event_init(RemminaProtocolWidget* gp);
 void remmina_rdp_event_uninit(RemminaProtocolWidget* gp);
 void remmina_rdp_event_update_scale(RemminaProtocolWidget* gp);
-gboolean remmina_rdp_event_queue_ui(RemminaProtocolWidget* gp);
 void remmina_rdp_event_unfocus(RemminaProtocolWidget* gp);
 void remmina_rdp_event_update_rect(RemminaProtocolWidget* gp, gint x, gint y, gint w, gint h);
+void remmina_rdp_event_queue_ui_async(RemminaProtocolWidget* gp, RemminaPluginRdpUiObject* ui);
+int remmina_rdp_event_queue_ui_sync_retint(RemminaProtocolWidget* gp, RemminaPluginRdpUiObject* ui);
+void *remmina_rdp_event_queue_ui_sync_retptr(RemminaProtocolWidget* gp, RemminaPluginRdpUiObject* ui);
 
 G_END_DECLS
 

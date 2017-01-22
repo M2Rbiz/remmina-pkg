@@ -1,6 +1,7 @@
 # Remmina - The GTK+ Remote Desktop Client
 #
 # Copyright (C) 2011 Marc-Andre Moreau
+# Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, 
-# Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
 #
 # In addition, as a special exception, the copyright holders give
 # permission to link the code of portions of this program with the
@@ -30,6 +31,11 @@
 # version. If you delete this exception statement from all source
 # files in the program, then also delete it here.
 
+# Needed FreeRDP version to build freerdp plugin
+set(FREERDP_REQUIRED_MAJOR 2)
+set(FREERDP_REQUIRED_MINOR 0)
+set(FREERDP_REQUIRED_REVISION 0)
+set(FREERDP_REQUIRED_VERSIONSTRING ${FREERDP_REQUIRED_MAJOR}.${FREERDP_REQUIRED_MINOR}.${FREERDP_REQUIRED_REVISION})
 
 include_directories(${CMAKE_SOURCE_DIR}/remmina-plugins)
 
@@ -37,7 +43,7 @@ set(APPICON16_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/16x16/emblems")
 set(APPICON22_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/22x22/emblems")
 
 set(REMMINA_COMMON_INCLUDE_DIRS ${GTK_INCLUDE_DIRS})
-set(REMMINA_COMMON_LIBRARIES ${GTK_LIBRARIES})
+set(REMMINA_COMMON_LIBRARIES ${GTK_LIBRARIES} ${PTHREAD_LIBRARY})
 
 find_suggested_package(LIBSSH)
 if(LIBSSH_FOUND)
@@ -72,7 +78,11 @@ if(ZLIB_FOUND)
 	add_subdirectory(vnc)
 endif()
 
-if(WITH_TRANSLATIONS)
-	add_subdirectory(po)
+find_suggested_package(SPICE)
+if(SPICE_FOUND)
+	add_subdirectory(spice)
 endif()
 
+if(WITH_EXAMPLES)
+	add_subdirectory(tool_hello_world)
+endif()

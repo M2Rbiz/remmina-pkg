@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009 - Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -35,53 +36,33 @@
 #include <gtk/gtk.h>
 #include "remmina_public.h"
 #include "remmina_widget_pool.h"
+#include "remmina/remmina_trace_calls.h"
 
 static GPtrArray *remmina_widget_pool = NULL;
 
-static guint remmina_widget_pool_try_quit_handler = 0;
-
-static gboolean remmina_widget_pool_on_hold = FALSE;
-
-static gboolean remmina_widget_pool_try_quit(gpointer data)
-{
-	if (remmina_widget_pool->len == 0 && !remmina_widget_pool_on_hold)
-	{
-		gtk_main_quit();
-	}
-	remmina_widget_pool_try_quit_handler = 0;
-	return FALSE;
-}
-
 void remmina_widget_pool_init(void)
 {
+	TRACE_CALL("remmina_widget_pool_init");
 	remmina_widget_pool = g_ptr_array_new();
-	remmina_widget_pool_try_quit_handler = g_timeout_add(15000, remmina_widget_pool_try_quit, NULL);
 }
 
 static void remmina_widget_pool_on_widget_destroy(GtkWidget *widget, gpointer data)
 {
+	TRACE_CALL("remmina_widget_pool_on_widget_destroy");
 	g_ptr_array_remove(remmina_widget_pool, widget);
-	if (remmina_widget_pool->len == 0 && remmina_widget_pool_try_quit_handler == 0)
-	{
-		/* Wait for a while to make sure no more windows will open before we quit the application */
-		remmina_widget_pool_try_quit_handler = g_timeout_add(10000, remmina_widget_pool_try_quit, NULL);
-	}
 }
 
 void remmina_widget_pool_register(GtkWidget *widget)
 {
+	TRACE_CALL("remmina_widget_pool_register");
 	g_ptr_array_add(remmina_widget_pool, widget);
 	g_signal_connect(G_OBJECT(widget), "destroy", G_CALLBACK(remmina_widget_pool_on_widget_destroy), NULL);
-	if (remmina_widget_pool_try_quit_handler)
-	{
-		g_source_remove(remmina_widget_pool_try_quit_handler);
-		remmina_widget_pool_try_quit_handler = 0;
-	}
 }
 
 GtkWidget*
 remmina_widget_pool_find(GType type, const gchar *tag)
 {
+	TRACE_CALL("remmina_widget_pool_find");
 	GtkWidget *widget;
 	gint i;
 	GdkScreen *screen;
@@ -114,6 +95,7 @@ remmina_widget_pool_find(GType type, const gchar *tag)
 GtkWidget*
 remmina_widget_pool_find_by_window(GType type, GdkWindow *window)
 {
+	TRACE_CALL("remmina_widget_pool_find_by_window");
 	GtkWidget *widget;
 	gint i;
 	GdkWindow *parent;
@@ -136,30 +118,35 @@ remmina_widget_pool_find_by_window(GType type, GdkWindow *window)
 	return NULL;
 }
 
-void remmina_widget_pool_hold(gboolean hold)
-{
-	remmina_widget_pool_on_hold = hold;
-	if (!hold && remmina_widget_pool_try_quit_handler == 0)
-	{
-		remmina_widget_pool_try_quit_handler = g_timeout_add(10000, remmina_widget_pool_try_quit, NULL);
-	}
-}
-
 gint remmina_widget_pool_foreach(RemminaWidgetPoolForEachFunc callback, gpointer data)
 {
+	TRACE_CALL("remmina_widget_pool_foreach");
 	GtkWidget *widget;
 	gint i;
 	gint n = 0;
+	GPtrArray *wpcpy = NULL;
 
 	if (remmina_widget_pool == NULL)
 		return 0;
 
+	/* Make a copy of remmina_widget_pool, so we can survive when callback()
+	 * remove an element from remmina_widget_pool */
+
+	wpcpy = g_ptr_array_sized_new(remmina_widget_pool->len);
+
 	for (i = 0; i < remmina_widget_pool->len; i++)
+		g_ptr_array_add(wpcpy, g_ptr_array_index(remmina_widget_pool, i));
+
+	/* Scan the remmina_widget_pool and call callbac() on every element */
+	for (i = 0; i < wpcpy->len; i++)
 	{
-		widget = GTK_WIDGET(g_ptr_array_index(remmina_widget_pool, i));
+		widget = GTK_WIDGET(g_ptr_array_index(wpcpy, i));
 		if (callback(widget, data))
 			n++;
 	}
+
+	/* Free the copy */
+	g_ptr_array_unref(wpcpy);
 	return n;
 }
 
