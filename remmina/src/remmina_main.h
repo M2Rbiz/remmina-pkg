@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -37,65 +38,82 @@
 #ifndef __REMMINAMAIN_H__
 #define __REMMINAMAIN_H__
 
-G_BEGIN_DECLS
-
-#define REMMINA_TYPE_MAIN               (remmina_main_get_type ())
-#define REMMINA_MAIN(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), REMMINA_TYPE_MAIN, RemminaMain))
-#define REMMINA_MAIN_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), REMMINA_TYPE_MAIN, RemminaMainClass))
-#define REMMINA_IS_MAIN(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), REMMINA_TYPE_MAIN))
-#define REMMINA_IS_MAIN_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), REMMINA_TYPE_MAIN))
-#define REMMINA_MAIN_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), REMMINA_TYPE_MAIN, RemminaMainClass))
+#include "remmina_file.h"
 
 typedef struct _RemminaMainPriv RemminaMainPriv;
 
 typedef struct _RemminaMain
 {
-	GtkWindow window;
-
+	GtkBuilder *builder;
+	GtkWindow *window;
+	/* Menu widgets */
+	GtkMenu *menu_popup;
+	GtkMenu *menu_popup_full;
+	GtkRadioMenuItem *menuitem_view_mode_list;
+	GtkRadioMenuItem *menuitem_view_mode_tree;
+	/* Quick connect objects */
+	GtkBox *box_quick_connect;
+	GtkComboBoxText *combo_quick_connect_protocol;
+	GtkEntry *entry_quick_connect_server;
+	GtkButton *button_quick_connect;
+	/* Other widgets */
+	GtkTreeView *tree_files_list;
+	GtkTreeViewColumn *column_files_list_group;
+	GtkStatusbar *statusbar_main;
+	/* Non widget objects */
+	GtkAccelGroup *accelgroup_shortcuts;
+	GtkActionGroup *actiongroup_connection;
+	/* Actions from the application ActionGroup */
+	GtkAction *action_application_about;
+	GtkAction *action_application_plugins;
+	GtkAction *action_application_preferences;
+	GtkAction *action_application_quit;
+	/* Actions from the connections ActionGroup */
+	GtkAction *action_connections_new;
+	/* Actions from the connection ActionGroup */
+	GtkAction *action_connection_connect;
+	GtkAction *action_connection_edit;
+	GtkAction *action_connection_copy;
+	GtkAction *action_connection_delete;
+	GtkAction *action_connection_external_tools;
+	/* Actions from the view ActionGroup */
+	GtkToggleAction *action_view_statusbar;
+	GtkToggleAction *action_view_quick_connect;
+	GtkToggleAction *action_view_mode_list;
+	GtkToggleAction *action_view_mode_tree;
+	/* Actions from the tools ActionGroup */
+	GtkAction *action_tools_import;
+	GtkAction *action_tools_export;
+	/* Actions from the help ActionGroup */
+	GtkAction *action_help_homepage;
+	GtkAction *action_help_wiki;
+	GtkAction *action_help_debug;
 	RemminaMainPriv *priv;
 } RemminaMain;
 
 struct _RemminaMainPriv
 {
-	GtkWidget *file_list;
 	GtkTreeModel *file_model;
 	GtkTreeModel *file_model_filter;
 	GtkTreeModel *file_model_sort;
-	GtkUIManager *uimanager;
-	GtkWidget *toolbar;
-	GtkWidget *statusbar;
-
-	GtkToolItem *quick_search_separator;
-	GtkToolItem *quick_search_item;
-	GtkWidget *quick_search_entry;
-
-	GtkWidget *quickconnect_protocol;
-	GtkWidget *quickconnect_server;
-
-	GtkTreeViewColumn *group_column;
-
-	GtkActionGroup *main_group;
-	GtkActionGroup *file_sensitive_group;
 
 	gboolean initialized;
 
 	gchar *selected_filename;
 	gchar *selected_name;
+	gboolean override_view_file_mode_to_list;
 	RemminaStringArray *expanded_group;
 };
 
-typedef struct _RemminaMainClass
-{
-	GtkWindowClass parent_class;
-} RemminaMainClass;
-
-GType remmina_main_get_type(void)
-G_GNUC_CONST;
+G_BEGIN_DECLS
 
 /* Create the main Remmina window */
 GtkWidget* remmina_main_new(void);
+/* Get the current main window or NULL if not initialized */
+GtkWindow* remmina_main_get_window(void);
+
+void remmina_main_update_file_datetime(RemminaFile *file);
 
 G_END_DECLS
 
 #endif  /* __REMMINAMAIN_H__  */
-

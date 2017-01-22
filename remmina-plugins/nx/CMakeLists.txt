@@ -14,8 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, 
-# Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+# Boston, MA  02110-1301, USA.
 #
 # In addition, as a special exception, the copyright holders give
 # permission to link the code of portions of this program with the
@@ -44,8 +44,10 @@ add_library(remmina-plugin-nx ${REMMINA_PLUGIN_NX_SRCS})
 set_target_properties(remmina-plugin-nx PROPERTIES PREFIX "")
 set_target_properties(remmina-plugin-nx PROPERTIES NO_SONAME 1)
 
+find_package(X11)
+
 include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${XKBFILE_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS})
-target_link_libraries(remmina-plugin-nx ${REMMINA_COMMON_LIBRARIES} ${XKBFILE_LIBRARIES} ${LIBSSH_LIBRARIES})
+target_link_libraries(remmina-plugin-nx ${REMMINA_COMMON_LIBRARIES} ${XKBFILE_LIBRARIES} ${LIBSSH_LIBRARIES} ${X11_X11_LIB})
 
 install(TARGETS remmina-plugin-nx DESTINATION ${REMMINA_PLUGINDIR})
 

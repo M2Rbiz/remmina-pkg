@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009 - Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -39,11 +40,13 @@
 #endif
 #include "remmina_pref.h"
 #include "remmina_crypt.h"
+#include "remmina/remmina_trace_calls.h"
 
 #ifdef HAVE_LIBGCRYPT
 
 static gboolean remmina_crypt_init(gcry_cipher_hd_t *phd)
 {
+	TRACE_CALL("remmina_crypt_init");
 	guchar* secret;
 	gcry_error_t err;
 	gsize secret_len;
@@ -93,6 +96,7 @@ static gboolean remmina_crypt_init(gcry_cipher_hd_t *phd)
 
 gchar* remmina_crypt_encrypt(const gchar *str)
 {
+	TRACE_CALL("remmina_crypt_encrypt");
 	guchar* buf;
 	gint buf_len;
 	gchar* result;
@@ -132,6 +136,7 @@ gchar* remmina_crypt_encrypt(const gchar *str)
 
 gchar* remmina_crypt_decrypt(const gchar *str)
 {
+	TRACE_CALL("remmina_crypt_decrypt");
 	guchar* buf;
 	gsize buf_len;
 	gcry_error_t err;
@@ -167,11 +172,13 @@ gchar* remmina_crypt_decrypt(const gchar *str)
 
 gchar* remmina_crypt_encrypt(const gchar *str)
 {
+	TRACE_CALL("remmina_crypt_encrypt");
 	return NULL;
 }
 
 gchar* remmina_crypt_decrypt(const gchar *str)
 {
+	TRACE_CALL("remmina_crypt_decrypt");
 	return NULL;
 }
 

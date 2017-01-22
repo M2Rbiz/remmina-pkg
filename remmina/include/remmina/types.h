@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2010 Vic Lee 
+ * Copyright (C) 2010 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -60,6 +61,15 @@ typedef struct _RemminaProtocolFeature
     gpointer opt3;
 } RemminaProtocolFeature;
 
+typedef struct _RemminaPluginScreenshotData {
+	unsigned char* buffer;
+	int bitsPerPixel;
+	int bytesPerPixel;
+	int width;
+	int height;
+} RemminaPluginScreenshotData;
+
+
 typedef struct _RemminaProtocolWidgetClass RemminaProtocolWidgetClass;
 typedef struct _RemminaProtocolWidget RemminaProtocolWidget;
 typedef gpointer RemminaTunnelInitFunc;
@@ -74,7 +84,6 @@ typedef enum
     REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,
     REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION,
     REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,
-    REMMINA_PROTOCOL_SETTING_TYPE_SCALE,
 
     REMMINA_PROTOCOL_SETTING_TYPE_TEXT,
     REMMINA_PROTOCOL_SETTING_TYPE_SELECT,

@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009 - Vic Lee 
+ * Copyright (C) 2009 - Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -58,6 +59,7 @@ typedef struct _RemminaConnectionWindow
 typedef struct _RemminaConnectionWindowClass
 {
 	GtkWindowClass parent_class;
+	void (*toolbar_place)(RemminaConnectionWindow *gp);
 } RemminaConnectionWindowClass;
 
 GType remmina_connection_window_get_type(void)
@@ -67,8 +69,9 @@ G_GNUC_CONST;
 gboolean remmina_connection_window_open_from_filename(const gchar* filename);
 /* Open a new connection window for a given RemminaFile struct. The struct will be freed after the call */
 void remmina_connection_window_open_from_file(RemminaFile* remminafile);
+gboolean remmina_connection_window_delete(RemminaConnectionWindow* cnnwin);
 GtkWidget* remmina_connection_window_open_from_file_full(RemminaFile* remminafile, GCallback disconnect_cb, gpointer data,
-		guint* handler);
+        guint* handler);
 
 G_END_DECLS
 
