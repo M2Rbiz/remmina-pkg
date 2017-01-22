@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -36,41 +36,87 @@
 #define __REMMINAPREFDIALOG_H__
 
 /*
- * Remmina Perference Dialog
+ * Remmina Preferences Dialog
  */
 
-G_BEGIN_DECLS
-
-#define REMMINA_TYPE_PREF_DIALOG               (remmina_pref_dialog_get_type ())
-#define REMMINA_PREF_DIALOG(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), REMMINA_TYPE_PREF_DIALOG, RemminaPrefDialog))
-#define REMMINA_PREF_DIALOG_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), REMMINA_TYPE_PREF_DIALOG, RemminaPrefDialogClass))
-#define REMMINA_IS_PREF_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), REMMINA_TYPE_PREF_DIALOG))
-#define REMMINA_IS_PREF_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), REMMINA_TYPE_PREF_DIALOG))
-#define REMMINA_PREF_DIALOG_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), REMMINA_TYPE_PREF_DIALOG, RemminaPrefDialogClass))
-
-typedef struct _RemminaPrefDialogPriv RemminaPrefDialogPriv;
+typedef struct _RemminaPrefDialogPriv
+{
+	GtkWidget *resolutions_list;
+} RemminaPrefDialogPriv;
 
 typedef struct _RemminaPrefDialog
 {
-	GtkDialog dialog;
+	GtkBuilder *builder;
+	GtkDialog *dialog;
+	GtkNotebook *notebook_preferences;
+
+	GtkCheckButton *checkbutton_options_remember_last_view_mode;
+	GtkCheckButton *checkbutton_options_save_settings;
+	GtkCheckButton *checkbutton_appearance_invisible_toolbar;
+	GtkCheckButton *checkbutton_appearance_show_tabs;
+	GtkCheckButton *checkbutton_appearance_hide_toolbar;
+	GtkComboBox *comboboxtext_options_double_click;
+	GtkComboBox *comboboxtext_appearance_view_mode;
+	GtkComboBox *comboboxtext_appearance_tab_interface;
+	GtkComboBox *comboboxtext_appearance_show_buttons_icons;
+	GtkComboBox *comboboxtext_appearance_show_menu_icons;
+	GtkComboBox *comboboxtext_options_scale_quality;
+	GtkComboBox *comboboxtext_options_ssh_loglevel;
+	GtkFileChooser *filechooserbutton_options_screenshots_path;
+	GtkCheckButton *checkbutton_options_ssh_parseconfig;
+	GtkEntry *entry_options_ssh_port;
+	GtkEntry *entry_options_scroll;
+	GtkEntry *entry_options_recent_items;
+	GtkButton *button_options_recent_items_clear;
+	GtkButton *button_options_resolutions;
+
+	GtkCheckButton *checkbutton_applet_new_connection_on_top;
+	GtkCheckButton *checkbutton_applet_hide_totals;
+	GtkCheckButton *checkbutton_applet_disable_tray;
+	GtkCheckButton *checkbutton_applet_light_tray;
+	GtkCheckButton *checkbutton_applet_start_in_tray;
+
+	GtkButton *button_keyboard_host_key;
+	GtkButton *button_keyboard_fullscreen;
+	GtkButton *button_keyboard_auto_fit;
+	GtkButton *button_keyboard_switch_tab_left;
+	GtkButton *button_keyboard_switch_tab_right;
+	GtkButton *button_keyboard_scaled;
+	GtkButton *button_keyboard_grab_keyboard;
+	GtkButton *button_keyboard_screenshot;
+	GtkButton *button_keyboard_minimize;
+	GtkButton *button_keyboard_disconnect;
+	GtkButton *button_keyboard_toolbar;
+
+	GtkCheckButton *checkbutton_terminal_font_system;
+	GtkFontButton *fontbutton_terminal_font;
+	GtkCheckButton *checkbutton_terminal_bold;
+	GtkCheckButton *checkbutton_terminal_system_colors;
+	GtkLabel *label_terminal_foreground;
+	GtkColorButton *colorbutton_foreground;
+	GtkLabel *label_terminal_background;
+	GtkColorButton *colorbutton_background;
+	GtkEntry *entry_scrollback_lines;
+	GtkButton *button_keyboard_copy;
+	GtkButton *button_keyboard_paste;
+	GtkButton *button_keyboard_select_all;
 
 	RemminaPrefDialogPriv *priv;
 } RemminaPrefDialog;
 
-typedef struct _RemminaPrefDialogClass
-{
-	GtkDialogClass parent_class;
-} RemminaPrefDialogClass;
-
-GType remmina_pref_dialog_get_type(void)
-G_GNUC_CONST;
-
 enum
 {
-	REMMINA_PREF_OPTIONS_TAB = 0, REMMINA_PREF_RESOLUTIONS_TAB = 1, REMMINA_PREF_APPLET_TAB = 2
+	REMMINA_PREF_OPTIONS_TAB = 0,
+	REMMINA_PREF_APPEARANCE = 1,
+	REMMINA_PREF_APPLET_TAB = 2
 };
 
-GtkWidget* remmina_pref_dialog_new(gint default_tab);
+G_BEGIN_DECLS
+
+/* RemminaPrefDialog instance */
+GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent);
+/* Get the current PrefDialog or NULL if not initialized */
+GtkDialog* remmina_pref_dialog_get_dialog(void);
 
 G_END_DECLS
 

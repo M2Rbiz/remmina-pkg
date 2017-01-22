@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009-2010 Vic Lee 
+ * Copyright (C) 2009-2010 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -35,6 +36,7 @@
 #include <gtk/gtk.h>
 #include "config.h"
 #include "remmina_avahi.h"
+#include "remmina/remmina_trace_calls.h"
 
 #ifdef HAVE_LIBAVAHI_CLIENT
 
@@ -55,20 +57,21 @@ struct _RemminaAvahiPriv
 
 static void
 remmina_avahi_resolve_callback(
-		AvahiServiceResolver* r,
-		AVAHI_GCC_UNUSED AvahiIfIndex interface,
-		AVAHI_GCC_UNUSED AvahiProtocol protocol,
-		AvahiResolverEvent event,
-		const char* name,
-		const char* type,
-		const char* domain,
-		const char* host_name,
-		const AvahiAddress* address,
-		uint16_t port,
-		AvahiStringList* txt,
-		AvahiLookupResultFlags flags,
-		AVAHI_GCC_UNUSED void* userdata)
+    AvahiServiceResolver* r,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    const char* name,
+    const char* type,
+    const char* domain,
+    const char* host_name,
+    const AvahiAddress* address,
+    uint16_t port,
+    AvahiStringList* txt,
+    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata)
 {
+	TRACE_CALL("remmina_avahi_resolve_callback");
 	gchar* key;
 	gchar* value;
 	RemminaAvahi* ga = (RemminaAvahi*) userdata;
@@ -79,25 +82,25 @@ remmina_avahi_resolve_callback(
 
 	switch (event)
 	{
-		case AVAHI_RESOLVER_FAILURE:
-			g_print("(remmina-applet avahi-resolver) Failed to resolve service '%s' of type '%s' in domain '%s': %s\n",
-					name, type, domain, avahi_strerror(avahi_client_errno(avahi_service_resolver_get_client(r))));
+	case AVAHI_RESOLVER_FAILURE:
+		g_print("(remmina-applet avahi-resolver) Failed to resolve service '%s' of type '%s' in domain '%s': %s\n",
+		        name, type, domain, avahi_strerror(avahi_client_errno(avahi_service_resolver_get_client(r))));
+		break;
+
+	case AVAHI_RESOLVER_FOUND:
+		key = g_strdup_printf("%s,%s,%s", name, type, domain);
+		if (g_hash_table_lookup(ga->discovered_services, key))
+		{
+			g_free(key);
 			break;
+		}
+		value = g_strdup_printf("[%s]:%i", host_name, port);
+		g_hash_table_insert(ga->discovered_services, key, value);
+		/* key and value will be freed with g_free when the has table is freed */
 
-		case AVAHI_RESOLVER_FOUND:
-			key = g_strdup_printf("%s,%s,%s", name, type, domain);
-			if (g_hash_table_lookup(ga->discovered_services, key))
-			{
-				g_free(key);
-				break;
-			}
-			value = g_strdup_printf("[%s]:%i", host_name, port);
-			g_hash_table_insert(ga->discovered_services, key, value);
-			/* key and value will be freed with g_free when the has table is freed */
+		g_print("(remmina-applet avahi-resolver) Added service '%s'\n", value);
 
-			g_print("(remmina-applet avahi-resolver) Added service '%s'\n", value);
-
-			break;
+		break;
 	}
 
 	avahi_service_resolver_free(r);
@@ -105,16 +108,17 @@ remmina_avahi_resolve_callback(
 
 static void
 remmina_avahi_browse_callback(
-		AvahiServiceBrowser* b,
-		AvahiIfIndex interface,
-		AvahiProtocol protocol,
-		AvahiBrowserEvent event,
-		const char* name,
-		const char* type,
-		const char* domain,
-		AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-		void* userdata)
+    AvahiServiceBrowser* b,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiBrowserEvent event,
+    const char* name,
+    const char* type,
+    const char* domain,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    void* userdata)
 {
+	TRACE_CALL("remmina_avahi_browse_callback");
 	gchar* key;
 	RemminaAvahi* ga = (RemminaAvahi*) userdata;
 
@@ -124,45 +128,46 @@ remmina_avahi_browse_callback(
 
 	switch (event)
 	{
-		case AVAHI_BROWSER_FAILURE:
-			g_print("(remmina-applet avahi-browser) %s\n",
-					avahi_strerror(avahi_client_errno (avahi_service_browser_get_client (b))));
-			return;
+	case AVAHI_BROWSER_FAILURE:
+		g_print("(remmina-applet avahi-browser) %s\n",
+		        avahi_strerror(avahi_client_errno (avahi_service_browser_get_client (b))));
+		return;
 
-		case AVAHI_BROWSER_NEW:
-			key = g_strdup_printf("%s,%s,%s", name, type, domain);
-			if (g_hash_table_lookup(ga->discovered_services, key))
-			{
-				g_free(key);
-				break;
-			}
-			g_free(key);
-
-			g_print("(remmina-applet avahi-browser) Found service '%s' of type '%s' in domain '%s'\n", name, type, domain);
-
-			if (!(avahi_service_resolver_new(ga->priv->client, interface, protocol, name, type, domain,
-									AVAHI_PROTO_UNSPEC, 0, remmina_avahi_resolve_callback, ga)))
-			{
-				g_print("(remmina-applet avahi-browser) Failed to resolve service '%s': %s\n",
-						name, avahi_strerror(avahi_client_errno (ga->priv->client)));
-			}
-			break;
-
-		case AVAHI_BROWSER_REMOVE:
-			g_print("(remmina-applet avahi-browser) Removed service '%s' of type '%s' in domain '%s'\n", name, type, domain);
-			key = g_strdup_printf("%s,%s,%s", name, type, domain);
-			g_hash_table_remove(ga->discovered_services, key);
+	case AVAHI_BROWSER_NEW:
+		key = g_strdup_printf("%s,%s,%s", name, type, domain);
+		if (g_hash_table_lookup(ga->discovered_services, key))
+		{
 			g_free(key);
 			break;
+		}
+		g_free(key);
 
-		case AVAHI_BROWSER_ALL_FOR_NOW:
-		case AVAHI_BROWSER_CACHE_EXHAUSTED:
-			break;
+		g_print("(remmina-applet avahi-browser) Found service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+
+		if (!(avahi_service_resolver_new(ga->priv->client, interface, protocol, name, type, domain,
+		                                 AVAHI_PROTO_UNSPEC, 0, remmina_avahi_resolve_callback, ga)))
+		{
+			g_print("(remmina-applet avahi-browser) Failed to resolve service '%s': %s\n",
+			        name, avahi_strerror(avahi_client_errno (ga->priv->client)));
+		}
+		break;
+
+	case AVAHI_BROWSER_REMOVE:
+		g_print("(remmina-applet avahi-browser) Removed service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+		key = g_strdup_printf("%s,%s,%s", name, type, domain);
+		g_hash_table_remove(ga->discovered_services, key);
+		g_free(key);
+		break;
+
+	case AVAHI_BROWSER_ALL_FOR_NOW:
+	case AVAHI_BROWSER_CACHE_EXHAUSTED:
+		break;
 	}
 }
 
 static void remmina_avahi_client_callback(AvahiClient* c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata)
 {
+	TRACE_CALL("remmina_avahi_client_callback");
 	RemminaAvahi* ga = (RemminaAvahi*) userdata;
 
 	ga->priv->has_event = TRUE;
@@ -175,6 +180,7 @@ static void remmina_avahi_client_callback(AvahiClient* c, AvahiClientState state
 
 static gboolean remmina_avahi_iterate(RemminaAvahi* ga)
 {
+	TRACE_CALL("remmina_avahi_iterate");
 	while (TRUE)
 	{
 		/* Call the iteration until no further events */
@@ -189,6 +195,7 @@ static gboolean remmina_avahi_iterate(RemminaAvahi* ga)
 
 RemminaAvahi* remmina_avahi_new(void)
 {
+	TRACE_CALL("remmina_avahi_new");
 	RemminaAvahi* ga;
 
 	ga = g_new(RemminaAvahi, 1);
@@ -206,6 +213,7 @@ RemminaAvahi* remmina_avahi_new(void)
 
 void remmina_avahi_start(RemminaAvahi* ga)
 {
+	TRACE_CALL("remmina_avahi_start");
 	int error;
 
 	if (ga->started)
@@ -221,7 +229,7 @@ void remmina_avahi_start(RemminaAvahi* ga)
 	}
 
 	ga->priv->client = avahi_client_new(avahi_simple_poll_get(ga->priv->simple_poll), 0, remmina_avahi_client_callback, ga,
-			&error);
+	                                    &error);
 	if (!ga->priv->client)
 	{
 		g_print("Failed to create client: %s\n", avahi_strerror(error));
@@ -230,7 +238,7 @@ void remmina_avahi_start(RemminaAvahi* ga)
 
 	/* TODO: Customize the default domain here */
 	ga->priv->sb = avahi_service_browser_new(ga->priv->client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_rfb._tcp", NULL, 0,
-			remmina_avahi_browse_callback, ga);
+	               remmina_avahi_browse_callback, ga);
 	if (!ga->priv->sb)
 	{
 		g_print("Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(ga->priv->client)));
@@ -242,6 +250,7 @@ void remmina_avahi_start(RemminaAvahi* ga)
 
 void remmina_avahi_stop(RemminaAvahi* ga)
 {
+	TRACE_CALL("remmina_avahi_stop");
 	g_hash_table_remove_all(ga->discovered_services);
 	if (ga->priv->iterate_handler)
 	{
@@ -268,6 +277,7 @@ void remmina_avahi_stop(RemminaAvahi* ga)
 
 void remmina_avahi_free(RemminaAvahi* ga)
 {
+	TRACE_CALL("remmina_avahi_free");
 	if (ga == NULL)
 		return;
 
@@ -282,19 +292,23 @@ void remmina_avahi_free(RemminaAvahi* ga)
 
 RemminaAvahi* remmina_avahi_new(void)
 {
+	TRACE_CALL("remmina_avahi_new");
 	return NULL;
 }
 
 void remmina_avahi_start(RemminaAvahi* ga)
 {
+	TRACE_CALL("remmina_avahi_start");
 }
 
 void remmina_avahi_stop(RemminaAvahi* ga)
 {
+	TRACE_CALL("remmina_avahi_stop");
 }
 
 void remmina_avahi_free(RemminaAvahi* ga)
 {
+	TRACE_CALL("remmina_avahi_free");
 }
 
 #endif

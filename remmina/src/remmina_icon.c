@@ -1,6 +1,8 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2010 Vic Lee 
+ * Copyright (C) 2010 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -43,6 +45,8 @@
 #include "remmina_applet_menu.h"
 #include "remmina_connection_window.h"
 #include "remmina_icon.h"
+#include "remmina/remmina_trace_calls.h"
+#include "remmina_sysinfo.h"
 
 #ifdef HAVE_LIBAPPINDICATOR
 #include <libappindicator/app-indicator.h>
@@ -63,8 +67,9 @@ typedef struct _RemminaIcon
 static RemminaIcon remmina_icon =
 { 0 };
 
-static void remmina_icon_destroy(void)
+void remmina_icon_destroy(void)
 {
+	TRACE_CALL("remmina_icon_destroy");
 	if (remmina_icon.icon)
 	{
 #ifdef HAVE_LIBAPPINDICATOR
@@ -72,7 +77,7 @@ static void remmina_icon_destroy(void)
 #else
 		gtk_status_icon_set_visible(remmina_icon.icon, FALSE);
 #endif
-		remmina_widget_pool_hold(FALSE);
+		remmina_icon.icon = NULL;
 	}
 	if (remmina_icon.avahi)
 	{
@@ -88,21 +93,25 @@ static void remmina_icon_destroy(void)
 
 static void remmina_icon_main(void)
 {
+	TRACE_CALL("remmina_icon_main");
 	remmina_exec_command(REMMINA_COMMAND_MAIN, NULL);
 }
 
 static void remmina_icon_preferences(void)
 {
+	TRACE_CALL("remmina_icon_preferences");
 	remmina_exec_command(REMMINA_COMMAND_PREF, "2");
 }
 
 static void remmina_icon_about(void)
 {
+	TRACE_CALL("remmina_icon_about");
 	remmina_exec_command(REMMINA_COMMAND_ABOUT, NULL);
 }
 
 static void remmina_icon_enable_avahi(GtkCheckMenuItem *checkmenuitem, gpointer data)
 {
+	TRACE_CALL("remmina_icon_enable_avahi");
 	if (!remmina_icon.avahi)
 		return;
 
@@ -122,6 +131,7 @@ static void remmina_icon_enable_avahi(GtkCheckMenuItem *checkmenuitem, gpointer 
 
 static void remmina_icon_populate_additional_menu_item(GtkWidget *menu)
 {
+	TRACE_CALL("remmina_icon_populate_additional_menu_item");
 	GtkWidget *menuitem;
 
 	menuitem = gtk_menu_item_new_with_label(_("Open Main Window"));
@@ -161,51 +171,54 @@ static void remmina_icon_populate_additional_menu_item(GtkWidget *menu)
 	menuitem = gtk_menu_item_new_with_mnemonic(_("_Quit"));
 	gtk_widget_show(menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_destroy), NULL);
+	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_exec_exitremmina), NULL);
 }
 
 static void remmina_icon_on_launch_item(RemminaAppletMenu *menu, RemminaAppletMenuItem *menuitem, gpointer data)
 {
+	TRACE_CALL("remmina_icon_on_launch_item");
 	gchar *s;
 
 	switch (menuitem->item_type)
 	{
-		case REMMINA_APPLET_MENU_ITEM_NEW:
-			remmina_exec_command(REMMINA_COMMAND_NEW, NULL);
-			break;
-		case REMMINA_APPLET_MENU_ITEM_FILE:
-			remmina_exec_command(REMMINA_COMMAND_CONNECT, menuitem->filename);
-			break;
-		case REMMINA_APPLET_MENU_ITEM_DISCOVERED:
-			s = g_strdup_printf("%s,%s", menuitem->protocol, menuitem->name);
-			remmina_exec_command(REMMINA_COMMAND_NEW, s);
-			g_free(s);
-			break;
+	case REMMINA_APPLET_MENU_ITEM_NEW:
+		remmina_exec_command(REMMINA_COMMAND_NEW, NULL);
+		break;
+	case REMMINA_APPLET_MENU_ITEM_FILE:
+		remmina_exec_command(REMMINA_COMMAND_CONNECT, menuitem->filename);
+		break;
+	case REMMINA_APPLET_MENU_ITEM_DISCOVERED:
+		s = g_strdup_printf("%s,%s", menuitem->protocol, menuitem->name);
+		remmina_exec_command(REMMINA_COMMAND_NEW, s);
+		g_free(s);
+		break;
 	}
 }
 
 static void remmina_icon_on_edit_item(RemminaAppletMenu *menu, RemminaAppletMenuItem *menuitem, gpointer data)
 {
+	TRACE_CALL("remmina_icon_on_edit_item");
 	gchar *s;
 
 	switch (menuitem->item_type)
 	{
-		case REMMINA_APPLET_MENU_ITEM_NEW:
-			remmina_exec_command(REMMINA_COMMAND_NEW, NULL);
-			break;
-		case REMMINA_APPLET_MENU_ITEM_FILE:
-			remmina_exec_command(REMMINA_COMMAND_EDIT, menuitem->filename);
-			break;
-		case REMMINA_APPLET_MENU_ITEM_DISCOVERED:
-			s = g_strdup_printf("%s,%s", menuitem->protocol, menuitem->name);
-			remmina_exec_command(REMMINA_COMMAND_NEW, s);
-			g_free(s);
-			break;
+	case REMMINA_APPLET_MENU_ITEM_NEW:
+		remmina_exec_command(REMMINA_COMMAND_NEW, NULL);
+		break;
+	case REMMINA_APPLET_MENU_ITEM_FILE:
+		remmina_exec_command(REMMINA_COMMAND_EDIT, menuitem->filename);
+		break;
+	case REMMINA_APPLET_MENU_ITEM_DISCOVERED:
+		s = g_strdup_printf("%s,%s", menuitem->protocol, menuitem->name);
+		remmina_exec_command(REMMINA_COMMAND_NEW, s);
+		g_free(s);
+		break;
 	}
 }
 
 static void remmina_icon_on_activate_window(GtkMenuItem *menuitem, GtkWidget *widget)
 {
+	TRACE_CALL("remmina_icon_on_activate_window");
 	if (GTK_IS_WINDOW(widget))
 	{
 		gtk_window_present(GTK_WINDOW(widget));
@@ -215,6 +228,7 @@ static void remmina_icon_on_activate_window(GtkMenuItem *menuitem, GtkWidget *wi
 
 static gboolean remmina_icon_foreach_window(GtkWidget *widget, gpointer data)
 {
+	TRACE_CALL("remmina_icon_foreach_window");
 	GtkWidget *popup_menu = GTK_WIDGET(data);
 	GtkWidget *menuitem;
 	GdkScreen *screen;
@@ -238,11 +252,11 @@ static gboolean remmina_icon_foreach_window(GtkWidget *widget, gpointer data)
 
 static void remmina_icon_populate_extra_menu_item(GtkWidget *menu)
 {
+	TRACE_CALL("remmina_icon_populate_extra_menu_item");
 	GtkWidget *menuitem;
 	gboolean new_ontop;
 	GHashTableIter iter;
 	gchar *tmp;
-	gint n;
 
 	new_ontop = remmina_pref.applet_new_ontop;
 
@@ -283,21 +297,6 @@ static void remmina_icon_populate_extra_menu_item(GtkWidget *menu)
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	}
 
-#ifdef ENABLE_MINIMIZE_TO_TRAY
-	/* Existing window */
-	if (remmina_pref.minimize_to_tray)
-	{
-		n = remmina_widget_pool_foreach(remmina_icon_foreach_window, menu);
-		if (n > 0)
-		{
-			/* Separator */
-			menuitem = gtk_separator_menu_item_new();
-			gtk_widget_show(menuitem);
-			gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menuitem, n);
-		}
-	}
-#endif
-
 	g_signal_connect(G_OBJECT(menu), "launch-item", G_CALLBACK(remmina_icon_on_launch_item), NULL);
 	g_signal_connect(G_OBJECT(menu), "edit-item", G_CALLBACK(remmina_icon_on_edit_item), NULL);
 }
@@ -307,6 +306,7 @@ static void remmina_icon_populate_extra_menu_item(GtkWidget *menu)
 void
 remmina_icon_populate_menu (void)
 {
+	TRACE_CALL("remmina_icon_populate_menu");
 	GtkWidget *menu;
 	GtkWidget *menuitem;
 
@@ -328,10 +328,12 @@ remmina_icon_populate_menu (void)
 
 void remmina_icon_populate_menu(void)
 {
+	TRACE_CALL("remmina_icon_populate_menu");
 }
 
 static void remmina_icon_popdown_menu(GtkWidget *widget, gpointer data)
 {
+	TRACE_CALL("remmina_icon_popdown_menu");
 	if (gtk_get_current_event_time() - remmina_icon.popup_time <= 500)
 	{
 		remmina_exec_command(REMMINA_COMMAND_MAIN, NULL);
@@ -340,6 +342,7 @@ static void remmina_icon_popdown_menu(GtkWidget *widget, gpointer data)
 
 static void remmina_icon_on_activate(GtkStatusIcon *icon, gpointer user_data)
 {
+	TRACE_CALL("remmina_icon_on_activate");
 	GtkWidget *menu;
 	gint button, event_time;
 
@@ -360,6 +363,7 @@ static void remmina_icon_on_activate(GtkStatusIcon *icon, gpointer user_data)
 
 static void remmina_icon_on_popup_menu(GtkStatusIcon *icon, guint button, guint activate_time, gpointer user_data)
 {
+	TRACE_CALL("remmina_icon_on_popup_menu");
 	GtkWidget *menu;
 
 	menu = gtk_menu_new();
@@ -373,6 +377,7 @@ static void remmina_icon_on_popup_menu(GtkStatusIcon *icon, guint button, guint 
 
 static void remmina_icon_save_autostart_file(GKeyFile *gkeyfile)
 {
+	TRACE_CALL("remmina_icon_save_autostart_file");
 	gchar *content;
 	gsize length;
 
@@ -383,6 +388,7 @@ static void remmina_icon_save_autostart_file(GKeyFile *gkeyfile)
 
 static void remmina_icon_create_autostart_file(void)
 {
+	TRACE_CALL("remmina_icon_create_autostart_file");
 	GKeyFile *gkeyfile;
 
 	if (!g_file_test(remmina_icon.autostart_file, G_FILE_TEST_EXISTS))
@@ -391,7 +397,7 @@ static void remmina_icon_create_autostart_file(void)
 		g_key_file_set_string(gkeyfile, "Desktop Entry", "Version", "1.0");
 		g_key_file_set_string(gkeyfile, "Desktop Entry", "Name", _("Remmina Applet"));
 		g_key_file_set_string(gkeyfile, "Desktop Entry", "Comment",
-				_("Connect to remote desktops through the applet menu"));
+		                      _("Connect to remote desktops through the applet menu"));
 		g_key_file_set_string(gkeyfile, "Desktop Entry", "Icon", "remmina");
 		g_key_file_set_string(gkeyfile, "Desktop Entry", "Exec", "remmina -i");
 		g_key_file_set_boolean(gkeyfile, "Desktop Entry", "Terminal", FALSE);
@@ -402,19 +408,89 @@ static void remmina_icon_create_autostart_file(void)
 	}
 }
 
+gboolean remmina_icon_is_available(void)
+{
+	/* Return TRUE if a remmina_icon (status indicator/systray menu) is
+	 * available and shown to the user, so the user can continue
+	 * its work without the remmina main window */
+
+	TRACE_CALL("remmina_icon_is_available");
+	gchar *gsversion;
+
+	if (!remmina_icon.icon)
+		return FALSE;
+	if (remmina_pref.disable_tray_icon)
+		return FALSE;
+
+	/* Special treatmen under Gnome Shell */
+	if ((gsversion=remmina_sysinfo_get_gnome_shell_version()) != NULL)
+	{
+		g_free(gsversion);
+#ifdef HAVE_LIBAPPINDICATOR
+		/* Gnome Shell with compiled in LIBAPPINDICATOR: no systray icon,
+		 * ensure have also a working appindicator extension available */
+		if (!remmina_sysinfo_is_appindicator_available())
+		{
+			/* No libappindicator extension for gnome shell, no remmina_icon */
+			return FALSE;
+		}
+#else
+		/* Gnome Shell without compiled in LIBAPPINDICATOR: no systray icon. */
+		return FALSE;
+#endif
+	}
+	return TRUE;
+}
+
 void remmina_icon_init(void)
 {
+	TRACE_CALL("remmina_icon_init");
+
+	gchar remmina_panel[23];
+	gboolean sni_supported;
+	char msg[200];
+
+	if (remmina_pref.dark_tray_icon)
+	{
+		g_stpcpy(remmina_panel, "remmina-panel-inverted");
+	}
+	else
+	{
+		g_stpcpy(remmina_panel, "remmina-panel");
+	}
+
+	/* Print on stdout the availability of appindicators on DBUS */
+	sni_supported = remmina_sysinfo_is_appindicator_available();
+
+	strcpy(msg, "StatusNotifier/Appindicator support: ");
+	if (sni_supported) {
+		strcat(msg, "your desktop does support it");
+#ifdef HAVE_LIBAPPINDICATOR
+		strcat(msg, " and libappindicator is compiled in remmina. Good!");
+#else
+		strcat(msg, ", but you did not compile remmina with cmake's -DWITH_APPINDICATOR=on");
+#endif
+	} else {
+#ifdef HAVE_LIBAPPINDICATOR
+		strcat(msg, "not supported by desktop. libappindicator will try to fallback to GtkStatusIcon/xembed");
+#else
+		strcat(msg,"not supported by desktop. Remmina will try to fallback to GtkStatusIcon/xembed");
+#endif
+	}
+	strcat(msg, "\n");
+	fputs(msg, stdout);
+
 	if (!remmina_icon.icon && !remmina_pref.disable_tray_icon)
 	{
 #ifdef HAVE_LIBAPPINDICATOR
-		remmina_icon.icon = app_indicator_new ("remmina-icon", "remmina", APP_INDICATOR_CATEGORY_OTHER);
+		remmina_icon.icon = app_indicator_new ("remmina-icon", remmina_panel, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 		app_indicator_set_icon_theme_path (remmina_icon.icon, REMMINA_DATADIR G_DIR_SEPARATOR_S "icons");
 
 		app_indicator_set_status (remmina_icon.icon, APP_INDICATOR_STATUS_ACTIVE);
 		app_indicator_set_title (remmina_icon.icon, "Remmina");
 		remmina_icon_populate_menu ();
 #else
-		remmina_icon.icon = gtk_status_icon_new_from_icon_name("remmina");
+		remmina_icon.icon = gtk_status_icon_new_from_icon_name(remmina_panel);
 
 		gtk_status_icon_set_title(remmina_icon.icon, _("Remmina Remote Desktop Client"));
 		gtk_status_icon_set_tooltip_text(remmina_icon.icon, _("Remmina Remote Desktop Client"));
@@ -422,19 +498,16 @@ void remmina_icon_init(void)
 		g_signal_connect(G_OBJECT(remmina_icon.icon), "popup-menu", G_CALLBACK(remmina_icon_on_popup_menu), NULL);
 		g_signal_connect(G_OBJECT(remmina_icon.icon), "activate", G_CALLBACK(remmina_icon_on_activate), NULL);
 #endif
-		remmina_widget_pool_hold(TRUE);
 	}
-	else
-		if (remmina_icon.icon)
-		{
+	else if (remmina_icon.icon)
+	{
 #ifdef HAVE_LIBAPPINDICATOR
-			app_indicator_set_status (remmina_icon.icon, remmina_pref.disable_tray_icon ?
-					APP_INDICATOR_STATUS_PASSIVE : APP_INDICATOR_STATUS_ACTIVE);
+		app_indicator_set_status (remmina_icon.icon, remmina_pref.disable_tray_icon ?
+		                          APP_INDICATOR_STATUS_PASSIVE : APP_INDICATOR_STATUS_ACTIVE);
 #else
-			gtk_status_icon_set_visible(remmina_icon.icon, !remmina_pref.disable_tray_icon);
+		gtk_status_icon_set_visible(remmina_icon.icon, !remmina_pref.disable_tray_icon);
 #endif
-			remmina_widget_pool_hold(!remmina_pref.disable_tray_icon);
-		}
+	}
 	if (!remmina_icon.avahi)
 	{
 		remmina_icon.avahi = remmina_avahi_new();
@@ -460,6 +533,7 @@ void remmina_icon_init(void)
 
 gboolean remmina_icon_is_autostart(void)
 {
+	TRACE_CALL("remmina_icon_is_autostart");
 	GKeyFile *gkeyfile;
 	gboolean b;
 
@@ -472,6 +546,7 @@ gboolean remmina_icon_is_autostart(void)
 
 void remmina_icon_set_autostart(gboolean autostart)
 {
+	TRACE_CALL("remmina_icon_set_autostart");
 	GKeyFile *gkeyfile;
 	gboolean b;
 
@@ -484,7 +559,7 @@ void remmina_icon_set_autostart(gboolean autostart)
 		/* Refresh it in case translation is updated */
 		g_key_file_set_string(gkeyfile, "Desktop Entry", "Name", _("Remmina Applet"));
 		g_key_file_set_string(gkeyfile, "Desktop Entry", "Comment",
-				_("Connect to remote desktops through the applet menu"));
+		                      _("Connect to remote desktops through the applet menu"));
 		remmina_icon_save_autostart_file(gkeyfile);
 	}
 	g_key_file_free(gkeyfile);

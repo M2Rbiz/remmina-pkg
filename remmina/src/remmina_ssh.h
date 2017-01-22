@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -39,6 +40,7 @@
 
 #ifdef HAVE_LIBSSH
 
+#define LIBSSH_STATIC 1
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
 #include <libssh/sftp.h>
@@ -48,7 +50,9 @@
 
 G_BEGIN_DECLS
 
-/* ----------------- SSH Base --------------- */
+/*-----------------------------------------------------------------------------*
+ *                           SSH Base                                          *
+ *-----------------------------------------------------------------------------*/
 
 #define REMMINA_SSH(a) ((RemminaSSH*)a)
 
@@ -69,7 +73,7 @@ typedef struct _RemminaSSH
 	gchar *error;
 
 	pthread_mutex_t ssh_mutex;
-}RemminaSSH;
+} RemminaSSH;
 
 gchar* remmina_ssh_identity_path (const gchar *id);
 
@@ -87,7 +91,7 @@ gboolean remmina_ssh_init_session (RemminaSSH *ssh);
 gint remmina_ssh_auth (RemminaSSH *ssh, const gchar *password);
 
 /* -1: Cancelled; 0: Failed; 1: Succeeded */
-gint remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog, gboolean threaded);
+gint remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog);
 
 /* Error handling */
 #define remmina_ssh_has_error(ssh) (((RemminaSSH*)ssh)->error!=NULL)
@@ -100,7 +104,9 @@ gchar* remmina_ssh_unconvert (RemminaSSH *ssh, const gchar *from);
 
 void remmina_ssh_free (RemminaSSH *ssh);
 
-/* ------------------- SSH Tunnel ---------------------- */
+/*-----------------------------------------------------------------------------*
+ *                           SSH Tunnel                                        *
+ *-----------------------------------------------------------------------------*/
 typedef struct _RemminaSSHTunnel RemminaSSHTunnel;
 typedef struct _RemminaSSHTunnelBuffer RemminaSSHTunnelBuffer;
 
@@ -186,14 +192,16 @@ gboolean remmina_ssh_tunnel_terminated (RemminaSSHTunnel *tunnel);
 /* Free the tunnel */
 void remmina_ssh_tunnel_free (RemminaSSHTunnel *tunnel);
 
-/*----------------------- SFTP ------------------------*/
+/*-----------------------------------------------------------------------------*
+ *                           SSH sFTP                                          *
+ *-----------------------------------------------------------------------------*/
 
 typedef struct _RemminaSFTP
 {
 	RemminaSSH ssh;
 
 	sftp_session sftp_sess;
-}RemminaSFTP;
+} RemminaSFTP;
 
 /* Create a new SFTP session object from RemminaFile */
 RemminaSFTP* remmina_sftp_new_from_file (RemminaFile *remminafile);
@@ -207,7 +215,9 @@ gboolean remmina_sftp_open (RemminaSFTP *sftp);
 /* Free the SFTP session */
 void remmina_sftp_free (RemminaSFTP *sftp);
 
-/*----------------------- SSH Shell ------------------------*/
+/*-----------------------------------------------------------------------------*
+ *                           SSH Shell                                         *
+ *-----------------------------------------------------------------------------*/
 typedef void (*RemminaSSHExitFunc) (gpointer data);
 
 typedef struct _RemminaSSHShell
@@ -222,7 +232,7 @@ typedef struct _RemminaSSHShell
 	gboolean closed;
 	RemminaSSHExitFunc exit_callback;
 	gpointer user_data;
-}RemminaSSHShell;
+} RemminaSSHShell;
 
 /* Create a new SSH Shell session object from RemminaFile */
 RemminaSSHShell* remmina_ssh_shell_new_from_file (RemminaFile *remminafile);

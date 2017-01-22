@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -119,8 +120,8 @@ gboolean remmina_protocol_widget_start_reverse_tunnel(RemminaProtocolWidget *gp,
 gboolean remmina_protocol_widget_start_xport_tunnel(RemminaProtocolWidget *gp, RemminaXPortTunnelInitFunc init_func);
 void remmina_protocol_widget_set_display(RemminaProtocolWidget *gp, gint display);
 
-gint remmina_protocol_widget_init_authpwd(RemminaProtocolWidget *gp, RemminaAuthpwdType authpwd_type);
-gint remmina_protocol_widget_init_authuserpwd(RemminaProtocolWidget *gp, gboolean want_domain);
+gint remmina_protocol_widget_init_authpwd(RemminaProtocolWidget *gp, RemminaAuthpwdType authpwd_type, gboolean allow_password_saving);
+gint remmina_protocol_widget_init_authuserpwd(RemminaProtocolWidget *gp, gboolean want_domain, gboolean allow_password_saving);
 gint remmina_protocol_widget_init_certificate(RemminaProtocolWidget* gp, const gchar* subject, const gchar* issuer, const gchar* fingerprint);
 gint remmina_protocol_widget_changed_certificate(RemminaProtocolWidget *gp, const gchar* subject, const gchar* issuer, const gchar* new_fingerprint, const gchar* old_fingerprint);
 gchar* remmina_protocol_widget_init_get_username(RemminaProtocolWidget *gp);
@@ -139,9 +140,17 @@ void remmina_protocol_widget_init_show(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_init_hide(RemminaProtocolWidget *gp);
 
 void remmina_protocol_widget_chat_open(RemminaProtocolWidget *gp, const gchar *name,
-		void(*on_send)(RemminaProtocolWidget *gp, const gchar *text), void(*on_destroy)(RemminaProtocolWidget *gp));
+                                       void(*on_send)(RemminaProtocolWidget *gp, const gchar *text), void(*on_destroy)(RemminaProtocolWidget *gp));
 void remmina_protocol_widget_chat_close(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_chat_receive(RemminaProtocolWidget *gp, const gchar *text);
+void remmina_protocol_widget_send_keys_signals(GtkWidget *widget, const guint *keyvals, int length, GdkEventType action);
+/* Check if the plugin accepts keystrokes */
+gboolean remmina_protocol_widget_plugin_receives_keystrokes(RemminaProtocolWidget* gp);
+/* Send to the plugin some keystrokes */
+void remmina_protocol_widget_send_keystrokes(RemminaProtocolWidget* gp, GtkMenuItem *widget);
+/* Take screenshot of plugin */
+gboolean remmina_protocol_widget_plugin_screenshot(RemminaProtocolWidget* gp, RemminaPluginScreenshotData *rpsd);
+
 
 G_END_DECLS
 

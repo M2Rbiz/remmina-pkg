@@ -1,6 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, 
- * Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  *  In addition, as a special exception, the copyright holders give
  *  permission to link the code of portions of this program with the
@@ -35,9 +36,22 @@
 #ifndef __REMMINASSHPLUGIN_H__
 #define __REMMINASSHPLUGIN_H__
 
+#ifdef HAVE_LIBVTE
+#include <vte/vte.h>
+#endif
+
 G_BEGIN_DECLS
 
 void remmina_ssh_plugin_register(void);
+
+/* For callback in main thread */
+#if defined (HAVE_LIBSSH) && defined (HAVE_LIBVTE)
+void remmina_plugin_ssh_vte_terminal_set_encoding_and_pty(VteTerminal *terminal, const char *codeset, int master, int slave);
+void remmina_plugin_ssh_vte_select_all (GtkMenuItem *menuitem, gpointer user_data);
+void remmina_plugin_ssh_vte_copy_clipboard (GtkMenuItem *menuitem, gpointer user_data);
+void remmina_plugin_ssh_vte_paste_clipboard (GtkMenuItem *menuitem, gpointer user_data);
+gboolean remmina_ssh_plugin_popup_menu(GtkWidget *widget, GdkEvent  *event, GtkWidget *menu);
+#endif
 
 G_END_DECLS
 
