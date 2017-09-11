@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +111,7 @@ remmina_plugin_sftp_main_thread (gpointer data)
 			}
 
 			ret = remmina_ssh_auth_gui (REMMINA_SSH (sftp),
-			                            REMMINA_INIT_DIALOG (remmina_protocol_widget_get_init_dialog (gp)));
+			                            REMMINA_INIT_DIALOG (remmina_protocol_widget_get_init_dialog (gp)), remminafile);
 			if (ret == 0)
 			{
 				remmina_plugin_service->protocol_plugin_set_error (gp, "%s", REMMINA_SSH (sftp)->error);
@@ -276,6 +277,16 @@ remmina_plugin_sftp_call_feature (RemminaProtocolWidget *gp, const RemminaProtoc
 	}
 }
 
+/* Array of key/value pairs for ssh auth type*/
+static gpointer ssh_auth_type[] =
+{
+	"password", N_("Password"),
+	"ssh_agent", N_("SSH agent"),
+	"ssh_pubkey_auto", N_("Public key (automatic)"),
+	"ssh_identity", N_("SSH identfy file"),
+	NULL
+};
+
 /* Array for available features.
  * The last element of the array must be REMMINA_PROTOCOL_FEATURE_TYPE_END. */
 static const RemminaProtocolFeature remmina_plugin_sftp_features[] =
@@ -283,6 +294,25 @@ static const RemminaProtocolFeature remmina_plugin_sftp_features[] =
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF, REMMINA_PLUGIN_SFTP_FEATURE_PREF_SHOW_HIDDEN, GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_CHECK), "showhidden", N_("Show Hidden Files") },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF, REMMINA_PLUGIN_SFTP_FEATURE_PREF_OVERWRITE_ALL, GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_CHECK), REMMINA_PLUGIN_SFTP_FEATURE_PREF_OVERWRITE_ALL_KEY, N_("Overwrite all") },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_END, 0, NULL, NULL, NULL }
+};
+
+/* Array of RemminaProtocolSetting for basic settings.
+ * Each item is composed by:
+ * a) RemminaProtocolSettingType for setting type
+ * b) Setting name
+ * c) Setting description
+ * d) Compact disposition
+ * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
+ * f) Unused pointer
+ */
+static const RemminaProtocolSetting remmina_sftp_basic_settings[] =
+{
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER, "ssh_server", NULL, FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT, "ssh_username", N_("User name"), FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "ssh_password", N_("User password"), FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT, "ssh_auth_type", N_("Authentication type"), FALSE, ssh_auth_type, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE, "ssh_privatekey", N_("Identity file"), FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END, NULL, NULL, FALSE, NULL, NULL }
 };
 
 /* Protocol plugin definition and features */
@@ -295,9 +325,9 @@ static RemminaProtocolPlugin remmina_plugin_sftp =
 	VERSION,                                      // Version number
 	"remmina-sftp",                               // Icon for normal connection
 	"remmina-sftp",                               // Icon for SSH connection
-	NULL,                                         // Array for basic settings
+	remmina_sftp_basic_settings,                  // Array for basic settings
 	NULL,                                         // Array for advanced settings
-	REMMINA_PROTOCOL_SSH_SETTING_SFTP,            // SSH settings type
+	REMMINA_PROTOCOL_SSH_SETTING_TUNNEL,          // SSH settings type
 	remmina_plugin_sftp_features,                 // Array for available features
 	remmina_plugin_sftp_init,                     // Plugin initialization
 	remmina_plugin_sftp_open_connection,          // Plugin open connection

@@ -52,6 +52,7 @@
 #include "remmina_icon.h"
 #include "remmina_main.h"
 #include "remmina_exec.h"
+#include "remmina_mpchange.h"
 #include "remmina_external_tools.h"
 #include "remmina/remmina_trace_calls.h"
 
@@ -133,8 +134,9 @@ static void remmina_main_save_before_destroy()
 
 static gboolean remmina_main_dexit(gpointer data)
 {
+	/* Try to exit remmina after a delete window event */
 	TRACE_CALL("remmina_main_dexit");
-	remmina_exec_exitremmina();
+	remmina_application_condexit(REMMINA_CONDEXIT_ONMAINWINDELETE);
 	return FALSE;
 }
 
@@ -143,11 +145,10 @@ gboolean remmina_main_on_delete_event(GtkWidget *widget, GdkEvent *event, gpoint
 	TRACE_CALL("remmina_main_on_delete_event");
 	remmina_main_save_before_destroy();
 
-	/* Exit immediately if there is no systray icon */
-	if (!remmina_icon_is_available()) {
-		remminamain->window = NULL;
-		g_idle_add(remmina_main_dexit, NULL);
-	}
+	// Forget the main window: it has been deleted
+	remminamain->window = NULL;
+	g_idle_add(remmina_main_dexit, NULL);
+
 	return FALSE;
 }
 
@@ -617,6 +618,36 @@ static void remmina_main_file_editor_destroy(GtkWidget *widget, gpointer user_da
 	remmina_main_load_files();
 }
 
+void remmina_main_on_action_application_mpchange(GtkAction *action, gpointer user_data)
+{
+	TRACE_CALL("remmina_main_on_action_application_mpchange");
+	RemminaFile *remminafile;
+
+	const gchar *username;
+	const gchar *domain;
+	const gchar *group;
+
+	username = domain = group = "";
+
+	remminafile = NULL;
+	if (remminamain->priv->selected_filename)
+	{
+		remminafile = remmina_file_load(remminamain->priv->selected_filename);
+		if (remminafile != NULL)
+		{
+			username = remmina_file_get_string(remminafile, "username");
+			domain = remmina_file_get_string(remminafile, "domain");
+			group = remmina_file_get_string(remminafile, "group");
+		}
+	}
+
+	remmina_mpchange_schedule(TRUE, group, domain, username, "");
+
+	if (remminafile != NULL)
+		remmina_file_free(remminafile);
+
+}
+
 void remmina_main_on_action_connections_new(GtkAction *action, gpointer user_data)
 {
 	TRACE_CALL("remmina_main_on_action_connections_new");
@@ -676,6 +707,7 @@ void remmina_main_on_action_connection_delete(GtkAction *action, gpointer user_d
 {
 	TRACE_CALL("remmina_main_on_action_connection_delete");
 	GtkWidget *dialog;
+	gchar *delfilename;
 
 	if (!remminamain->priv->selected_filename)
 		return;
@@ -684,7 +716,9 @@ void remmina_main_on_action_connection_delete(GtkAction *action, gpointer user_d
 	                                _("Are you sure to delete '%s'"), remminamain->priv->selected_name);
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_YES)
 	{
-		remmina_file_delete(remminamain->priv->selected_filename);
+		delfilename = g_strdup(remminamain->priv->selected_filename);
+		remmina_file_delete(delfilename);
+		g_free(delfilename);
 		remmina_icon_populate_menu();
 		remmina_main_load_files();
 	}
@@ -702,8 +736,9 @@ void remmina_main_on_action_application_preferences(GtkAction *action, gpointer 
 
 void remmina_main_on_action_application_quit(GtkAction *action, gpointer user_data)
 {
+	// Called by quit signal in remmina_main.glade
 	TRACE_CALL("remmina_main_on_action_application_quit");
-	g_idle_add(remmina_main_dexit, NULL);
+	remmina_application_condexit(REMMINA_CONDEXIT_ONQUIT);
 }
 
 void remmina_main_on_action_view_statusbar(GtkToggleAction *action, gpointer user_data)
@@ -781,7 +816,7 @@ static void remmina_main_import_file_list(GSList *files)
 		if (plugin && (remminafile = plugin->import_func(path)) != NULL && remmina_file_get_string(remminafile, "name"))
 		{
 			remmina_file_generate_filename(remminafile);
-			remmina_file_save_all(remminafile);
+			remmina_file_save(remminafile);
 			imported = TRUE;
 		}
 		else

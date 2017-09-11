@@ -44,6 +44,7 @@ struct _RemminaFile
 {
 	gchar *filename;
 	GHashTable *settings;
+	GHashTable *spsettings;
 };
 
 enum
@@ -51,14 +52,6 @@ enum
 	SSH_AUTH_PASSWORD, SSH_AUTH_PUBLICKEY, SSH_AUTH_AGENT, SSH_AUTH_AUTO_PUBLICKEY
 };
 
-typedef enum
-{
-	REMMINA_SETTING_GROUP_NONE,
-	REMMINA_SETTING_GROUP_PROFILE,
-	REMMINA_SETTING_GROUP_CREDENTIAL,
-	REMMINA_SETTING_GROUP_RUNTIME,
-	REMMINA_SETTING_GROUP_ALL
-} RemminaSettingGroup;
 
 #define TOOLBAR_OPACITY_LEVEL 8
 #define TOOLBAR_OPACITY_MIN 0.2
@@ -78,9 +71,9 @@ const gchar* remmina_file_get_string(RemminaFile *remminafile, const gchar *sett
 gchar* remmina_file_get_secret(RemminaFile *remminafile, const gchar *setting);
 void remmina_file_set_int(RemminaFile *remminafile, const gchar *setting, gint value);
 gint remmina_file_get_int(RemminaFile *remminafile, const gchar *setting, gint default_value);
+void remmina_file_store_secret_plugin_password(RemminaFile *remminafile, const gchar* key, const gchar* value);
 /* Create or overwrite the .remmina file */
-void remmina_file_save_group(RemminaFile *remminafile, RemminaSettingGroup group);
-void remmina_file_save_all(RemminaFile *remminafile);
+void remmina_file_save(RemminaFile *remminafile);
 /* Free the RemminaFile object */
 void remmina_file_free(RemminaFile *remminafile);
 /* Duplicate a RemminaFile object */

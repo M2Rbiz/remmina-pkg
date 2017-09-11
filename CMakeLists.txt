@@ -32,7 +32,7 @@
 # files in the program, then also delete it here.
 
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.2)
 
 set(CMAKE_COLOR_MAKEFILE ON)
 
@@ -110,23 +110,22 @@ set(WITH_LIBRARY_VERSIONING "ON")
 set(REMMINA_VERSION_MAJOR "1")
 set(REMMINA_VERSION_MINOR "2")
 set(REMMINA_VERSION_REVISION "0")
-set(REMMINA_VERSION_SUFFIX "rcgit-18")
+set(REMMINA_VERSION_SUFFIX "rcgit-19")
 set(REMMINA_VERSION "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}")
-if (NOT ${REMMINA_VERSION_SUFFIX} STREQUAL "")
+if(NOT ${REMMINA_VERSION_SUFFIX} STREQUAL "")
         set(REMMINA_VERSION "${REMMINA_VERSION}-${REMMINA_VERSION_SUFFIX}")
 endif()
 
-
 include(GetGitRevisionDescription)
-git_get_exact_tag(GIT_REVISION --tags --always)
-if (${GIT_REVISION} STREQUAL "n/a")
-        git_rev_parse(GIT_REVISION --short)
+git_get_exact_tag(REMMINA_GIT_REVISION --tags --always)
+if(${REMMINA_GIT_REVISION} STREQUAL "n/a")
+    git_rev_parse(REMMINA_GIT_REVISION --short)
 endif()
 
-if(NOT GIT_REVISION OR ${GIT_REVISION} STREQUAL "n/a")
-    set(GIT_REVISION ${REMMINA_VERSION_SUFFIX})
+if(NOT REMMINA_GIT_REVISION OR ${REMMINA_GIT_REVISION} STREQUAL "n/a")
+    set(REMMINA_GIT_REVISION ${REMMINA_VERSION_SUFFIX})
 endif()
-message(STATUS "Git Revision ${GIT_REVISION}")
+message(STATUS "Git Revision ${REMMINA_GIT_REVISION}")
 
 if(NOT UNIQUE_APPNAME)
     set(UNIQUE_APPNAME "org.Remmina")
@@ -155,10 +154,14 @@ endif()
 
 option(SNAP_BUILD_ONLY "SNAP_BUILD_ONLY" OFF)
 if(SNAP_BUILD_ONLY)
-    if (NOT SNAPCRAFT)
+    if(NOT SNAPCRAFT)
         message(FATAL_ERROR "snapcraft not found, impossible to create only snap target")
     endif()
     return()
+endif()
+
+if(SNAP_BUILD)
+    add_definitions(-DSNAP_BUILD)
 endif()
 
 # Uninstall support
@@ -207,4 +210,5 @@ if(WITH_EXAMPLES)
         add_definitions(-DWITH_EXAMPLES)
 endif()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/config.h)

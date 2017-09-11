@@ -1,7 +1,8 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2010 Vic Lee
+ * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,30 +34,15 @@
  *
  */
 
-#ifndef __REMMINAPLUGINMANAGER_H__
-#define __REMMINAPLUGINMANAGER_H__
+#include "remmina/types.h"
 
-#include "remmina/plugin.h"
+#ifndef __REMMINAMPCHANGE_H__
+#define __REMMINAMPCHANGE_H__
 
 G_BEGIN_DECLS
 
-typedef gboolean (*RemminaPluginFunc)(gchar *name, RemminaPlugin *plugin, gpointer data);
 
-void remmina_plugin_manager_init(void);
-RemminaPlugin* remmina_plugin_manager_get_plugin(RemminaPluginType type, const gchar *name);
-gboolean remmina_plugin_manager_query_feature_by_type(RemminaPluginType ptype, const gchar* name, RemminaProtocolFeatureType ftype);
-void remmina_plugin_manager_for_each_plugin(RemminaPluginType type, RemminaPluginFunc func, gpointer data);
-void remmina_plugin_manager_show(GtkWindow *parent);
-void remmina_plugin_manager_for_each_plugin_stdout(RemminaPluginType type, RemminaPluginFunc func, gpointer data);
-void remmina_plugin_manager_show_stdout();
-RemminaFilePlugin* remmina_plugin_manager_get_import_file_handler(const gchar *file);
-RemminaFilePlugin* remmina_plugin_manager_get_export_file_handler(RemminaFile *remminafile);
-RemminaSecretPlugin* remmina_plugin_manager_get_secret_plugin(void);
-const gchar *remmina_plugin_manager_get_canonical_setting_name(const RemminaProtocolSetting* setting);
+/* Schedule the multipassword change confirmation dialog to be executed ASAP */
+void remmina_mpchange_schedule(gboolean has_domain, const gchar *group, const gchar *domain, const gchar *username, const gchar *password);
 
-extern RemminaPluginService remmina_plugin_manager_service;
-
-G_END_DECLS
-
-#endif /* __REMMINAPLUGINMANAGER_H__ */
-
+#endif
