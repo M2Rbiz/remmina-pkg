@@ -261,7 +261,7 @@ remmina_ssh_auth_agent (RemminaSSH* ssh)
 {
 	TRACE_CALL("remmina_ssh_auth_agent");
 	gint ret;
-	ret = ssh_userauth_agent (ssh->session, NULL);
+	ret = ssh_userauth_agent (ssh->session, ssh->user);
 
 	if (ret != SSH_AUTH_SUCCESS)
 	{
@@ -271,6 +271,26 @@ remmina_ssh_auth_agent (RemminaSSH* ssh)
 
 	ssh->authenticated = TRUE;
 	return 1;
+}
+
+static gint
+remmina_ssh_auth_gssapi (RemminaSSH *ssh)
+{
+      TRACE_CALL("remmina_ssh_auth_gssapi");
+      gint ret;
+
+      if (ssh->authenticated) return 1;
+
+      ret = ssh_userauth_gssapi (ssh->session);
+
+      if (ret != SSH_AUTH_SUCCESS)
+      {
+              remmina_ssh_set_error (ssh, _("SSH Kerberos/GSSAPI authentication failed: %s"));
+              return 0;
+      }
+
+      ssh->authenticated = TRUE;
+      return 1;
 }
 
 gint
@@ -307,6 +327,9 @@ remmina_ssh_auth (RemminaSSH *ssh, const gchar *password)
 
 		case SSH_AUTH_AUTO_PUBLICKEY:
 			return remmina_ssh_auth_auto_pubkey (ssh);
+
+		case SSH_AUTH_GSSAPI:
+			return remmina_ssh_auth_gssapi (ssh);
 
 		default:
 			return 0;
@@ -380,10 +403,16 @@ remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog, RemminaFile *r
 		pwdtype = "ssh_password";
 		break;
 	case SSH_AUTH_PUBLICKEY:
+	case SSH_AUTH_AGENT:
 	case SSH_AUTH_AUTO_PUBLICKEY:
 		tips = _("Authenticating %s's identity to SSH server %s...");
 		keyname = _("SSH private key passphrase");
 		pwdtype = "ssh_passphrase";
+		break;
+	case SSH_AUTH_GSSAPI:
+		tips = _("Authenticating %s's Kerberos to SSH server %s...");
+		keyname = _("SSH Kerberos/GSSAPI");
+		pwdtype = "kerberos_token";
 		break;
 	default:
 		return FALSE;
@@ -638,7 +667,6 @@ remmina_ssh_free (RemminaSSH *ssh)
 	g_free(ssh->server);
 	g_free(ssh->user);
 	g_free(ssh->password);
-	g_free(ssh->passphrase);
 	g_free(ssh->privkeyfile);
 	g_free(ssh->charset);
 	g_free(ssh->error);
