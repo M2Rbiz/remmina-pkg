@@ -66,55 +66,6 @@
 
 static struct timespec times[2];
 
-typedef struct _RemminaSetting
-{
-	const gchar *setting;
-	RemminaSettingGroup group;
-	gboolean encrypted;
-} RemminaSetting;
-
-const RemminaSetting remmina_system_settings[] =
-{
-	{ "resolution_width", REMMINA_SETTING_GROUP_NONE, FALSE },
-	{ "resolution_height", REMMINA_SETTING_GROUP_NONE, FALSE },
-
-	{ "username", REMMINA_SETTING_GROUP_CREDENTIAL, FALSE },
-	{ "password", REMMINA_SETTING_GROUP_CREDENTIAL, TRUE },
-	{ "cacert", REMMINA_SETTING_GROUP_CREDENTIAL, FALSE },
-	{ "cacrl", REMMINA_SETTING_GROUP_CREDENTIAL, FALSE },
-	{ "clientcert", REMMINA_SETTING_GROUP_CREDENTIAL, FALSE },
-	{ "clientkey", REMMINA_SETTING_GROUP_CREDENTIAL, FALSE },
-
-	{ "viewmode", REMMINA_SETTING_GROUP_RUNTIME, FALSE },
-	{ "scale", REMMINA_SETTING_GROUP_RUNTIME, FALSE },
-	{ "keyboard_grab", REMMINA_SETTING_GROUP_RUNTIME, FALSE },
-	{ "window_width", REMMINA_SETTING_GROUP_RUNTIME, FALSE },
-	{ "window_height", REMMINA_SETTING_GROUP_RUNTIME, FALSE },
-	{ "window_maximize", REMMINA_SETTING_GROUP_RUNTIME, FALSE },
-	{ "toolbar_opacity", REMMINA_SETTING_GROUP_RUNTIME, FALSE },
-
-	{ NULL, 0, FALSE }
-};
-
-static RemminaSettingGroup remmina_setting_get_group(const gchar *setting, gboolean *encrypted)
-{
-	TRACE_CALL("remmina_setting_get_group");
-	gint i;
-
-	for (i = 0; remmina_system_settings[i].setting; i++)
-	{
-		if (g_strcmp0(setting, remmina_system_settings[i].setting) == 0)
-		{
-			if (encrypted)
-				*encrypted = remmina_system_settings[i].encrypted;
-			return remmina_system_settings[i].group;
-		}
-	}
-	if (encrypted)
-		*encrypted = FALSE;
-	return REMMINA_SETTING_GROUP_PROFILE;
-}
-
 static RemminaFile*
 remmina_file_new_empty(void)
 {
@@ -123,6 +74,10 @@ remmina_file_new_empty(void)
 
 	remminafile = g_new0(RemminaFile, 1);
 	remminafile->settings = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+	/* spsettings contains settings that are loaded from the secure_plugin.
+	 * it's used by remmina_file_store_secret_plugin_password() to know
+	 * where to change */
+	remminafile->spsettings = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	return remminafile;
 }
 
@@ -192,17 +147,80 @@ remmina_file_copy(const gchar *filename)
 	return remminafile;
 }
 
+static const RemminaProtocolSetting* find_protocol_setting(const gchar *name, RemminaProtocolPlugin* protocol_plugin)
+{
+	TRACE_CALL("find_protocol_setting");
+	const RemminaProtocolSetting* setting_iter;
+
+	if (protocol_plugin == NULL)
+		return NULL;
+
+	setting_iter = protocol_plugin->basic_settings;
+	if (setting_iter) {
+		while(setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END)
+		{
+			if (strcmp(name, remmina_plugin_manager_get_canonical_setting_name(setting_iter)) == 0)
+				return setting_iter;
+			setting_iter ++;
+		}
+	}
+
+	setting_iter = protocol_plugin->advanced_settings;
+	if (setting_iter) {
+		while(setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END)
+		{
+			if (strcmp(name, remmina_plugin_manager_get_canonical_setting_name(setting_iter)) == 0)
+				return setting_iter;
+			setting_iter ++;
+		}
+	}
+
+	return NULL;
+
+}
+
+static gboolean is_encrypted_setting(const RemminaProtocolSetting* setting)
+{
+	TRACE_CALL("is_encrypted_setting");
+	if (setting != NULL &&
+		(setting->type == REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD) )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static gboolean is_encrypted_setting_by_name(const gchar *setting_name, RemminaProtocolPlugin* protocol_plugin)
+{
+	TRACE_CALL("is_encrypted_setting_by_name");
+	const RemminaProtocolSetting* setting;
+
+	if (strcmp(setting_name, "ssh_password") == 0)
+	{
+		return TRUE;
+	}
+	if (strcmp(setting_name, "ssh_passphrase") == 0)
+	{
+		return TRUE;
+	}
+
+	setting = find_protocol_setting(setting_name, protocol_plugin);
+	return is_encrypted_setting(setting);
+}
+
 RemminaFile*
 remmina_file_load(const gchar *filename)
 {
 	TRACE_CALL("remmina_file_load");
 	GKeyFile *gkeyfile;
 	RemminaFile *remminafile;
+	gchar *proto;
 	gchar **keys;
 	gchar *key;
 	gint i;
-	gchar *s;
-	gboolean encrypted;
+	gchar *s, *sec;
+	RemminaProtocolPlugin* protocol_plugin;
+	RemminaSecretPlugin *secret_plugin;
 
 	gkeyfile = g_key_file_new();
 
@@ -216,6 +234,17 @@ remmina_file_load(const gchar *filename)
 	{
 		remminafile = remmina_file_new_empty();
 
+		protocol_plugin = NULL;
+
+		/* Identify the protocol plugin and get pointers to its RemminaProtocolSetting structs */
+		proto = g_key_file_get_string(gkeyfile, "remmina", "protocol", NULL);
+		if (proto)
+		{
+			protocol_plugin = (RemminaProtocolPlugin*)remmina_plugin_manager_get_plugin(REMMINA_PLUGIN_TYPE_PROTOCOL, proto);
+			g_free(proto);
+		}
+
+		secret_plugin = remmina_plugin_manager_get_secret_plugin();
 		remminafile->filename = g_strdup(filename);
 		keys = g_key_file_get_keys(gkeyfile, "remmina", NULL, NULL);
 		if (keys)
@@ -223,14 +252,23 @@ remmina_file_load(const gchar *filename)
 			for (i = 0; keys[i]; i++)
 			{
 				key = keys[i];
-				encrypted = FALSE;
-				remmina_setting_get_group(key, &encrypted);
-				if (encrypted)
+				if (is_encrypted_setting_by_name(key, protocol_plugin))
 				{
 					s = g_key_file_get_string(gkeyfile, "remmina", key, NULL);
 					if (g_strcmp0(s, ".") == 0)
 					{
-						remmina_file_set_string(remminafile, key, s);
+						if (secret_plugin)
+						{
+							sec = secret_plugin->get_password(remminafile, key);
+							remmina_file_set_string(remminafile, key, sec);
+							/* Annotate in spsettings that this value comes from secret_plugin */
+							g_hash_table_insert(remminafile->spsettings, g_strdup(key), NULL);
+							g_free(sec);
+						}
+						else
+						{
+							remmina_file_set_string(remminafile, key, s);
+						}
 					}
 					else
 					{
@@ -282,6 +320,22 @@ remmina_file_get_string(RemminaFile *remminafile, const gchar *setting)
 	TRACE_CALL("remmina_file_get_string");
 	gchar *value;
 
+	if ( !remmina_masterthread_exec_is_main_thread() )
+	{
+		/* Allow the execution of this function from a non main thread
+		 * (plugins needs it to have user credentials)*/
+		RemminaMTExecData *d;
+		const gchar *retval;
+		d = (RemminaMTExecData*)g_malloc( sizeof(RemminaMTExecData) );
+		d->func = FUNC_FILE_GET_STRING;
+		d->p.file_get_string.remminafile = remminafile;
+		d->p.file_get_string.setting = setting;
+		remmina_masterthread_exec_and_wait(d);
+		retval = d->p.file_get_string.retval;
+		g_free(d);
+		return retval;
+	}
+
 	value = (gchar*) g_hash_table_lookup(remminafile->settings, setting);
 	return value && value[0] ? value : NULL;
 }
@@ -290,43 +344,11 @@ gchar*
 remmina_file_get_secret(RemminaFile *remminafile, const gchar *setting)
 {
 	TRACE_CALL("remmina_file_get_secret");
-	/* This function can be called from a non main thread */
 
-	RemminaSecretPlugin *plugin;
-	const gchar *cs;
-
-	if ( !remmina_masterthread_exec_is_main_thread() )
-	{
-		/* Allow the execution of this function from a non main thread */
-		RemminaMTExecData *d;
-		gchar *retval;
-		d = (RemminaMTExecData*)g_malloc( sizeof(RemminaMTExecData) );
-		d->func = FUNC_FILE_GET_SECRET;
-		d->p.file_get_secret.remminafile = remminafile;
-		d->p.file_get_secret.setting = setting;
-		remmina_masterthread_exec_and_wait(d);
-		retval = d->p.file_get_secret.retval;
-		g_free(d);
-		return retval;
-	}
-
-	plugin = remmina_plugin_manager_get_secret_plugin();
-	cs = remmina_file_get_string(remminafile, setting);
-	if (plugin && g_strcmp0(cs, ".") == 0)
-	{
-		if (remminafile->filename)
-		{
-			return plugin->get_password(remminafile, setting);
-		}
-		else
-		{
-			return NULL;
-		}
-	}
-	else
-	{
-		return g_strdup(cs);
-	}
+	/* This function is in the RemminaPluginService table, we cannot remove it
+	 * without breaking plugin API */
+	printf("WARNING: remmina_file_get_secret(remminafile,\"%s\") is deprecated and must not be called. Use remmina_file_get_string() and do not deallocate returned memory.\n", setting);
+	return g_strdup(remmina_file_get_string(remminafile, setting));
 }
 
 void remmina_file_set_int(RemminaFile *remminafile, const gchar *setting, gint value)
@@ -342,67 +364,6 @@ gint remmina_file_get_int(RemminaFile *remminafile, const gchar *setting, gint d
 
 	value = g_hash_table_lookup(remminafile->settings, setting);
 	return value == NULL ? default_value : (value[0] == 't' ? TRUE : atoi(value));
-}
-
-static void remmina_file_store_group(RemminaFile *remminafile, GKeyFile *gkeyfile, RemminaSettingGroup group)
-{
-	TRACE_CALL("remmina_file_store_group");
-	RemminaSecretPlugin *plugin;
-	GHashTableIter iter;
-	const gchar *key, *value;
-	gchar *s;
-	gboolean encrypted;
-	RemminaSettingGroup g;
-
-	plugin = remmina_plugin_manager_get_secret_plugin();
-	g_hash_table_iter_init(&iter, remminafile->settings);
-	while (g_hash_table_iter_next(&iter, (gpointer*) &key, (gpointer*) &value))
-	{
-		encrypted = FALSE;
-		g = remmina_setting_get_group(key, &encrypted);
-		if (g != REMMINA_SETTING_GROUP_NONE && (group == REMMINA_SETTING_GROUP_ALL || group == g))
-		{
-			if (encrypted)
-			{
-				if (remminafile->filename && g_strcmp0(remminafile->filename, remmina_pref_file))
-				{
-					if (plugin)
-					{
-						if (value && value[0])
-						{
-							if (g_strcmp0(value, ".") != 0)
-							{
-								plugin->store_password(remminafile, key, value);
-							}
-							g_key_file_set_string(gkeyfile, "remmina", key, ".");
-						}
-						else
-						{
-							g_key_file_set_string(gkeyfile, "remmina", key, "");
-							plugin->delete_password(remminafile, key);
-						}
-					}
-					else
-					{
-						if (value && value[0])
-						{
-							s = remmina_crypt_encrypt(value);
-							g_key_file_set_string(gkeyfile, "remmina", key, s);
-							g_free(s);
-						}
-						else
-						{
-							g_key_file_set_string(gkeyfile, "remmina", key, "");
-						}
-					}
-				}
-			}
-			else
-			{
-				g_key_file_set_string(gkeyfile, "remmina", key, value);
-			}
-		}
-	}
 }
 
 static GKeyFile*
@@ -421,37 +382,6 @@ remmina_file_get_keyfile(RemminaFile *remminafile)
 	return gkeyfile;
 }
 
-static void remmina_file_save_flush(RemminaFile *remminafile, GKeyFile *gkeyfile)
-{
-	TRACE_CALL("remmina_file_save_flush");
-	gchar *content;
-	gsize length = 0;
-
-	content = g_key_file_to_data(gkeyfile, &length, NULL);
-	g_file_set_contents(remminafile->filename, content, length, NULL);
-	g_free(content);
-
-	remmina_main_update_file_datetime(remminafile);
-}
-
-void remmina_file_save_group(RemminaFile *remminafile, RemminaSettingGroup group)
-{
-	TRACE_CALL("remmina_file_save_group");
-	GKeyFile *gkeyfile;
-
-	if ((gkeyfile = remmina_file_get_keyfile(remminafile)) == NULL)
-		return;
-	remmina_file_store_group(remminafile, gkeyfile, group);
-	remmina_file_save_flush(remminafile, gkeyfile);
-	g_key_file_free(gkeyfile);
-}
-
-void remmina_file_save_all(RemminaFile *remminafile)
-{
-	TRACE_CALL("remmina_file_save_all");
-	remmina_file_save_group(remminafile, REMMINA_SETTING_GROUP_ALL);
-}
-
 void remmina_file_free(RemminaFile *remminafile)
 {
 	TRACE_CALL("remmina_file_free");
@@ -460,7 +390,107 @@ void remmina_file_free(RemminaFile *remminafile)
 
 	g_free(remminafile->filename);
 	g_hash_table_destroy(remminafile->settings);
+	g_hash_table_destroy(remminafile->spsettings);
 	g_free(remminafile);
+}
+
+
+void remmina_file_save(RemminaFile *remminafile)
+{
+	TRACE_CALL("remmina_file_save");
+	RemminaSecretPlugin *secret_plugin;
+	RemminaProtocolPlugin* protocol_plugin;
+	GHashTableIter iter;
+	const gchar *key, *value;
+	gchar *s, *proto, *content;
+	GKeyFile *gkeyfile;
+	gsize length = 0;
+
+	if ((gkeyfile = remmina_file_get_keyfile(remminafile)) == NULL)
+		return;
+
+	/* Identify the protocol plugin and get pointers to its RemminaProtocolSetting structs */
+	proto = (gchar *)g_hash_table_lookup(remminafile->settings, "protocol");
+	if (proto)
+	{
+		protocol_plugin = (RemminaProtocolPlugin*)remmina_plugin_manager_get_plugin(REMMINA_PLUGIN_TYPE_PROTOCOL, proto);
+	} else {
+		printf("Remmina WARNING: saving settings for unknown protocol, because remminafile has non proto key\n");
+		protocol_plugin = NULL;
+	}
+
+	secret_plugin = remmina_plugin_manager_get_secret_plugin();
+
+	g_hash_table_iter_init(&iter, remminafile->settings);
+	while (g_hash_table_iter_next(&iter, (gpointer*) &key, (gpointer*) &value))
+	{
+		if (is_encrypted_setting_by_name(key, protocol_plugin))
+		{
+			if (remminafile->filename && g_strcmp0(remminafile->filename, remmina_pref_file))
+			{
+				if (secret_plugin)
+				{
+					if (value && value[0])
+					{
+						if (g_strcmp0(value, ".") != 0)
+						{
+							secret_plugin->store_password(remminafile, key, value);
+						}
+						g_key_file_set_string(gkeyfile, "remmina", key, ".");
+					}
+					else
+					{
+						g_key_file_set_string(gkeyfile, "remmina", key, "");
+						secret_plugin->delete_password(remminafile, key);
+					}
+				}
+				else
+				{
+					if (value && value[0])
+					{
+						s = remmina_crypt_encrypt(value);
+						g_key_file_set_string(gkeyfile, "remmina", key, s);
+						g_free(s);
+					}
+					else
+					{
+						g_key_file_set_string(gkeyfile, "remmina", key, "");
+					}
+				}
+			}
+		}
+		else
+		{
+			g_key_file_set_string(gkeyfile, "remmina", key, value);
+		}
+	}
+
+	/* Store gkeyfile to disk (password are already sent to keyring) */
+	content = g_key_file_to_data(gkeyfile, &length, NULL);
+	g_file_set_contents(remminafile->filename, content, length, NULL);
+
+	g_free(content);
+	g_key_file_free(gkeyfile);
+
+	remmina_main_update_file_datetime(remminafile);
+}
+
+void remmina_file_store_secret_plugin_password(RemminaFile *remminafile, const gchar* key, const gchar* value)
+{
+	TRACE_CALL("remmina_file_store_secret_plugin_password");
+
+	/* Only change the password in the keyring. This function
+	 * is a shortcut which avoids updating of date/time of .pref file
+	 * when possible, and is used by the mpchanger */
+	RemminaSecretPlugin* plugin;
+
+	if (g_hash_table_lookup_extended(remminafile->spsettings, g_strdup(key), NULL, NULL)) {
+		plugin = remmina_plugin_manager_get_secret_plugin();
+		plugin->store_password(remminafile, key, value);
+	} else {
+		remmina_file_set_string(remminafile, key, value);
+		remmina_file_save(remminafile);
+	}
 }
 
 RemminaFile*
@@ -569,24 +599,12 @@ remmina_file_dup_temp_protocol(RemminaFile *remminafile, const gchar *new_protoc
 void remmina_file_delete(const gchar *filename)
 {
 	TRACE_CALL("remmina_file_delete");
-	RemminaSecretPlugin *plugin;
 	RemminaFile *remminafile;
-	gint i;
 
 	remminafile = remmina_file_load(filename);
 	if (remminafile)
 	{
-		plugin = remmina_plugin_manager_get_secret_plugin();
-		if (plugin)
-		{
-			for (i = 0; remmina_system_settings[i].setting; i++)
-			{
-				if (remmina_system_settings[i].encrypted)
-				{
-					plugin->delete_password(remminafile, remmina_system_settings[i].setting);
-				}
-			}
-		}
+		remmina_file_unsave_password(remminafile);
 		remmina_file_free(remminafile);
 	}
 	g_unlink(filename);
@@ -594,9 +612,44 @@ void remmina_file_delete(const gchar *filename)
 
 void remmina_file_unsave_password(RemminaFile *remminafile)
 {
+	/* Delete all saved secrets for this profile */
+
 	TRACE_CALL("remmina_file_unsave_password");
+	const RemminaProtocolSetting* setting_iter;
+	RemminaProtocolPlugin* protocol_plugin;
+	gchar *proto;
+	protocol_plugin = NULL;
+
 	remmina_file_set_string(remminafile, "password", NULL);
-	remmina_file_save_group(remminafile, REMMINA_SETTING_GROUP_CREDENTIAL);
+
+	proto = (gchar *)g_hash_table_lookup(remminafile->settings, "protocol");
+	if (proto)
+	{
+		protocol_plugin = (RemminaProtocolPlugin*)remmina_plugin_manager_get_plugin(REMMINA_PLUGIN_TYPE_PROTOCOL, proto);
+	}
+
+	setting_iter = protocol_plugin->basic_settings;
+	if (setting_iter) {
+		while(setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END)
+		{
+			if (is_encrypted_setting(setting_iter)) {
+				remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
+			}
+			setting_iter ++;
+		}
+	}
+	setting_iter = protocol_plugin->advanced_settings;
+	if (setting_iter) {
+		while(setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END)
+		{
+			if (is_encrypted_setting(setting_iter)) {
+				remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
+			}
+			setting_iter ++;
+		}
+	}
+
+	remmina_file_save(remminafile);
 }
 
 gchar*

@@ -84,6 +84,46 @@ void remmina_exec_exitremmina()
 	g_application_quit(g_application_get_default());
 }
 
+static gboolean disable_remmina_connection_window_delete_confirm_cb(GtkWidget *widget, gpointer data)
+{
+	TRACE_CALL("disable_remmina_connection_window_delete_confirm_cb");
+	RemminaConnectionWindow *rcw;
+
+	if (REMMINA_IS_CONNECTION_WINDOW(widget)) {
+		rcw = (RemminaConnectionWindow*)widget;
+		remmina_connection_window_set_delete_confirm_mode(rcw, REMMINA_CONNECTION_WINDOW_ONDELETE_NOCONFIRM);
+	}
+	return TRUE;
+}
+
+void remmina_application_condexit(RemminaCondExitType why)
+{
+	TRACE_CALL("remmina_application_check_exitremmina");
+
+	/* Exit remmina only if there are no interesting windows left:
+	 * no main window, no systray menu, no connection window.
+	 * This function is usually called after a disconnection */
+
+	switch(why) {
+		case REMMINA_CONDEXIT_ONDISCONNECT:
+			// A connection has disconnected, should we exit remmina ?
+			if (remmina_widget_pool_count() < 1 && !remmina_main_get_window() && !remmina_icon_is_available())
+				remmina_exec_exitremmina();
+			break;
+		case REMMINA_CONDEXIT_ONMAINWINDELETE:
+			// Main window has been deleted
+			if (remmina_widget_pool_count() < 1 && !remmina_icon_is_available())
+				remmina_exec_exitremmina();
+			break;
+		case REMMINA_CONDEXIT_ONQUIT:
+			// Quit command has been sent from main window or appindicator/systray menu
+			// quit means QUIT.
+			remmina_widget_pool_foreach(disable_remmina_connection_window_delete_confirm_cb, NULL);
+			remmina_exec_exitremmina();
+			break;
+	}
+}
+
 void remmina_exec_command(RemminaCommandType command, const gchar* data)
 {
 	TRACE_CALL("remmina_exec_command");
@@ -164,9 +204,30 @@ void remmina_exec_command(RemminaCommandType command, const gchar* data)
 		}
 		else
 		{
-			g_print ("%s - Version %s (git %s)\n", g_get_application_name (), VERSION, GIT_REVISION);
+			g_print ("%s - Version %s (git %s)\n", g_get_application_name (), VERSION, REMMINA_GIT_REVISION);
+			/* As we do not use the "handle-local-options" signal, we have to exit Remmina */
+			remmina_exec_command(REMMINA_COMMAND_EXIT, NULL);
 		}
+
 		break;
+
+	case REMMINA_COMMAND_FULL_VERSION:
+		mainwindow = remmina_main_get_window();
+		if (mainwindow)
+		{
+			/* Show th widget with the list of plugins and versions */
+			remmina_plugin_manager_show(mainwindow);
+		}
+		else
+		{
+			g_print("\n%s - Version %s (git %s)\n\n", g_get_application_name (), VERSION, REMMINA_GIT_REVISION);
+
+			remmina_plugin_manager_show_stdout();
+			remmina_exec_command(REMMINA_COMMAND_EXIT, NULL);
+		}
+
+		break;
+
 
 	case REMMINA_COMMAND_PLUGIN:
 		plugin = (RemminaEntryPlugin*) remmina_plugin_manager_get_plugin(REMMINA_PLUGIN_TYPE_ENTRY, data);
@@ -185,6 +246,7 @@ void remmina_exec_command(RemminaCommandType command, const gchar* data)
 		break;
 
 	case REMMINA_COMMAND_EXIT:
+		remmina_widget_pool_foreach(disable_remmina_connection_window_delete_confirm_cb, NULL);
 		remmina_exec_exitremmina();
 		break;
 

@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,9 +73,10 @@
 #include <termios.h>
 #endif
 #include "remmina_public.h"
+#include "remmina_file.h"
 #include "remmina_log.h"
-#include "remmina_ssh.h"
 #include "remmina_pref.h"
+#include "remmina_ssh.h"
 #include "remmina/remmina_trace_calls.h"
 
 #ifdef HAVE_NETINET_TCP_H
@@ -103,6 +105,7 @@
 
 static const gchar *common_identities[] =
 {
+	".ssh/id_ed25519",
 	".ssh/id_rsa",
 	".ssh/id_dsa",
 	".ssh/identity",
@@ -213,10 +216,10 @@ remmina_ssh_auth_pubkey (RemminaSSH *ssh)
 		return 0;
 	}
 
-	if ( ssh_pki_import_privkey_file( ssh->privkeyfile, (ssh->password ? ssh->password : ""),
+	if ( ssh_pki_import_privkey_file( ssh->privkeyfile, (ssh->passphrase ? ssh->passphrase : ""),
 	                                  NULL, NULL, &priv_key ) != SSH_OK )
 	{
-		if (ssh->password == NULL || ssh->password[0] == '\0') return -1;
+		if (ssh->passphrase == NULL || ssh->passphrase[0] == '\0') return -1;
 
 		remmina_ssh_set_error (ssh, _("SSH public key authentication failed: %s"));
 		return 0;
@@ -239,8 +242,9 @@ static gint
 remmina_ssh_auth_auto_pubkey (RemminaSSH* ssh)
 {
 	TRACE_CALL("remmina_ssh_auth_auto_pubkey");
-	gint ret;
-	ret = ssh_userauth_autopubkey (ssh->session, "");
+	/* ssh->password should be ssh->passphrase, TODO */
+	if (ssh->passphrase == NULL  || ssh->passphrase[0] == '\0') return -1;
+	gint ret = ssh_userauth_publickey_auto (ssh->session, ssh->user, ssh->passphrase);
 
 	if (ret != SSH_AUTH_SUCCESS)
 	{
@@ -284,35 +288,38 @@ remmina_ssh_auth (RemminaSSH *ssh, const gchar *password)
 	if (password)
 	{
 		g_free(ssh->password);
+		g_free(ssh->passphrase);
 		ssh->password = g_strdup (password);
+		ssh->passphrase = g_strdup (password);
 	}
 
 	switch (ssh->auth)
 	{
 
-	case SSH_AUTH_PASSWORD:
-		return remmina_ssh_auth_password (ssh);
+		case SSH_AUTH_PASSWORD:
+			return remmina_ssh_auth_password (ssh);
 
-	case SSH_AUTH_PUBLICKEY:
-		return remmina_ssh_auth_pubkey (ssh);
+		case SSH_AUTH_PUBLICKEY:
+			return remmina_ssh_auth_pubkey (ssh);
 
-	case SSH_AUTH_AGENT:
-		return remmina_ssh_auth_agent (ssh);
+		case SSH_AUTH_AGENT:
+			return remmina_ssh_auth_agent (ssh);
 
-	case SSH_AUTH_AUTO_PUBLICKEY:
-		return remmina_ssh_auth_auto_pubkey (ssh);
+		case SSH_AUTH_AUTO_PUBLICKEY:
+			return remmina_ssh_auth_auto_pubkey (ssh);
 
-	default:
-		return 0;
+		default:
+			return 0;
 	}
 }
 
 gint
-remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog)
+remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog, RemminaFile *remminafile)
 {
 	TRACE_CALL("remmina_ssh_auth_gui");
 	gchar *tips;
 	gchar *keyname;
+	gchar *pwdtype;
 	gint ret;
 	size_t len;
 	guchar *pubkey;
@@ -365,8 +372,24 @@ remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog)
 		return 0;
 	}
 
-	/* Try empty password or existing password first */
-	ret = remmina_ssh_auth (ssh, NULL);
+	switch (ssh->auth)
+	{
+	case SSH_AUTH_PASSWORD:
+		tips = _("Authenticating %s's password to SSH server %s...");
+		keyname = _("SSH password");
+		pwdtype = "ssh_password";
+		break;
+	case SSH_AUTH_PUBLICKEY:
+	case SSH_AUTH_AUTO_PUBLICKEY:
+		tips = _("Authenticating %s's identity to SSH server %s...");
+		keyname = _("SSH private key passphrase");
+		pwdtype = "ssh_passphrase";
+		break;
+	default:
+		return FALSE;
+	}
+	/* Try empty password or existing password/passphrase first */
+	ret = remmina_ssh_auth (ssh, remmina_file_get_string(remminafile, pwdtype));
 	if (ret > 0) return 1;
 
 	/* Requested for a non-empty password */
@@ -374,26 +397,16 @@ remmina_ssh_auth_gui (RemminaSSH *ssh, RemminaInitDialog *dialog)
 	{
 		if (!dialog) return -1;
 
-		switch (ssh->auth)
+		remmina_init_dialog_set_status (dialog, tips, ssh->user, ssh->server);
+		ret = remmina_init_dialog_authpwd (dialog, keyname, TRUE);
+
+		if (ret == GTK_RESPONSE_OK)
 		{
-		case SSH_AUTH_PASSWORD:
-			tips = _("Authenticating %s's password to SSH server %s...");
-			keyname = _("SSH password");
-			break;
-		case SSH_AUTH_PUBLICKEY:
-			tips = _("Authenticating %s's identity to SSH server %s...");
-			keyname = _("SSH private key passphrase");
-			break;
-		default:
-			return FALSE;
+			remmina_file_set_string( remminafile, pwdtype, dialog->password);
 		}
-
-		if (ssh->auth != SSH_AUTH_AUTO_PUBLICKEY)
+		else
 		{
-			remmina_init_dialog_set_status (dialog, tips, ssh->user, ssh->server);
-			ret = remmina_init_dialog_authpwd (dialog, keyname, FALSE);
-
-			if (ret != GTK_RESPONSE_OK) return -1;
+			return -1;
 		}
 		ret = remmina_ssh_auth (ssh, dialog->password);
 	}
@@ -430,6 +443,9 @@ remmina_ssh_init_session (RemminaSSH *ssh)
 	ssh_options_set (ssh->session, SSH_OPTIONS_HOST, ssh->server);
 	ssh_options_set (ssh->session, SSH_OPTIONS_PORT, &ssh->port);
 	ssh_options_set (ssh->session, SSH_OPTIONS_USER, ssh->user);
+#ifdef SNAP_BUILD
+	ssh_options_set (ssh->session, SSH_OPTIONS_SSH_DIR, g_strdup_printf ("%s/.ssh", g_getenv ("SNAP_USER_COMMON")));
+#endif
 
 	ssh_callbacks_init(ssh->callback);
 	if (remmina_log_running ())
@@ -512,6 +528,7 @@ remmina_ssh_init_from_file (RemminaSSH *ssh, RemminaFile *remminafile)
 	ssh->callback = NULL;
 	ssh->authenticated = FALSE;
 	ssh->error = NULL;
+	ssh->passphrase = NULL;
 	pthread_mutex_init (&ssh->ssh_mutex, NULL);
 
 	/* Parse the address and port */
@@ -621,6 +638,7 @@ remmina_ssh_free (RemminaSSH *ssh)
 	g_free(ssh->server);
 	g_free(ssh->user);
 	g_free(ssh->password);
+	g_free(ssh->passphrase);
 	g_free(ssh->privkeyfile);
 	g_free(ssh->charset);
 	g_free(ssh->error);
@@ -1620,10 +1638,13 @@ remmina_ssh_shell_open (RemminaSSHShell *shell, RemminaSSHExitFunc exit_callback
 		return FALSE;
 	}
 
-	/* These settings works fine with OpenSSH... */
+	/* As per libssh documentation */
 	tcgetattr (shell->slave, &stermios);
-	stermios.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON | ISIG);
-	stermios.c_iflag &= ~(ICRNL);
+	stermios.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
+	stermios.c_oflag &= ~OPOST;
+	stermios.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+	stermios.c_cflag &= ~(CSIZE|PARENB);
+	stermios.c_cflag |= CS8;
 	tcsetattr (shell->slave, TCSANOW, &stermios);
 
 	shell->exit_callback = exit_callback;

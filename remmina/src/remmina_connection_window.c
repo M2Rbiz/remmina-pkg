@@ -57,6 +57,7 @@
 #include "remmina/remmina_trace_calls.h"
 
 #define DEBUG_KB_GRABBING 0
+#include "remmina_exec.h"
 
 gchar *remmina_pref_file;
 RemminaPref remmina_pref;
@@ -67,9 +68,10 @@ G_DEFINE_TYPE( RemminaConnectionWindow, remmina_connection_window, GTK_TYPE_WIND
 
 #define FLOATING_TOOLBAR_WIDGET (GTK_CHECK_VERSION(3, 10, 0))
 
-	typedef struct _RemminaConnectionHolder RemminaConnectionHolder;
+typedef struct _RemminaConnectionHolder RemminaConnectionHolder;
 
-	struct _RemminaConnectionWindowPriv
+
+struct _RemminaConnectionWindowPriv
 {
 	RemminaConnectionHolder* cnnhld;
 
@@ -120,6 +122,8 @@ G_DEFINE_TYPE( RemminaConnectionWindow, remmina_connection_window, GTK_TYPE_WIND
 
 	gboolean kbcaptured;
 	gboolean mouse_pointer_entered;
+
+	RemminaConnectionWindowOnDeleteConfirmMode on_delete_confirm_mode;
 
 };
 
@@ -415,16 +419,18 @@ gboolean remmina_connection_window_delete(RemminaConnectionWindow* cnnwin)
 	if (!REMMINA_IS_CONNECTION_WINDOW(cnnwin))
 		return TRUE;
 
-	n = gtk_notebook_get_n_pages(notebook);
-	if (n > 1)
-	{
-		dialog = gtk_message_dialog_new(GTK_WINDOW(cnnwin), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION,
-				GTK_BUTTONS_YES_NO,
-				_("There are %i active connections in the current window. Are you sure to close?"), n);
-		i = gtk_dialog_run(GTK_DIALOG(dialog));
-		gtk_widget_destroy(dialog);
-		if (i != GTK_RESPONSE_YES)
-			return FALSE;
+	if (cnnwin->priv->on_delete_confirm_mode != REMMINA_CONNECTION_WINDOW_ONDELETE_NOCONFIRM) {
+		n = gtk_notebook_get_n_pages(notebook);
+		if (n > 1)
+		{
+			dialog = gtk_message_dialog_new(GTK_WINDOW(cnnwin), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION,
+					GTK_BUTTONS_YES_NO,
+					_("There are %i active connections in the current window. Are you sure to close?"), n);
+			i = gtk_dialog_run(GTK_DIALOG(dialog));
+			gtk_widget_destroy(dialog);
+			if (i != GTK_RESPONSE_YES)
+				return FALSE;
+		}
 	}
 	remmina_connection_window_close_all_connections(cnnwin);
 
@@ -657,7 +663,7 @@ static gboolean remmina_connection_holder_floating_toolbar_motion(RemminaConnect
 			y = t;
 
 		gtk_window_move(GTK_WINDOW(priv->floating_toolbar_window), x + cnnwin_x, y + cnnwin_y);
-		if (remmina_pref.invisible_toolbar && !priv->pin_down)
+		if (remmina_pref.fullscreen_toolbar_visibility == FLOATING_TOOLBAR_VISIBILITY_INVISIBLE && !priv->pin_down)
 		{
 #if GTK_CHECK_VERSION(3, 8, 0)
 			gtk_widget_set_opacity(GTK_WIDGET(priv->floating_toolbar_window),
@@ -740,7 +746,7 @@ static void remmina_connection_holder_floating_toolbar_show(RemminaConnectionHol
 	{
 		/* If we are hiding and the toolbar must be made invisible, schedule
 		 * a later toolbar hide */
-		if (remmina_pref.invisible_toolbar)
+		if (remmina_pref.fullscreen_toolbar_visibility == FLOATING_TOOLBAR_VISIBILITY_INVISIBLE)
 		{
 			if (priv->ftb_hide_eventsource == 0)
 				priv->ftb_hide_eventsource = g_timeout_add(1000, remmina_connection_holder_floating_toolbar_make_invisible, priv);
@@ -2403,7 +2409,7 @@ static void remmina_connection_holder_create_floating_toolbar(RemminaConnectionH
 	priv->floating_toolbar_window = ftb_popup_window;
 
 	remmina_connection_holder_update_toolbar_opacity(cnnhld);
-	if (remmina_pref.invisible_toolbar && !priv->pin_down)
+	if (remmina_pref.fullscreen_toolbar_visibility == FLOATING_TOOLBAR_VISIBILITY_INVISIBLE && !priv->pin_down)
 	{
 #if GTK_CHECK_VERSION(3, 8, 0)
 		gtk_widget_set_opacity(GTK_WIDGET(ftb_popup_window), 0.0);
@@ -2489,6 +2495,7 @@ remmina_connection_window_new_from_holder(RemminaConnectionHolder* cnnhld)
 
 	cnnwin = REMMINA_CONNECTION_WINDOW(g_object_new(REMMINA_TYPE_CONNECTION_WINDOW, NULL));
 	cnnwin->priv->cnnhld = cnnhld;
+	cnnwin->priv->on_delete_confirm_mode = REMMINA_CONNECTION_WINDOW_ONDELETE_CONFIRM_IF_2_OR_MORE;
 
 	g_signal_connect(G_OBJECT(cnnwin), "delete-event", G_CALLBACK(remmina_connection_window_delete_event), cnnhld);
 	g_signal_connect(G_OBJECT(cnnwin), "destroy", G_CALLBACK(remmina_connection_window_destroy), cnnhld);
@@ -3212,20 +3219,25 @@ static void remmina_connection_holder_create_fullscreen(RemminaConnectionHolder*
 
 	/* Create the floating toolbar */
 #if FLOATING_TOOLBAR_WIDGET
-	remmina_connection_holder_create_overlay_ftb_overlay(cnnhld);
-	/* Add drag and drop capabilities to the drop/dest target for floating toolbar */
-	gtk_drag_dest_set(GTK_WIDGET(priv->overlay), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT,
-			dnd_targets_ftb, sizeof dnd_targets_ftb / sizeof *dnd_targets_ftb, GDK_ACTION_MOVE);
-	gtk_drag_dest_set_track_motion(GTK_WIDGET(priv->notebook), TRUE);
-	g_signal_connect(GTK_WIDGET(priv->overlay), "drag-drop", G_CALLBACK(remmina_connection_window_ftb_drag_drop), cnnhld);
+	if (remmina_pref.fullscreen_toolbar_visibility != FLOATING_TOOLBAR_VISIBILITY_DISABLE)
+	{
+		remmina_connection_holder_create_overlay_ftb_overlay(cnnhld);
+		/* Add drag and drop capabilities to the drop/dest target for floating toolbar */
+		gtk_drag_dest_set(GTK_WIDGET(priv->overlay), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT,
+				dnd_targets_ftb, sizeof dnd_targets_ftb / sizeof *dnd_targets_ftb, GDK_ACTION_MOVE);
+		gtk_drag_dest_set_track_motion(GTK_WIDGET(priv->notebook), TRUE);
+		g_signal_connect(GTK_WIDGET(priv->overlay), "drag-drop", G_CALLBACK(remmina_connection_window_ftb_drag_drop), cnnhld);
+	}
 #else
+	if (remmina_pref.fullscreen_toolbar_visibility != FLOATING_TOOLBAR_VISIBILITY_DISABLE)
+	{
+		remmina_connection_holder_create_floating_toolbar(cnnhld, view_mode);
+		remmina_connection_holder_update_toolbar(cnnhld);
 
-	remmina_connection_holder_create_floating_toolbar(cnnhld, view_mode);
-	remmina_connection_holder_update_toolbar(cnnhld);
-
-	g_signal_connect(G_OBJECT(priv->floating_toolbar_window), "enter-notify-event", G_CALLBACK(remmina_connection_holder_floating_toolbar_on_enter), cnnhld);
-	g_signal_connect(G_OBJECT(priv->floating_toolbar_window), "scroll-event", G_CALLBACK(remmina_connection_holder_floating_toolbar_on_scroll), cnnhld);
-	gtk_widget_add_events(GTK_WIDGET(priv->floating_toolbar_window), GDK_SCROLL_MASK);
+		g_signal_connect(G_OBJECT(priv->floating_toolbar_window), "enter-notify-event", G_CALLBACK(remmina_connection_holder_floating_toolbar_on_enter), cnnhld);
+		g_signal_connect(G_OBJECT(priv->floating_toolbar_window), "scroll-event", G_CALLBACK(remmina_connection_holder_floating_toolbar_on_scroll), cnnhld);
+		gtk_widget_add_events(GTK_WIDGET(priv->floating_toolbar_window), GDK_SCROLL_MASK);
+	}
 #endif
 
 	remmina_connection_holder_check_resize(cnnhld);
@@ -3455,6 +3467,7 @@ static gboolean remmina_connection_window_hostkey_func(RemminaProtocolWidget* gp
 			}
 		}
 	}
+	cnnhld->hostkey_activated = FALSE;
 	/* Trap all key presses when hostkey is pressed */
 	return TRUE;
 }
@@ -3524,7 +3537,7 @@ static void remmina_connection_object_on_connect(RemminaProtocolWidget* gp, Remm
 	}
 
 	/* Save credentials */
-	remmina_file_save_group(cnnobj->remmina_file, REMMINA_SETTING_GROUP_CREDENTIAL);
+	remmina_file_save(cnnobj->remmina_file);
 
 	if (!cnnhld->cnnwin)
 	{
@@ -3568,6 +3581,12 @@ static void remmina_connection_object_on_connect(RemminaProtocolWidget* gp, Remm
 
 }
 
+static void cb_autoclose_widget(GtkWidget *widget)
+{
+	gtk_widget_destroy(widget);
+	remmina_application_condexit(REMMINA_CONDEXIT_ONDISCONNECT);
+}
+
 static void remmina_connection_object_on_disconnect(RemminaProtocolWidget* gp, RemminaConnectionObject* cnnobj)
 {
 	TRACE_CALL("remmina_connection_object_on_disconnect");
@@ -3594,21 +3613,14 @@ static void remmina_connection_object_on_disconnect(RemminaProtocolWidget* gp, R
 		{
 			remmina_file_set_int(cnnobj->remmina_file, "viewmode", cnnhld->cnnwin->priv->view_mode);
 		}
-		if (remmina_pref.save_when_connect)
-		{
-			remmina_file_save_all(cnnobj->remmina_file);
-		}
-		else
-		{
-			remmina_file_save_group(cnnobj->remmina_file, REMMINA_SETTING_GROUP_RUNTIME);
-		}
+		remmina_file_save(cnnobj->remmina_file);
 	}
 
 	if (remmina_protocol_widget_has_error(gp))
 	{
 		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
 				remmina_protocol_widget_get_error_message(gp), NULL);
-		g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(gtk_widget_destroy), NULL);
+		g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(cb_autoclose_widget), NULL);
 		gtk_widget_show(dialog);
 		remmina_widget_pool_register(dialog);
 	}
@@ -3623,6 +3635,8 @@ static void remmina_connection_object_on_disconnect(RemminaProtocolWidget* gp, R
 
 	cnnobj->remmina_file = NULL;
 	g_free(cnnobj);
+
+	remmina_application_condexit(REMMINA_CONDEXIT_ONDISCONNECT);
 }
 
 static void remmina_connection_object_on_desktop_resize(RemminaProtocolWidget* gp, RemminaConnectionObject* cnnobj)
@@ -3736,5 +3750,12 @@ remmina_connection_window_open_from_file_full(RemminaFile* remminafile, GCallbac
 	remmina_protocol_widget_open_connection(REMMINA_PROTOCOL_WIDGET(cnnobj->proto), remminafile);
 
 	return protocolwidget;
-
 }
+
+void remmina_connection_window_set_delete_confirm_mode(RemminaConnectionWindow* cnnwin, RemminaConnectionWindowOnDeleteConfirmMode mode)
+{
+	cnnwin->priv->on_delete_confirm_mode = mode;
+}
+
+
+
