@@ -436,7 +436,7 @@ static void remmina_file_editor_create_server(RemminaFileEditor* gfe, const Remm
 static GtkWidget* remmina_file_editor_create_password(RemminaFileEditor* gfe, GtkWidget* grid,
         gint row, gint col, const gchar* label, const gchar* value)
 {
-	TRACE_CALL("remmina_file_editor_create_custom_pwd");
+	TRACE_CALL("remmina_file_editor_create_password");
 	GtkWidget* widget;
 
 	widget = gtk_label_new(label);
@@ -456,6 +456,7 @@ static GtkWidget* remmina_file_editor_create_password(RemminaFileEditor* gfe, Gt
 	gtk_entry_set_max_length(GTK_ENTRY(widget), 100);
 	gtk_entry_set_visibility(GTK_ENTRY(widget), FALSE);
 	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_entry_set_activates_default(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(widget))), TRUE);
 
 	if (value)
 	{
@@ -1420,7 +1421,7 @@ GtkWidget* remmina_file_editor_new_from_file(RemminaFile* remminafile)
 	priv->precommand_entry = widget;
 	cs = remmina_file_get_string(remminafile, "precommand");
 	gtk_entry_set_text(GTK_ENTRY(widget), cs ? cs : "");
-	s = g_strdup_printf(_("Script/command full path w/o arguments"));
+	s = g_strdup_printf(_("Script/command with arguments"));
 	gtk_widget_set_tooltip_text (widget, s);
 	g_free(s);
 
@@ -1439,7 +1440,9 @@ GtkWidget* remmina_file_editor_new_from_file(RemminaFile* remminafile)
 	priv->postcommand_entry = widget;
 	cs = remmina_file_get_string(remminafile, "postcommand");
 	gtk_entry_set_text(GTK_ENTRY(widget), cs ? cs : "");
-	s = g_strdup_printf(_("Script/command full path w/o arguments"));
+	s = g_strdup_printf(_("Script/command with arguments"));
+	gtk_widget_set_tooltip_text (widget, s);
+	g_free(s);
 
 	/* Create the Preference frame */
 	widget = gtk_event_box_new();
