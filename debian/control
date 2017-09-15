@@ -107,6 +107,18 @@ Description: NX plugin for remmina remote desktop client
  .
  This package contains the NX plugin for Remmina.
 
+Package: remmina-plugin-spice
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ remmina (= ${binary:Version}),
+Description: Spice plugin for remmina remote desktop client
+ Remmina is a remote desktop connection client able to display and control a
+ remote desktop session.
+ .
+ This package contains the Spice plugin for Remmina.
+
 Package: remmina-plugin-telepathy
 Architecture: any
 Depends:
