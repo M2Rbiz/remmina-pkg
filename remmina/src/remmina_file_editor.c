@@ -326,7 +326,8 @@ static void remmina_file_editor_ssh_enabled_check_on_toggled(GtkToggleButton* to
 	if (gfe->priv->ssh_username_entry)
 	if (enabled && gtk_entry_get_text(GTK_ENTRY(gfe->priv->ssh_username_entry)) [0] == '\0')
 	{
-		gtk_entry_set_text(GTK_ENTRY(gfe->priv->ssh_username_entry), g_get_user_name());
+		gtk_entry_set_text(GTK_ENTRY(gfe->priv->ssh_username_entry),
+				remmina_file_get_string(priv->remmina_file, "ssh_username"));
 	}
 }
 
@@ -456,7 +457,7 @@ static GtkWidget* remmina_file_editor_create_password(RemminaFileEditor* gfe, Gt
 	gtk_entry_set_max_length(GTK_ENTRY(widget), 100);
 	gtk_entry_set_visibility(GTK_ENTRY(widget), FALSE);
 	gtk_widget_set_hexpand (widget, TRUE);
-	gtk_entry_set_activates_default(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(widget))), TRUE);
+	gtk_entry_set_activates_default(GTK_ENTRY(widget), TRUE);
 
 	if (value)
 	{
@@ -1205,6 +1206,23 @@ static void remmina_file_editor_on_connect(GtkWidget* button, RemminaFileEditor*
 
 	remmina_file_editor_update(gfe);
 
+	gf = remmina_file_dup(gfe->priv->remmina_file);
+	/* Put server into name for Quick Connect */
+	if (remmina_file_get_filename(gf) == NULL)
+	{
+		remmina_file_set_string(gf, "name", remmina_file_get_string(gf, "server"));
+	}
+	gtk_widget_destroy(GTK_WIDGET(gfe));
+	remmina_connection_window_open_from_file(gf);
+}
+
+static void remmina_file_editor_on_save_connect(GtkWidget* button, RemminaFileEditor* gfe)
+{
+	TRACE_CALL("remmina_file_editor_on_save_connect");
+	RemminaFile* gf;
+
+	remmina_file_editor_update(gfe);
+
 	remmina_file_save(gfe->priv->remmina_file);
 	remmina_icon_populate_menu();
 
@@ -1236,29 +1254,34 @@ static void remmina_file_editor_init(RemminaFileEditor* gfe)
 	/* Create the editor dialog */
 	gtk_window_set_title(GTK_WINDOW(gfe), _("Remote Desktop Preference"));
 
+	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("_Cancel")), GTK_RESPONSE_CANCEL);
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_cancel), gfe);
+
+	/* Default button */
+	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("Save as Default")), GTK_RESPONSE_OK);
+	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("preferences-system", GTK_ICON_SIZE_BUTTON));
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_default), gfe);
+
 	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("_Save")), GTK_RESPONSE_APPLY);
 	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON));
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_save), gfe);
 	gtk_widget_set_sensitive(widget, FALSE);
 	priv->save_button = widget;
 
-	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("_Cancel")), GTK_RESPONSE_CANCEL);
-	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_cancel), gfe);
-
-	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("Connect")), GTK_RESPONSE_OK);
+	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("Connect")), GTK_RESPONSE_ACCEPT);
 	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("gtk-connect", GTK_ICON_SIZE_BUTTON));
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_connect), gfe);
+
+	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("_Save and Connect")), GTK_RESPONSE_OK);
+	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("document-save-as", GTK_ICON_SIZE_BUTTON));
+	gtk_widget_set_can_default (widget, TRUE);
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_save_connect), gfe);
 
 	gtk_dialog_set_default_response(GTK_DIALOG(gfe), GTK_RESPONSE_OK);
 	gtk_window_set_default_size(GTK_WINDOW(gfe), 800, 600);
 
 	g_signal_connect(G_OBJECT(gfe), "destroy", G_CALLBACK(remmina_file_editor_destroy), NULL);
 	g_signal_connect(G_OBJECT(gfe), "realize", G_CALLBACK(remmina_file_editor_on_realize), NULL);
-
-	/* Default button */
-	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("Default")), GTK_RESPONSE_OK);
-	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("preferences-system", GTK_ICON_SIZE_BUTTON));
-	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_default), gfe);
 
 	priv->setting_widgets = g_hash_table_new(g_str_hash, g_str_equal);
 
