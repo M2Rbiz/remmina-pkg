@@ -46,6 +46,7 @@
 #include <freerdp/gdi/dc.h>
 #include <freerdp/gdi/region.h>
 #include <freerdp/client/cliprdr.h>
+#include <freerdp/client/disp.h>
 #include <gdk/gdkx.h>
 
 #include <winpr/clipboard.h>
@@ -109,10 +110,12 @@ typedef struct rf_glyph rfGlyph;
 typedef enum
 {
 	REMMINA_RDP_EVENT_TYPE_SCANCODE,
+	REMMINA_RDP_EVENT_TYPE_SCANCODE_UNICODE,
 	REMMINA_RDP_EVENT_TYPE_MOUSE,
 	REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_LIST,
 	REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_DATA_RESPONSE,
-	REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_DATA_REQUEST
+	REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_DATA_REQUEST,
+	REMMINA_RDP_EVENT_TYPE_SEND_MONITOR_LAYOUT
 } RemminaPluginRdpEventType;
 
 struct remmina_plugin_rdp_event
@@ -125,6 +128,7 @@ struct remmina_plugin_rdp_event
 			BOOL up;
 			BOOL extended;
 			UINT8 key_code;
+			UINT32 unicode_code;
 		} key_event;
 		struct
 		{
@@ -145,6 +149,13 @@ struct remmina_plugin_rdp_event
 		{
 			CLIPRDR_FORMAT_DATA_REQUEST* pFormatDataRequest;
 		} clipboard_formatdatarequest;
+		struct {
+			gint width;
+			gint height;
+			gint desktopOrientation;
+			gint desktopScaleFactor;
+			gint deviceScaleFactor;
+		} monitor_layout;
 	};
 };
 typedef struct remmina_plugin_rdp_event RemminaPluginRdpEvent;
@@ -254,11 +265,12 @@ struct rf_context
 	freerdp* instance;
 
 	pthread_t thread;
-	gboolean scale;
+	RemminaScaleMode scale;
 	gboolean user_cancelled;
 	gboolean thread_cancelled;
 
 	CliprdrClientContext* cliprdr;
+	DispClientContext* dispcontext;
 
 	RDP_PLUGIN_DATA rdpdr_data[5];
 	RDP_PLUGIN_DATA drdynvc_data[5];
@@ -277,7 +289,7 @@ struct rf_context
 	gint scale_height;
 	gdouble scale_x;
 	gdouble scale_y;
-	guint scale_handler;
+	guint delayed_monitor_layout_handler;
 	gboolean use_client_keymap;
 
 	HGDI_DC hdc;

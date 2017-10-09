@@ -301,6 +301,7 @@ remmina_public_combo_get_active_text(GtkComboBox *combo)
 	return s;
 }
 
+#if !GTK_CHECK_VERSION(3, 22, 0)
 void remmina_public_popup_position(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data)
 {
 	TRACE_CALL("remmina_public_popup_position");
@@ -336,6 +337,7 @@ void remmina_public_popup_position(GtkMenu *menu, gint *x, gint *y, gboolean *pu
 	*y = ty + allocation.height - 1;
 	*push_in = TRUE;
 }
+#endif
 
 gchar*
 remmina_public_combine_path(const gchar *path1, const gchar *path2)
@@ -610,7 +612,7 @@ gboolean remmina_public_get_modifier_for_keycode(GdkKeymap *keymap, guint16 keyc
 GtkBuilder* remmina_public_gtk_builder_new_from_file(gchar *filename)
 {
 	TRACE_CALL("remmina_public_gtk_builder_new_from_file")
-	gchar *ui_path = g_strconcat(REMMINA_UIDIR, G_DIR_SEPARATOR_S, filename, NULL);
+	gchar *ui_path = g_strconcat(REMMINA_RUNTIME_UIDIR, G_DIR_SEPARATOR_S, filename, NULL);
 #if GTK_CHECK_VERSION(3, 10, 0)
 	GtkBuilder *builder = gtk_builder_new_from_file(ui_path);
 #else
@@ -688,6 +690,9 @@ void remmina_public_send_notification (const gchar *notification_id,
 
 	GNotification *notification = g_notification_new (notification_title);
 	g_notification_set_body (notification, notification_message);
+#if GLIB_CHECK_VERSION(2,42,0)
+	g_notification_set_priority (notification, G_NOTIFICATION_PRIORITY_NORMAL);
+#endif
 	g_application_send_notification (g_application_get_default (), notification_id, notification);
 	g_object_unref (notification);
 }

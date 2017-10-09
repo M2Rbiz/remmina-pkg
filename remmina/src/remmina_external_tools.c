@@ -62,7 +62,7 @@ gboolean remmina_external_tools_from_filename(RemminaMain *remminamain, gchar* r
 	GDir* dir;
 	const gchar* name;
 
-	strcpy(dirname, REMMINA_EXTERNAL_TOOLS_DIR);
+	strcpy(dirname, REMMINA_RUNTIME_EXTERNAL_TOOLS_DIR);
 	dir = g_dir_open(dirname, 0, NULL);
 
 	if (dir == NULL)
@@ -90,7 +90,11 @@ gboolean remmina_external_tools_from_filename(RemminaMain *remminamain, gchar* r
 	/* Note: event can be NULL here when called from view_onPopupMenu;
 	*  gdk_event_get_time() accepts a NULL argument
 	*/
+#if GTK_CHECK_VERSION(3, 22, 0)
+	gtk_menu_popup_at_pointer(GTK_MENU(menu), NULL);
+#else
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,0,0);
+#endif
 
 	return TRUE;
 }
@@ -104,7 +108,7 @@ static gboolean remmina_external_tools_launcher(const gchar* filename, const gch
 	size_t envstrlen;
 	gchar launcher[MAX_PATH_LEN];
 
-	g_snprintf(launcher, MAX_PATH_LEN, "%s/launcher.sh", REMMINA_EXTERNAL_TOOLS_DIR);
+	g_snprintf(launcher, MAX_PATH_LEN, "%s/launcher.sh", REMMINA_RUNTIME_EXTERNAL_TOOLS_DIR);
 
 	remminafile = remmina_file_load(filename);
 	GHashTableIter iter;

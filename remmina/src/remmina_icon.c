@@ -62,6 +62,7 @@ typedef struct _RemminaIcon
 	RemminaAvahi *avahi;
 	guint32 popup_time;
 	gchar *autostart_file;
+	gchar *gsversion;	// GnomeShell version string, or null if not available
 } RemminaIcon;
 
 static RemminaIcon remmina_icon =
@@ -88,6 +89,11 @@ void remmina_icon_destroy(void)
 	{
 		g_free(remmina_icon.autostart_file);
 		remmina_icon.autostart_file = NULL;
+	}
+	if (remmina_icon.gsversion)
+	{
+		g_free(remmina_icon.gsversion);
+		remmina_icon.gsversion = NULL;
 	}
 }
 
@@ -224,30 +230,6 @@ static void remmina_icon_on_activate_window(GtkMenuItem *menuitem, GtkWidget *wi
 		gtk_window_present(GTK_WINDOW(widget));
 		gtk_window_deiconify(GTK_WINDOW(widget));
 	}
-}
-
-static gboolean remmina_icon_foreach_window(GtkWidget *widget, gpointer data)
-{
-	TRACE_CALL("remmina_icon_foreach_window");
-	GtkWidget *popup_menu = GTK_WIDGET(data);
-	GtkWidget *menuitem;
-	GdkScreen *screen;
-	gint screen_number;
-
-	if (G_TYPE_CHECK_INSTANCE_TYPE(widget, REMMINA_TYPE_CONNECTION_WINDOW))
-	{
-		screen = gdk_screen_get_default();
-		screen_number = gdk_screen_get_number(screen);
-		if (screen_number == gdk_screen_get_number(gtk_window_get_screen(GTK_WINDOW(widget))))
-		{
-			menuitem = gtk_menu_item_new_with_label(gtk_window_get_title(GTK_WINDOW(widget)));
-			gtk_widget_show(menuitem);
-			gtk_menu_shell_prepend(GTK_MENU_SHELL(popup_menu), menuitem);
-			g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_on_activate_window), widget);
-			return TRUE;
-		}
-	}
-	return FALSE;
 }
 
 static void remmina_icon_populate_extra_menu_item(GtkWidget *menu)
@@ -417,6 +399,7 @@ gboolean remmina_icon_is_available(void)
 	TRACE_CALL("remmina_icon_is_available");
 	gchar *gsversion;
 	unsigned int gsv_maj, gsv_min, gsv_seq;
+	gboolean gshell_has_legacyTray;
 
 	if (!remmina_icon.icon)
 		return FALSE;
@@ -431,6 +414,15 @@ gboolean remmina_icon_is_available(void)
 		else
 			gsv_seq = 0x030000;
 		g_free(gsversion);
+
+		gshell_has_legacyTray = FALSE;
+		if (gsv_seq >= 0x031000 && gsv_seq <= 0x031800) {
+			/* Gnome shell from 3.16 to 3.24, Status Icon (GtkStatusIcon) is visible on the drawer
+			 * at the bottom left of the screen */
+			gshell_has_legacyTray = TRUE;
+		}
+
+
 #ifdef HAVE_LIBAPPINDICATOR
 		/* Gnome Shell with compiled in LIBAPPINDICATOR:
 		 * ensure have also a working appindicator extension available */
@@ -438,12 +430,14 @@ gboolean remmina_icon_is_available(void)
 		{
 			/* No libappindicator extension for gnome shell, no remmina_icon */
 			return TRUE;
+		} else if (gshell_has_legacyTray) {
+			return TRUE;
+		} else {
+			return FALSE;
 		}
 #endif
 		/* Gnome Shell without LIBAPPINDICATOR */
-		if (gsv_seq >= 0x030A00) {
-			/* Gnome shell >= 3.16, Status Icon (GtkStatusIcon) is visible on the drawer
-			 * at the bottom left of the screen */
+		if (gshell_has_legacyTray) {
 			return TRUE;
 		}
 		else {
@@ -493,11 +487,16 @@ void remmina_icon_init(void)
 	strcat(msg, "\n");
 	fputs(msg, stderr);
 
+	remmina_icon.gsversion = remmina_sysinfo_get_gnome_shell_version();
+	if (remmina_icon.gsversion != NULL) {
+		printf("Running under Gnome Shell version %s\n", remmina_icon.gsversion);
+	}
+
 	if (!remmina_icon.icon && !remmina_pref.disable_tray_icon)
 	{
 #ifdef HAVE_LIBAPPINDICATOR
 		remmina_icon.icon = app_indicator_new ("remmina-icon", remmina_panel, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-		app_indicator_set_icon_theme_path (remmina_icon.icon, REMMINA_DATADIR G_DIR_SEPARATOR_S "icons");
+		app_indicator_set_icon_theme_path (remmina_icon.icon, REMMINA_RUNTIME_DATADIR G_DIR_SEPARATOR_S "icons");
 
 		app_indicator_set_status (remmina_icon.icon, APP_INDICATOR_STATUS_ACTIVE);
 		app_indicator_set_title (remmina_icon.icon, "Remmina");
