@@ -307,12 +307,13 @@ static void remmina_plugin_spice_display_ready_cb(GObject *display, GParamSpec *
 		                                     gp);
 
 		g_object_set(display,
-		             "scaling", remmina_plugin_service->protocol_plugin_get_scale(gp),
+		             "scaling", (remmina_plugin_service->remmina_protocol_widget_get_current_scale_mode(gp) != REMMINA_PROTOCOL_WIDGET_SCALE_MODE_NONE),
 		             "resize-guest", remmina_plugin_service->file_get_int(remminafile, "resizeguest", FALSE),
 		             NULL);
 		gtk_container_add(GTK_CONTAINER(gp), GTK_WIDGET(display));
 		gtk_widget_show(GTK_WIDGET(display));
 
+		remmina_plugin_service->protocol_plugin_register_hostkey(gp, GTK_WIDGET(display));
 		remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
 	}
 }
@@ -496,7 +497,7 @@ remmina_plugin_entry(RemminaPluginService *service)
 	TRACE_CALL(__func__);
 	remmina_plugin_service = service;
 
-	bindtextdomain(GETTEXT_PACKAGE, REMMINA_LOCALEDIR);
+	bindtextdomain(GETTEXT_PACKAGE, REMMINA_RUNTIME_LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 
 	if (!service->register_plugin((RemminaPlugin *) &remmina_plugin_spice))

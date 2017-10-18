@@ -24,7 +24,7 @@ Build-Depends:
  libvte-2.91-dev,
  libwebkit2gtk-4.0-dev | libwebkit2gtk-3.0-dev,
  libxkbfile-dev
-Standards-Version: 4.1.0
+Standards-Version: 4.1.1
 Homepage: http://www.remmina.org/
 Vcs-Git: https://anonscm.debian.org/git/pkg-remote/remmina.git
 Vcs-Browser: https://anonscm.debian.org/cgit/pkg-remote/remmina.git
@@ -57,6 +57,19 @@ Description: common files for remmina remote desktop client
  remote desktop session.
  .
  This package contains the common files.
+
+Package: remmina-dev
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+ remmina (= ${binary:Version})
+Description: Headers for remmina remote desktop client
+ Remmina is a remote desktop connection client able to display and control a
+ remote desktop session.
+ .
+ This package contains the development headers for Remmina, to develop
+ new plugins.
 
 Package: remmina-plugin-rdp
 Architecture: any

@@ -44,7 +44,7 @@ set(APPICON16_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/16x16/emblems")
 set(APPICON22_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/22x22/emblems")
 
 set(REMMINA_COMMON_INCLUDE_DIRS ${GTK_INCLUDE_DIRS})
-set(REMMINA_COMMON_LIBRARIES ${GTK_LIBRARIES} ${PTHREAD_LIBRARY})
+set(REMMINA_COMMON_LIBRARIES ${GTK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 find_suggested_package(LIBSSH)
 if(LIBSSH_FOUND)
@@ -52,8 +52,6 @@ if(LIBSSH_FOUND)
         include_directories(${SSH_INCLUDE_DIRS})
         target_link_libraries(remmina ${SSH_LIBRARIES})
 endif()
-
-find_required_package(LIBVNCSERVER)
 
 find_required_package(XKBFILE)
 
@@ -73,9 +71,8 @@ if(TELEPATHY_FOUND)
         add_subdirectory(telepathy)
 endif()
 
-find_suggested_package(ZLIB)
-
-if(ZLIB_FOUND)
+find_suggested_package(LIBVNCSERVER)
+if(LIBVNCSERVER_FOUND)
         add_subdirectory(vnc)
 endif()
 
