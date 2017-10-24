@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2362,7 +2363,7 @@ static gboolean remmina_connection_window_focus_out_event(GtkWidget* widget, Gdk
 #if DEBUG_KB_GRABBING
 	printf("DEBUG_KB_GRABBING: focus out and mouse_pointer_entered is %s\n", cnnhld->cnnwin->priv->mouse_pointer_entered ? "true":"false");
 #endif
-	remmina_connection_holder_keyboard_ungrab(cnnhld);
+	remmina_connection_window_focus_out(widget, cnnhld);
 	return FALSE;
 }
 
@@ -2372,7 +2373,7 @@ static gboolean remmina_connection_window_focus_in_event(GtkWidget* widget, GdkE
 #if DEBUG_KB_GRABBING
 	printf("DEBUG_KB_GRABBING: focus in and mouse_pointer_entered is %s\n", cnnhld->cnnwin->priv->mouse_pointer_entered ? "true":"false");
 #endif
-	remmina_connection_holder_keyboard_grab(cnnhld);
+	remmina_connection_window_focus_in(widget, cnnhld);
 	return FALSE;
 }
 

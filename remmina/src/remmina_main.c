@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,25 +153,27 @@ gboolean remmina_main_on_delete_event(GtkWidget *widget, GdkEvent *event, gpoint
 	return FALSE;
 }
 
-void remmina_main_destroy(GtkWidget *widget, gpointer user_data)
+void remmina_main_destroy()
 {
 	TRACE_CALL("remmina_main_destroy");
 
-	g_free(remmina_pref.expanded_group);
-	remmina_pref.expanded_group = remmina_string_array_to_string(remminamain->priv->expanded_group);
-	remmina_string_array_free(remminamain->priv->expanded_group);
-	remminamain->priv->expanded_group = NULL;
+	if (remminamain) {
+		g_free(remmina_pref.expanded_group);
+		remmina_pref.expanded_group = remmina_string_array_to_string(remminamain->priv->expanded_group);
+		remmina_string_array_free(remminamain->priv->expanded_group);
+		remminamain->priv->expanded_group = NULL;
 
-	if (remminamain->priv->file_model)
-		g_object_unref(G_OBJECT(remminamain->priv->file_model));
-	g_object_unref(G_OBJECT(remminamain->priv->file_model_filter));
-	g_object_unref(G_OBJECT(remminamain->builder));
-	g_free(remminamain->priv->selected_filename);
-	g_free(remminamain->priv->selected_name);
-	g_free(remminamain->priv);
-	g_free(remminamain);
+		if (remminamain->priv->file_model)
+			g_object_unref(G_OBJECT(remminamain->priv->file_model));
+		g_object_unref(G_OBJECT(remminamain->priv->file_model_filter));
+		g_object_unref(remminamain->builder);
+		g_free(remminamain->priv->selected_filename);
+		g_free(remminamain->priv->selected_name);
+		g_free(remminamain->priv);
+		g_free(remminamain);
 
-	remminamain = NULL;
+		remminamain = NULL;
+	}
 }
 
 static void remmina_main_clear_selection_data(void)

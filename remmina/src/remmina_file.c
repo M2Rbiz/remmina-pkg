@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -304,8 +305,24 @@ void remmina_file_set_string(RemminaFile *remminafile, const gchar *setting, con
 void remmina_file_set_string_ref(RemminaFile *remminafile, const gchar *setting, gchar *value)
 {
 	TRACE_CALL("remmina_file_set_string_ref");
+	gint n, w, h;
+
 	if (value)
 	{
+		/* As special case here, the "resolution" field is split into two
+		 * extra fields "resolution_width" and "resolution_height".
+		 * The "resolution" field is left here for compatibility,
+		 * and will never be saved on new files.
+		 * This code is useful when loading files with only "resolution" field set */
+		if (strcmp(setting, "resolution") == 0) {
+			n = sscanf(value, "%dx%d", &w, &h);
+			if (n < 2)
+				h = 600;
+			if (n < 1)
+				w = 800;
+			g_hash_table_insert(remminafile->settings, g_strdup("resolution_width"), g_strdup_printf("%i", w));
+			g_hash_table_insert(remminafile->settings, g_strdup("resolution_height"), g_strdup_printf("%i", h));
+		}
 		g_hash_table_insert(remminafile->settings, g_strdup(setting), value);
 	}
 	else
@@ -318,7 +335,7 @@ const gchar*
 remmina_file_get_string(RemminaFile *remminafile, const gchar *setting)
 {
 	TRACE_CALL("remmina_file_get_string");
-	gchar *value;
+	gchar *value, *w, *h;
 
 	if ( !remmina_masterthread_exec_is_main_thread() )
 	{
@@ -334,6 +351,19 @@ remmina_file_get_string(RemminaFile *remminafile, const gchar *setting)
 		retval = d->p.file_get_string.retval;
 		g_free(d);
 		return retval;
+	}
+
+	/* For backward compatibility with old code that needs to read the
+	 * "resolution" preference setting*/
+	if (strcmp(setting, "resolution") == 0) {
+		w = (gchar*) g_hash_table_lookup(remminafile->settings, "resolution_width");
+		h = (gchar*) g_hash_table_lookup(remminafile->settings, "resolution_height");
+		if (w == NULL)
+			w = "800";
+		if (h == NULL)
+			h = "600";
+		value = g_strdup_printf("%sx%s", w, h);
+		g_hash_table_insert(remminafile->settings, g_strdup("resolution"), value);
 	}
 
 	value = (gchar*) g_hash_table_lookup(remminafile->settings, setting);
@@ -465,12 +495,8 @@ void remmina_file_save(RemminaFile *remminafile)
 		}
 	}
 
-	/* Merge resolution_width and resolution_height into resolution */
-	s = g_strdup_printf("%dx%d", remmina_file_get_int(remminafile, "resolution_width", 800), remmina_file_get_int(remminafile, "resolution_height", 600));
-	g_key_file_set_string(gkeyfile, "remmina", "resolution", s);
-	g_free(s);
-	g_key_file_remove_key(gkeyfile, "remmina", "resolution_width", NULL);
-	g_key_file_remove_key(gkeyfile, "remmina", "resolution_height", NULL);
+	/* Avoid storing redundant and deprecated "resolution" field */
+	g_key_file_remove_key(gkeyfile, "remmina", "resolution", NULL);
 
 	/* Store gkeyfile to disk (password are already sent to keyring) */
 	content = g_key_file_to_data(gkeyfile, &length, NULL);
@@ -664,7 +690,7 @@ remmina_file_get_datetime(RemminaFile *remminafile)
 {
 	TRACE_CALL("remmina_file_get_datetime");
 
-	GFile *file = g_file_new_for_path (remminafile->filename);
+	GFile *file;
 	GFileInfo *info;
 
 	struct timeval tv;
@@ -674,11 +700,15 @@ remmina_file_get_datetime(RemminaFile *remminafile)
 	guint64 mtime;
 	gchar *modtime_string;
 
+	file = g_file_new_for_path (remminafile->filename);
+
 	info = g_file_query_info (file,
 			G_FILE_ATTRIBUTE_TIME_MODIFIED,
 			G_FILE_QUERY_INFO_NONE,
 			NULL,
 			NULL);
+
+	g_object_unref(file);
 
 	if (info == NULL) {
 		g_print("couldn't get time info\n");
