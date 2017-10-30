@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -227,16 +228,6 @@ static RemminaFile* remmina_rdp_file_import_channel(GIOChannel* channel)
 		}
 
 		g_free(line);
-	}
-
-	if (remmina_plugin_service->file_get_int(remminafile, "resolution_width", 0) > 0 &&
-		remmina_plugin_service->file_get_int(remminafile, "resolution_height", 0) > 0)
-	{
-		p = g_strdup_printf("%ix%i",
-			remmina_plugin_service->file_get_int(remminafile, "resolution_width", 0),
-			remmina_plugin_service->file_get_int(remminafile, "resolution_height", 0));
-		remmina_plugin_service->file_set_string(remminafile, "resolution", p);
-		g_free(p);
 	}
 
 	remmina_plugin_service->file_set_string(remminafile, "name",

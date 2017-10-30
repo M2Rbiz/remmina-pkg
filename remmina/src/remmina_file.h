@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +46,7 @@ struct _RemminaFile
 	gchar *filename;
 	GHashTable *settings;
 	GHashTable *spsettings;
+	gboolean prevent_saving;
 };
 
 enum
@@ -78,8 +80,6 @@ void remmina_file_save(RemminaFile *remminafile);
 void remmina_file_free(RemminaFile *remminafile);
 /* Duplicate a RemminaFile object */
 RemminaFile* remmina_file_dup(RemminaFile *remminafile);
-/* Update the screen width and height members */
-void remmina_file_update_screen_resolution(RemminaFile *remminafile);
 /* Get the protocol icon name */
 const gchar* remmina_file_get_icon_name(RemminaFile *remminafile);
 /* Duplicate a temporary RemminaFile and change the protocol */

@@ -2,6 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -476,8 +477,8 @@ static gboolean remmina_plugin_nx_start_session(RemminaProtocolWidget *gp)
 	i = remmina_plugin_nx_service->file_get_int(remminafile, "quality", 0);
 	remmina_nx_session_add_parameter(nx, "link", i > 2 ? "lan" : i == 2 ? "adsl" : i == 1 ? "isdn" : "modem");
 	remmina_nx_session_add_parameter(nx, "geometry", "%ix%i",
-			remmina_plugin_nx_service->file_get_int(remminafile, "resolution_width", 0),
-			remmina_plugin_nx_service->file_get_int(remminafile, "resolution_height", 0));
+			remmina_plugin_nx_service->get_profile_remote_width(gp),
+			remmina_plugin_nx_service->get_profile_remote_height(gp));
 	remmina_nx_session_add_parameter(nx, "keyboard", remmina_kbtype);
 	remmina_nx_session_add_parameter(nx, "client", "linux");
 	remmina_nx_session_add_parameter(nx, "media", "0");

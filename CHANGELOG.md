@@ -1,5 +1,69 @@
 # Change Log
 
+## [v1.2.0-rcgit.24](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.24) (2017-10-25)
+[Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.23...v1.2.0-rcgit.24)
+
+**Closed issues:**
+
+- vte no longer optional [\#1327](https://github.com/FreeRDP/Remmina/issues/1327)
+- libwinpr.so.2 dependcy missing [\#1312](https://github.com/FreeRDP/Remmina/issues/1312)
+
+**Merged pull requests:**
+
+- Fix for \#1323 [\#1339](https://github.com/FreeRDP/Remmina/pull/1339) ([giox069](https://github.com/giox069))
+
+## [v1.2.0-rcgit.23](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.23) (2017-10-23)
+[Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.22...v1.2.0-rcgit.23)
+
+**Implemented enhancements:**
+
+- SSH session log to file [\#1320](https://github.com/FreeRDP/Remmina/issues/1320)
+- Save SSH session to file \#1320  [\#1333](https://github.com/FreeRDP/Remmina/pull/1333) ([antenore](https://github.com/antenore))
+
+**Merged pull requests:**
+
+- Fixes for issue \#1327, optional VTE an SSH [\#1335](https://github.com/FreeRDP/Remmina/pull/1335) ([giox069](https://github.com/giox069))
+- snap: add password-manager-service interface for gnome-keyring [\#1334](https://github.com/FreeRDP/Remmina/pull/1334) ([dfiloni](https://github.com/dfiloni))
+- Fix window state saving for remmina\_connection\_window and main window [\#1331](https://github.com/FreeRDP/Remmina/pull/1331) ([giox069](https://github.com/giox069))
+- Update da.po \(fully translated\) [\#1330](https://github.com/FreeRDP/Remmina/pull/1330) ([scootergrisen](https://github.com/scootergrisen))
+- Fixes for deprecated "resolution" setting, issue \#1323 [\#1329](https://github.com/FreeRDP/Remmina/pull/1329) ([giox069](https://github.com/giox069))
+
+## [v1.2.0-rcgit.22](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.22) (2017-10-20)
+[Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.21...v1.2.0-rcgit.22)
+
+**Implemented enhancements:**
+
+- Add support for ayatana-appindicators [\#1309](https://github.com/FreeRDP/Remmina/pull/1309) ([giox069](https://github.com/giox069))
+- \[snap\] Use the new desktop, desktop-legacy and wayland interfaces [\#1306](https://github.com/FreeRDP/Remmina/pull/1306) ([kenvandine](https://github.com/kenvandine))
+
+**Fixed bugs:**
+
+- Crashes when I try opening Preferences [\#1313](https://github.com/FreeRDP/Remmina/issues/1313)
+- Resolution and Passwords Not Saving in Connection Profiles [\#1307](https://github.com/FreeRDP/Remmina/issues/1307)
+- Add background and foreground colors for old versions of VTE [\#1318](https://github.com/FreeRDP/Remmina/pull/1318) ([antenore](https://github.com/antenore))
+- Make remmina\_file\_editor\_on\_save behave correcthly [\#1308](https://github.com/FreeRDP/Remmina/pull/1308) ([antenore](https://github.com/antenore))
+
+**Closed issues:**
+
+- RDP connection profile settings are not used when opening session [\#1325](https://github.com/FreeRDP/Remmina/issues/1325)
+- Remmina removes the desktop application bar when placed in fullscreen mode \(Linux Mint v18.2\) [\#1317](https://github.com/FreeRDP/Remmina/issues/1317)
+- Remmina only shows black screen without any text after connection to an SSH server [\#1316](https://github.com/FreeRDP/Remmina/issues/1316)
+- Shared file timestamp [\#1310](https://github.com/FreeRDP/Remmina/issues/1310)
+- Tab size - SSH Sessions [\#1305](https://github.com/FreeRDP/Remmina/issues/1305)
+- no rdp in the window option and no remmina command available in terminal [\#1302](https://github.com/FreeRDP/Remmina/issues/1302)
+- Unsolvable dependencies on Debian 9 [\#1298](https://github.com/FreeRDP/Remmina/issues/1298)
+- Remmina doesn't respect the `SSH Tunnel` `SSH authentication` `User name` setting [\#1278](https://github.com/FreeRDP/Remmina/issues/1278)
+- Debian 9 - Remmina - RDP Plugin [\#1201](https://github.com/FreeRDP/Remmina/issues/1201)
+- Win key stays pressed in remote desktop when remmina loses focus [\#1058](https://github.com/FreeRDP/Remmina/issues/1058)
+- Remmina crashes after reconnection attempt after entering wrong password [\#1054](https://github.com/FreeRDP/Remmina/issues/1054)
+- Remmina is not aware of additional screen added [\#938](https://github.com/FreeRDP/Remmina/issues/938)
+
+**Merged pull requests:**
+
+- Focus-out-event should call UNFOCUS plugin feature, fixes \#1058 [\#1315](https://github.com/FreeRDP/Remmina/pull/1315) ([giox069](https://github.com/giox069))
+- Fix some memory leaks [\#1314](https://github.com/FreeRDP/Remmina/pull/1314) ([giox069](https://github.com/giox069))
+- Dev documentation and Copyright update [\#1311](https://github.com/FreeRDP/Remmina/pull/1311) ([antenore](https://github.com/antenore))
+
 ## [v1.2.0-rcgit.21](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.21) (2017-10-08)
 [Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.20...v1.2.0-rcgit.21)
 
@@ -98,6 +162,7 @@
 - SSH Tunneling is broken with SSH Agent with public key [\#1228](https://github.com/FreeRDP/Remmina/issues/1228)
 - Missing icons after compiling latest Git release [\#1221](https://github.com/FreeRDP/Remmina/issues/1221)
 - RDP quality settings not saved [\#1216](https://github.com/FreeRDP/Remmina/issues/1216)
+- RDP to Win10 makes ToolBar clear [\#1209](https://github.com/FreeRDP/Remmina/issues/1209)
 - Cannot connect after upgrading Ubuntu to 16.04 [\#946](https://github.com/FreeRDP/Remmina/issues/946)
 
 **Merged pull requests:**
@@ -146,7 +211,6 @@
 **Closed issues:**
 
 - Invalid \(too large\) file size in rdp shared folder [\#1220](https://github.com/FreeRDP/Remmina/issues/1220)
-- RDP to Win10 makes ToolBar clear [\#1209](https://github.com/FreeRDP/Remmina/issues/1209)
 - Upgrading to 1.2 failed [\#1202](https://github.com/FreeRDP/Remmina/issues/1202)
 - Multiple NICs [\#1188](https://github.com/FreeRDP/Remmina/issues/1188)
 - "Public Key \(Automatic\)" option does not work with ed25519 keys [\#1187](https://github.com/FreeRDP/Remmina/issues/1187)
