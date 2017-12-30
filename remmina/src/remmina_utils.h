@@ -1,7 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2009-2010 Vic Lee
- * Copyright (C) 2014-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,21 +32,17 @@
  *
  */
 
-#ifndef __REMMINAPREEXEC_H__
-#define __REMMINAPREEXEC_H__
+/**
+ *  @file: remmina_utils.h
+ *  General utility functions, non-GTK related.
+ */
+
+#pragma once
 
 G_BEGIN_DECLS
+gint remmina_utils_string_find(GString *haystack, gint start, gint end, const gchar *needle);
 
-typedef struct
-{
-	GtkDialog *dialog;
-	GtkLabel *label_pleasewait;
-	GtkButton *button_cancel;
-	GtkWidget *spinner;
-} PCon_Spinner;
+gint remmina_utils_string_replace(GString *str, gint pos, gint len, const gchar *replace);
 
-GtkDialog* remmina_plugin_cmdexec_new(RemminaFile* remminafile, const char *remmina_plugin_cmdexec_type);
+guint remmina_utils_string_replace_all(GString *haystack, const gchar *needle, const gchar *replace);
 
-G_END_DECLS
-
-#endif  /* __REMMINAPREEXEC_H__  */
