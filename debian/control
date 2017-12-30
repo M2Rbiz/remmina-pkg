@@ -210,14 +210,16 @@ Description: Telepathy plugin for Remmina
  .
  This package contains the Telepathy plugin for Remmina.
 
-Package: remmina-plugin-gnome
+Package: remmina-plugin-secret
 Architecture: any
 Multi-Arch: same
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  remmina (= ${binary:Version})
-Description: GNOME plugin for Remmina
+Breaks: remmina-plugin-gnome
+Replaces: remmina-plugin-gnome
+Description: Secret plugin for Remmina
  Remmina is a remote desktop client written in GTK+, aiming to be
  useful for system administrators and travellers, who need to work
  with lots of remote computers in front of either large monitors or
@@ -228,5 +230,6 @@ Description: GNOME plugin for Remmina
  .
  Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
  .
- This package contains the GNOME Keyring plugin for Remmina, which
- allows one to store and retrieve passwords from GNOME Keyring.
+ This package contains the secret plugin for Remmina, which
+ allows one to store and retrieve passwords from GNOME Keyring
+ or KWallet.
