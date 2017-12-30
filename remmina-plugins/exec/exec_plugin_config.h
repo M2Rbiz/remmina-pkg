@@ -1,9 +1,6 @@
 /*
- *     Project: Remmina Plugin Gnome libsecret
- * Description: Remmina protocol plugin to use gnome-libsecret
- *      Author: Antenore Gatta <antenore@simbiosi.org>
- *   Copyright: 2015 Antenore Gatta
- *     License: GPL-2+
+ * Remmina - The GTK+ Remote Desktop Client
+ * Copyright (C) 2017 Antenore Gatta
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,11 +32,9 @@
  *
  */
 
-#ifndef __BACKEND_LIBSECRET_H__
-#define __BACKEND_LIBSECRET_H__
+#pragma once
 
-#include <libsecret/secret.h>
-#include <glib.h>
-
-
-#endif // __BACKEND_LIBSECRET_H__
+#define PLUGIN_NAME        "EXEC"
+#define PLUGIN_DESCRIPTION "Execute a command"
+#define PLUGIN_VERSION     "1.0"
+#define PLUGIN_APPICON     "remmina-tool"
