@@ -8,7 +8,7 @@ Initially developed by [Vic Lee](https://github.com/llyzs)
 **Remmina** is a remote desktop client written in GTK+, aiming to be useful for
 system administrators and travellers, who need to work with lots of remote
 computers in front of either large monitors or tiny netbooks. Remmina supports
-multiple network protocols in an integrated and consistant user interface.
+multiple network protocols in an integrated and consistent user interface.
 Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
 
 Remmina is released in separated source packages:
@@ -23,6 +23,20 @@ Remmina is free and open-source software, released under GNU GPL license.
 Usually remmina is included in your linux distribution or in an external repository.
 Do not ask for distribution packages or precompiled binaries here.
 This is a development site.
+
+### Debian ###
+
+Remmina is not available on the default Debian 9 (Stretch) repositories. It can be installed from the Backports repository.
+
+The [Debian Backports](https://backports.debian.org/Instructions/) repository must be enabled to install it, see [this blog post](https://www.remmina.org/wp/debian-the-boys-are-backport-in-town/) for more information.
+
+To install Remmina from Debian Backports, just copy and paste the following lines on a terminal window:
+
+```
+echo 'deb http://ftp.debian.org/debian stretch-backports main' | sudo tee --append /etc/apt/sources.list.d/stretch-backports.list >> /dev/null
+sudo apt update
+sudo apt install -t stretch-backports remmina remmina-plugin-rdp remmina-plugin-secret libfreerdp-plugins-standard
+```
 
 ### Ubuntu
 

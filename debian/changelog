@@ -1,3 +1,22 @@
+remmina (1.2.0-rcgit.26+dfsg-1) unstable; urgency=medium
+
+  * New upstream release
+    (+dfsg due to dropping useless stuff for Debian packaging)
+    - debian/: 'gnome' plugin moved to 'secret'
+  * debian/: repacking tools added
+  * debian/watch: mangling options added due to repacking
+  * debian/control: S-V bump 4.1.1 -> 4.1.2 (no changes needed)
+
+ -- Matteo F. Vescovi <mfv@debian.org>  Sat, 30 Dec 2017 15:55:39 +0100
+
+remmina (1.2.0-rcgit.24-3) unstable; urgency=medium
+
+  * debian/control:
+    - descriptions updated
+    - Section updated to 'x11'
+
+ -- Matteo F. Vescovi <mfv@debian.org>  Sun, 05 Nov 2017 13:29:33 +0100
+
 remmina (1.2.0-rcgit.24-2~bpo9+1) stretch-backports; urgency=medium
 
   * Rebuild for stretch-backports.
@@ -210,7 +229,7 @@ remmina (1.0.0+git20141003-1) unstable; urgency=medium
 
   * New upstream snapshot.
   * Provide a debug package (Closes: #763533).
-  * debian/patches/freerdp_get_last_error.patch:                                                              
+  * debian/patches/freerdp_get_last_error.patch:
     - Remove call to freerdp_get_last_error, available on FreeRDP trunk
       only, FreeRDP Debian package does not ship it yet.
 

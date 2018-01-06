@@ -1,5 +1,82 @@
 # Change Log
 
+## [v1.2.0-rcgit.26](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.26) (2017-12-28)
+[Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.25...v1.2.0-rcgit.26)
+
+**Fixed bugs:**
+
+- SSH not working [\#1418](https://github.com/FreeRDP/Remmina/issues/1418)
+
+**Closed issues:**
+
+- "Segmentation fault" during start at Xubuntu 17.10 [\#1419](https://github.com/FreeRDP/Remmina/issues/1419)
+
+## [v1.2.0-rcgit.25](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.25) (2017-12-27)
+[Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.24...v1.2.0-rcgit.25)
+
+**Implemented enhancements:**
+
+- Allow external commands without protocols in create connection dialog [\#1391](https://github.com/FreeRDP/Remmina/issues/1391)
+- Feature request - Option to completely hide the floating toolbar when in fullscreen. [\#1379](https://github.com/FreeRDP/Remmina/issues/1379)
+- Option to run Pre Command before ANYTHING else [\#1363](https://github.com/FreeRDP/Remmina/issues/1363)
+-  Rename the plugin 'remmina-plugins-gnome' in 'remmina-plugins-secret' [\#1343](https://github.com/FreeRDP/Remmina/issues/1343)
+- Enhancement - Variables for pre- and post-commands [\#849](https://github.com/FreeRDP/Remmina/issues/849)
+- Failed to load plugin: remmina-plugin-telepathy.so - undefined symbol: remmina\_tp\_handler\_new [\#714](https://github.com/FreeRDP/Remmina/issues/714)
+- Implement an exec protocol plugin [\#1406](https://github.com/FreeRDP/Remmina/pull/1406) ([antenore](https://github.com/antenore))
+- Add SPICE Native WebDAV shared folder support [\#1401](https://github.com/FreeRDP/Remmina/pull/1401) ([larchunix](https://github.com/larchunix))
+-  Added encryption algorithms options for SSH  [\#1397](https://github.com/FreeRDP/Remmina/pull/1397) ([antenore](https://github.com/antenore))
+- SSH tunnel and pre/post commands improvements  [\#1385](https://github.com/FreeRDP/Remmina/pull/1385) ([antenore](https://github.com/antenore))
+- Prior commands improvements [\#1378](https://github.com/FreeRDP/Remmina/pull/1378) ([antenore](https://github.com/antenore))
+- flatpak: add manifest for flatpak-builder [\#1368](https://github.com/FreeRDP/Remmina/pull/1368) ([larchunix](https://github.com/larchunix))
+- telepathy: properly setup dbus activation [\#1365](https://github.com/FreeRDP/Remmina/pull/1365) ([larchunix](https://github.com/larchunix))
+- Add avahi host discovery for ssh and sftp plugins [\#1355](https://github.com/FreeRDP/Remmina/pull/1355) ([larchunix](https://github.com/larchunix))
+- Refactoring - Rename remmina-plugins-gnome in remmina-plugin-secret [\#1348](https://github.com/FreeRDP/Remmina/pull/1348) ([antenore](https://github.com/antenore))
+- Refactoring - Part 1 [\#1336](https://github.com/FreeRDP/Remmina/pull/1336) ([antenore](https://github.com/antenore))
+
+**Fixed bugs:**
+
+- Un-check of "Fullscreen on the same monitor as the connection window" won't save [\#1344](https://github.com/FreeRDP/Remmina/issues/1344)
+- Remmina resets screen resolution settings in RDP shortcut [\#1323](https://github.com/FreeRDP/Remmina/issues/1323)
+- SSH Tunneling is broken with SSH Agent with public key [\#1228](https://github.com/FreeRDP/Remmina/issues/1228)
+- Failed to load plugin: remmina-plugin-telepathy.so - undefined symbol: remmina\\_tp\\_handler\\_new [\#714](https://github.com/FreeRDP/Remmina/issues/714)
+- Align SFTP and SSH plugins authentication and tunnel functionalities.  [\#1393](https://github.com/FreeRDP/Remmina/pull/1393) ([antenore](https://github.com/antenore))
+- Fix Telepathy plugin compilation [\#1356](https://github.com/FreeRDP/Remmina/pull/1356) ([larchunix](https://github.com/larchunix))
+- \_\_func\_\_ keyword must not be quoted [\#1350](https://github.com/FreeRDP/Remmina/pull/1350) ([larchunix](https://github.com/larchunix))
+
+**Closed issues:**
+
+- Unable to reject new or changed RDP certificate [\#1413](https://github.com/FreeRDP/Remmina/issues/1413)
+- Trying to open an aplication but it fails all the time [\#1412](https://github.com/FreeRDP/Remmina/issues/1412)
+- The password in the connections is not saved after upgrading Remmina [\#1402](https://github.com/FreeRDP/Remmina/issues/1402)
+- remmina fails to open sftp window, connected to ssh2 server with public key auth [\#1392](https://github.com/FreeRDP/Remmina/issues/1392)
+- Please add hostbased mechanism support for ssh [\#1373](https://github.com/FreeRDP/Remmina/issues/1373)
+- Remmina tray icon not visible anymore [\#1371](https://github.com/FreeRDP/Remmina/issues/1371)
+- Spacebar button bug with "use client mapping" RDP option enabled [\#1364](https://github.com/FreeRDP/Remmina/issues/1364)
+- Window 0x555b79d3d650 has not been made visible in GdkSeatGrabPrepareFunc [\#1359](https://github.com/FreeRDP/Remmina/issues/1359)
+- WARNING: the "resolution" setting in .pref files is deprecated [\#1358](https://github.com/FreeRDP/Remmina/issues/1358)
+- Wrong keyboard layout in VNC [\#1352](https://github.com/FreeRDP/Remmina/issues/1352)
+- remmina shows pop-up notification only for first screenshot [\#1347](https://github.com/FreeRDP/Remmina/issues/1347)
+- SFTP identity File [\#1301](https://github.com/FreeRDP/Remmina/issues/1301)
+- Password not saved [\#1047](https://github.com/FreeRDP/Remmina/issues/1047)
+- Starting the Remmina connection from commandline in full screen [\#941](https://github.com/FreeRDP/Remmina/issues/941)
+- minimize button does not function well [\#921](https://github.com/FreeRDP/Remmina/issues/921)
+
+**Merged pull requests:**
+
+- Ssh tunnel fixes for \#1228  [\#1417](https://github.com/FreeRDP/Remmina/pull/1417) ([antenore](https://github.com/antenore))
+- Fixes 2017 christmas [\#1416](https://github.com/FreeRDP/Remmina/pull/1416) ([antenore](https://github.com/antenore))
+- New Spanish file venezuela [\#1415](https://github.com/FreeRDP/Remmina/pull/1415) ([jgjimenez](https://github.com/jgjimenez))
+- Update da.po [\#1411](https://github.com/FreeRDP/Remmina/pull/1411) ([scootergrisen](https://github.com/scootergrisen))
+- Update Spanish translation [\#1410](https://github.com/FreeRDP/Remmina/pull/1410) ([fitojb](https://github.com/fitojb))
+- Updated French po file [\#1409](https://github.com/FreeRDP/Remmina/pull/1409) ([DevDef](https://github.com/DevDef))
+- Updated README.MD with Debian install instructions [\#1399](https://github.com/FreeRDP/Remmina/pull/1399) ([MagicFab](https://github.com/MagicFab))
+- update simplified Chinese translations. [\#1367](https://github.com/FreeRDP/Remmina/pull/1367) ([sotux](https://github.com/sotux))
+- Fix 'consistant' -\> 'consistent' typo [\#1362](https://github.com/FreeRDP/Remmina/pull/1362) ([mfvescovi](https://github.com/mfvescovi))
+- ssh\_userauth\_publickey\_auto: should accept empty passphrase [\#1361](https://github.com/FreeRDP/Remmina/pull/1361) ([rayrapetyan](https://github.com/rayrapetyan))
+- Remove a couple of legacy "resolution" fields, fixes \#1358 [\#1360](https://github.com/FreeRDP/Remmina/pull/1360) ([giox069](https://github.com/giox069))
+- Un-check of 'Fullscreen on the same monitor' [\#1349](https://github.com/FreeRDP/Remmina/pull/1349) ([antenore](https://github.com/antenore))
+- Create CODE\_OF\_CONDUCT [\#1341](https://github.com/FreeRDP/Remmina/pull/1341) ([antenore](https://github.com/antenore))
+
 ## [v1.2.0-rcgit.24](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.24) (2017-10-25)
 [Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.23...v1.2.0-rcgit.24)
 
@@ -10,7 +87,7 @@
 
 **Merged pull requests:**
 
-- Fix for \#1323 [\#1339](https://github.com/FreeRDP/Remmina/pull/1339) ([giox069](https://github.com/giox069))
+- Another fix for \#1323 [\#1339](https://github.com/FreeRDP/Remmina/pull/1339) ([giox069](https://github.com/giox069))
 
 ## [v1.2.0-rcgit.23](https://github.com/FreeRDP/Remmina/tree/v1.2.0-rcgit.23) (2017-10-23)
 [Full Changelog](https://github.com/FreeRDP/Remmina/compare/v1.2.0-rcgit.22...v1.2.0-rcgit.23)
@@ -159,10 +236,8 @@
 - Color on SSH terminal window being applied [\#1238](https://github.com/FreeRDP/Remmina/issues/1238)
 - Tray applet closing when last window gets closed [\#1236](https://github.com/FreeRDP/Remmina/issues/1236)
 - Systray icon closes when closing 'Main Window' or RDP connection [\#1229](https://github.com/FreeRDP/Remmina/issues/1229)
-- SSH Tunneling is broken with SSH Agent with public key [\#1228](https://github.com/FreeRDP/Remmina/issues/1228)
 - Missing icons after compiling latest Git release [\#1221](https://github.com/FreeRDP/Remmina/issues/1221)
 - RDP quality settings not saved [\#1216](https://github.com/FreeRDP/Remmina/issues/1216)
-- RDP to Win10 makes ToolBar clear [\#1209](https://github.com/FreeRDP/Remmina/issues/1209)
 - Cannot connect after upgrading Ubuntu to 16.04 [\#946](https://github.com/FreeRDP/Remmina/issues/946)
 
 **Merged pull requests:**
@@ -211,6 +286,7 @@
 **Closed issues:**
 
 - Invalid \(too large\) file size in rdp shared folder [\#1220](https://github.com/FreeRDP/Remmina/issues/1220)
+- RDP to Win10 makes ToolBar clear [\#1209](https://github.com/FreeRDP/Remmina/issues/1209)
 - Upgrading to 1.2 failed [\#1202](https://github.com/FreeRDP/Remmina/issues/1202)
 - Multiple NICs [\#1188](https://github.com/FreeRDP/Remmina/issues/1188)
 - "Public Key \(Automatic\)" option does not work with ed25519 keys [\#1187](https://github.com/FreeRDP/Remmina/issues/1187)
@@ -234,7 +310,6 @@
 - Connection Timeout - vfprintf.c no such file or directory - Segfault [\#1080](https://github.com/FreeRDP/Remmina/issues/1080)
 - SSH password can't save , terminal auto disconnection [\#1078](https://github.com/FreeRDP/Remmina/issues/1078)
 - Remmina getting down when used ssh & mc [\#1075](https://github.com/FreeRDP/Remmina/issues/1075)
-- Only stored passwords when connecting via RD-Gateway [\#922](https://github.com/FreeRDP/Remmina/issues/922)
 - VNC over SSH tunnel very slow [\#713](https://github.com/FreeRDP/Remmina/issues/713)
 - Domain/Username/Password database [\#711](https://github.com/FreeRDP/Remmina/issues/711)
 - Remmina RDP hangs after second certificate confirmation when using RD gateway [\#706](https://github.com/FreeRDP/Remmina/issues/706)
@@ -273,7 +348,7 @@
 
 **Fixed bugs:**
 
--
+- 
 full screen window placement with multiple monitors [\#124](https://github.com/FreeRDP/Remmina/issues/124)
 
 **Closed issues:**
