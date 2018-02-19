@@ -1,0 +1,21 @@
+From: Giovanni Panozzo <giovanni@panozzo.it>
+Date: Mon, 19 Feb 2018 23:38:46 +0100
+Subject: Fix_RDP_GFX_RFX_mode
+
+---
+ remmina-plugins/rdp/rdp_plugin.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/remmina-plugins/rdp/rdp_plugin.c b/remmina-plugins/rdp/rdp_plugin.c
+index c281c7b..62cfe32 100644
+--- a/remmina-plugins/rdp/rdp_plugin.c
++++ b/remmina-plugins/rdp/rdp_plugin.c
+@@ -734,7 +734,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
+ 		/* /gfx:rfx (Win8) */
+ 		rfi->settings->ColorDepth = 32;
+ 		rfi->settings->SupportGraphicsPipeline = TRUE;
+-		rfi->settings->GfxH264 = TRUE;
++		rfi->settings->GfxH264 = FALSE;
+ 		rfi->settings->GfxAVC444 = FALSE;
+ 	} else if (rfi->settings->ColorDepth == 65) {
+ 		/* /gfx:avc420 (Win8.1) */
