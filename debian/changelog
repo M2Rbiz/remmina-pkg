@@ -1,3 +1,21 @@
+remmina (1.2.0-rcgit.27+dfsg-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+  * debian/patches/: patchset updated
+    - 0001-Fix_RDP_GFX_RFX_mode.patch added
+    - 0002-Add_StartupWMClass_to_.desktop.in_file.patch added
+    Thanks to Giovanni Panozzo (upstream dev) for them.
+  * debian/rules: drop obsolete override entry
+  * debian/watch: version and options updated
+  * debian/: debhelper bump 10 -> 11
+  * debian/control: S-V bump 4.1.2 -> 4.1.3 (no changes needed)
+  * debian/control: Vcs-* fields updated pointing to salsa
+  * debian/copyright: http:// -> https:// for copyright format
+  * debian/control: new build-dependencies added
+    - libjson-glib-dev and libsoup2.4-dev
+
+ -- Matteo F. Vescovi <mfv@debian.org>  Mon, 19 Feb 2018 23:41:53 +0100
+
 remmina (1.2.0-rcgit.26+dfsg-1) unstable; urgency=medium
 
   * New upstream release
