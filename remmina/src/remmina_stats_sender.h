@@ -1,9 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2017 Antenore Gatta
- *
- * Initially based on the plugin "Remmina Plugin EXEC", created and written by
- * Fabio Castelli (Muflone) <muflone@vbsimple.net>.
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +34,14 @@
 
 #pragma once
 
-#define PLUGIN_NAME        "EXEC"
-#define PLUGIN_DESCRIPTION "Execute a command"
-#define PLUGIN_VERSION     "1.0"
-#define PLUGIN_APPICON     "remmina-tool"
+G_BEGIN_DECLS
+
+void remmina_stats_sender_schedule(void);
+gboolean remmina_stat_sender_can_send(void);
+
+/* This is only for testing purposes: force a SEND */
+void remmina_stats_sender_send(gboolean show_only);
+
+G_END_DECLS
+
+
