@@ -71,7 +71,7 @@ Description: Common files for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the common files.
 
@@ -90,7 +90,7 @@ Description: Headers for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the development headers for Remmina, to develop
  new plugins.
@@ -111,7 +111,7 @@ Description: RDP plugin for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the RDP plugin for Remmina.
 
@@ -131,7 +131,7 @@ Description: VNC plugin for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the VNC plugin for Remmina.
 
@@ -152,7 +152,7 @@ Description: XDMCP plugin for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the XDMCP plugin for Remmina.
 
@@ -173,7 +173,7 @@ Description: NX plugin for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the NX plugin for Remmina.
 
@@ -193,7 +193,7 @@ Description: Spice plugin for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the Spice plugin for Remmina.
 
@@ -213,7 +213,7 @@ Description: Telepathy plugin for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the Telepathy plugin for Remmina.
 
@@ -235,8 +235,28 @@ Description: Secret plugin for Remmina
  Remmina supports multiple network protocols in an integrated and
  consistent user interface.
  .
- Currently RDP, VNC, SPICE, NX, XDMCP and SSH are supported.
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the secret plugin for Remmina, which
  allows one to store and retrieve passwords from GNOME Keyring
  or KWallet.
+
+Package: remmina-plugin-exec
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ remmina (= ${binary:Version})
+Description: EXEC plugin for Remmina
+ Remmina is a remote desktop client written in GTK+, aiming to be
+ useful for system administrators and travellers, who need to work
+ with lots of remote computers in front of either large monitors or
+ tiny netbooks.
+ .
+ Remmina supports multiple network protocols in an integrated and
+ consistent user interface.
+ .
+ Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
+ .
+ This package contains the EXEC plugin for Remmina.
