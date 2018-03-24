@@ -1,0 +1,22 @@
+From: Antenore Gatta <antenore@simbiosi.org>
+Date: Tue, 6 Mar 2018 22:45:59 +0100
+Subject: Fixes_segmentation_fault
+
+Reported by #1499
+---
+ remmina/src/remmina_sysinfo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/remmina/src/remmina_sysinfo.c b/remmina/src/remmina_sysinfo.c
+index 76f6393..4ead185 100644
+--- a/remmina/src/remmina_sysinfo.c
++++ b/remmina/src/remmina_sysinfo.c
+@@ -137,7 +137,7 @@ gchar *remmina_sysinfo_get_wm_name()
+ 
+ 	if (!xdg_current_desktop || xdg_current_desktop[0] == '\0') {
+ 		if (!gdmsession || gdmsession[0] == '\0') {
+-			ret = "\0";
++			ret = NULL;
+ 		}else {
+ 			ret = g_strdup_printf("%s", gdmsession);
+ 		}
