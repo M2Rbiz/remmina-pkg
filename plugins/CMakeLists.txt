@@ -1,4 +1,4 @@
-# remmina-plugin-rdp - The GTK+ Remote Desktop Client
+# Remmina - The GTK+ Remote Desktop Client
 #
 # Copyright (C) 2011 Marc-Andre Moreau
 # Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
@@ -32,47 +32,57 @@
 # version. If you delete this exception statement from all source
 # files in the program, then also delete it here.
 
+# Needed FreeRDP version to build freerdp plugin
+set(FREERDP_REQUIRED_MAJOR 2)
+set(FREERDP_REQUIRED_MINOR 0)
+set(FREERDP_REQUIRED_REVISION 0)
+set(FREERDP_REQUIRED_VERSIONSTRING
+    ${FREERDP_REQUIRED_MAJOR}.${FREERDP_REQUIRED_MINOR}.${FREERDP_REQUIRED_REVISION})
 
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-find_package(Threads REQUIRED)
-find_package(X11)
+include_directories(${CMAKE_SOURCE_DIR}/plugins)
 
-set(REMMINA_PLUGIN_RDP_SRCS
-        rdp_plugin.c
-        rdp_plugin.h
-        rdp_event.c
-        rdp_event.h
-        rdp_file.c
-        rdp_file.h
-        rdp_settings.c
-        rdp_settings.h
-        rdp_graphics.c
-        rdp_graphics.h
-        rdp_cliprdr.c
-        rdp_cliprdr.h
-        rdp_channels.c
-        rdp_channels.h
-        )
+set(APPICON16_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/16x16/emblems")
+set(APPICON22_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/22x22/emblems")
 
-add_definitions(-DFREERDP_REQUIRED_MAJOR=${FREERDP_REQUIRED_MAJOR})
-add_definitions(-DFREERDP_REQUIRED_MINOR=${FREERDP_REQUIRED_MINOR})
-add_definitions(-DFREERDP_REQUIRED_REVISION=${FREERDP_REQUIRED_REVISION})
+set(REMMINA_COMMON_INCLUDE_DIRS ${GTK_INCLUDE_DIRS})
+set(REMMINA_COMMON_LIBRARIES ${GTK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-add_library(remmina-plugin-rdp MODULE ${REMMINA_PLUGIN_RDP_SRCS})
-set_target_properties(remmina-plugin-rdp PROPERTIES PREFIX "")
-set_target_properties(remmina-plugin-rdp PROPERTIES NO_SONAME 1)
+find_suggested_package(LIBSSH)
+if(LIBSSH_FOUND)
+        add_definitions(-DHAVE_LIBSSH)
+        include_directories(${SSH_INCLUDE_DIRS})
+        target_link_libraries(remmina ${SSH_LIBRARIES})
+endif()
 
-include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${FREERDP_INCLUDE_DIRS} ${X11_INCLUDE_DIR})
-target_link_libraries(remmina-plugin-rdp
-    ${REMMINA_COMMON_LIBRARIES} ${FREERDP_LIBRARIES} ${X11_LIBRARIES})
+find_required_package(XKBFILE)
 
-install(TARGETS remmina-plugin-rdp DESTINATION ${REMMINA_PLUGINDIR})
+if(LIBSSH_FOUND AND XKBFILE_FOUND)
+        add_subdirectory(nx)
+endif()
 
-install(FILES
-    16x16/emblems/remmina-rdp-ssh.png
-    16x16/emblems/remmina-rdp.png
-    DESTINATION ${APPICON16_EMBLEMS_DIR})
-install(FILES
-    22x22/emblems/remmina-rdp-ssh.png
-    22x22/emblems/remmina-rdp.png
-    DESTINATION ${APPICON22_EMBLEMS_DIR})
+add_subdirectory(xdmcp)
+
+find_suggested_package(FREERDP)
+if(FREERDP_FOUND)
+        add_subdirectory(rdp)
+endif()
+
+find_suggested_package(TELEPATHY)
+if(TELEPATHY_FOUND)
+        add_subdirectory(telepathy)
+endif()
+
+find_suggested_package(LIBVNCSERVER)
+if(LIBVNCSERVER_FOUND)
+        add_subdirectory(vnc)
+endif()
+
+find_suggested_package(SPICE)
+if(SPICE_FOUND)
+        add_subdirectory(spice)
+endif()
+
+if(WITH_EXAMPLES)
+        add_subdirectory(tool_hello_world)
+endif()
+add_subdirectory(exec)

@@ -1,5 +1,6 @@
-# remmina-plugin-tool_hello_world - The GTK+ Remote Desktop Client
+# remmina-plugin-rdp - The GTK+ Remote Desktop Client
 #
+# Copyright (C) 2011 Marc-Andre Moreau
 # Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
 # Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
 #
@@ -32,26 +33,57 @@
 # files in the program, then also delete it here.
 
 
-set(REMMINA_PLUGIN_SRCS
-        plugin_config.h
-        plugin.c
-)
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+find_package(Threads REQUIRED)
+find_package(X11)
 
-add_library(remmina-plugin-tool_hello_world MODULE ${REMMINA_PLUGIN_SRCS})
-set_target_properties(remmina-plugin-tool_hello_world PROPERTIES PREFIX "")
-set_target_properties(remmina-plugin-tool_hello_world PROPERTIES NO_SONAME 1)
+set(REMMINA_PLUGIN_RDP_SRCS
+        rdp_plugin.c
+        rdp_plugin.h
+        rdp_event.c
+        rdp_event.h
+        rdp_file.c
+        rdp_file.h
+        rdp_settings.c
+        rdp_settings.h
+        rdp_graphics.c
+        rdp_graphics.h
+        rdp_cliprdr.c
+        rdp_cliprdr.h
+        rdp_channels.c
+        rdp_channels.h
+        )
 
-include_directories(${REMMINA_COMMON_INCLUDE_DIRS})
-include_directories(${GTK_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/remmina-plugins)
+add_definitions(-DFREERDP_REQUIRED_MAJOR=${FREERDP_REQUIRED_MAJOR})
+add_definitions(-DFREERDP_REQUIRED_MINOR=${FREERDP_REQUIRED_MINOR})
+add_definitions(-DFREERDP_REQUIRED_REVISION=${FREERDP_REQUIRED_REVISION})
 
-install(TARGETS remmina-plugin-tool_hello_world DESTINATION ${REMMINA_PLUGINDIR})
+if(WITH_EXAMPLES)
+        message(STATUS "Enabling examples and test plugins.")
+        add_definitions(-DWITH_EXAMPLES)
+endif()
+
+option(WITH_GFX_H264 "Enable support for H264 modes in GFX" ON)
+if (WITH_GFX_H264)
+	add_definitions(-DWITH_GFX_H264)
+endif()
+
+
+add_library(remmina-plugin-rdp MODULE ${REMMINA_PLUGIN_RDP_SRCS})
+set_target_properties(remmina-plugin-rdp PROPERTIES PREFIX "")
+set_target_properties(remmina-plugin-rdp PROPERTIES NO_SONAME 1)
+
+include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${FREERDP_INCLUDE_DIRS} ${X11_INCLUDE_DIR})
+target_link_libraries(remmina-plugin-rdp
+    ${REMMINA_COMMON_LIBRARIES} ${FREERDP_LIBRARIES} ${X11_LIBRARIES})
+
+install(TARGETS remmina-plugin-rdp DESTINATION ${REMMINA_PLUGINDIR})
 
 install(FILES
-    16x16/emblems/remmina-tool.png
-    16x16/emblems/remmina-tool.png
+    16x16/emblems/remmina-rdp-ssh.png
+    16x16/emblems/remmina-rdp.png
     DESTINATION ${APPICON16_EMBLEMS_DIR})
 install(FILES
-    22x22/emblems/remmina-tool.png
-    22x22/emblems/remmina-tool.png
+    22x22/emblems/remmina-rdp-ssh.png
+    22x22/emblems/remmina-rdp.png
     DESTINATION ${APPICON22_EMBLEMS_DIR})

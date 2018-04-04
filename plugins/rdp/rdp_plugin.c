@@ -467,6 +467,7 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 
 	rfi = (rfContext*)instance->context;
 	gp = rfi->protocol_widget;
+	rfi->postconnect_error = REMMINA_POSTCONNECT_ERROR_OK;
 
 	rfi->width = rfi->settings->DesktopWidth;
 	rfi->height = rfi->settings->DesktopHeight;
@@ -491,23 +492,19 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 		rfi->cairo_format = CAIRO_FORMAT_RGB16_565;
 	}
 
-	gdi_init(instance, rf_get_local_color_format(rfi, TRUE));
+	if (!gdi_init(instance, rf_get_local_color_format(rfi, TRUE))) {
+		rfi->postconnect_error = REMMINA_POSTCONNECT_ERROR_GDI_INIT;
+		return FALSE;
+	}
+
+	if (instance->context->codecs->h264 == NULL && rfi->settings->GfxH264) {
+		gdi_free(instance);
+		rfi->postconnect_error = REMMINA_POSTCONNECT_ERROR_NO_H264;
+		return FALSE;
+	}
+
 	gdi = instance->context->gdi;
 	rfi->primary_buffer = gdi->primary_buffer;
-
-/*	rfi->hdc = gdi_GetDC();
-        rfi->hdc->bitsPerPixel = hdcBitsPerPixel;
-        rfi->hdc->bytesPerPixel = hdcBytesPerPixel;
-
-        rfi->hdc->hwnd = (HGDI_WND) malloc(sizeof(GDI_WND));
-        rfi->hdc->hwnd->invalid = gdi_CreateRectRgn(0, 0, 0, 0);
-        rfi->hdc->hwnd->invalid->null = 1;
-
-        rfi->hdc->hwnd->count = 32;
-        rfi->hdc->hwnd->cinvalid = (HGDI_RGN) malloc(sizeof(GDI_RGN) * rfi->hdc->hwnd->count);
-        rfi->hdc->hwnd->ninvalid = 0;
- *
- */
 
 	pointer_cache_register_callbacks(instance->update);
 
@@ -522,7 +519,7 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 	ui->type = REMMINA_RDP_UI_CONNECTED;
 	remmina_rdp_event_queue_ui_async(gp, ui);
 
-	return True;
+	return TRUE;
 }
 
 static BOOL remmina_rdp_authenticate(freerdp* instance, char** username, char** password, char** domain)
@@ -734,20 +731,24 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 		/* /gfx:rfx (Win8) */
 		rfi->settings->ColorDepth = 32;
 		rfi->settings->SupportGraphicsPipeline = TRUE;
-		rfi->settings->GfxH264 = TRUE;
+		rfi->settings->GfxH264 = FALSE;
 		rfi->settings->GfxAVC444 = FALSE;
 	} else if (rfi->settings->ColorDepth == 65) {
 		/* /gfx:avc420 (Win8.1) */
 		rfi->settings->ColorDepth = 32;
 		rfi->settings->SupportGraphicsPipeline = TRUE;
+#ifdef WITH_GFX_H264
 		rfi->settings->GfxH264 = TRUE;
 		rfi->settings->GfxAVC444 = FALSE;
+#endif
 	} else if (rfi->settings->ColorDepth >= 66) {
 		/* /gfx:avc444 (Win10) */
 		rfi->settings->ColorDepth = 32;
 		rfi->settings->SupportGraphicsPipeline = TRUE;
+#ifdef WITH_GFX_H264
 		rfi->settings->GfxH264 = TRUE;
 		rfi->settings->GfxAVC444 = TRUE;
+#endif
 	}
 
 	rfi->settings->DesktopWidth = remmina_plugin_service->get_profile_remote_width(gp);
@@ -1081,7 +1082,25 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 			case FREERDP_ERROR_SECURITY_NEGO_CONNECT_FAILED:
 				remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to establish a connection to RDP server %s."), rfi->settings->ServerHostname );
 				break;
+#ifdef FREERDP_ERROR_POST_CONNECT_FAILED
+			case FREERDP_ERROR_POST_CONNECT_FAILED:
+				/* remmina_rdp_post_connect() returned FALSE to libfreerdp. We saved the error on rfi->postconnect_error */
+				switch(rfi->postconnect_error) {
+					case REMMINA_POSTCONNECT_ERROR_OK:
+						/* We should never come here */
+						remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to connect to RDP server %s."), rfi->settings->ServerHostname );
+						break;
+					case REMMINA_POSTCONNECT_ERROR_GDI_INIT:
+						remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to initialize libfreerdp gdi") );
+						break;
+					case REMMINA_POSTCONNECT_ERROR_NO_H264:
+						remmina_plugin_service->protocol_plugin_set_error(gp, _("You requested an H264 GFX mode for server %s, but your libfreerdp does not support H264. Please check Color Depth settings."), rfi->settings->ServerHostname);
+						break;
+				}
+				break;
+#endif
 			default:
+				g_printf("%08X %08X\n", e, (unsigned)ERRCONNECT_POST_CONNECT_FAILED);
 				remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to connect to RDP server %s"), rfi->settings->ServerHostname);
 				break;
 			}
@@ -1172,7 +1191,13 @@ static gboolean remmina_rdp_close_connection(RemminaProtocolWidget* gp)
 	TRACE_CALL(__func__);
 	rfContext* rfi = GET_PLUGIN_DATA(gp);
 	freerdp* instance;
-	RemminaPluginRdpUiObject* ui;
+
+	if (!remmina_plugin_service->is_main_thread()) {
+		g_printf("WARNING: %s called on a subthread, may not work or crash remmina.\n", __func__);
+	}
+
+	/* Immediately deatch GTK clipboard from this connection */
+	remmina_rdp_cliprdr_detach_owner(gp);
 
 	if (freerdp_get_last_error(rfi->instance->context) == 0x10005) {
 		remmina_plugin_service->protocol_plugin_set_error(gp, "Another user connected to the server (%s), forcing the disconnection of the current connection.", rfi->settings->ServerHostname);
@@ -1186,13 +1211,6 @@ static gboolean remmina_rdp_close_connection(RemminaProtocolWidget* gp)
 			pthread_join(rfi->thread, NULL);
 
 	}
-
-	/* Cleanup clipboard: we cannot leave clipboard requesting data to this
-	 * connection */
-	ui = g_new0(RemminaPluginRdpUiObject, 1);
-	ui->type = REMMINA_RDP_UI_CLIPBOARD;
-	ui->clipboard.type = REMMINA_RDP_UI_CLIPBOARD_DETACH_OWNER;
-	remmina_rdp_event_queue_ui_sync_retint(gp, ui);
 
 	if (instance) {
 		if ( rfi->connected ) {
@@ -1331,8 +1349,10 @@ static gboolean remmina_rdp_get_screenshot(RemminaProtocolWidget *gp, RemminaPlu
 static gpointer colordepth_list[] =
 {
 	/* 1st one is the default in a new install */
+#ifdef WITH_GFX_H264
 	"66",  N_("GFX AVC444 (32 bpp)"),
 	"65",  N_("GFX AVC420 (32 bpp)"),
+#endif
 	"64",  N_("GFX RFX (32 bpp)"),
 	"0",  N_("RemoteFX (32 bpp)"),
 	"32", N_("True color (32 bpp)"),

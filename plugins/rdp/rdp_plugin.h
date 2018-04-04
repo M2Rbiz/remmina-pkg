@@ -163,8 +163,7 @@ typedef enum {
 	REMMINA_RDP_UI_CLIPBOARD_FORMATLIST,
 	REMMINA_RDP_UI_CLIPBOARD_GET_DATA,
 	REMMINA_RDP_UI_CLIPBOARD_SET_DATA,
-	REMMINA_RDP_UI_CLIPBOARD_SET_CONTENT,
-	REMMINA_RDP_UI_CLIPBOARD_DETACH_OWNER
+	REMMINA_RDP_UI_CLIPBOARD_SET_CONTENT
 } RemminaPluginRdpUiClipboardType;
 
 typedef enum {
@@ -294,6 +293,8 @@ struct rf_context {
 	HANDLE event_handle;
 
 	rfClipboard clipboard;
+
+	enum { REMMINA_POSTCONNECT_ERROR_OK = 0, REMMINA_POSTCONNECT_ERROR_GDI_INIT = 1, REMMINA_POSTCONNECT_ERROR_NO_H264 } postconnect_error;
 };
 
 typedef struct remmina_plugin_rdp_ui_object RemminaPluginRdpUiObject;
