@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -239,7 +239,7 @@ remmina_file_load(const gchar *filename)
 		}
 
 		secret_plugin = remmina_plugin_manager_get_secret_plugin();
-		secret_service_available = secret_plugin->is_service_available();
+		secret_service_available = secret_plugin && secret_plugin->is_service_available();
 
 		remminafile->filename = g_strdup(filename);
 		keys = g_key_file_get_keys(gkeyfile, "remmina", NULL, NULL);
@@ -433,7 +433,7 @@ void remmina_file_save(RemminaFile *remminafile)
 	}
 
 	secret_plugin = remmina_plugin_manager_get_secret_plugin();
-	secret_service_available = secret_plugin->is_service_available();
+	secret_service_available = secret_plugin && secret_plugin->is_service_available();
 
 	g_hash_table_iter_init(&iter, remminafile->settings);
 	while (g_hash_table_iter_next(&iter, (gpointer*)&key, (gpointer*)&value)) {
@@ -569,28 +569,28 @@ void remmina_file_unsave_password(RemminaFile *remminafile)
 	proto = (gchar*)g_hash_table_lookup(remminafile->settings, "protocol");
 	if (proto) {
 		protocol_plugin = (RemminaProtocolPlugin*)remmina_plugin_manager_get_plugin(REMMINA_PLUGIN_TYPE_PROTOCOL, proto);
-	}
-
-	setting_iter = protocol_plugin->basic_settings;
-	if (setting_iter) {
-		while (setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END) {
-			if (is_encrypted_setting(setting_iter)) {
-				remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
+		if (protocol_plugin) {
+			setting_iter = protocol_plugin->basic_settings;
+			if (setting_iter) {
+				while (setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END) {
+					if (is_encrypted_setting(setting_iter)) {
+						remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
+					}
+					setting_iter++;
+				}
 			}
-			setting_iter++;
+			setting_iter = protocol_plugin->advanced_settings;
+			if (setting_iter) {
+				while (setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END) {
+					if (is_encrypted_setting(setting_iter)) {
+						remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
+					}
+					setting_iter++;
+				}
+			}
+			remmina_file_save(remminafile);
 		}
 	}
-	setting_iter = protocol_plugin->advanced_settings;
-	if (setting_iter) {
-		while (setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END) {
-			if (is_encrypted_setting(setting_iter)) {
-				remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
-			}
-			setting_iter++;
-		}
-	}
-
-	remmina_file_save(remminafile);
 }
 
 /**

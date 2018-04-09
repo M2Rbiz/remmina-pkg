@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,10 +95,9 @@
 #endif
 
 #define SSH_SOCKET_TCP_KEEPIDLE 20
-#define SSH_SOCKET_TCP_KEEPCNT 3
 #define SSH_SOCKET_TCP_KEEPINTVL 10
-/* Remember to lower SSH_SOCKET_TCP_USER_TIMEOUT to 4 when kernel bug 108191 will be fixed */
-#define SSH_SOCKET_TCP_USER_TIMEOUT 9
+#define SSH_SOCKET_TCP_KEEPCNT 3
+#define SSH_SOCKET_TCP_USER_TIMEOUT 60000 // 60 seconds
 #endif
 
 /*-----------------------------------------------------------------------------*
@@ -576,25 +575,25 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 		}
 #ifdef TCP_KEEPIDLE
 		optval = SSH_SOCKET_TCP_KEEPIDLE;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPIDLE,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPIDLE, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_KEEPIDLE not set\n");
 		}
 #endif
 #ifdef TCP_KEEPCNT
 		optval = SSH_SOCKET_TCP_KEEPCNT;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPCNT,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPCNT, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_KEEPCNT not set\n");
 		}
 #endif
 #ifdef TCP_KEEPINTVL
 		optval = SSH_SOCKET_TCP_KEEPINTVL;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPINTVL,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPINTVL, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_KEEPINTVL not set\n");
 		}
 #endif
 #ifdef TCP_USER_TIMEOUT
 		optval = SSH_SOCKET_TCP_USER_TIMEOUT;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_USER_TIMEOUT,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_USER_TIMEOUT, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_USER_TIMEOUT not set\n");
 		}
 #endif
