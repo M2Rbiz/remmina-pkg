@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
 	const gchar *app_id;
 	int status;
 
-	gdk_set_allowed_backends("wayland,x11,broadway,quartz,mir");
+	gdk_set_allowed_backends("x11,broadway,quartz,mir");
 
 	remmina_masterthread_exec_save_main_thread_id();
 
