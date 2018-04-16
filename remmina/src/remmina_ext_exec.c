@@ -1,7 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
- * Copyright (C) 2014-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2014-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,6 +89,8 @@ GtkDialog* remmina_ext_exec_new(RemminaFile* remminafile, const char *remmina_ex
 		remmina_utils_string_replace_all(cmd_str, "%t", remmina_file_get_string(remminafile, "ssh_server"));
 		remmina_utils_string_replace_all(cmd_str, "%u", remmina_file_get_string(remminafile, "username"));
 		remmina_utils_string_replace_all(cmd_str, "%U", remmina_file_get_string(remminafile, "ssh_username"));
+		remmina_utils_string_replace_all(cmd_str, "%p", remmina_file_get_string(remminafile, "name"));
+		remmina_utils_string_replace_all(cmd_str, "%g", remmina_file_get_string(remminafile, "group"));
 	}else{
 		return FALSE;
 	}

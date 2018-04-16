@@ -12,13 +12,15 @@ This special place is reserved to who have donated the hisghest amount of money 
 
 - Daniel Bolter
 
-## 2017 Sponsors
+## Year 2018 donors
 
-### Donors of the Year 2017
+- Anonymous (4)
+- Anton Karmanov
+- Marco Polano
+- Peter Link
+- Sergey Lebfr
 
-These donors have contributed with an important amount of money during the year 2017
-
-### Year 2017 donors
+## Year 2017 donors
 
 - Anonymous (16)
 - Brad Kulkin
@@ -33,17 +35,13 @@ These donors have contributed with an important amount of money during the year 
 - Paul Walker
 - Tomasz Kubacki
 
-## 2016 Sponsors
-
-### Donors of the Year 2016
+## Year 2016 donors
 
 These donors have contributed with an important amount of money during the year 2016
 
 - Daniel Bolter
 - Bruce Cran
 - Jamison Guyton
-
-### Year 2016 donors
 
 These donors are listed in first name alphabetical order.
 
@@ -93,7 +91,9 @@ Long life to Remmina and their maintainers!
 
 **Luca Falavigna** ([dktrkranz](https://github.com/dktrkranz)) for his great support with the Ubuntu PPA and Remmina patches.
 
-**Matteo Nastasi** ([nastasi](https://github.com/nastasi)) that is bringing to us his great development experience and a new flamming build receipt for Ubuntu and Debian.
+**Matteo F. Vescovi** ([mfvescovi](https://github.com/mfvescovi)) that has done a huge and impressive job to bring the Remmina upstream version to Debian and Ubuntu.
+
+**Matteo Nastasi** ([nastasi](https://github.com/nastasi)) that during the years 2016 and 2017 started to implement the new receipts for Ubuntu and Debian.
 
 **Johannes Weberhofer** ([weberhofer](https://github.com/weberhofer)) and **Pavel Alexeev** ([Hubbitus](https://github.com/Hubbitus))
 

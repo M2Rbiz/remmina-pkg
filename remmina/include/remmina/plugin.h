@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,6 +137,7 @@ typedef struct _RemminaSecretPlugin {
 	void (* store_password)(RemminaFile *remminafile, const gchar *key, const gchar *password);
 	gchar* (*get_password)(RemminaFile * remminafile, const gchar * key);
 	void (* delete_password)(RemminaFile *remminafile, const gchar *key);
+	gboolean (* is_service_available)(void);
 } RemminaSecretPlugin;
 
 /* Plugin Service is a struct containing a list of function pointers,

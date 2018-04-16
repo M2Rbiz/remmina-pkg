@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,6 +85,8 @@ static const gchar * cmd_tips = N_(    "<tt><big>"
 	"* %t is substituted with the SSH server name\n"
 	"* %u is substituted with the user name\n"
 	"* %U is substituted with the SSH user name\n"
+	"* %p is substituted with Remmina profile name\n"
+	"* %g is substituted with Remmina profile group name\n"
 	"Do not run in background if you want the command to be executed before connecting.\n"
 	"</big></tt>");
 
@@ -794,7 +796,7 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor* gfe, RemminaPr
 	if (ssh_setting == REMMINA_PROTOCOL_SSH_SETTING_NONE) return;
 
 	/* The SSH tab (implementation) */
-	grid = remmina_file_editor_create_notebook_tab(gfe, "dialog-password",
+	grid = remmina_file_editor_create_notebook_tab(gfe, NULL,
 		"SSH Tunnel", 9, 3);
 
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -963,13 +965,13 @@ static void remmina_file_editor_create_all_settings(RemminaFileEditor* gfe)
 
 	/* The Basic tab */
 	if (priv->plugin->basic_settings) {
-		grid = remmina_file_editor_create_notebook_tab(gfe, "dialog-information", _("Basic"), 20, 2);
+		grid = remmina_file_editor_create_notebook_tab(gfe, NULL, _("Basic"), 20, 2);
 		remmina_file_editor_create_settings(gfe, grid, priv->plugin->basic_settings);
 	}
 
 	/* The Advanced tab */
 	if (priv->plugin->advanced_settings) {
-		grid = remmina_file_editor_create_notebook_tab(gfe, "dialog-warning", _("Advanced"), 20, 2);
+		grid = remmina_file_editor_create_notebook_tab(gfe, NULL, _("Advanced"), 20, 2);
 		remmina_file_editor_create_settings(gfe, grid, priv->plugin->advanced_settings);
 	}
 
@@ -1251,21 +1253,17 @@ static void remmina_file_editor_init(RemminaFileEditor* gfe)
 
 	/* Default button */
 	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("Save as Default")), GTK_RESPONSE_OK);
-	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("preferences-system", GTK_ICON_SIZE_BUTTON));
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_default), gfe);
 
 	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("_Save")), GTK_RESPONSE_APPLY);
-	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON));
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_save), gfe);
 	gtk_widget_set_sensitive(widget, FALSE);
 	priv->save_button = widget;
 
 	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("Connect")), GTK_RESPONSE_ACCEPT);
-	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("gtk-connect", GTK_ICON_SIZE_BUTTON));
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_connect), gfe);
 
 	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("_Save and Connect")), GTK_RESPONSE_OK);
-	gtk_button_set_image(GTK_BUTTON(widget), gtk_image_new_from_icon_name("document-save-as", GTK_ICON_SIZE_BUTTON));
 	gtk_widget_set_can_default(widget, TRUE);
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_save_connect), gfe);
 
@@ -1429,7 +1427,7 @@ GtkWidget* remmina_file_editor_new_from_file(RemminaFile* remminafile)
 	priv->precommand_entry = widget;
 	cs = remmina_file_get_string(remminafile, "precommand");
 	gtk_entry_set_text(GTK_ENTRY(widget), cs ? cs : "");
-	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), "command %h %u %t %U --option");
+	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), "command %h %u %t %U %p %g --option");
 	gtk_widget_set_tooltip_markup(widget, _(cmd_tips));
 
 	/* POST Connection Command */
@@ -1447,7 +1445,7 @@ GtkWidget* remmina_file_editor_new_from_file(RemminaFile* remminafile)
 	priv->postcommand_entry = widget;
 	cs = remmina_file_get_string(remminafile, "postcommand");
 	gtk_entry_set_text(GTK_ENTRY(widget), cs ? cs : "");
-	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), "/path/to/command -opt1 arg %h %u %t -opt2 %U");
+	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), "/path/to/command -opt1 arg %h %u %t -opt2 %U %p %g");
 	gtk_widget_set_tooltip_markup(widget, _(cmd_tips));
 
 	/* Create the Preference frame */

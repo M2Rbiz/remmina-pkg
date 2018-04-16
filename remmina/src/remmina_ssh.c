@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,10 +95,9 @@
 #endif
 
 #define SSH_SOCKET_TCP_KEEPIDLE 20
-#define SSH_SOCKET_TCP_KEEPCNT 3
 #define SSH_SOCKET_TCP_KEEPINTVL 10
-/* Remember to lower SSH_SOCKET_TCP_USER_TIMEOUT to 4 when kernel bug 108191 will be fixed */
-#define SSH_SOCKET_TCP_USER_TIMEOUT 9
+#define SSH_SOCKET_TCP_KEEPCNT 3
+#define SSH_SOCKET_TCP_USER_TIMEOUT 60000 // 60 seconds
 #endif
 
 /*-----------------------------------------------------------------------------*
@@ -490,7 +489,8 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 	ssh->session = ssh_new();
 	ssh_options_set(ssh->session, SSH_OPTIONS_HOST, ssh->server);
 	ssh_options_set(ssh->session, SSH_OPTIONS_PORT, &ssh->port);
-	ssh_options_set(ssh->session, SSH_OPTIONS_COMPRESSION, "yes");
+	/** @todo add an option to set the compression nad set it to no as the default option */
+	//ssh_options_set(ssh->session, SSH_OPTIONS_COMPRESSION, "yes");
 	/* When SSH_OPTIONS_USER is not set, the local user account is used */
 	if (*ssh->user != 0)
 		ssh_options_set(ssh->session, SSH_OPTIONS_USER, ssh->user);
@@ -536,6 +536,12 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 	}else {
 		remmina_log_printf("[SSH] SSH_OPTIONS_STRICTHOSTKEYCHECK does not have a valid value: %d\n", ssh->stricthostkeycheck);
 	}
+	rc = ssh_options_set(ssh->session, SSH_OPTIONS_COMPRESSION, ssh->compression);
+	if (rc == 0) {
+		remmina_log_printf("[SSH] SSH_OPTIONS_COMPRESSION has been set to: %s\n", ssh->compression);
+	}else {
+		remmina_log_printf("[SSH] SSH_OPTIONS_COMPRESSION does not have a valid value: %s\n", ssh->compression);
+	}
 
 	ssh_callbacks_init(ssh->callback);
 	if (remmina_log_running()) {
@@ -569,25 +575,25 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 		}
 #ifdef TCP_KEEPIDLE
 		optval = SSH_SOCKET_TCP_KEEPIDLE;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPIDLE,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPIDLE, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_KEEPIDLE not set\n");
 		}
 #endif
 #ifdef TCP_KEEPCNT
 		optval = SSH_SOCKET_TCP_KEEPCNT;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPCNT,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPCNT, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_KEEPCNT not set\n");
 		}
 #endif
 #ifdef TCP_KEEPINTVL
 		optval = SSH_SOCKET_TCP_KEEPINTVL;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPINTVL,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_KEEPINTVL, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_KEEPINTVL not set\n");
 		}
 #endif
 #ifdef TCP_USER_TIMEOUT
 		optval = SSH_SOCKET_TCP_USER_TIMEOUT;
-		if (setsockopt(sshsock, IPPROTO_TCP, TCP_USER_TIMEOUT,  &optval, sizeof(optval)) < 0) {
+		if (setsockopt(sshsock, IPPROTO_TCP, TCP_USER_TIMEOUT, &optval, sizeof(optval)) < 0) {
 			remmina_log_printf("[SSH] TCP_USER_TIMEOUT not set\n");
 		}
 #endif
@@ -646,6 +652,8 @@ remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile)
 	ssh->hostkeytypes = g_strdup(remmina_file_get_string(remminafile, "ssh_hostkeytypes"));
 	ssh->proxycommand = g_strdup(remmina_file_get_string(remminafile, "ssh_proxycommand"));
 	ssh->stricthostkeycheck = remmina_file_get_int(remminafile, "ssh_stricthostkeycheck", 0);
+	gint c = remmina_file_get_int(remminafile, "ssh_compression", 0);
+	ssh->compression = (c == 1) ? "yes" : "no";
 
 	/* Public/Private keys */
 	s = (ssh_privatekey ? g_strdup(ssh_privatekey) : remmina_ssh_find_identity());
@@ -679,7 +687,7 @@ remmina_ssh_init_from_ssh(RemminaSSH *ssh, const RemminaSSH *ssh_src)
 	ssh->kex_algorithms = g_strdup(ssh_src->kex_algorithms);
 	ssh->ciphers = g_strdup(ssh_src->ciphers);
 	ssh->hostkeytypes = g_strdup(ssh_src->hostkeytypes);
-	ssh->stricthostkeycheck = ssh_src->stricthostkeycheck;
+	ssh->compression = ssh_src->compression;
 
 	return TRUE;
 }

@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2017 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,6 +174,10 @@ void remmina_exec_command(RemminaCommandType command, const gchar* data)
 		break;
 
 	case REMMINA_COMMAND_CONNECT:
+		/** @todo This should be a G_OPTION_ARG_FILENAME_ARRAY (^aay) so that
+		 * we can implement multi profile connection:
+		 *    https://github.com/FreeRDP/Remmina/issues/915
+		 */
 		remmina_connection_window_open_from_filename(data);
 		break;
 
