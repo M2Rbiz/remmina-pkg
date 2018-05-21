@@ -89,18 +89,56 @@ sudo add-apt-repository ppa:kedazo/libssh-0.7.x
 sudo apt-get update
 ```
 
-### Fedora
+### Fedora and Red Hat
 
-[Hubbitus](https://github.com/Hubbitus) (Pavel Alexeev) provided us a copr, to install just execute as root:
+As of March 2018 Remmina is available on most fedora testing and stable, we still have a (not updated) copr provided by [Hubbitus](https://github.com/Hubbitus) (Pavel Alexeev), to install just execute as root:
 
 ```sh
 dnf copr enable hubbitus/remmina-next
 dnf upgrade --refresh 'remmina*' 'freerdp*'
 ```
 
+~~On Red Hat you can enable the EPEL repository:~~
+
+Note: Unlucky Remmina is not yet in EPEL, you can help submitting a request on the [Red Hat bugzilla](https://bugzilla.redhat.com/). 
+
+```sh
+wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -ivh epel-release-latest-7.noarch.rpm
+```
+
 ### Arch Linux based
 
 Install [remmina-git](https://aur.archlinux.org/packages/remmina-git) from [AUR](https://aur.archlinux.org/)
+
+### openSUSE
+
+Remmina is in the offical repositories for all openSUSE distributions.
+In case the version in the released stable branch of openSUSE is too old you can install the latest one from the [devel project](https://build.opensuse.org/package/show/X11%3ARemoteDesktop/remmina) via:
+
+```
+zypper ar -f obs://X11:RemoteDesktop/remmina remmina
+zypper ref
+zypper in remmina
+```
+
+### For users with a distro that supports [Flatpak](https://flathub.org/), including Ubuntu ###
+
+```sh
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install --user flathub org.remmina.Remmina
+flatpak run --user org.remmina.Remmina
+```
+If you use SSH agent (https://github.com/flatpak/flatpak/issues/1438 )
+
+```sh
+flatpak run --filesystem=$SSH_AUTH_SOCK --env=SSH_AUTH_SOCK=$SSH_AUTH_SOCK org.remmina.Remmina
+```
+
+Just be aware that flatpak store data for installed applications (the XDG config/data folders) under ```$HOME/.var```
+So for instance, if you previously have installed remmina with another package manager, you will have to transfer what was under ```$HOME/.config/remmina``` and ```$HOME/.local/share/remmina``` under, respectively ```~/.var/app/org.remmina.Remmina/config/remmina``` and ```~/.var/app/org.remmina.Remmina/data/remmina```
+
+### External not supported plugins
 
 There are also some external, not supported plugins provided by [Muflone](https://github.com/muflone) :
 
@@ -145,11 +183,11 @@ You can configure everything from the graphical interface or editing by hand the
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://raw.githubusercontent.com/FreeRDP/Remmina/next/CONTRIBUTING.md) for a better overview.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for a better overview.
 
 If you want to contribute with code:
 
-1. [Fork it](https://github.com/FreeRDP/Remmina#fork-destination-box)
+1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -163,7 +201,7 @@ If you rather prefer to contribute to Remmina with money you are more than welco
 
 For more informations See the [Remmina web site donation page](http://remmina.org/wp/donations).
 
-See the [THANKS.md](https://raw.githubusercontent.com/FreeRDP/Remmina/next/THANKS.md) file for an exhaustive list of supporters.
+See the [THANKS.md](THANKS.md) file for an exhaustive list of supporters.
 
 #### Paypal
 
@@ -186,7 +224,7 @@ Remmina is maintained by:
  * [Giovanni Panozzo](https://github.com/giox069)
  * [Dario Cavedon](https://github.com/ic3d)
 
-See the [AUTHORS](https://raw.githubusercontent.com/FreeRDP/Remmina/next/AUTHORS) for an exhaustive list.
+See the [AUTHORS](AUTHORS) for an exhaustive list.
 If you are not listed and you have contributed, feel free to update that file.
 
 ## Resources

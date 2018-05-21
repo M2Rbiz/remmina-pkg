@@ -34,6 +34,8 @@
  *
  */
 
+#define _GNU_SOURCE
+
 #include "rdp_plugin.h"
 #include "rdp_event.h"
 #include "rdp_graphics.h"
@@ -54,6 +56,8 @@
 #include <freerdp/error.h>
 #include <winpr/memory.h>
 
+#include <string.h>
+
 #define REMMINA_RDP_FEATURE_TOOL_REFRESH         1
 #define REMMINA_RDP_FEATURE_SCALE                2
 #define REMMINA_RDP_FEATURE_UNFOCUS              3
@@ -65,6 +69,8 @@
 
 RemminaPluginService* remmina_plugin_service = NULL;
 static char remmina_rdp_plugin_default_drive_name[] = "RemminaDisk";
+
+static BOOL gfx_h264_available = FALSE;
 
 static BOOL rf_process_event_queue(RemminaProtocolWidget* gp)
 {
@@ -316,12 +322,10 @@ BOOL rf_end_paint(rdpContext* context)
 	UINT32 w, h;
 	rdpGdi* gdi;
 	rfContext* rfi;
-	RemminaProtocolWidget* gp;
 	RemminaPluginRdpUiObject* ui;
 
 	gdi = context->gdi;
 	rfi = (rfContext*)context;
-	gp = rfi->protocol_widget;
 
 	if (gdi->primary->hdc->hwnd->invalid->null)
 		return FALSE;
@@ -373,11 +377,9 @@ static BOOL remmina_rdp_pre_connect(freerdp* instance)
 	TRACE_CALL(__func__);
 	rfContext* rfi;
 	ALIGN64 rdpSettings* settings;
-	RemminaProtocolWidget* gp;
 
 	rfi = (rfContext*)instance->context;
 	settings = instance->settings;
-	gp = rfi->protocol_widget;
 
 	settings->OsMajorType = OSMAJORTYPE_UNIX;
 	settings->OsMinorType = OSMINORTYPE_UNSPECIFIED;
@@ -430,32 +432,6 @@ static BOOL remmina_rdp_pre_connect(freerdp* instance)
 	return True;
 }
 
-static UINT32 rf_get_local_color_format(rfContext* rfi, BOOL aligned)
-{
-	UINT32 DstFormat;
-	BOOL invert = aligned;
-
-	if (!rfi)
-		return 0;
-
-	if (rfi->bpp == 32)
-		DstFormat = (!invert) ? PIXEL_FORMAT_RGBA32 : PIXEL_FORMAT_BGRA32;
-	else if (rfi->bpp == 24) {
-		if (aligned)
-			DstFormat = (!invert) ? PIXEL_FORMAT_RGBX32 : PIXEL_FORMAT_BGRX32;
-		else
-			DstFormat = (!invert) ? PIXEL_FORMAT_RGB24 : PIXEL_FORMAT_BGR24;
-	}else if (rfi->bpp == 16)
-		DstFormat = (!invert) ? PIXEL_FORMAT_RGB16 : PIXEL_FORMAT_BGR16;
-	else if (rfi->bpp == 15)
-		DstFormat = (!invert) ? PIXEL_FORMAT_RGB16 : PIXEL_FORMAT_BGR16;
-	else
-		DstFormat = (!invert) ? PIXEL_FORMAT_RGBX32 : PIXEL_FORMAT_BGRX32;
-
-	return DstFormat;
-}
-
-
 static BOOL remmina_rdp_post_connect(freerdp* instance)
 {
 	TRACE_CALL(__func__);
@@ -463,7 +439,7 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 	RemminaProtocolWidget* gp;
 	RemminaPluginRdpUiObject* ui;
 	rdpGdi* gdi;
-	int hdcBytesPerPixel, hdcBitsPerPixel;
+	UINT32 freerdp_local_color_format;
 
 	rfi = (rfContext*)instance->context;
 	gp = rfi->protocol_widget;
@@ -479,20 +455,18 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 	rf_register_graphics(instance->context->graphics);
 
 	if (rfi->bpp == 32) {
-		hdcBytesPerPixel = 4;
-		hdcBitsPerPixel = 32;
+		freerdp_local_color_format = PIXEL_FORMAT_BGRA32;
 		rfi->cairo_format = CAIRO_FORMAT_ARGB32;
 	}else if (rfi->bpp == 24) {
-		hdcBytesPerPixel = 4;
-		hdcBitsPerPixel = 32;
+		/* CAIRO_FORMAT_RGB24 is 32bit aligned, so we map it to libfreerdp's PIXEL_FORMAT_BGRX32 */
+		freerdp_local_color_format = PIXEL_FORMAT_BGRX32;
 		rfi->cairo_format = CAIRO_FORMAT_RGB24;
 	}else {
-		hdcBytesPerPixel = 2;
-		hdcBitsPerPixel = 16;
+		freerdp_local_color_format = PIXEL_FORMAT_RGB16;
 		rfi->cairo_format = CAIRO_FORMAT_RGB16_565;
 	}
 
-	if (!gdi_init(instance, rf_get_local_color_format(rfi, TRUE))) {
+	if (!gdi_init(instance, freerdp_local_color_format)) {
 		rfi->postconnect_error = REMMINA_POSTCONNECT_ERROR_GDI_INIT;
 		return FALSE;
 	}
@@ -722,6 +696,10 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 	rfi->settings->SoftwareGdi = TRUE;
 
+	/* Avoid using H264 modes if they are not available on libfreerdp */
+	if (!gfx_h264_available && (rfi->settings->ColorDepth == 65 || rfi->settings->ColorDepth == 66))
+		rfi->settings->ColorDepth = 64;	// Fallback to GFX RFX
+
 	if (rfi->settings->ColorDepth == 0) {
 		/* RFX (Win7)*/
 		rfi->settings->RemoteFxCodec = TRUE;
@@ -737,18 +715,14 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 		/* /gfx:avc420 (Win8.1) */
 		rfi->settings->ColorDepth = 32;
 		rfi->settings->SupportGraphicsPipeline = TRUE;
-#ifdef WITH_GFX_H264
 		rfi->settings->GfxH264 = TRUE;
 		rfi->settings->GfxAVC444 = FALSE;
-#endif
 	} else if (rfi->settings->ColorDepth >= 66) {
 		/* /gfx:avc444 (Win10) */
 		rfi->settings->ColorDepth = 32;
 		rfi->settings->SupportGraphicsPipeline = TRUE;
-#ifdef WITH_GFX_H264
 		rfi->settings->GfxH264 = TRUE;
 		rfi->settings->GfxAVC444 = TRUE;
-#endif
 	}
 
 	rfi->settings->DesktopWidth = remmina_plugin_service->get_profile_remote_width(gp);
@@ -815,6 +789,13 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 	if (rfi->settings->GatewayEnabled)
 		freerdp_set_gateway_usage_method(rfi->settings,
 			remmina_plugin_service->file_get_int(remminafile, "gateway_usage", FALSE) ? TSC_PROXY_MODE_DETECT : TSC_PROXY_MODE_DIRECT);
+
+	freerdp_set_param_string(rfi->settings, FreeRDP_GatewayAccessToken,
+		remmina_plugin_service->file_get_string(remminafile, "gatewayaccesstoken"));
+
+	rfi->settings->AuthenticationLevel = remmina_plugin_service->file_get_int(
+		remminafile, "authentication level", rfi->settings->AuthenticationLevel);
+
 	/* Certificate ignore */
 	rfi->settings->IgnoreCertificate = remmina_plugin_service->file_get_int(remminafile, "cert_ignore", 0);
 
@@ -905,8 +886,13 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 	rfi->settings->NegotiateSecurityLayer = True;
 
 	rfi->settings->CompressionEnabled = True;
-	rfi->settings->FastPathInput = True;
-	rfi->settings->FastPathOutput = True;
+	if (remmina_plugin_service->file_get_int(remminafile, "disable_fastpath", FALSE)) {
+		rfi->settings->FastPathInput = False;
+		rfi->settings->FastPathOutput = False;
+	} else {
+		rfi->settings->FastPathInput = True;
+		rfi->settings->FastPathOutput = True;
+	}
 
 	/* Orientation and scaling settings */
 	remmina_rdp_settings_get_orientation_scale_prefs(&desktopOrientation, &desktopScaleFactor, &deviceScaleFactor);
@@ -1062,6 +1048,13 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 				remmina_plugin_service->protocol_plugin_set_error(gp, _("Access to RDP server %s failed.\nAccount is disabled."),
 					rfi->settings->ServerHostname );
 				break;
+#ifdef FREERDP_ERROR_SERVER_INSUFFICIENT_PRIVILEGES
+			/* https://msdn.microsoft.com/en-us/library/ee392247.aspx */
+			case FREERDP_ERROR_SERVER_INSUFFICIENT_PRIVILEGES:
+				remmina_plugin_service->protocol_plugin_set_error(gp, _("Access to RDP server %s failed.\nUser has insufficient privileges."),
+					rfi->settings->ServerHostname );
+				break;
+#endif
 			case STATUS_ACCOUNT_RESTRICTION:
 #ifdef FREERDP_ERROR_CONNECT_ACCOUNT_RESTRICTION
 			case FREERDP_ERROR_CONNECT_ACCOUNT_RESTRICTION:
@@ -1094,7 +1087,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 						remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to initialize libfreerdp gdi") );
 						break;
 					case REMMINA_POSTCONNECT_ERROR_NO_H264:
-						remmina_plugin_service->protocol_plugin_set_error(gp, _("You requested an H264 GFX mode for server %s, but your libfreerdp does not support H264. Please check Color Depth settings."), rfi->settings->ServerHostname);
+						remmina_plugin_service->protocol_plugin_set_error(gp, _("You requested an H264 GFX mode for server %s, but your libfreerdp does not support H264. Please use a non-AVC Color Depth setting."), rfi->settings->ServerHostname);
 						break;
 				}
 				break;
@@ -1262,10 +1255,7 @@ static gboolean remmina_rdp_query_feature(RemminaProtocolWidget* gp, const Remmi
 static void remmina_rdp_call_feature(RemminaProtocolWidget* gp, const RemminaProtocolFeature* feature)
 {
 	TRACE_CALL(__func__);
-	RemminaFile* remminafile;
 	rfContext* rfi = GET_PLUGIN_DATA(gp);
-
-	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	switch (feature->id) {
 	case REMMINA_RDP_FEATURE_UNFOCUS:
@@ -1349,10 +1339,8 @@ static gboolean remmina_rdp_get_screenshot(RemminaProtocolWidget *gp, RemminaPlu
 static gpointer colordepth_list[] =
 {
 	/* 1st one is the default in a new install */
-#ifdef WITH_GFX_H264
 	"66",  N_("GFX AVC444 (32 bpp)"),
 	"65",  N_("GFX AVC420 (32 bpp)"),
-#endif
 	"64",  N_("GFX RFX (32 bpp)"),
 	"0",  N_("RemoteFX (32 bpp)"),
 	"32", N_("True color (32 bpp)"),
@@ -1445,7 +1433,8 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "shareprinter",	       N_("Share local printers"),		TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disablepasswordstoring",  N_("Disable password storing"),		TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disableclipboard",	       N_("Disable clipboard sync"),		TRUE,	NULL,		NULL},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "console",		       N_("Attach to console (2003/2003 R2)"),	FALSE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "console",		       N_("Attach to console (2003/2003 R2)"),	TRUE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disable_fastpath",	       N_("Disable fast-path"),	TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "gateway_usage",	       N_("Server detection using RD Gateway"),	FALSE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,			NULL,					FALSE,	NULL,		NULL}
 };
@@ -1462,6 +1451,9 @@ static const RemminaProtocolFeature remmina_rdp_features[] =
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_END,	      0,					NULL,			    NULL,	NULL}
 };
 
+/* This will be filled with version info string */
+static char remmina_plugin_rdp_version[256];
+
 /* Protocol plugin definition and features */
 static RemminaProtocolPlugin remmina_rdp =
 {
@@ -1469,7 +1461,7 @@ static RemminaProtocolPlugin remmina_rdp =
 	"RDP",                                          // Name
 	N_("RDP - Remote Desktop Protocol"),            // Description
 	GETTEXT_PACKAGE,                                // Translation domain
-	REMMINA_PLUGIN_RDP_VERSION,                     // Version number
+	remmina_plugin_rdp_version,                     // Version number
 	"remmina-rdp",                                  // Icon for normal connection
 	"remmina-rdp-ssh",                              // Icon for SSH connection
 	remmina_rdp_basic_settings,                     // Array for basic settings
@@ -1492,7 +1484,7 @@ static RemminaFilePlugin remmina_rdpf =
 	"RDPF",                                         // Name
 	N_("RDP - RDP File Handler"),                   // Description
 	GETTEXT_PACKAGE,                                // Translation domain
-	REMMINA_PLUGIN_RDP_VERSION,                     // Version number
+	remmina_plugin_rdp_version,                     // Version number
 	remmina_rdp_file_import_test,                   // Test import function
 	remmina_rdp_file_import,                        // Import function
 	remmina_rdp_file_export_test,                   // Test export function
@@ -1507,10 +1499,31 @@ static RemminaPrefPlugin remmina_rdps =
 	"RDPS",                                         // Name
 	N_("RDP - Preferences"),                        // Description
 	GETTEXT_PACKAGE,                                // Translation domain
-	REMMINA_PLUGIN_RDP_VERSION,                     // Version number
+	remmina_plugin_rdp_version,                     // Version number
 	"RDP",                                          // Label
 	remmina_rdp_settings_new                        // Preferences body function
 };
+
+static char *buildconfig_strstr(const char *bc, const char *option)
+{
+	TRACE_CALL(__func__);
+
+	char *p, *n;
+
+	p = strcasestr(bc, option);
+	if (p == NULL)
+		return NULL;
+
+	if (p > bc && *(p-1) > ' ')
+		return NULL;
+
+	n = p + strlen(option);
+	if (*n > ' ')
+		return NULL;
+
+	return p;
+
+}
 
 G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService* service)
 {
@@ -1545,6 +1558,35 @@ G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService* service)
 
 	if (!service->register_plugin((RemminaPlugin*)&remmina_rdps))
 		return FALSE;
+
+	if (buildconfig_strstr(freerdp_get_build_config(), "WITH_GFX_H264=ON"))
+		gfx_h264_available = TRUE;
+	else {
+		gfx_h264_available = FALSE;
+		/* Remove values 65 and 66 from colordepth_list array by shifting it */
+		gpointer *src, *dst;
+		dst = src = colordepth_list;
+		while(*src) {
+			if (strcmp(*src,"66") != 0 && strcmp(*src, "65") != 0) {
+				if (dst != src)  {
+					*dst = *src;
+					*(dst+1) = *(src+1);
+				}
+				dst += 2;
+			}
+			src += 2;
+		}
+		*dst = NULL;
+	}
+
+	snprintf(remmina_plugin_rdp_version, sizeof(remmina_plugin_rdp_version),
+		"RDP Plugin: %s (git %s), Compiled with FreeRDP lib: %s (%s), Running with FreeRDP lib: %s (rev %s), H264: %s",
+		VERSION, REMMINA_GIT_REVISION,
+		FREERDP_VERSION_FULL, GIT_REVISION,
+		freerdp_get_version_string(),
+		freerdp_get_build_revision(),
+		gfx_h264_available ? "Yes" : "No"
+	);
 
 	remmina_rdp_settings_init();
 
