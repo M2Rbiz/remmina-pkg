@@ -35,9 +35,7 @@
  */
 
 #include "common/remmina_plugin.h"
-#if GTK_VERSION == 3
-#  include <gtk/gtkx.h>
-#endif
+#include <gtk/gtkx.h>
 
 INCLUDE_GET_AVAILABLE_XDISPLAY
 
@@ -333,9 +331,7 @@ static gboolean remmina_plugin_xdmcp_query_feature(RemminaProtocolWidget *gp, co
 static void remmina_plugin_xdmcp_call_feature(RemminaProtocolWidget *gp, const RemminaProtocolFeature *feature)
 {
 	TRACE_CALL(__func__);
-	RemminaFile *remminafile;
 
-	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 	switch (feature->id) {
 	case REMMINA_PLUGIN_XDMCP_FEATURE_TOOL_SENDCTRLALTDEL:
 		remmina_plugin_xdmcp_send_ctrlaltdel(gp);
@@ -405,7 +401,7 @@ static RemminaProtocolPlugin remmina_plugin_xdmcp =
 	remmina_plugin_xdmcp_query_feature,             // Query for available features
 	remmina_plugin_xdmcp_call_feature,              // Call a feature
 	NULL,                                           // Send a keystroke
-	NULL                                            // Screenshot
+	NULL                                            // No screenshot support available
 };
 
 G_MODULE_EXPORT gboolean

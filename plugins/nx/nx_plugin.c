@@ -37,9 +37,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include "common/remmina_plugin.h"
-#if GTK_VERSION == 3
-#  include <gtk/gtkx.h>
-#endif
+#include <gtk/gtkx.h>
 #include <time.h>
 #define LIBSSH_STATIC 1
 #include <libssh/libssh.h>
@@ -579,7 +577,6 @@ static gboolean remmina_plugin_nx_open_connection(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 	RemminaPluginNxData *gpdata = GET_PLUGIN_DATA(gp);
-	RemminaFile *remminafile;
 	gint width, height;
 
 	if (!remmina_plugin_nx_service->gtksocket_available()) {
@@ -588,8 +585,6 @@ static gboolean remmina_plugin_nx_open_connection(RemminaProtocolWidget *gp)
 			remmina_plugin_nx.name);
 		return FALSE;
 	}
-
-	remminafile = remmina_plugin_nx_service->protocol_plugin_get_file(gp);
 
 	width = remmina_plugin_nx_service->get_profile_remote_width(gp);
 	height = remmina_plugin_nx_service->get_profile_remote_height(gp);
@@ -753,7 +748,7 @@ static RemminaProtocolPlugin remmina_plugin_nx =
 	remmina_plugin_nx_query_feature,                // Query for available features
 	remmina_plugin_nx_call_feature,                 // Call a feature
 	NULL,                                           // Send a keystroke
-	NULL                                            // Screenshot
+	NULL                                            // No screenshot support available
 };
 
 G_MODULE_EXPORT gboolean
