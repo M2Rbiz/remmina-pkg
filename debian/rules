@@ -10,7 +10,12 @@ LDFLAGS += -Wl,--as-needed
 
 override_dh_install:
 	dh_install
+	cd po; intltool-update --pot --verbose -g remmina
 	[ -d debian/remmina-common ] && \
 		find $(CURDIR)/debian/remmina-common -name "*remmina.desktop" -delete && \
 		find $(CURDIR)/debian/remmina-common -name "*remmina.1" -delete && \
 		find $(CURDIR)/debian/remmina-common -type d -empty -delete || true
+
+override_dh_clean:
+	-rm po/remmina.pot
+	dh_clean
