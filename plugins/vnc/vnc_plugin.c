@@ -1053,7 +1053,6 @@ static void remmina_plugin_vnc_rfb_chat(rfbClient* cl, int value, char *text)
 	}
 }
 
-#ifdef ENABLE_VNCI
 static gboolean remmina_plugin_vnc_incoming_connection(RemminaProtocolWidget *gp, rfbClient *cl)
 {
 	TRACE_CALL(__func__);
@@ -1087,7 +1086,6 @@ static gboolean remmina_plugin_vnc_incoming_connection(RemminaProtocolWidget *gp
 
 	return TRUE;
 }
-#endif
 
 static gboolean remmina_plugin_vnc_main_loop(RemminaProtocolWidget *gp)
 {
@@ -1177,7 +1175,6 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		rfbClientSetClientData(cl, NULL, gp);
 
 		if (host[0] == '\0') {
-#ifdef ENABLE_VNCI
 			cl->serverHost = strdup(host);
 			cl->listenSpecified = TRUE;
 			if (remmina_plugin_service->file_get_int(remminafile, "ssh_enabled", FALSE)) {
@@ -1190,9 +1187,6 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 			}
 
 			remmina_plugin_vnc_incoming_connection(gp, cl);
-#else
-			return FALSE;
-#endif
 		}else {
 			remmina_plugin_service->get_server_port(host, 5900, &s, &cl->serverPort);
 			cl->serverHost = strdup(s);
@@ -1853,17 +1847,16 @@ static gpointer quality_list[] =
  */
 static const RemminaProtocolSetting remmina_plugin_vnc_basic_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	  "server",	  NULL,			   FALSE,		     "_rfb._tcp",		       NULL						    },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "proxy",	  N_("Repeater"),	   FALSE,		     NULL,			       NULL						    },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	  N_("User name"),	   FALSE,		     NULL,			       NULL						    },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	  N_("User password"),	   FALSE,		     NULL,			       NULL						    },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth",	  N_("Color depth"),	   FALSE,		     colordepth_list,		       NULL						    },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	  N_("Quality"),	   FALSE,		     quality_list,		       NULL						    },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  NULL,		  NULL,			   FALSE,		     NULL,			       NULL						    },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		  NULL,			   FALSE,		     NULL,			       NULL						    }
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	  "server",	  NULL,			   FALSE,     "_rfb._tcp",	NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "proxy",	  N_("Repeater"),	   FALSE,     NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	  N_("User name"),	   FALSE,     NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	  N_("User password"),	   FALSE,     NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth",	  N_("Color depth"),	   FALSE,     colordepth_list,	NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	  N_("Quality"),	   FALSE,     quality_list,	NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	  NULL,			   FALSE,     NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		  NULL,			   FALSE,     NULL,		NULL}
 };
 
-#ifdef ENABLE_VNCI
 /* Array of RemminaProtocolSetting for basic settings.
  * Each item is composed by:
  * a) RemminaProtocolSettingType for setting type
@@ -1875,15 +1868,14 @@ static const RemminaProtocolSetting remmina_plugin_vnc_basic_settings[] =
  */
 static const RemminaProtocolSetting remmina_plugin_vnci_basic_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "listenport",	    N_("Listen on port"),      FALSE,			   NULL,			     NULL						   },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	    N_("User name"),	       FALSE,			   NULL,			     NULL						   },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	    N_("User password"),       FALSE,			   NULL,			     NULL						   },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth",	    N_("Color depth"),	       FALSE,			   colordepth_list,		     NULL						   },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	    N_("Quality"),	       FALSE,			   quality_list,		     NULL						   },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  NULL,		    NULL,		       FALSE,			   NULL,			     NULL						   },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		    NULL,		       FALSE,			   NULL,			     NULL						   }
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "listenport",	    N_("Listen on port"),      FALSE,   NULL,		     NULL   },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	    N_("User name"),	       FALSE,   NULL,		     NULL   },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	    N_("User password"),       FALSE,   NULL,		     NULL   },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth",	    N_("Color depth"),	       FALSE,   colordepth_list,     NULL   },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	    N_("Quality"),	       FALSE,   quality_list,	     NULL   },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  NULL,		    NULL,		       FALSE,   NULL,		     NULL   },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		    NULL,		       FALSE,   NULL,		     NULL   }
 };
-#endif
 
 /* Array of RemminaProtocolSetting for advanced settings.
  * Each item is composed by:
@@ -1896,13 +1888,13 @@ static const RemminaProtocolSetting remmina_plugin_vnci_basic_settings[] =
  */
 static const RemminaProtocolSetting remmina_plugin_vnc_advanced_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "showcursor",		 N_("Show remote cursor"),	       TRUE,				      NULL,				     NULL			      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "viewonly",		 N_("View only"),		       FALSE,				      NULL,				     NULL			      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableclipboard",	 N_("Disable clipboard sync"),	       TRUE,				      NULL,				     NULL			      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableencryption",	 N_("Disable encryption"),	       FALSE,				      NULL,				     NULL			      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableserverinput",	 N_("Disable server input"),	       TRUE,				      NULL,				     NULL			      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring", N_("Disable password storing"),       FALSE,				      NULL,				     NULL			      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,   NULL,			 NULL,				       FALSE,				      NULL,				     NULL			      }
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "showcursor",		 N_("Show remote cursor"),	       TRUE,	      NULL,	     NULL        },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "viewonly",		 N_("View only"),		       FALSE,	      NULL,	     NULL        },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableclipboard",	 N_("Disable clipboard sync"),	       TRUE,	      NULL,	     NULL        },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableencryption",	 N_("Disable encryption"),	       FALSE,	      NULL,	     NULL        },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableserverinput",	 N_("Disable server input"),	       TRUE,	      NULL,	     NULL        },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring", N_("Disable password storing"),       FALSE,	      NULL,	     NULL        },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,   NULL,			 NULL,				       FALSE,	      NULL,	     NULL        }
 };
 
 /* Array for available features.
@@ -1927,7 +1919,7 @@ static RemminaProtocolPlugin remmina_plugin_vnc =
 {
 	REMMINA_PLUGIN_TYPE_PROTOCOL,                   // Type
 	"VNC",                                          // Name
-	N_("VNC - Virtual Network Computing"),          // Description
+	N_("VNC - VNC viewer"),                         // Description
 	GETTEXT_PACKAGE,                                // Translation domain
 	VERSION,                                        // Version number
 	"remmina-vnc",                                  // Icon for normal connection
@@ -1944,13 +1936,12 @@ static RemminaProtocolPlugin remmina_plugin_vnc =
 	remmina_plugin_vnc_keystroke                    // Send a keystroke
 };
 
-#ifdef ENABLE_VNCI
 /* Protocol plugin definition and features */
 static RemminaProtocolPlugin remmina_plugin_vnci =
 {
 	REMMINA_PLUGIN_TYPE_PROTOCOL,                   // Type
 	"VNCI",                                         // Name
-	N_("VNC - Incoming Connection"),                // Description
+	N_("VNCI - VNC viewer listen mode"),            // Description
 	GETTEXT_PACKAGE,                                // Translation domain
 	VERSION,                                        // Version number
 	"remmina-vnc",                                  // Icon for normal connection
@@ -1967,7 +1958,6 @@ static RemminaProtocolPlugin remmina_plugin_vnci =
 	remmina_plugin_vnc_keystroke,                   // Send a keystroke
 	NULL                                            // No screenshot support available
 };
-#endif
 
 G_MODULE_EXPORT gboolean
 remmina_plugin_entry(RemminaPluginService *service)
@@ -1982,11 +1972,9 @@ remmina_plugin_entry(RemminaPluginService *service)
 		return FALSE;
 	}
 
-#ifdef ENABLE_VNCI
 	if (!service->register_plugin((RemminaPlugin*)&remmina_plugin_vnci)) {
 		return FALSE;
 	}
-#endif
 
 	return TRUE;
 }
