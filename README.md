@@ -1,4 +1,16 @@
-[![Build Status](https://travis-ci.org/FreeRDP/Remmina.png)](https://travis-ci.org/FreeRDP/Remmina) [![Bountysource](https://img.shields.io/bountysource/team/remmina/activity.svg)](https://www.bountysource.com/teams/remmina) [![CodeTriage](https://www.codetriage.com/freerdp/remmina/badges/users.svg)](https://www.codetriage.com/freerdp/remmina)
+[![Snap Status](https://build.snapcraft.io/badge/FreeRDP/Remmina.svg)](https://build.snapcraft.io/user/FreeRDP/Remmina)
+[![Build Status](https://gitlab.com/Remmina/Remmina/badges/master/build.svg)](https://gitlab.com/Remmina/Remmina/pipelines)
+[![Bountysource](https://img.shields.io/bountysource/team/remmina/activity.svg)](https://www.bountysource.com/teams/remmina)
+[![CodeTriage](https://www.codetriage.com/freerdp/remmina/badges/users.svg)](https://www.codetriage.com/freerdp/remmina)
+
+# IMPORTANT NOTICE
+
+We have moved to [gitlab](https://gitlab.com/Remmina/Remmina)
+
+Since the 1st of July 2018 the following links have to be used instead of GitHub.
+
+* [issues URL](https://gitlab.com/Remmina/Remmina/issues)
+* [wiki URL](https://gitlab.com/Remmina/Remmina/wikis/home)
 
 # Remmina: The GTK+ Remote Desktop Client
 
@@ -100,7 +112,7 @@ dnf upgrade --refresh 'remmina*' 'freerdp*'
 
 ~~On Red Hat you can enable the EPEL repository:~~
 
-Note: Unlucky Remmina is not yet in EPEL, you can help submitting a request on the [Red Hat bugzilla](https://bugzilla.redhat.com/). 
+Note: Unlucky Remmina is not yet in EPEL, you can help submitting a request on the [Red Hat bugzilla](https://bugzilla.redhat.com/).
 
 ```sh
 wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -124,10 +136,25 @@ zypper in remmina
 
 ### For users with a distro that supports [Flatpak](https://flathub.org/), including Ubuntu ###
 
+## Development snapshot
+
+Download [this](https://gitlab.com/Remmina/Remmina/-/jobs/artifacts/master/raw/flatpak/remmina-dev.flatpak\?job\=flatpak:test) flatpak
+and install it as described here
+
+```sh
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install --user --bundle remmina-dev.flatpak
+flatpak run org.remmina.Remmina
+```
+
+## Last stable official build on [FlatHub](https://flathub.org/apps/details/org.remmina.Remmina)
+
+Execute the following commands.
+
 ```sh
 flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak install --user flathub org.remmina.Remmina
-flatpak run --user org.remmina.Remmina
+flatpak run org.remmina.Remmina
 ```
 If you use SSH agent (https://github.com/flatpak/flatpak/issues/1438 )
 
