@@ -1,38 +1,4 @@
-/*
- * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2010-2011 Vic Lee
- * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA  02110-1301, USA.
- *
- *  In addition, as a special exception, the copyright holders give
- *  permission to link the code of portions of this program with the
- *  OpenSSL library under certain conditions as described in each
- *  individual source file, and distribute linked combinations
- *  including the two.
- *  You must obey the GNU General Public License in all respects
- *  for all of the code used other than OpenSSL. *  If you modify
- *  file(s) with this exception, you may extend this exception to your
- *  version of the file(s), but you are not obligated to do so. *  If you
- *  do not wish to do so, delete this exception statement from your
- *  version. *  If you delete this exception statement from all source
- *  files in the program, then also delete it here.
- *
- */
+
 
 #define _GNU_SOURCE
 
@@ -297,7 +263,6 @@ BOOL rf_begin_paint(rdpContext* context)
 {
 	TRACE_CALL(__func__);
 	rdpGdi* gdi;
-	HGDI_WND hwnd;
 
 	if (!context)
 		return FALSE;
@@ -306,12 +271,6 @@ BOOL rf_begin_paint(rdpContext* context)
 	if (!gdi || !gdi->primary || !gdi->primary->hdc || !gdi->primary->hdc->hwnd)
 		return FALSE;
 
-	hwnd = gdi->primary->hdc->hwnd;
-	if (!hwnd->ninvalid)
-		return FALSE;
-
-	hwnd->invalid->null = 1;
-	hwnd->ninvalid = 0;
 	return TRUE;
 }
 
@@ -326,9 +285,6 @@ BOOL rf_end_paint(rdpContext* context)
 
 	gdi = context->gdi;
 	rfi = (rfContext*)context;
-
-	if (gdi->primary->hdc->hwnd->invalid->null)
-		return FALSE;
 
 	x = gdi->primary->hdc->hwnd->invalid->x;
 	y = gdi->primary->hdc->hwnd->invalid->y;
@@ -790,6 +746,14 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 		freerdp_set_gateway_usage_method(rfi->settings,
 			remmina_plugin_service->file_get_int(remminafile, "gateway_usage", FALSE) ? TSC_PROXY_MODE_DETECT : TSC_PROXY_MODE_DIRECT);
 
+	/* Force GatewayRpcTransport for old firewalls */
+	rfi->settings->GatewayRpcTransport = remmina_plugin_service->file_get_int(remminafile, "gateway_trans", 0);
+	if (rfi->settings->GatewayRpcTransport) {
+		rfi->settings->GatewayRpcTransport = TRUE;
+		rfi->settings->GatewayHttpTransport = FALSE;
+	}
+
+
 	freerdp_set_param_string(rfi->settings, FreeRDP_GatewayAccessToken,
 		remmina_plugin_service->file_get_string(remminafile, "gatewayaccesstoken"));
 
@@ -908,11 +872,16 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 	 * the "disp" dynamic channel, if available */
 	rfi->settings->SupportDisplayControl = TRUE;
 
+	/* Sound settings */
+
 	cs = remmina_plugin_service->file_get_string(remminafile, "sound");
 
 	if (g_strcmp0(cs, "remote") == 0) {
-		rfi->settings->RemoteConsoleAudio = 1;
+		rfi->settings->RemoteConsoleAudio = TRUE;
 	}else if (g_str_has_prefix(cs, "local")) {
+
+		rfi->settings->AudioPlayback = TRUE;
+		rfi->settings->DeviceRedirection = TRUE;	/* rdpsnd requires rdpdr to be registered */
 
 		rdpsnd_nparams = 0;
 		rdpsnd_params[rdpsnd_nparams++] = "rdpsnd";
@@ -936,6 +905,10 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 		freerdp_client_add_static_channel(rfi->settings, rdpsnd_nparams, (char**)rdpsnd_params);
 
+	}else {
+		/* Disable sound */
+		rfi->settings->AudioPlayback = FALSE;
+		rfi->settings->RemoteConsoleAudio = FALSE;
 	}
 
 	if ( remmina_plugin_service->file_get_int(remminafile, "microphone", FALSE) ? TRUE : FALSE ) {
@@ -985,6 +958,15 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 		rfi->settings->DeviceRedirection = TRUE;
 		rfi->settings->RedirectPrinters = TRUE;
 
+		const gchar* pn = remmina_plugin_service->file_get_string(remminafile, "printername");
+		if ( pn != NULL && pn[0] != '\0' ) {
+			printer->Name = _strdup(pn);
+		}
+		const gchar* dn = remmina_plugin_service->file_get_string(remminafile, "printerdriver");
+		if ( dn != NULL && dn[0] != '\0' ) {
+			printer->DriverName = _strdup(dn);
+		}
+
 		freerdp_device_collection_add(rfi->settings, (RDPDR_DEVICE*)printer);
 	}
 
@@ -1001,6 +983,12 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 		rfi->settings->RedirectSmartCards = TRUE;
 
 		freerdp_device_collection_add(rfi->settings, (RDPDR_DEVICE*)smartcard);
+	}
+
+	if (remmina_plugin_service->file_get_int(remminafile, "passwordispin", FALSE)) {
+		/* Option works only combined with Username and Domain, because freerdp
+		 * doesn't know anything about information on smartcard */
+		rfi->settings->PasswordIsSmartcardPin = TRUE;
 	}
 
 	if (!freerdp_connect(rfi->instance)) {
@@ -1062,6 +1050,15 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 				remmina_plugin_service->protocol_plugin_set_error(gp, _("Access to RDP server %s failed.\nAccount has restrictions."),
 					rfi->settings->ServerHostname );
 				break;
+
+			case STATUS_PASSWORD_MUST_CHANGE:
+#ifdef FREERDP_ERROR_CONNECT_PASSWORD_MUST_CHANGE
+			case FREERDP_ERROR_CONNECT_PASSWORD_MUST_CHANGE:
+#endif
+			remmina_plugin_service->protocol_plugin_set_error(gp, _("Access to RDP server %s failed.\nUser must change password before connecting."),
+				rfi->settings->ServerHostname );
+			break;
+
 			case FREERDP_ERROR_CONNECT_FAILED:
 				remmina_plugin_service->protocol_plugin_set_error(gp, _("Connection to RDP server %s failed."), rfi->settings->ServerHostname );
 				break;
@@ -1427,15 +1424,18 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "exec",		       N_("Startup program"),			FALSE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "execpath",		       N_("Startup path"),			FALSE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "loadbalanceinfo",	       N_("Load Balance Info"),			FALSE,	NULL,		NULL},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "cert_ignore",	       N_("Ignore certificate"),		TRUE,	NULL,		NULL},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "microphone",	       N_("Redirect local microphone"),		TRUE,	NULL,		NULL},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "sharesmartcard",	       N_("Share smartcard"),			TRUE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "printername",	       N_("Local Printer Name"),			FALSE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "printerdriver",	       N_("Local Printer Driver"),			FALSE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "shareprinter",	       N_("Share local printers"),		TRUE,	NULL,		NULL},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disablepasswordstoring",  N_("Disable password storing"),		TRUE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "sharesmartcard",	       N_("Share smartcard"),			TRUE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "microphone",	       N_("Redirect local microphone"),		TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disableclipboard",	       N_("Disable clipboard sync"),		TRUE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "cert_ignore",	       N_("Ignore certificate"),		TRUE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disablepasswordstoring",  N_("Disable password storing"),		TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "console",		       N_("Attach to console (2003/2003 R2)"),	TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disable_fastpath",	       N_("Disable fast-path"),	TRUE,	NULL,		NULL},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "gateway_usage",	       N_("Server detection using RD Gateway"),	FALSE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "gateway_usage",	       N_("Server detection using RD Gateway"),	TRUE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "gateway_trans",	       N_("Set Gateway transport type to RPC"),	TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,			NULL,					FALSE,	NULL,		NULL}
 };
 
@@ -1462,8 +1462,8 @@ static RemminaProtocolPlugin remmina_rdp =
 	N_("RDP - Remote Desktop Protocol"),            // Description
 	GETTEXT_PACKAGE,                                // Translation domain
 	remmina_plugin_rdp_version,                     // Version number
-	"remmina-rdp",                                  // Icon for normal connection
-	"remmina-rdp-ssh",                              // Icon for SSH connection
+	"remmina-rdp-symbolic",                         // Icon for normal connection
+	"remmina-rdp-ssh-symbolic",                     // Icon for SSH connection
 	remmina_rdp_basic_settings,                     // Array for basic settings
 	remmina_rdp_advanced_settings,                  // Array for advanced settings
 	REMMINA_PROTOCOL_SSH_SETTING_TUNNEL,            // SSH settings type
