@@ -38,6 +38,7 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <stdlib.h>
+#include "remmina.h"
 #include "remmina_main.h"
 #include "remmina_widget_pool.h"
 #include "remmina_pref_dialog.h"
@@ -112,6 +113,9 @@ void remmina_application_condexit(RemminaCondExitType why)
 			remmina_exec_exitremmina();
 		break;
 	case REMMINA_CONDEXIT_ONMAINWINDELETE:
+		/* If we are in Kiosk mode, we just exit */
+		if (kioskmode && kioskmode == TRUE)
+			remmina_exec_exitremmina();
 		// Main window has been deleted
 		if (remmina_widget_pool_count() < 1 && !remmina_icon_is_available())
 			remmina_exec_exitremmina();
@@ -176,7 +180,7 @@ void remmina_exec_command(RemminaCommandType command, const gchar* data)
 	case REMMINA_COMMAND_CONNECT:
 		/** @todo This should be a G_OPTION_ARG_FILENAME_ARRAY (^aay) so that
 		 * we can implement multi profile connection:
-		 *    https://github.com/FreeRDP/Remmina/issues/915
+		 *    https://gitlab.com/Remmina/Remmina/issues/915
 		 */
 		remmina_connection_window_open_from_filename(data);
 		break;

@@ -32,39 +32,33 @@
 # files in the program, then also delete it here.
 
 
-set(APPICON16_ACTIONS_DIR "${REMMINA_DATADIR}/icons/hicolor/16x16/actions")
-set(APPICON16_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/16x16/emblems")
-set(APPICON22_ACTIONS_DIR "${REMMINA_DATADIR}/icons/hicolor/22x22/actions")
-set(APPICON22_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/22x22/emblems")
+set(APPICONSCALE_ACTIONS_DIR "${REMMINA_DATADIR}/icons/hicolor/scalable/actions")
+set(APPICONSCALE_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/scalable/emblems")
 
-set(APPICON16_ACTIONS_DATA
-        16x16/actions/remmina-fit-window.png
-        16x16/actions/remmina-scale.png
-        16x16/actions/remmina-dynres.png
-        16x16/actions/remmina-fullscreen.png
-        16x16/actions/remmina-switch-page.png
-        16x16/actions/remmina-pin-up.png
-        16x16/actions/remmina-pin-down.png
-        )
+set(APPICONSCALE_ACTIONS_DATA
+    scalable/actions/remmina-camera-photo-symbolic.svg
+    scalable/actions/remmina-disconnect-symbolic.svg
+    scalable/actions/remmina-dynres-symbolic.svg
+    scalable/actions/remmina-fit-window-symbolic.svg
+    scalable/actions/remmina-folder-symbolic.svg
+    scalable/actions/remmina-fullscreen-symbolic.svg
+    scalable/actions/remmina-go-bottom-symbolic.svg
+    scalable/actions/remmina-keyboard-symbolic.svg
+    scalable/actions/remmina-pan-down-symbolic.svg
+    scalable/actions/remmina-pan-up-symbolic.svg
+    scalable/actions/remmina-pin-down-symbolic.svg
+    scalable/actions/remmina-pin-up-symbolic.svg
+    scalable/actions/remmina-preferences-system-symbolic.svg
+    scalable/actions/remmina-scale-symbolic.svg
+    scalable/actions/remmina-switch-page-symbolic.svg
+    scalable/actions/remmina-system-run-symbolic.svg
+    )
 
-set(APPICON16_EMBLEMS_DATA
-        16x16/emblems/remmina-sftp.png
-        )
+set(APPICONSCALE_EMBLEMS_DATA
+    scalable/emblems/remmina-sftp-symbolic.svg
+    scalable/emblems/remmina-ssh-symbolic.svg
+    )
 
-set(APPICON22_ACTIONS_DATA
-        22x22/actions/remmina-fit-window.png
-        22x22/actions/remmina-scale.png
-        22x22/actions/remmina-dynres.png
-        22x22/actions/remmina-fullscreen.png
-        22x22/actions/remmina-switch-page.png
-        )
-
-set(APPICON22_EMBLEMS_DATA
-        22x22/emblems/remmina-sftp.png
-        )
-
-install(FILES ${APPICON16_ACTIONS_DATA} DESTINATION ${APPICON16_ACTIONS_DIR})
-install(FILES ${APPICON16_EMBLEMS_DATA} DESTINATION ${APPICON16_EMBLEMS_DIR})
-install(FILES ${APPICON22_ACTIONS_DATA} DESTINATION ${APPICON22_ACTIONS_DIR})
-install(FILES ${APPICON22_EMBLEMS_DATA} DESTINATION ${APPICON22_EMBLEMS_DIR})
+install(FILES ${APPICONSCALE_ACTIONS_DATA} DESTINATION ${APPICONSCALE_ACTIONS_DIR})
+install(FILES ${APPICONSCALE_EMBLEMS_DATA} DESTINATION ${APPICONSCALE_EMBLEMS_DIR})
 

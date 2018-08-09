@@ -91,21 +91,17 @@ if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     include_directories(/usr/local/include /usr/include)
     link_directories(/usr/local/lib /usr/lib)
     set(CMAKE_REQUIRED_INCLUDES /usr/local/include)
-    set(CMAKE_SHARED_LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX}
-        /usr/local/lib)
+    set(CMAKE_SHARED_LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX} /usr/local/lib)
 endif()
 
 # Versioning
 set(WITH_LIBRARY_VERSIONING "ON")
 set(REMMINA_VERSION_MAJOR "1")
 set(REMMINA_VERSION_MINOR "2")
-set(REMMINA_VERSION_REVISION "30")
-set(REMMINA_VERSION_SUFFIX "1")
-set(REMMINA_VERSION "\
-${REMMINA_VERSION_MAJOR}.\
-${REMMINA_VERSION_MINOR}.\
-${REMMINA_VERSION_REVISION}.\
-${REMMINA_VERSION_SUFFIX}")
+set(REMMINA_VERSION_REVISION "31")
+set(REMMINA_VERSION_SUFFIX "2")
+#set(REMMINA_VERSION "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}")
+set(REMMINA_VERSION "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}.${REMMINA_VERSION_SUFFIX}")
 
 message(STATUS "Remmina version: ${REMMINA_VERSION}")
 
@@ -173,8 +169,7 @@ endif()
 option(SNAP_BUILD_ONLY "SNAP_BUILD_ONLY" OFF)
 if(SNAP_BUILD_ONLY)
     if(NOT SNAPCRAFT)
-        message(FATAL_ERROR
-            "snapcraft not found, impossible to create only snap target")
+        message(FATAL_ERROR "snapcraft not found, impossible to create only snap target")
     endif()
     return()
 endif()
@@ -209,10 +204,8 @@ endif()
 if("${CMAKE_C_COMPILER_ID}" MATCHES "Clang" AND WITH_CLANG_COVERAGE)
     message(STATUS "Enabling coverage.")
     add_definitions(-DWITH_CLANG_COVERAGE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}
-    -g -fprofile-instr-generate -fcoverage-mapping")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}
-    -fprofile-instr-generate")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fprofile-instr-generate -fcoverage-mapping")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-instr-generate")
 elseif("${CMAKE_C_COMPILER_ID}" MATCHES "GNU" AND WITH_GCC_PROFILING)
     message(STATUS "Enabling profiling.")
     add_definitions(-DWITH_GCC_PROFILING)
