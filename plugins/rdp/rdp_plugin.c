@@ -24,6 +24,12 @@
 
 #include <string.h>
 
+#ifdef GDK_WINDOWING_X11
+	#include <X11/Xlib.h>
+	#include <X11/XKBlib.h>
+	#include <gdk/gdkx.h>
+#endif
+
 #define REMMINA_RDP_FEATURE_TOOL_REFRESH         1
 #define REMMINA_RDP_FEATURE_SCALE                2
 #define REMMINA_RDP_FEATURE_UNFOCUS              3
@@ -277,11 +283,12 @@ BOOL rf_begin_paint(rdpContext* context)
 BOOL rf_end_paint(rdpContext* context)
 {
 	TRACE_CALL(__func__);
-	INT32 x, y;
-	UINT32 w, h;
 	rdpGdi* gdi;
 	rfContext* rfi;
 	RemminaPluginRdpUiObject* ui;
+	int i, ninvalid;
+	region *reg;
+	HGDI_RGN cinvalid;
 
 	gdi = context->gdi;
 	rfi = (rfContext*)context;
@@ -289,22 +296,30 @@ BOOL rf_end_paint(rdpContext* context)
 	if (gdi->primary->hdc->hwnd->invalid->null)
 		return TRUE;
 
-	x = gdi->primary->hdc->hwnd->invalid->x;
-	y = gdi->primary->hdc->hwnd->invalid->y;
-	w = gdi->primary->hdc->hwnd->invalid->w;
-	h = gdi->primary->hdc->hwnd->invalid->h;
+	if (gdi->primary->hdc->hwnd->ninvalid < 1)
+		return TRUE;
+
+	ninvalid = gdi->primary->hdc->hwnd->ninvalid;
+	cinvalid = gdi->primary->hdc->hwnd->cinvalid;
+	reg = (region *)g_malloc(sizeof(region) * ninvalid);
+	for(i = 0; i < ninvalid; i++) {
+		reg[i].x = cinvalid[i].x;
+		reg[i].y = cinvalid[i].y;
+		reg[i].w = cinvalid[i].w;
+		reg[i].h = cinvalid[i].h;
+	}
 
 	ui = g_new0(RemminaPluginRdpUiObject, 1);
-	ui->type = REMMINA_RDP_UI_UPDATE_REGION;
-	ui->region.x = x;
-	ui->region.y = y;
-	ui->region.width = w;
-	ui->region.height = h;
+	ui->type = REMMINA_RDP_UI_UPDATE_REGIONS;
+	ui->reg.ninvalid = ninvalid;
+	ui->reg.ureg = reg;
 
 	remmina_rdp_event_queue_ui_async(rfi->protocol_widget, ui);
 
+
 	gdi->primary->hdc->hwnd->invalid->null = TRUE;
 	gdi->primary->hdc->hwnd->ninvalid = 0;
+
 
 	return TRUE;
 }
@@ -333,6 +348,64 @@ static BOOL rf_desktop_resize(rdpContext* context)
 
 	return TRUE;
 }
+
+static BOOL rf_play_sound(rdpContext* context, const PLAY_SOUND_UPDATE* play_sound)
+{
+	TRACE_CALL(__func__);
+	rfContext* rfi;
+	RemminaProtocolWidget* gp;
+	GdkDisplay* disp;
+
+	rfi = (rfContext*)context;
+	gp = rfi->protocol_widget;
+
+	disp = gtk_widget_get_display(GTK_WIDGET(gp));
+	gdk_display_beep(disp);
+
+	return TRUE;
+}
+
+static BOOL rf_keyboard_set_indicators(rdpContext* context, UINT16 led_flags)
+{
+	TRACE_CALL(__func__);
+	rfContext* rfi;
+	RemminaProtocolWidget* gp;
+	GdkDisplay* disp;
+
+	rfi = (rfContext*)context;
+	gp = rfi->protocol_widget;
+	disp = gtk_widget_get_display(GTK_WIDGET(gp));
+
+#ifdef GDK_WINDOWING_X11
+	if (GDK_IS_X11_DISPLAY(disp)) {
+		/* ToDo: we are not on the main thread. Will Xorg complain ? */
+		Display* x11_display;
+		x11_display = gdk_x11_display_get_xdisplay(disp);
+		XkbLockModifiers(x11_display, XkbUseCoreKbd,
+			LockMask | Mod2Mask,
+			(led_flags & KBD_SYNC_CAPS_LOCK ? LockMask : 0) |
+			(led_flags & KBD_SYNC_NUM_LOCK ? Mod2Mask : 0)
+			);
+
+		/* ToDo: add support to KANA_LOCK and SCROLL_LOCK */
+	}
+#endif
+
+	return TRUE;
+}
+
+BOOL rf_keyboard_set_ime_status(rdpContext* context, UINT16 imeId, UINT32 imeState,
+                                UINT32 imeConvMode)
+{
+	TRACE_CALL(__func__);
+	if (!context)
+			return FALSE;
+
+	/* Unimplemented, we ignore it */
+
+	return TRUE;
+}
+
 
 static BOOL remmina_rdp_pre_connect(freerdp* instance)
 {
@@ -447,6 +520,10 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 	instance->update->BeginPaint = rf_begin_paint;
 	instance->update->EndPaint = rf_end_paint;
 	instance->update->DesktopResize = rf_desktop_resize;
+
+	instance->update->PlaySound = rf_play_sound;
+	instance->update->SetKeyboardIndicators = rf_keyboard_set_indicators;
+	instance->update->SetKeyboardImeStatus = rf_keyboard_set_ime_status;
 
 	remmina_rdp_clipboard_init(rfi);
 	rfi->connected = True;
