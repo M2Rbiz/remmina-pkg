@@ -141,7 +141,9 @@ remmina_file_copy(const gchar *filename)
 	RemminaFile *remminafile;
 
 	remminafile = remmina_file_load(filename);
-	remmina_file_generate_filename(remminafile);
+	if (remminafile) {
+		remmina_file_generate_filename(remminafile);
+	}
 
 	return remminafile;
 }
@@ -197,6 +199,7 @@ remmina_file_load(const gchar *filename)
 
 	if (!g_key_file_load_from_file(gkeyfile, filename, G_KEY_FILE_NONE, NULL)) {
 		g_key_file_free(gkeyfile);
+		g_printf("WARNING: unable to load remmina profile file %s: g_key_file_load_from_file() returned NULL.\n", filename);
 		return NULL;
 	}
 
@@ -257,6 +260,7 @@ remmina_file_load(const gchar *filename)
 			g_strfreev(keys);
 		}
 	}else {
+		g_printf("WARNING: unable to load remmina profile file %s: cannot find key name= in section remmina.\n", filename);
 		remminafile = NULL;
 	}
 
@@ -548,8 +552,12 @@ void remmina_file_unsave_password(RemminaFile *remminafile)
 			if (setting_iter) {
 				while (setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END) {
 					g_debug("setting name: %s", setting_iter->name);
-					if (remmina_plugin_manager_is_encrypted_setting(protocol_plugin, setting_iter->name)) {
-						remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
+					if (setting_iter->name == NULL) {
+						g_warning("Internal error: a setting name in protocol plugin %s is null. Please fix RemminaProtocolSetting struct content.", proto);
+					}else {
+						if (remmina_plugin_manager_is_encrypted_setting(protocol_plugin, setting_iter->name)) {
+							remmina_file_set_string(remminafile, remmina_plugin_manager_get_canonical_setting_name(setting_iter), NULL);
+						}
 					}
 					setting_iter++;
 				}
