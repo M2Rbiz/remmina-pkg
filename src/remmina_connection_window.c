@@ -54,6 +54,7 @@
 #include "remmina_protocol_widget.h"
 #include "remmina_public.h"
 #include "remmina_scrolled_viewport.h"
+#include "remmina_utils.h"
 #include "remmina_widget_pool.h"
 #include "remmina_log.h"
 #include "remmina/remmina_trace_calls.h"
@@ -1767,9 +1768,8 @@ static void remmina_connection_holder_toolbar_screenshot(GtkWidget* widget, Remm
 	GdkWindow *active_window;
 	cairo_t *cr;
 	gint width, height;
-	const gchar* remminafile;
+	GString *pngstr;
 	gchar* pngname;
-	gchar* pngdate;
 	GtkWidget* dialog;
 	RemminaProtocolWidget *gp;
 	RemminaPluginScreenshotData rpsd;
@@ -1785,6 +1785,7 @@ static void remmina_connection_holder_toolbar_screenshot(GtkWidget* widget, Remm
 	DECLARE_CNNOBJ
 		gp = REMMINA_PROTOCOL_WIDGET(cnnobj->proto);
 
+	GtkClipboard *c = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
 	// Ask the plugin if it can give us a screenshot
 	if (remmina_protocol_widget_plugin_screenshot(gp, &rpsd)) {
 		// Good, we have a screenshot from the plugin !
@@ -1805,7 +1806,11 @@ static void remmina_connection_holder_toolbar_screenshot(GtkWidget* widget, Remm
 		stride = cairo_format_stride_for_width(cairo_format, width);
 
 		srcsurface = cairo_image_surface_create_for_data(rpsd.buffer, cairo_format, width, height, stride);
-
+		// Transfer the PixBuf in the main clipboard selection
+		if (!remmina_pref.deny_screenshot_clipboard) {
+			gtk_clipboard_set_image (c, gdk_pixbuf_get_from_surface (
+						srcsurface, 0, 0, width, height));
+		}
 		surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height);
 		cr = cairo_create(surface);
 		cairo_set_source_surface(cr, srcsurface, 0, 0);
@@ -1838,6 +1843,10 @@ static void remmina_connection_holder_toolbar_screenshot(GtkWidget* widget, Remm
 		if (screenshot == NULL)
 			g_print("gdk_pixbuf_get_from_window failed\n");
 
+		// Transfer the PixBuf in the main clipboard selection
+		if (!remmina_pref.deny_screenshot_clipboard) {
+			gtk_clipboard_set_image (c, screenshot);
+		}
 		// Prepare the destination cairo surface.
 		surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height);
 		cr = cairo_create(surface);
@@ -1851,22 +1860,30 @@ static void remmina_connection_holder_toolbar_screenshot(GtkWidget* widget, Remm
 
 	}
 
-	remminafile = remmina_file_get_filename(cnnobj->remmina_file);
-	//imagedir = g_get_user_special_dir(G_USER_DIRECTORY_PICTURES);
-	/** @todo Improve file name (DONE:8743571d) + give the user the option */
-	pngdate = g_strdup_printf("%d-%d-%d-%d:%d:%f",
-		g_date_time_get_year(date),
-		g_date_time_get_month(date),
-		g_date_time_get_day_of_month(date),
-		g_date_time_get_hour(date),
-		g_date_time_get_minute(date),
-		g_date_time_get_seconds(date));
+	//home/antenore/Pictures/remmina_%p_%h_%Y  %m %d-%H%M%S.png pngname
+        //home/antenore/Pictures/remmina_st_  _2018 9 24-151958.240374.png
 
+	pngstr = g_string_new(g_strdup_printf("%s/%s.png",
+				remmina_pref.screenshot_path,
+				remmina_pref.screenshot_name));
+	remmina_utils_string_replace_all(pngstr, "%p",
+			remmina_file_get_string(cnnobj->remmina_file, "name"));
+	remmina_utils_string_replace_all(pngstr, "%h",
+			remmina_file_get_string(cnnobj->remmina_file, "server"));
+	remmina_utils_string_replace_all(pngstr, "%Y",
+			g_strdup_printf("%d", g_date_time_get_year(date)));
+	remmina_utils_string_replace_all(pngstr, "%m", g_strdup_printf("%d",
+				g_date_time_get_month(date)));
+	remmina_utils_string_replace_all(pngstr, "%d",
+			g_strdup_printf("%d", g_date_time_get_day_of_month(date)));
+	remmina_utils_string_replace_all(pngstr, "%H",
+			g_strdup_printf("%d", g_date_time_get_hour(date)));
+	remmina_utils_string_replace_all(pngstr, "%M",
+			g_strdup_printf("%d", g_date_time_get_minute(date)));
+	remmina_utils_string_replace_all(pngstr, "%S",
+			g_strdup_printf("%f", g_date_time_get_seconds(date)));
 	g_date_time_unref(date);
-	if (remminafile == NULL)
-		remminafile = "remmina_screenshot";
-	pngname = g_strdup_printf("%s/%s-%s.png", remmina_pref.screenshot_path,
-		g_path_get_basename(remminafile), pngdate);
+	pngname = g_string_free(pngstr, FALSE);
 
 	cairo_surface_write_to_png(surface, pngname);
 
@@ -1876,8 +1893,6 @@ static void remmina_connection_holder_toolbar_screenshot(GtkWidget* widget, Remm
 	//Clean up and return.
 	cairo_destroy(cr);
 	cairo_surface_destroy(surface);
-
-
 }
 
 static void remmina_connection_holder_toolbar_minimize(GtkWidget* widget, RemminaConnectionHolder* cnnhld)
@@ -3673,7 +3688,8 @@ static void remmina_connection_object_on_connect(RemminaProtocolWidget* gp, Remm
 		remmina_pref_add_recent(remmina_file_get_string(cnnobj->remmina_file, "protocol"),
 			remmina_file_get_string(cnnobj->remmina_file, "server"));
 	}
-	remmina_file_set_string (cnnobj->remmina_file, "last_success", last_success);
+	if (remmina_pref.periodic_usage_stats_permitted)
+		remmina_file_set_string (cnnobj->remmina_file, "last_success", last_success);
 
 	/* Save credentials */
 	remmina_file_save(cnnobj->remmina_file);
@@ -3825,6 +3841,8 @@ GtkWidget* remmina_connection_window_open_from_file_full(RemminaFile* remminafil
 	TRACE_CALL(__func__);
 	RemminaConnectionObject* cnnobj;
 	GtkWidget* protocolwidget;
+	gint ret;
+	GtkWidget* dialog;
 
 	cnnobj = g_new0(RemminaConnectionObject, 1);
 	cnnobj->remmina_file = remminafile;
@@ -3889,8 +3907,24 @@ GtkWidget* remmina_connection_window_open_from_file_full(RemminaFile* remminafil
 	if (!remmina_pref.save_view_mode)
 		remmina_file_set_int(cnnobj->remmina_file, "viewmode", remmina_pref.default_mode);
 
-	remmina_protocol_widget_open_connection(REMMINA_PROTOCOL_WIDGET(cnnobj->proto), remminafile);
-
+	/* If it is a GtkSocket plugin and X11 is not available, we inform the
+	 * user and close the connection */
+	ret = remmina_plugin_manager_query_feature_by_type(REMMINA_PLUGIN_TYPE_PROTOCOL,
+			remmina_file_get_string(remminafile, "protocol"),
+			REMMINA_PROTOCOL_FEATURE_TYPE_GTKSOCKET);
+	if (ret && !remmina_gtksocket_available()) {
+		dialog = gtk_message_dialog_new(
+				GTK_WINDOW(cnnobj->window),
+				GTK_DIALOG_MODAL,
+				GTK_MESSAGE_WARNING,
+				GTK_BUTTONS_OK,
+				_("Warning: This plugin require GtkSocket, but it's not available."));
+		g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(gtk_widget_destroy), NULL);
+		gtk_widget_show(dialog);
+		protocolwidget = NULL;
+	}else {
+		remmina_protocol_widget_open_connection(REMMINA_PROTOCOL_WIDGET(cnnobj->proto), remminafile);
+	}
 	return protocolwidget;
 }
 

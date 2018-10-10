@@ -128,7 +128,6 @@ static void init_settings_cache(RemminaPlugin *plugin)
 static gboolean remmina_plugin_manager_register_plugin(RemminaPlugin *plugin)
 {
 	TRACE_CALL(__func__);
-
 	if (plugin->type == REMMINA_PLUGIN_TYPE_SECRET) {
 		if (remmina_secret_plugin) {
 			g_print("Remmina plugin %s (type=%s) bypassed.\n", plugin->name,
@@ -141,11 +140,10 @@ static gboolean remmina_plugin_manager_register_plugin(RemminaPlugin *plugin)
 
 	g_ptr_array_add(remmina_plugin_table, plugin);
 	g_ptr_array_sort(remmina_plugin_table, (GCompareFunc)remmina_plugin_manager_compare_func);
-	/* g_print("Remmina plugin %s (type=%s) registered.\n", plugin->name, _(remmina_plugin_type_name[plugin->type])); */
 	return TRUE;
 }
 
-static gboolean remmina_gtksocket_available()
+gboolean remmina_gtksocket_available()
 {
 	GdkDisplayManager* dm;
 	GdkDisplay* d;
