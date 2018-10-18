@@ -221,14 +221,14 @@ void remmina_pref_init(void)
 	TRACE_CALL(__func__);
 	GKeyFile *gkeyfile;
 	gchar *remmina_dir;
-	const gchar *filename = g_strdup_printf("%s.pref", g_get_prgname());
-	const gchar *colors_filename = g_strdup_printf("%s.colors", g_get_prgname());
+	const gchar *filename = "remmina.pref";
+	const gchar *colors_filename = "remmina.colors";
 	gchar *remmina_colors_file;
 	GDir *dir;
-	gchar *legacy = g_strdup_printf(".%s", g_get_prgname());
+	gchar *legacy = ".remmina";
 	int i;
 
-	remmina_dir = g_build_path( "/", g_get_user_config_dir(), g_get_prgname(), NULL);
+	remmina_dir = g_build_path( "/", g_get_user_config_dir(), "remmina", NULL);
 	/* Create the XDG_CONFIG_HOME directory */
 	g_mkdir_with_parents(remmina_dir, 0750);
 
@@ -241,21 +241,21 @@ void remmina_pref_init(void)
 		remmina_pref_file_do_copy(
 			g_build_path( "/", remmina_dir, filename, NULL),
 			g_build_path( "/", g_get_user_config_dir(),
-				g_get_prgname(), filename, NULL));
+				"remmina", filename, NULL));
 	}
 
 	/* /usr/local/etc/remmina */
 	const gchar * const *dirs = g_get_system_config_dirs();
 	g_free(remmina_dir), remmina_dir = NULL;
 	for (i = 0; dirs[i] != NULL; ++i) {
-		remmina_dir = g_build_path( "/", dirs[i], g_get_prgname(), NULL);
+		remmina_dir = g_build_path( "/", dirs[i], "remmina", NULL);
 		if (g_file_test(remmina_dir, G_FILE_TEST_IS_DIR)) {
 			dir = g_dir_open(remmina_dir, 0, NULL);
 			while ((filename = g_dir_read_name(dir)) != NULL) {
 				remmina_pref_file_do_copy(
 					g_build_path( "/", remmina_dir, filename, NULL),
 					g_build_path( "/", g_get_user_config_dir(),
-						g_get_prgname(), filename, NULL));
+						"remmina", filename, NULL));
 			}
 			g_free(remmina_dir), remmina_dir = NULL;
 		}
@@ -265,7 +265,7 @@ void remmina_pref_init(void)
 	if (remmina_dir != NULL)
 		g_free(remmina_dir), remmina_dir = NULL;
 	remmina_dir = g_build_path( "/", g_get_user_config_dir(),
-		g_get_prgname(), NULL);
+		"remmina", NULL);
 
 	remmina_pref_file = g_strdup_printf("%s/remmina.pref", remmina_dir);
 	/* remmina.colors */
@@ -311,6 +311,12 @@ void remmina_pref_init(void)
 			"hide_connection_toolbar", NULL);
 	else
 		remmina_pref.hide_connection_toolbar = FALSE;
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "hide_searchbar", NULL))
+		remmina_pref.hide_searchbar = g_key_file_get_boolean(gkeyfile, "remmina_pref",
+			"hide_searchbar", NULL);
+	else
+		remmina_pref.hide_searchbar = FALSE;
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "default_action", NULL))
 		remmina_pref.default_action = g_key_file_get_integer(gkeyfile, "remmina_pref", "default_action", NULL);
@@ -393,12 +399,23 @@ void remmina_pref_init(void)
 	else
 		remmina_pref.ssh_loglevel = DEFAULT_SSH_LOGLEVEL;
 
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "deny_screenshot_clipboard", NULL))
+		remmina_pref.deny_screenshot_clipboard = g_key_file_get_boolean(gkeyfile, "remmina_pref", "deny_screenshot_clipboard", NULL);
+	else
+		remmina_pref.deny_screenshot_clipboard = TRUE;
+
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "screenshot_path", NULL)) {
 		remmina_pref.screenshot_path = g_key_file_get_string(gkeyfile, "remmina_pref", "screenshot_path", NULL);
 	}else{
 		remmina_pref.screenshot_path = g_get_user_special_dir(G_USER_DIRECTORY_PICTURES);
 		if (remmina_pref.screenshot_path == NULL)
 			remmina_pref.screenshot_path = g_get_home_dir();
+	}
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "screenshot_name", NULL)) {
+		remmina_pref.screenshot_name = g_key_file_get_string(gkeyfile, "remmina_pref", "screenshot_name", NULL);
+	}else{
+		remmina_pref.screenshot_name = g_strdup("remmina_%p_%h_%Y%m%d-%H%M%S");
 	}
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "ssh_parseconfig", NULL))
@@ -660,16 +677,19 @@ gboolean remmina_pref_save(void)
 	g_key_file_load_from_file(gkeyfile, remmina_pref_file, G_KEY_FILE_NONE, NULL);
 
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "save_view_mode", remmina_pref.save_view_mode);
+	g_key_file_set_boolean(gkeyfile, "remmina_pref", "deny_screenshot_clipboard", remmina_pref.deny_screenshot_clipboard);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "floating_toolbar_placement", remmina_pref.floating_toolbar_placement);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "toolbar_placement", remmina_pref.toolbar_placement);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "prevent_snap_welcome_message", remmina_pref.prevent_snap_welcome_message);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "fullscreen_on_auto", remmina_pref.fullscreen_on_auto);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "always_show_tab", remmina_pref.always_show_tab);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_connection_toolbar", remmina_pref.hide_connection_toolbar);
+	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_searchbar", remmina_pref.hide_searchbar);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "default_action", remmina_pref.default_action);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "scale_quality", remmina_pref.scale_quality);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "ssh_loglevel", remmina_pref.ssh_loglevel);
 	g_key_file_set_string(gkeyfile, "remmina_pref", "screenshot_path", remmina_pref.screenshot_path);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "screenshot_name", remmina_pref.screenshot_name);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "ssh_parseconfig", remmina_pref.ssh_parseconfig);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_toolbar", remmina_pref.hide_toolbar);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_statusbar", remmina_pref.hide_statusbar);

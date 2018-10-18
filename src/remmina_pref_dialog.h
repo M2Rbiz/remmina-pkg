@@ -49,10 +49,12 @@ typedef struct _RemminaPrefDialog {
 	GtkNotebook *notebook_preferences;
 
 	GtkCheckButton *checkbutton_options_remember_last_view_mode;
+	GtkCheckButton *checkbutton_options_deny_screenshot_clipboard;
 	GtkCheckButton *checkbutton_options_save_settings;
 	GtkCheckButton *checkbutton_appearance_fullscreen_on_auto;
 	GtkCheckButton *checkbutton_appearance_show_tabs;
 	GtkCheckButton *checkbutton_appearance_hide_toolbar;
+	GtkCheckButton *checkbutton_appearance_hide_searchbar;
 	GtkCheckButton *checkbutton_permit_send_stats;
 	GtkComboBox *comboboxtext_options_double_click;
 	GtkComboBox *comboboxtext_appearance_view_mode;
@@ -63,6 +65,7 @@ typedef struct _RemminaPrefDialog {
 	GtkComboBox *comboboxtext_options_ssh_loglevel;
 	GtkComboBox *comboboxtext_appearance_fullscreen_toolbar_visibility;
 	GtkFileChooser *filechooserbutton_options_screenshots_path;
+	GtkEntry *entry_options_screenshot_name;
 	GtkCheckButton *checkbutton_options_ssh_parseconfig;
 	GtkEntry *entry_options_ssh_port;
 	GtkEntry *entry_options_ssh_tcp_keepidle;
