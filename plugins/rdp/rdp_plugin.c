@@ -1123,7 +1123,10 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 		smartcard->Type = RDPDR_DTYP_SMARTCARD;
 
-		smartcard->Name = _strdup("scard");
+		const gchar* sn = remmina_plugin_service->file_get_string(remminafile, "smartcardname");
+		if ( sn != NULL && sn[0] != '\0' ) {
+			smartcard->Name = _strdup(sn);
+		}
 
 		rfi->settings->DeviceRedirection = TRUE;
 		rfi->settings->RedirectSmartCards = TRUE;
@@ -1235,8 +1238,13 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 				}
 				break;
 #endif
+#ifdef FREERDP_ERROR_SERVER_DENIED_CONNECTION
+			case FREERDP_ERROR_SERVER_DENIED_CONNECTION:
+				remmina_plugin_service->protocol_plugin_set_error(gp, _("Server %s denied the connection."), rfi->settings->ServerHostname );
+				break;
+#endif
 			default:
-				g_printf("%08X %08X\n", e, (unsigned)ERRCONNECT_POST_CONNECT_FAILED);
+				g_printf("libfreerdp returned code is %08X\n", e);
 				remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to connect to RDP server %s"), rfi->settings->ServerHostname);
 				break;
 			}
@@ -1581,6 +1589,7 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "loadbalanceinfo",	       N_("Load Balance Info"),			FALSE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "printername",	       N_("Local Printer Name"),		FALSE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "printerdriver",	       N_("Local Printer Driver"),		FALSE,	NULL,		NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "smartcardname",	       N_("Smartcard Name"),		FALSE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "shareprinter",	       N_("Share local printers"),		TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "sharesmartcard",	       N_("Share smartcard"),			TRUE,	NULL,		NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "microphone",	       N_("Redirect local microphone"),		TRUE,	NULL,		NULL},
