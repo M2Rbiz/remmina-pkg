@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.4 
+<!-- Generated with glade 3.22.1
 
 Remmina Preferences Dialog -
 Copyright (C) Antenore Gatta & Giovanni Panozzo 2014-2018
@@ -43,6 +43,9 @@ Author: Antenore Gatta
     <property name="type_hint">dialog</property>
     <signal name="close" handler="remmina_pref_dialog_on_close_clicked" swapped="no"/>
     <signal name="destroy" handler="remmina_pref_on_dialog_destroy" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="can_focus">False</property>
@@ -346,7 +349,7 @@ Author: Antenore Gatta
 %Y Year, %m Month, %d Day, %H Hour, %M Minute, %S Seconds (UTC time)
 </property>
                         <property name="hexpand">True</property>
-                        <property name="placeholder_text" translatable="yes">remmina_%p_%h_%Y%m%d-%H%M%S</property>
+                        <property name="placeholder_text">remmina_%p_%h_%Y%m%d-%H%M%S</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -488,67 +491,6 @@ Author: Antenore Gatta
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="top_attach">6</property>
-                        <property name="width">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label_appearance_show_buttons_icons">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Show buttons icons</property>
-                        <property name="justify">fill</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">7</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBoxText" id="comboboxtext_appearance_show_buttons_icons">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">This setting will be active after the application restart</property>
-                        <property name="hexpand">True</property>
-                        <items>
-                          <item translatable="yes">Use system theme preferences</item>
-                          <item translatable="yes">Show always</item>
-                          <item translatable="yes">Hide always</item>
-                        </items>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">7</property>
-                        <property name="width">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label_appearance_show_menu_icons">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Show menu icons</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">8</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBoxText" id="comboboxtext_appearance_show_menu_icons">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">This setting will be active after the application restart</property>
-                        <property name="hexpand">True</property>
-                        <items>
-                          <item translatable="yes">Use system theme preferences</item>
-                          <item translatable="yes">Show always</item>
-                          <item translatable="yes">Hide always</item>
-                        </items>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">8</property>
                         <property name="width">2</property>
                       </packing>
                     </child>
@@ -1291,7 +1233,7 @@ Author: Antenore Gatta
                       <object class="GtkEntry" id="entry_options_ssh_tcp_usrtimeout">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="tooltip_text" translatable="yes" comments="http://man7.org/linux/man-pages/man7/tcp.7.html">it specifies the maximum amount of time in milliseconds that transmitted data may remain unacknowledged before TCP will forcibly close the  corresponding connection.</property>
+                        <property name="tooltip_text" translatable="yes" comments="http://man7.org/linux/man-pages/man7/tcp.7.html">it specifies the maximum amount of time in milliseconds that transmitted data may remain unacknowledged before TCP will forcibly close the corresponding connection.</property>
                         <property name="hexpand">True</property>
                         <property name="max_length">5</property>
                         <property name="input_purpose">number</property>
@@ -1996,9 +1938,6 @@ Author: Antenore Gatta
           </packing>
         </child>
       </object>
-    </child>
-    <child>
-      <placeholder/>
     </child>
   </object>
 </interface>

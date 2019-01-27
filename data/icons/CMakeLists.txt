@@ -1,7 +1,7 @@
 # icons/remmina - The GTK+ Remote Desktop Client
 #
 # Copyright (C) 2011 Marc-Andre Moreau
-# Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+# Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,8 +36,13 @@ set(APPICONSCALE_ACTIONS_DIR "${REMMINA_DATADIR}/icons/hicolor/scalable/actions"
 set(APPICONSCALE_EMBLEMS_DIR "${REMMINA_DATADIR}/icons/hicolor/scalable/emblems")
 
 set(APPICONSCALE_ACTIONS_DATA
+    scalable/actions/edit-delete.svg
+    scalable/actions/view-list.svg
     scalable/actions/remmina-camera-photo-symbolic.svg
+    scalable/actions/remmina-connect-symbolic.svg
     scalable/actions/remmina-disconnect-symbolic.svg
+    scalable/actions/remmina-document-save-symbolic.svg
+    scalable/actions/remmina-document-send-symbolic.svg
     scalable/actions/remmina-dynres-symbolic.svg
     scalable/actions/remmina-fit-window-symbolic.svg
     scalable/actions/remmina-folder-symbolic.svg
@@ -62,3 +67,4 @@ set(APPICONSCALE_EMBLEMS_DATA
 install(FILES ${APPICONSCALE_ACTIONS_DATA} DESTINATION ${APPICONSCALE_ACTIONS_DIR})
 install(FILES ${APPICONSCALE_EMBLEMS_DATA} DESTINATION ${APPICONSCALE_EMBLEMS_DIR})
 
+gtk_update_icon_cache("${REMMINA_DATADIR}/icons/hicolor")

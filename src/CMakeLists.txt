@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2011 Marc-Andre Moreau
 # Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
-# Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+# Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -62,8 +62,6 @@ list(APPEND REMMINA_SRCS
     "remmina_ftp_client.h"
     "remmina_icon.c"
     "remmina_icon.h"
-    "remmina_init_dialog.c"
-    "remmina_init_dialog.h"
     "remmina_key_chooser.c"
     "remmina_key_chooser.h"
     "remmina_log.c"
@@ -75,6 +73,8 @@ list(APPEND REMMINA_SRCS
     "remmina_marshals.list"
     "remmina_masterthread_exec.c"
     "remmina_masterthread_exec.h"
+    "remmina_message_panel.c"
+    "remmina_message_panel.h"
     "remmina_plugin_manager.c"
     "remmina_plugin_manager.h"
     "remmina_ext_exec.c"

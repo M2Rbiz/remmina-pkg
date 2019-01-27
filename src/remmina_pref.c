@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -493,22 +493,6 @@ void remmina_pref_init(void)
 		remmina_pref.fullscreen_toolbar_visibility = g_key_file_get_integer(gkeyfile, "remmina_pref", "fullscreen_toolbar_visibility", NULL);
 	else
 		remmina_pref.fullscreen_toolbar_visibility = FLOATING_TOOLBAR_VISIBILITY_PEEKING;
-	/* Show buttons icons */
-	if (g_key_file_has_key(gkeyfile, "remmina_pref", "show_buttons_icons", NULL)) {
-		remmina_pref.show_buttons_icons = g_key_file_get_integer(gkeyfile, "remmina_pref", "show_buttons_icons", NULL);
-		if (remmina_pref.show_buttons_icons) {
-			g_object_set(gtk_settings_get_default(), "gtk-button-images", remmina_pref.show_buttons_icons == 1, NULL);
-		}
-	}else
-		remmina_pref.show_buttons_icons = 0;
-	/* Show menu icons */
-	if (g_key_file_has_key(gkeyfile, "remmina_pref", "show_menu_icons", NULL)) {
-		remmina_pref.show_menu_icons = g_key_file_get_integer(gkeyfile, "remmina_pref", "show_menu_icons", NULL);
-		if (remmina_pref.show_menu_icons) {
-			g_object_set(gtk_settings_get_default(), "gtk-menu-images", remmina_pref.show_menu_icons == 1, NULL);
-		}
-	}else
-		remmina_pref.show_menu_icons = 0;
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "auto_scroll_step", NULL))
 		remmina_pref.auto_scroll_step = g_key_file_get_integer(gkeyfile, "remmina_pref", "auto_scroll_step", NULL);
@@ -718,8 +702,6 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "default_mode", remmina_pref.default_mode);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "tab_mode", remmina_pref.tab_mode);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "fullscreen_toolbar_visibility", remmina_pref.fullscreen_toolbar_visibility);
-	g_key_file_set_integer(gkeyfile, "remmina_pref", "show_buttons_icons", remmina_pref.show_buttons_icons);
-	g_key_file_set_integer(gkeyfile, "remmina_pref", "show_menu_icons", remmina_pref.show_menu_icons);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "auto_scroll_step", remmina_pref.auto_scroll_step);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "hostkey", remmina_pref.hostkey);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "shortcutkey_fullscreen", remmina_pref.shortcutkey_fullscreen);
