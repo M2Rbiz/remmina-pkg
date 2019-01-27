@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1424,6 +1424,9 @@ static void remmina_plugin_vnc_release_key(RemminaProtocolWidget *gp, guint16 ke
 	RemminaPluginVncData *gpdata = GET_PLUGIN_DATA(gp);
 	RemminaKeyVal *k;
 	gint i;
+
+	if (!gpdata)
+		return;
 
 	if (keycode == 0) {
 		/* Send all release key events for previously pressed keys */

@@ -337,7 +337,17 @@ static BOOL rf_desktop_resize(rdpContext* context)
 	remmina_plugin_service->protocol_plugin_set_width(gp, rfi->settings->DesktopWidth);
 	remmina_plugin_service->protocol_plugin_set_height(gp, rfi->settings->DesktopHeight);
 
-	/* Call to remmina_rdp_event_update_scale(gp) on the main UI thread */
+	ui = g_new0(RemminaPluginRdpUiObject, 1);
+	ui->type = REMMINA_RDP_UI_EVENT;
+	ui->event.type = REMMINA_RDP_UI_EVENT_DESTROY_CAIRO_SURFACE;
+	remmina_rdp_event_queue_ui_sync_retint(gp, ui);
+
+	/* Tell libfreerdp to change its internal GDI bitmap width and heigt,
+	 * this will also destroy gdi->primary_buffer, making our rfi->surface invalid */
+	gdi_resize(((rdpContext*)rfi)->gdi, rfi->settings->DesktopWidth, rfi->settings->DesktopHeight);
+
+	/* Call to remmina_rdp_event_update_scale(gp) on the main UI thread,
+	 * this will recreate rfi->surface from gdi->primary_buffer */
 
 	ui = g_new0(RemminaPluginRdpUiObject, 1);
 	ui->type = REMMINA_RDP_UI_EVENT;
@@ -418,36 +428,9 @@ static BOOL remmina_rdp_pre_connect(freerdp* instance)
 
 	settings->OsMajorType = OSMAJORTYPE_UNIX;
 	settings->OsMinorType = OSMINORTYPE_UNSPECIFIED;
-	ZeroMemory(settings->OrderSupport, 32);
 
 	settings->BitmapCacheEnabled = True;
 	settings->OffscreenSupportLevel = True;
-
-
-	settings->OrderSupport[NEG_DSTBLT_INDEX] = True;
-	settings->OrderSupport[NEG_PATBLT_INDEX] = True;
-	settings->OrderSupport[NEG_SCRBLT_INDEX] = True;
-	settings->OrderSupport[NEG_OPAQUE_RECT_INDEX] = True;
-	settings->OrderSupport[NEG_DRAWNINEGRID_INDEX] = False;
-	settings->OrderSupport[NEG_MULTIDSTBLT_INDEX] = False;
-	settings->OrderSupport[NEG_MULTIPATBLT_INDEX] = False;
-	settings->OrderSupport[NEG_MULTISCRBLT_INDEX] = False;
-	settings->OrderSupport[NEG_MULTIOPAQUERECT_INDEX] = True;
-	settings->OrderSupport[NEG_MULTI_DRAWNINEGRID_INDEX] = False;
-	settings->OrderSupport[NEG_LINETO_INDEX] = True;
-	settings->OrderSupport[NEG_POLYLINE_INDEX] = True;
-	settings->OrderSupport[NEG_MEMBLT_INDEX] = settings->BitmapCacheEnabled;
-	settings->OrderSupport[NEG_MEM3BLT_INDEX] = settings->BitmapCacheEnabled;
-	settings->OrderSupport[NEG_MEMBLT_V2_INDEX] = settings->BitmapCacheEnabled;
-	settings->OrderSupport[NEG_MEM3BLT_V2_INDEX] = settings->BitmapCacheEnabled;
-	settings->OrderSupport[NEG_SAVEBITMAP_INDEX] = False;
-	settings->OrderSupport[NEG_GLYPH_INDEX_INDEX] = True;
-	settings->OrderSupport[NEG_FAST_INDEX_INDEX] = True;
-	settings->OrderSupport[NEG_FAST_GLYPH_INDEX] = True;
-	settings->OrderSupport[NEG_POLYGON_SC_INDEX] = False;
-	settings->OrderSupport[NEG_POLYGON_CB_INDEX] = False;
-	settings->OrderSupport[NEG_ELLIPSE_SC_INDEX] = False;
-	settings->OrderSupport[NEG_ELLIPSE_CB_INDEX] = False;
 
 	if (settings->RemoteFxCodec == True) {
 		settings->FrameAcknowledge = False;
@@ -473,15 +456,12 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 	rfContext* rfi;
 	RemminaProtocolWidget* gp;
 	RemminaPluginRdpUiObject* ui;
-	rdpGdi* gdi;
 	UINT32 freerdp_local_color_format;
 
 	rfi = (rfContext*)instance->context;
 	gp = rfi->protocol_widget;
 	rfi->postconnect_error = REMMINA_POSTCONNECT_ERROR_OK;
 
-	rfi->width = rfi->settings->DesktopWidth;
-	rfi->height = rfi->settings->DesktopHeight;
 	rfi->srcBpp = rfi->settings->ColorDepth;
 
 	if (rfi->settings->RemoteFxCodec == FALSE)
@@ -511,9 +491,6 @@ static BOOL remmina_rdp_post_connect(freerdp* instance)
 		rfi->postconnect_error = REMMINA_POSTCONNECT_ERROR_NO_H264;
 		return FALSE;
 	}
-
-	gdi = instance->context->gdi;
-	rfi->primary_buffer = gdi->primary_buffer;
 
 	pointer_cache_register_callbacks(instance->update);
 
@@ -774,7 +751,6 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 	gchar *gateway_host;
 	gint gateway_port;
 	gint desktopOrientation, desktopScaleFactor, deviceScaleFactor;
-	gint dynresw, dynresh;
 
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
@@ -829,13 +805,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 	rfi->settings->DesktopWidth = remmina_plugin_service->get_profile_remote_width(gp);
 	rfi->settings->DesktopHeight = remmina_plugin_service->get_profile_remote_height(gp);
-	dynresw = remmina_plugin_service->file_get_int(remminafile, "dynamic_resolution_width", 0);
-	dynresh = remmina_plugin_service->file_get_int(remminafile, "dynamic_resolution_height", 0);
 
-	if (rfi->scale == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES && dynresh != 0 && dynresw != 0) {
-		rfi->settings->DesktopWidth = dynresw;
-		rfi->settings->DesktopHeight = dynresh;
-	}
 	remmina_plugin_service->protocol_plugin_set_width(gp, rfi->settings->DesktopWidth);
 	remmina_plugin_service->protocol_plugin_set_height(gp, rfi->settings->DesktopHeight);
 
@@ -911,6 +881,10 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 	/* Certificate ignore */
 	rfi->settings->IgnoreCertificate = remmina_plugin_service->file_get_int(remminafile, "cert_ignore", 0);
+
+	rfi->settings->AllowUnanouncedOrdersFromServer = remmina_plugin_service->file_get_int(remminafile, "relax-order-checks", 0);
+
+	rfi->settings->GlyphSupportLevel = ( remmina_plugin_service->file_get_int(remminafile, "glyph-cache", 0) ? GLYPH_SUPPORT_FULL : GLYPH_SUPPORT_NONE );
 
 	/* ClientHostname is internally preallocated to 32 bytes by libfreerdp */
 	if ((cs = remmina_plugin_service->file_get_string(remminafile, "clientname"))) {
@@ -1415,17 +1389,25 @@ static void remmina_rdp_call_feature(RemminaProtocolWidget* gp, const RemminaPro
 		break;
 
 	case REMMINA_RDP_FEATURE_SCALE:
-		rfi->scale = remmina_plugin_service->remmina_protocol_widget_get_current_scale_mode(gp);
-		remmina_rdp_event_update_scale(gp);
+		if (rfi) {
+			rfi->scale = remmina_plugin_service->remmina_protocol_widget_get_current_scale_mode(gp);
+			remmina_rdp_event_update_scale(gp);
+		} else {
+			printf("REMMINA RDP PLUGIN WARNING: rfi is null in %s REMMINA_RDP_FEATURE_SCALE\n", __func__);
+		}
 		break;
 
 	case REMMINA_RDP_FEATURE_DYNRESUPDATE:
 		break;
 
 	case REMMINA_RDP_FEATURE_TOOL_REFRESH:
-		gtk_widget_queue_draw_area(rfi->drawing_area, 0, 0,
-			remmina_plugin_service->protocol_plugin_get_width(gp),
-			remmina_plugin_service->protocol_plugin_get_height(gp));
+		if (rfi) {
+			gtk_widget_queue_draw_area(rfi->drawing_area, 0, 0,
+				remmina_plugin_service->protocol_plugin_get_width(gp),
+				remmina_plugin_service->protocol_plugin_get_height(gp));
+		} else {
+			printf("REMMINA RDP PLUGIN WARNING: rfi is null in %s REMMINA_RDP_FEATURE_TOOL_REFRESH\n", __func__);
+		}
 		break;
 
 	case REMMINA_RDP_FEATURE_TOOL_SENDCTRLALTDEL:
@@ -1603,6 +1585,8 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "enableproxy",	       N_("Enable proxy support"),		TRUE,	NULL,		NULL},
 #endif
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disableautoreconnect",    N_("Disable automatic reconnection"),	TRUE,	NULL,	        NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "relax-order-checks",      N_("Relax Order Checks"),	        TRUE,	NULL,	        NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "glyph-cache",             N_("Glyph Cache"),	                TRUE,	NULL,	        NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,			NULL,					FALSE,	NULL,		NULL}
 };
 

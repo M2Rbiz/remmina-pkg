@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2015-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2015-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,5 @@
 #define __BACKEND_LIBSECRET_H__
 
 #include <libsecret/secret.h>
-#include <glib.h>
-
 
 #endif // __BACKEND_LIBSECRET_H__

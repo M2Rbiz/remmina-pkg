@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2017-2018 Antenore Gatta
+ * Copyright (C) 2017-2019 Antenore Gatta
  *
  * Initially based on the plugin "Remmina Plugin EXEC", created and written by
  * Fabio Castelli (Muflone) <muflone@vbsimple.net>.
@@ -38,6 +38,6 @@
 #pragma once
 
 #define PLUGIN_NAME        "EXEC"
-#define PLUGIN_DESCRIPTION "Execute a command"
+#define PLUGIN_DESCRIPTION N_("Execute a command")
 #define PLUGIN_VERSION     "1.0"
 #define PLUGIN_APPICON     "remmina-tool-symbolic"

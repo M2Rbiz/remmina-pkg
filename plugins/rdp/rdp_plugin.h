@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,7 +173,8 @@ typedef enum {
 } RemminaPluginRdpUiPointerType;
 
 typedef enum {
-	REMMINA_RDP_UI_EVENT_UPDATE_SCALE
+	REMMINA_RDP_UI_EVENT_UPDATE_SCALE,
+	REMMINA_RDP_UI_EVENT_DESTROY_CAIRO_SURFACE
 } RemminaPluginRdpUiEeventType;
 
 typedef struct {
@@ -229,6 +230,11 @@ struct remmina_plugin_rdp_ui_object {
 	void *retptr;
 };
 
+typedef struct remmina_plugin_rdp_keymap_entry {
+	unsigned orig_keycode;
+	unsigned translated_keycode;
+} RemminaPluginRdpKeymapEntry;
+
 struct rf_context {
 	rdpContext _p;
 
@@ -273,11 +279,8 @@ struct rf_context {
 	cairo_surface_t* surface;
 	cairo_format_t cairo_format;
 	gint bpp;
-	gint width;
-	gint height;
 	gint scanline_pad;
 	gint* colormap;
-	UINT8* primary_buffer;
 
 	guint object_id_seq;
 	GHashTable* object_table;
@@ -292,6 +295,8 @@ struct rf_context {
 	HANDLE event_handle;
 
 	rfClipboard clipboard;
+
+	GArray* keymap;	/* Array of RemminaPluginRdpKeymapEntry */
 
 	enum { REMMINA_POSTCONNECT_ERROR_OK = 0, REMMINA_POSTCONNECT_ERROR_GDI_INIT = 1, REMMINA_POSTCONNECT_ERROR_NO_H264 } postconnect_error;
 };
