@@ -59,6 +59,11 @@
 #include "remmina_log.h"
 #include "remmina/remmina_trace_calls.h"
 
+#ifdef GDK_WINDOWING_WAYLAND
+	#include <gdk/gdkwayland.h>
+#endif
+
+
 #define DEBUG_KB_GRABBING 0
 #include "remmina_exec.h"
 
@@ -222,7 +227,7 @@ static void remmina_connection_window_class_init(RemminaConnectionWindowClass* k
 
 	provider = gtk_css_provider_new();
 
-	/* It's important to remove padding, border and shadow from GtkViewport or
+	/* It’s important to remove padding, border and shadow from GtkViewport or
 	 * we will never know its internal area size, because GtkViweport::viewport_get_view_allocation,
 	 * which returns the internal size of the GtkViewport, is private and we cannot access it */
 
@@ -240,7 +245,6 @@ static void remmina_connection_window_class_init(RemminaConnectionWindowClass* k
 		"}\n"
 		"#remmina-connection-window-fullscreen {\n"
 		"  border-color: black;\n"
-		"  background-color: black;\n"
 		"}\n"
 		"#remmina-small-button {\n"
 		"  outline-offset: 0;\n"
@@ -254,13 +258,15 @@ static void remmina_connection_window_class_init(RemminaConnectionWindowClass* k
 		"  padding: 2px;\n"
 		"  border: 0;\n"
 		"}\n"
-		"#remmina-page {\n"
+		"#remmina-tab-page {\n"
 		"  background-color: black;\n"
 		"}\n"
 		"#remmina-scrolled-container {\n"
 		"}\n"
 		"#remmina-scrolled-container.undershoot {\n"
-		"  background: none\n"
+		"  background: none;\n"
+		"}\n"
+		"#remmina-tab-page {\n"
 		"}\n"
 		"#ftbbox-upper {\n"
 		"  background-color: white;\n"
@@ -310,7 +316,6 @@ static void remmina_connection_window_class_init(RemminaConnectionWindowClass* k
 		"}\n"
 		"#remmina-connection-window-fullscreen {\n"
 		"  border-color: black;\n"
-		"  background-color: black;\n"
 		"}\n"
 		"#remmina-small-button {\n"
 		"  -GtkWidget-focus-padding: 0;\n"
@@ -328,6 +333,8 @@ static void remmina_connection_window_class_init(RemminaConnectionWindowClass* k
 		"}\n"
 		"#remmina-scrolled-container.undershoot {\n"
 		"  background: none\n"
+		"}\n"
+		"#remmina-tab-page {\n"
 		"}\n"
 		"#ftbbox-upper {\n"
 		"  border-style: none solid solid solid;\n"
@@ -496,7 +503,7 @@ static void remmina_connection_holder_keyboard_grab(RemminaConnectionHolder* cnn
 
 		if (remmina_file_get_int(cnnobj->remmina_file, "keyboard_grab", FALSE)) {
 #if DEBUG_KB_GRABBING
-			printf("DEBUG_KB_GRABBING: profile asks for grabbing, let's try.\n");
+			printf("DEBUG_KB_GRABBING: profile asks for grabbing, let’s try.\n");
 #endif
 	/* Up to GTK version 3.20 we can grab the keyboard with gdk_device_grab().
 	 * in GTK 3.20 gdk_seat_grab() should be used instead of gdk_device_grab().
@@ -626,7 +633,7 @@ static void remmina_connection_window_destroy(GtkWidget* widget, RemminaConnecti
 	}
 
 	/* There is no need to destroy priv->floating_toolbar_widget,
-	 * because it's our child and will be destroyed automatically */
+	 * because it’s our child and will be destroyed automatically */
 
 	/* Timer used to hide the toolbar */
 	if (priv->hidetb_timer) {
@@ -805,6 +812,12 @@ static void remmina_connection_holder_get_desktop_size(RemminaConnectionHolder* 
 
 	*width = remmina_protocol_widget_get_width(gp);
 	*height = remmina_protocol_widget_get_height(gp);
+	if (*width == 0) {
+		/* Before connecting we do not have real remote width/height,
+		 * so we ask profile values */
+		*width = remmina_protocol_widget_get_profile_remote_width(gp);
+		*height = remmina_protocol_widget_get_profile_remote_height(gp);
+	}
 }
 
 static void remmina_connection_object_set_scrolled_policy(RemminaConnectionObject* cnnobj, GtkScrolledWindow* scrolled_window)
@@ -859,7 +872,7 @@ static void remmina_connection_holder_toolbar_autofit(GtkWidget* widget, Remmina
 			gtk_window_unmaximize(GTK_WINDOW(cnnhld->cnnwin));
 		}
 
-		/* It's tricky to make the toolbars disappear automatically, while keeping scrollable.
+		/* It’s tricky to make the toolbars disappear automatically, while keeping scrollable.
 		   Please tell me if you know a better way to do this */
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(cnnobj->scrolled_container), GTK_POLICY_NEVER,
 			GTK_POLICY_NEVER);
@@ -870,6 +883,59 @@ static void remmina_connection_holder_toolbar_autofit(GtkWidget* widget, Remmina
 
 }
 
+void remmina_connection_object_get_monitor_geometry(RemminaConnectionObject* cnnobj, GdkRectangle *sz)
+{
+	TRACE_CALL(__func__);
+
+	/* Fill sz with the monitor (or workarea) size and position
+	 * of the monitor (or workarea) where cnnhld->cnnwin is located */
+
+	GdkRectangle monitor_geometry;
+
+	sz->x = sz->y = sz->width = sz->height = 0;
+
+	if (!cnnobj->cnnhld)
+		return;
+	if (!cnnobj->cnnhld->cnnwin)
+		return;
+	if (!gtk_widget_is_visible(GTK_WIDGET(cnnobj->cnnhld->cnnwin)))
+		return;
+
+#if GTK_CHECK_VERSION(3, 22, 0)
+	GdkDisplay* display;
+	GdkMonitor* monitor;
+	display = gtk_widget_get_display(GTK_WIDGET(cnnobj->cnnhld->cnnwin));
+	monitor = gdk_display_get_monitor_at_window(display, gtk_widget_get_window(GTK_WIDGET(cnnobj->cnnhld->cnnwin)));
+#else
+	GdkScreen* screen;
+	gint monitor;
+	screen = gtk_window_get_screen(GTK_WINDOW(cnnobj->cnnhld->cnnwin));
+	monitor = gdk_screen_get_monitor_at_window(screen, gtk_widget_get_window(GTK_WIDGET(cnnobj->cnnhld->cnnwin)));
+#endif
+
+#if GTK_CHECK_VERSION(3, 22, 0)
+	gdk_monitor_get_workarea(monitor, &monitor_geometry);
+	/* Under Wayland, GTK 3.22, all values returned by gdk_monitor_get_geometry()
+	 * and gdk_monitor_get_workarea() seem to have been divided by the
+	 * gdk scale factor, so we need to adjust the returned rect
+	 * undoing the division */
+	#ifdef GDK_WINDOWING_WAYLAND
+		if (GDK_IS_WAYLAND_DISPLAY(display)) {
+			int monitor_scale_factor = gdk_monitor_get_scale_factor(monitor);
+			monitor_geometry.width *= monitor_scale_factor;
+			monitor_geometry.height *= monitor_scale_factor;
+		}
+	#endif
+#elif gdk_screen_get_monitor_workarea
+	gdk_screen_get_monitor_workarea(screen, monitor, &monitor_geometry);
+#else
+	gdk_screen_get_monitor_geometry(screen, monitor, &monitor_geometry);
+#endif
+	*sz = monitor_geometry;
+}
+
+
+
 
 static void remmina_connection_holder_check_resize(RemminaConnectionHolder* cnnhld)
 {
@@ -877,53 +943,36 @@ static void remmina_connection_holder_check_resize(RemminaConnectionHolder* cnnh
 	DECLARE_CNNOBJ
 	gboolean scroll_required = FALSE;
 
-#if GTK_CHECK_VERSION(3, 22, 0)
-	GdkDisplay* display;
-	GdkMonitor* monitor;
-#else
-	GdkScreen* screen;
-	gint monitor;
-#endif
-	GdkRectangle screen_size;
-	gint screen_width, screen_height;
-	gint server_width, server_height;
+	GdkRectangle monitor_geometry;
+	gint rd_width, rd_height;
 	gint bordersz;
+	gint scalemode;
 
-	remmina_connection_holder_get_desktop_size(cnnhld, &server_width, &server_height);
-#if GTK_CHECK_VERSION(3, 22, 0)
-	display = gtk_widget_get_display(GTK_WIDGET(cnnhld->cnnwin));
-	monitor = gdk_display_get_monitor_at_window(display, gtk_widget_get_window(GTK_WIDGET(cnnhld->cnnwin)));
-#else
-	screen = gtk_window_get_screen(GTK_WINDOW(cnnhld->cnnwin));
-	monitor = gdk_screen_get_monitor_at_window(screen, gtk_widget_get_window(GTK_WIDGET(cnnhld->cnnwin)));
-#endif
-#if GTK_CHECK_VERSION(3, 22, 0)
-	gdk_monitor_get_workarea(monitor, &screen_size);
-#elif gdk_screen_get_monitor_workarea
-	gdk_screen_get_monitor_workarea(screen, monitor, &screen_size);
-#else
-	gdk_screen_get_monitor_geometry(screen, monitor, &screen_size);
-#endif
-	screen_width = screen_size.width;
-	screen_height = screen_size.height;
+	scalemode = remmina_protocol_widget_get_current_scale_mode(REMMINA_PROTOCOL_WIDGET(cnnobj->proto));
 
-	if (!remmina_protocol_widget_get_expand(REMMINA_PROTOCOL_WIDGET(cnnobj->proto))
-	    && (server_width <= 0 || server_height <= 0 || screen_width < server_width
-		|| screen_height < server_height)) {
+	/* Get remote destkop size */
+	remmina_connection_holder_get_desktop_size(cnnhld, &rd_width, &rd_height);
+
+	/* Get our monitor size */
+	remmina_connection_object_get_monitor_geometry(cnnobj, &monitor_geometry);
+
+	if (!remmina_protocol_widget_get_expand(REMMINA_PROTOCOL_WIDGET(cnnobj->proto)) &&
+	    (monitor_geometry.width < rd_width || monitor_geometry.height < rd_height) &&
+	    scalemode == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_NONE) {
 		scroll_required = TRUE;
 	}
 
 	switch (cnnhld->cnnwin->priv->view_mode) {
 	case SCROLLED_FULLSCREEN_MODE:
-		gtk_window_resize(GTK_WINDOW(cnnhld->cnnwin), screen_width, screen_height);
+		gtk_window_resize(GTK_WINDOW(cnnhld->cnnwin), monitor_geometry.width, monitor_geometry.height);
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(cnnobj->scrolled_container),
 			(scroll_required ? GTK_POLICY_AUTOMATIC : GTK_POLICY_NEVER),
 			(scroll_required ? GTK_POLICY_AUTOMATIC : GTK_POLICY_NEVER));
 		break;
 
 	case VIEWPORT_FULLSCREEN_MODE:
-		bordersz = scroll_required ? 1 : 0;
-		gtk_window_resize(GTK_WINDOW(cnnhld->cnnwin), screen_width, screen_height);
+		bordersz = scroll_required ? SCROLL_BORDER_SIZE : 0;
+		gtk_window_resize(GTK_WINDOW(cnnhld->cnnwin), monitor_geometry.width, monitor_geometry.height);
 		if (REMMINA_IS_SCROLLED_VIEWPORT(cnnobj->scrolled_container)) {
 			/* Put a border around Notebook content (RemminaScrolledViewpord), so we can
 			 * move the mouse over the border to scroll */
@@ -935,8 +984,8 @@ static void remmina_connection_holder_check_resize(RemminaConnectionHolder* cnnh
 	case SCROLLED_WINDOW_MODE:
 		if (remmina_file_get_int(cnnobj->remmina_file, "viewmode", AUTO_MODE) == AUTO_MODE) {
 			gtk_window_set_default_size(GTK_WINDOW(cnnhld->cnnwin),
-				MIN(server_width, screen_width), MIN(server_height, screen_height));
-			if (server_width >= screen_width || server_height >= screen_height) {
+				MIN(rd_width, monitor_geometry.width), MIN(rd_height, monitor_geometry.height));
+			if (rd_width >= monitor_geometry.width || rd_height >= monitor_geometry.height) {
 				gtk_window_maximize(GTK_WINDOW(cnnhld->cnnwin));
 				remmina_file_set_int(cnnobj->remmina_file, "window_maximize", TRUE);
 			}else {
@@ -2160,7 +2209,7 @@ static void remmina_connection_holder_showhide_toolbar(RemminaConnectionHolder* 
 	TRACE_CALL(__func__);
 	RemminaConnectionWindowPriv* priv = cnnhld->cnnwin->priv;
 
-	/* Here we should threat the resize flag, but we don't */
+	/* Here we should threat the resize flag, but we don’t */
 	if (priv->view_mode == SCROLLED_WINDOW_MODE) {
 		if (remmina_pref.hide_connection_toolbar) {
 			gtk_widget_hide(priv->toolbar);
@@ -2450,7 +2499,6 @@ static void remmina_connection_holder_create_floating_toolbar(RemminaConnectionH
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_widget_show(vbox);
 
-
 	gtk_container_add(GTK_CONTAINER(ftb_widget), vbox);
 
 	tb = remmina_connection_holder_create_toolbar(cnnhld, mode);
@@ -2493,8 +2541,7 @@ static void remmina_connection_holder_create_floating_toolbar(RemminaConnectionH
 	}
 
 	priv->floating_toolbar_widget = ftb_widget;
-	if (cnnobj->connected)
-		gtk_widget_show(ftb_widget);
+	gtk_widget_show(ftb_widget);
 
 }
 
@@ -2577,7 +2624,7 @@ remmina_connection_window_new_from_holder(RemminaConnectionHolder* cnnhld)
 	g_signal_connect(G_OBJECT(cnnwin), "delete-event", G_CALLBACK(remmina_connection_window_delete_event), cnnhld);
 	g_signal_connect(G_OBJECT(cnnwin), "destroy", G_CALLBACK(remmina_connection_window_destroy), cnnhld);
 
-	/* focus-in-event and focus-out-event don't work when keyboard is grabbed
+	/* focus-in-event and focus-out-event don’t work when keyboard is grabbed
 	 * via gdk_device_grab. So we listen for window-state-event to detect focus in and focus out */
 	g_signal_connect(G_OBJECT(cnnwin), "window-state-event", G_CALLBACK(remmina_connection_window_state_event), cnnhld);
 
@@ -2731,12 +2778,11 @@ static gint remmina_connection_object_append_page(RemminaConnectionObject* cnnob
 
 	cnnobj->page = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	g_object_set_data(G_OBJECT(cnnobj->page), "cnnobj", cnnobj);
-	gtk_widget_set_name(cnnobj->page, "remmina-scrolled-container");
+	gtk_widget_set_name(cnnobj->page, "remmina-tab-page");
 
 	remmina_connection_object_create_scrolled_container(cnnobj, view_mode);
 	gtk_box_pack_start(GTK_BOX(cnnobj->page), cnnobj->scrolled_container, TRUE, TRUE, 0);
 	i = gtk_notebook_append_page(notebook, cnnobj->page, tab);
-
 
 	gtk_notebook_set_tab_reorderable(notebook, cnnobj->page, TRUE);
 	gtk_notebook_set_tab_detachable(notebook, cnnobj->page, TRUE);
@@ -2755,6 +2801,8 @@ static void remmina_connection_window_initialize_notebook(GtkNotebook* to, GtkNo
 	gint i, n, c;
 	GtkWidget* tab;
 	GtkWidget* widget;
+	GtkWidget* frompage;
+	GList *lst, *l;
 	RemminaConnectionObject* tc;
 
 	if (cnnobj) {
@@ -2771,7 +2819,7 @@ static void remmina_connection_window_initialize_notebook(GtkNotebook* to, GtkNo
 		}
 		if (tc) {
 			/* if cnnobj is already in the "from" notebook, we should be in the drag and drop case.
-			 * just... do not move it. GTK will do the move when the create-window signal
+			 * just… do not move it. GTK will do the move when the create-window signal
 			 * of GtkNotebook will return */
 
 		} else {
@@ -2780,6 +2828,10 @@ static void remmina_connection_window_initialize_notebook(GtkNotebook* to, GtkNo
 			tab = remmina_connection_object_create_tab(cnnobj);
 
 			remmina_connection_object_append_page(cnnobj, to, tab, view_mode);
+			/* Set the current page to the 1st tab page, otherwise the notebook
+			 * will stay on page -1 for a short time and g_object_get_data(currenntab, "cnnobj") will fail
+			 * together with DECLARE_CNNOBJ (issue #1809)*/
+			gtk_notebook_set_current_page(to, 0);
 			gtk_container_add(GTK_CONTAINER(cnnobj->scrolled_container), cnnobj->viewport);
 		}
 	}else {
@@ -2788,11 +2840,22 @@ static void remmina_connection_window_initialize_notebook(GtkNotebook* to, GtkNo
 			c = gtk_notebook_get_current_page(from);
 			n = gtk_notebook_get_n_pages(from);
 			for (i = 0; i < n; i++) {
-				widget = gtk_notebook_get_nth_page(from, i);
-				tc = (RemminaConnectionObject*)g_object_get_data(G_OBJECT(widget), "cnnobj");
+				frompage = gtk_notebook_get_nth_page(from, i);
+				tc = (RemminaConnectionObject*)g_object_get_data(G_OBJECT(frompage), "cnnobj");
 
 				tab = remmina_connection_object_create_tab(tc);
 				remmina_connection_object_append_page(tc, to, tab, view_mode);
+				/* Reparent message panels */
+				lst = gtk_container_get_children(GTK_CONTAINER(frompage));
+				for (l = lst; l != NULL; l = l->next) {
+					if (REMMINA_IS_MESSAGE_PANEL(l->data)) {
+						G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+						gtk_widget_reparent(l->data, tc->page);
+						G_GNUC_END_IGNORE_DEPRECATIONS
+						gtk_box_reorder_child(GTK_BOX(tc->page), GTK_WIDGET(l->data), 0);
+					}
+				}
+				g_list_free(lst);
 
 				/* Reparent cnnobj->viewport */
 				G_GNUC_BEGIN_IGNORE_DEPRECATIONS
@@ -3509,7 +3572,7 @@ static RemminaConnectionWindow* remmina_connection_window_find(RemminaFile* remm
 static gboolean remmina_connection_object_delayed_window_present(gpointer user_data)
 {
 	RemminaConnectionObject* cnnobj = (RemminaConnectionObject*)user_data;
-	if (cnnobj && cnnobj->cnnhld && cnnobj->cnnhld->cnnwin) {
+	if (cnnobj && cnnobj->connected && cnnobj->cnnhld && cnnobj->cnnhld->cnnwin) {
 		gtk_window_present_with_time(GTK_WINDOW(cnnobj->cnnhld->cnnwin), (guint32)(g_get_monotonic_time() / 1000));
 		remmina_connection_holder_grab_focus(GTK_NOTEBOOK(cnnobj->cnnhld->cnnwin->priv->notebook));
 	}
@@ -3526,7 +3589,7 @@ static void remmina_connection_object_on_connect(RemminaProtocolWidget* gp, Remm
 
 	GDateTime *date = g_date_time_new_now_utc();
 
-	/* This signal handler is called by a plugin when it's correctly connected
+	/* This signal handler is called by a plugin when it’s correctly connected
 	 * (and authenticated) */
 
 	if (!cnnobj->cnnhld) {
@@ -3679,6 +3742,7 @@ static gboolean open_connection_last_stage(gpointer user_data)
 	/* Now we have an allocated size for our RemminaProtocolWidget. We can proceed with the connection */
 	remmina_protocol_widget_update_remote_resolution(gp);
 	remmina_protocol_widget_open_connection(gp);
+	remmina_connection_holder_check_resize(gp->cnnobj->cnnhld);
 
 	return FALSE;
 }
@@ -3690,17 +3754,8 @@ static void rpw_size_allocated_on_connection(GtkWidget *w, GdkRectangle *allocat
 	/* Disconnect signal handler to avoid to be called again after a normal resize */
 	g_signal_handler_disconnect(w, gp->cnnobj->deferred_open_size_allocate_handler);
 
-	/* Schedule a connection ASAP */
-	if (remmina_file_get_int(gp->cnnobj->remmina_file, "resolution_mode", RES_INVALID) == RES_USE_INITIAL_WINDOW_SIZE ||
-		remmina_protocol_widget_get_current_scale_mode(gp) == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES) {
-		/* Allow the WM to decide the real size of our windows before reading current window
-		 * size and connecting: some WM, i.e. GnomeShell/mutter with edge-tiling,
-		 * will resize our window after creating it, so we must wait to be in a stable state
-		 * before reading the window internal widgets allocated size for RES_USE_INTERNAL_WINDOW_SIZE */
-		g_timeout_add(400, open_connection_last_stage, gp);
-	}
-	else
-		g_idle_add(open_connection_last_stage, gp);
+	/* Allow extra 100ms for size allocation (do we really need it?) */
+	g_timeout_add(100, open_connection_last_stage, gp);
 
 	return;
 }
@@ -3721,7 +3776,6 @@ GtkWidget* remmina_connection_window_open_from_file_full(RemminaFile* remminafil
 	RemminaConnectionWindow* cnnwin;
 	GtkWidget* tab;
 	gint i;
-	gboolean defer_connection_after_size_allocation;
 
 	/* Create the RemminaConnectionObject */
 	cnnobj = g_new0(RemminaConnectionObject, 1);
@@ -3789,7 +3843,6 @@ GtkWidget* remmina_connection_window_open_from_file_full(RemminaFile* remminafil
 		gtk_notebook_set_current_page(GTK_NOTEBOOK(cnnwin->priv->notebook), i);
 	}
 
-
 	// Do not call remmina_protocol_widget_update_alignment(cnnobj); here or cnnobj->proto will not fill its parent size
 	// and remmina_protocol_widget_update_remote_resolution() cannot autodetect available space
 
@@ -3818,7 +3871,7 @@ GtkWidget* remmina_connection_window_open_from_file_full(RemminaFile* remminafil
 				GTK_DIALOG_MODAL,
 				GTK_MESSAGE_WARNING,
 				GTK_BUTTONS_OK,
-				_("Warning: This plugin require GtkSocket, but it's not available."));
+				_("Warning: This plugin require GtkSocket, but it’s not available."));
 		g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(gtk_widget_destroy), NULL);
 		gtk_widget_show(dialog);
 		return NULL;	/* Should we destroy something before returning ? */
@@ -3841,21 +3894,7 @@ GtkWidget* remmina_connection_window_open_from_file_full(RemminaFile* remminafil
 	 * we should wait for a size allocation from GTK for cnnobj->proto
 	 * before connecting */
 
-	defer_connection_after_size_allocation = FALSE;
-	if (remmina_file_get_int(remminafile, "resolution_mode", RES_INVALID) == RES_USE_INITIAL_WINDOW_SIZE ||
-		remmina_protocol_widget_get_current_scale_mode((RemminaProtocolWidget*)cnnobj->proto) == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES) {
-		GtkAllocation al;
-		gtk_widget_get_allocation(cnnobj->proto, &al);
-		if (al.width < 10 || al.height < 10) {
-			defer_connection_after_size_allocation = TRUE;
-		}
-	}
-
-	if (defer_connection_after_size_allocation) {
-		cnnobj->deferred_open_size_allocate_handler = g_signal_connect(G_OBJECT(cnnobj->proto), "size-allocate", G_CALLBACK(rpw_size_allocated_on_connection), NULL);
-	} else {
-		g_idle_add(open_connection_last_stage, cnnobj->proto);
-	}
+	cnnobj->deferred_open_size_allocate_handler = g_signal_connect(G_OBJECT(cnnobj->proto), "size-allocate", G_CALLBACK(rpw_size_allocated_on_connection), NULL);
 
 	return cnnobj->proto;
 
