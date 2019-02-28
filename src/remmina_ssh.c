@@ -79,6 +79,7 @@
 #include <pty.h>
 #endif
 #include "remmina_public.h"
+#include "remmina/types.h"
 #include "remmina_file.h"
 #include "remmina_log.h"
 #include "remmina_pref.h"
@@ -182,8 +183,7 @@ remmina_ssh_auth_interactive(RemminaSSH *ssh)
 	}
 
 	if (ret != SSH_AUTH_SUCCESS) {
-		/* We pass the control to remmina_ssh_auth_password */
-		return 0;
+		return 0;	// Generic error
 	}
 
 	ssh->authenticated = TRUE;
@@ -214,8 +214,10 @@ static gint
 remmina_ssh_auth_pubkey(RemminaSSH *ssh)
 {
 	TRACE_CALL(__func__);
+
+	ssh_key key = NULL;
+	gchar pubkey[132] = {0}; // +".pub"
 	gint ret;
-	ssh_key priv_key;
 
 	if (ssh->authenticated) return 1;
 
@@ -225,16 +227,26 @@ remmina_ssh_auth_pubkey(RemminaSSH *ssh)
 		return 0;
 	}
 
+	g_snprintf (pubkey, sizeof(pubkey), "%s.pub", ssh->privkeyfile);
+
+	ret = ssh_pki_import_pubkey_file( pubkey, &key);
+	if (ret != SSH_OK) {
+		remmina_ssh_set_error(ssh, _("SSH public key cannot be imported: %s"));
+		return 0;
+	}
+
+	ssh_key_free(key);
+
 	if ( ssh_pki_import_privkey_file( ssh->privkeyfile, (ssh->passphrase ? ssh->passphrase : ""),
-		     NULL, NULL, &priv_key ) != SSH_OK ) {
+		NULL, NULL, &key ) != SSH_OK ) {
 		if (ssh->passphrase == NULL || ssh->passphrase[0] == '\0') return -1;
 
 		remmina_ssh_set_error(ssh, _("SSH public key authentication failed: %s"));
 		return 0;
 	}
 
-	ret = ssh_userauth_publickey(ssh->session, NULL, priv_key);
-	ssh_key_free(priv_key);
+	ret = ssh_userauth_publickey(ssh->session, NULL, key);
+	ssh_key_free(key);
 
 	if (ret != SSH_AUTH_SUCCESS) {
 		remmina_ssh_set_error(ssh, _("SSH public key authentication failed: %s"));
@@ -300,7 +312,6 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password)
 {
 	TRACE_CALL(__func__);
 	gint method;
-	gint ret;
 
 	/* Check known host again to ensure it’s still the original server when user forks
 	   a new session from existing one */
@@ -325,13 +336,19 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password)
 	switch (ssh->auth) {
 
 	case SSH_AUTH_PASSWORD:
-		ret = 0;
-		if (method & SSH_AUTH_METHOD_INTERACTIVE || method & SSH_AUTH_METHOD_PASSWORD) {
-			ret = remmina_ssh_auth_interactive(ssh);
-			if (!ssh->authenticated)
-				return remmina_ssh_auth_password(ssh);
+		if (ssh->authenticated)
+			return 1;
+		if (method & SSH_AUTH_METHOD_PASSWORD) {
+			if (remmina_ssh_auth_password(ssh) <= 0)
+					return -1;	// Re-prompt password
 		}
-		return ret;
+		if (method & SSH_AUTH_METHOD_INTERACTIVE) {
+			/* SSH server is requesting us to do interactive auth.
+			 * But we just send the saved password */
+			if (remmina_ssh_auth_interactive(ssh) <= 0)
+				return -1;	// Re-prompt password
+		}
+		return 1;
 
 	case SSH_AUTH_PUBLICKEY:
 		if (method & SSH_AUTH_METHOD_PUBLICKEY)
@@ -387,10 +404,17 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 	case SSH_SERVER_NOT_KNOWN:
 	case SSH_SERVER_KNOWN_CHANGED:
 	case SSH_SERVER_FOUND_OTHER:
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 8, 6)
+		if ( ssh_get_server_publickey(ssh->session, &server_pubkey) != SSH_OK ) {
+			remmina_ssh_set_error(ssh, _("ssh_get_server_publickey() has failed: %s"));
+			return 0;
+		}
+#else
 		if ( ssh_get_publickey(ssh->session, &server_pubkey) != SSH_OK ) {
 			remmina_ssh_set_error(ssh, _("ssh_get_publickey() has failed: %s"));
 			return 0;
 		}
+#endif
 		if ( ssh_get_publickey_hash(server_pubkey, SSH_PUBLICKEY_HASH_MD5, &pubkey, &len) != 0 ) {
 			ssh_key_free(server_pubkey);
 			remmina_ssh_set_error(ssh, _("ssh_get_publickey_hash() has failed: %s"));
@@ -404,10 +428,10 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 				_("The server is unknown. The public key fingerprint is:"),
 				keyname,
 				_("Do you trust the new public key?"));
-		}else  {
+		}else {
 			message =  g_strdup_printf("%s\n%s\n\n%s",
 				_("WARNING: The server has changed its public key. This means either you are under attack,\n"
-				"or the administrator has changed the key. The new public key fingerprint is:"),
+					"or the administrator has changed the key. The new public key fingerprint is:"),
 				keyname,
 				_("Do you trust the new public key?"));
 		}
@@ -457,7 +481,12 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 
 		disablepasswordstoring = remmina_file_get_int(remminafile, "disablepasswordstoring", FALSE);
 
-		ret = remmina_protocol_widget_panel_authuserpwd(gp, FALSE, !disablepasswordstoring);
+		if (g_strcmp0(pwdtype, "ssh_passphrase") == 0) {
+			ret = remmina_protocol_widget_panel_authpwd(gp, REMMINA_AUTHPWD_TYPE_SSH_PRIVKEY, !disablepasswordstoring);
+		}else if (g_strcmp0(pwdtype, "ssh_password") == 0) {
+			ret = remmina_protocol_widget_panel_authuserpwd_ssh_tunnel(gp, FALSE, !disablepasswordstoring);
+		} else
+			ret = remmina_protocol_widget_panel_authuserpwd(gp, FALSE, !disablepasswordstoring);
 		save_password = remmina_protocol_widget_get_savepassword(gp);
 
 		if (ret == GTK_RESPONSE_OK) {
@@ -466,7 +495,7 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 				remmina_file_set_string(remminafile, pwdtype, pwd);
 				g_free(pwd);
 			}
-		}else  {
+		}else {
 			return -1;
 		}
 		pwd = remmina_protocol_widget_get_password(gp);
@@ -505,9 +534,6 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 	ssh->session = ssh_new();
 	ssh_options_set(ssh->session, SSH_OPTIONS_HOST, ssh->server);
 	ssh_options_set(ssh->session, SSH_OPTIONS_PORT, &ssh->port);
-	/** @todo add an option to set the compression nad set it to no as the default option */
-	//ssh_options_set(ssh->session, SSH_OPTIONS_COMPRESSION, "yes");
-	/* When SSH_OPTIONS_USER is not set, the local user account is used */
 	if (*ssh->user != 0)
 		ssh_options_set(ssh->session, SSH_OPTIONS_USER, ssh->user);
 	if (ssh->privkeyfile && *ssh->privkeyfile != 0) {
@@ -664,7 +690,7 @@ remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile)
 	}else if (server == NULL) {
 		ssh->server = g_strdup("localhost");
 		ssh->port = 22;
-	}else  {
+	}else {
 		remmina_public_get_server_port(server, 0, &ssh->server, NULL);
 		ssh->port = 22;
 	}
@@ -686,7 +712,7 @@ remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile)
 	if (s) {
 		ssh->privkeyfile = remmina_ssh_identity_path(s);
 		g_free(s);
-	}else  {
+	}else {
 		ssh->privkeyfile = NULL;
 	}
 
@@ -918,7 +944,7 @@ remmina_ssh_tunnel_accept_local_connection(RemminaSSHTunnel *tunnel, gboolean bl
 	sock_flags = fcntl(tunnel->server_sock, F_GETFL, 0);
 	if (blocking) {
 		sock_flags &= ~O_NONBLOCK;
-	}else  {
+	}else {
 		sock_flags |= O_NONBLOCK;
 	}
 	fcntl(tunnel->server_sock, F_SETFL, sock_flags);
@@ -982,8 +1008,8 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 	case REMMINA_SSH_TUNNEL_OPEN:
 		sock = remmina_ssh_tunnel_accept_local_connection(tunnel, TRUE);
 		if (sock < 0) {
-		    tunnel->thread = 0;
-		    return NULL;
+			tunnel->thread = 0;
+			return NULL;
 		}
 
 		channel = remmina_ssh_tunnel_create_forward_channel(tunnel);
@@ -1039,17 +1065,17 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 	case REMMINA_SSH_TUNNEL_XPORT:
 		/* Detect the next available port starting from 6010 on the server */
 		for (i = 10; i <= MAX_X_DISPLAY_NUMBER; i++) {
-#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 7, 0)
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 7, 0)
 			if (ssh_channel_listen_forward(REMMINA_SSH(tunnel)->session, (tunnel->bindlocalhost ? "localhost" : NULL), 6000 + i, NULL)) {
 				continue;
-			}else  {
+			}else {
 				tunnel->remotedisplay = i;
 				break;
 			}
 #else
 			if (ssh_forward_listen(REMMINA_SSH(tunnel)->session, (tunnel->bindlocalhost ? "localhost" : NULL), 6000 + i, NULL)) {
 				continue;
-			}else  {
+			}else {
 				tunnel->remotedisplay = i;
 				break;
 			}
@@ -1076,9 +1102,9 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 		break;
 
 	case REMMINA_SSH_TUNNEL_REVERSE:
-#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 7, 0)
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 7, 0)
 		if (ssh_channel_listen_forward(REMMINA_SSH(tunnel)->session, NULL, tunnel->port, NULL)) {
-			remmina_ssh_set_error(REMMINA_SSH (tunnel), _("Failed to request port forwarding: %s"));
+			remmina_ssh_set_error(REMMINA_SSH(tunnel), _("Failed to request port forwarding: %s"));
 			if (tunnel->disconnect_func) {
 				(*tunnel->disconnect_func)(tunnel, tunnel->callback_data);
 			}
@@ -1087,7 +1113,7 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 		}
 #else
 		if (ssh_forward_listen(REMMINA_SSH(tunnel)->session, NULL, tunnel->port, NULL)) {
-			remmina_ssh_set_error(REMMINA_SSH (tunnel), _("Failed to request port forwarding: %s"));
+			remmina_ssh_set_error(REMMINA_SSH(tunnel), _("Failed to request port forwarding: %s"));
 			if (tunnel->disconnect_func) {
 				(*tunnel->disconnect_func)(tunnel, tunnel->callback_data);
 			}
@@ -1121,7 +1147,7 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 				/* Wait for a period of time for the first incoming connection */
 				if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_X11) {
 					channel = ssh_channel_accept_x11(tunnel->x11_channel, 15000);
-				}else  {
+				}else {
 					channel = ssh_channel_accept_forward(REMMINA_SSH(tunnel)->session, 15000, &tunnel->port);
 				}
 				if (!channel) {
@@ -1137,10 +1163,10 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 				}
 				if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_REVERSE) {
 					/* For reverse tunnel, we only need one connection. */
-#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 7, 0)
-					ssh_channel_cancel_forward(REMMINA_SSH (tunnel)->session, NULL, tunnel->port);
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 7, 0)
+					ssh_channel_cancel_forward(REMMINA_SSH(tunnel)->session, NULL, tunnel->port);
 #else
-					ssh_forward_cancel(REMMINA_SSH (tunnel)->session, NULL, tunnel->port);
+					ssh_forward_cancel(REMMINA_SSH(tunnel)->session, NULL, tunnel->port);
 #endif
 				}
 			}else if (tunnel->tunnel_type != REMMINA_SSH_TUNNEL_REVERSE) {
@@ -1151,7 +1177,7 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 				if (diff > 1) {
 					if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_X11) {
 						channel = ssh_channel_accept_x11(tunnel->x11_channel, 0);
-					}else  {
+					}else {
 						channel = ssh_channel_accept_forward(REMMINA_SSH(tunnel)->session, 0, &tunnel->port);
 					}
 					if (channel == NULL) {
@@ -1172,12 +1198,12 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 						close(sock);
 						sock = -1;
 					}
-				}else  {
+				}else {
 					sock = remmina_public_open_xdisplay(tunnel->localdisplay);
 				}
 				if (sock >= 0) {
 					remmina_ssh_tunnel_add_channel(tunnel, channel, sock);
-				}else  {
+				}else {
 					/* Failed to create unix socket. Will this happen? */
 					ssh_channel_close(channel);
 					ssh_channel_send_eof(channel);
@@ -1252,7 +1278,7 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 					if (len <= 0) {
 						remmina_ssh_set_error(REMMINA_SSH(tunnel), _("ssh_channel_read_nonblocking() returned an error: %s"));
 						disconnected = TRUE;
-					}else  {
+					}else {
 						tunnel->socketbuffers[i]->len = len;
 					}
 				}
@@ -1299,7 +1325,7 @@ remmina_ssh_tunnel_main_thread_proc(gpointer data)
 				close(sock);
 				/* Leave thread loop */
 				tunnel->running = FALSE;
-			}else  {
+			}else {
 				remmina_ssh_tunnel_add_channel(tunnel, channel, sock);
 			}
 		}
@@ -1458,10 +1484,10 @@ remmina_ssh_tunnel_free(RemminaSSHTunnel* tunnel)
 	}
 
 	if (tunnel->tunnel_type == REMMINA_SSH_TUNNEL_XPORT && tunnel->remotedisplay > 0) {
-#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 7, 0)
-		ssh_channel_cancel_forward(REMMINA_SSH (tunnel)->session, NULL, 6000 + tunnel->remotedisplay);
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 7, 0)
+		ssh_channel_cancel_forward(REMMINA_SSH(tunnel)->session, NULL, 6000 + tunnel->remotedisplay);
 #else
-		ssh_forward_cancel(REMMINA_SSH (tunnel)->session, NULL, 6000 + tunnel->remotedisplay);
+		ssh_forward_cancel(REMMINA_SSH(tunnel)->session, NULL, 6000 + tunnel->remotedisplay);
 #endif
 	}
 	if (tunnel->server_sock >= 0) {
@@ -1624,15 +1650,15 @@ remmina_ssh_shell_thread(gpointer data)
 	/* TODO: We should have a callback that intercept an x11 request to use
 	 * ssh_channel_accept_x11 */
 	//if ( ret != SSH_OK ) {
-		//g_print ("[SSH] X11 channel error: %d\n", ret);
+	//g_print ("[SSH] X11 channel error: %d\n", ret);
 	//}else {
-		//ssh_channel_accept_x11 ( channel, 50);
+	//ssh_channel_accept_x11 ( channel, 50);
 	//}
 
 
 	if (shell->exec && shell->exec[0]) {
 		ret = ssh_channel_request_exec(channel, shell->exec);
-	}else  {
+	}else {
 		ret = ssh_channel_request_shell(channel);
 	}
 	if (ret) {

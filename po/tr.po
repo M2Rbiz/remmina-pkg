@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: admin@remmina.org\n"
-"POT-Creation-Date: 2019-01-30 14:45+0000\n"
-"PO-Revision-Date: 2019-01-25 18:34+0300\n"
+"POT-Creation-Date: 2019-02-19 07:38+0000\n"
+"PO-Revision-Date: 2019-02-18 07:54+0300\n"
 "Last-Translator: Serdar Sağlam <teknomobil@yandex.com>\n"
 "Language-Team: Ubuntu’yu Türkçe’ye Çevirenler Takımı <ubuntu-l10n-tr@lists."
 "launchpad.net>\n"
@@ -24,12 +24,11 @@ msgstr ""
 msgid "Open Main Window"
 msgstr "Ana Pencereyi Aç"
 
-#: src/remmina_icon.c:144
+#: src/remmina_icon.c:144 data/ui/remmina_main.glade:366
 msgid "_Preferences"
 msgstr "_Tercihler"
 
-#: src/remmina_icon.c:149 data/ui/remmina_main.glade:52
-#: data/ui/remmina_main.glade:53
+#: src/remmina_icon.c:149
 msgid "_About"
 msgstr "_Hakkında"
 
@@ -37,8 +36,7 @@ msgstr "_Hakkında"
 msgid "Enable Service Discovery"
 msgstr "Servis Keşfini Aç"
 
-#: src/remmina_icon.c:172 data/ui/remmina_main.glade:33
-#: data/ui/remmina_main.glade:34
+#: src/remmina_icon.c:172 data/ui/remmina_main.glade:440
 msgid "_Quit"
 msgstr "_Çıkış"
 
@@ -51,62 +49,167 @@ msgstr "Remmina Küçük Uygulama"
 msgid "Connect to remote desktops through the applet menu"
 msgstr "Uzak masaüstlerine küçük uygulama menüsü aracılığıyla bağlan"
 
-#: src/remmina_icon.c:480 src/remmina_icon.c:481 src/remmina_main.c:1119
+#: src/remmina_icon.c:480 src/remmina_icon.c:481 src/remmina_main.c:1124
 msgid "Remmina Remote Desktop Client"
 msgstr "Remmina Uzak Masaüstü İstemcisi"
+
+#: src/rcw.c:588
+#, c-format
+msgid ""
+"There are %i active connections in the current window. Are you sure to close?"
+msgstr ""
+"Aktif pencerede %i aktif bağlantı var. Kapatmak istediğinizdem eminmisiniz?"
+
+#: src/rcw.c:1169
+msgid "Viewport fullscreen mode"
+msgstr "Görünüm alanı tam ekran hali"
+
+#: src/rcw.c:1178
+msgid "Scrolled fullscreen mode"
+msgstr "Kaydırmalı tam ekran"
+
+#: src/rcw.c:1249
+msgid "Keep aspect ratio when scaled"
+msgstr "En boy oranını koru"
+
+#: src/rcw.c:1258
+msgid "Fill client window when scaled"
+msgstr "İstemci penceresini doldur"
+
+#. Add a keystrokes submenu
+#: src/rcw.c:1692 src/remmina_pref_dialog.c:142
+#: data/ui/remmina_preferences.glade:252
+msgid "Keystrokes"
+msgstr "Tuş vuruşları"
+
+#: src/rcw.c:1795
+msgid ""
+"Warning: screenshot is scaled or distorted. Disable scaling to have better "
+"screenshot."
+msgstr ""
+"Uyarı: ekran görüntüsü ölçeklenmiş veya bozuk. Daha iyi bir ekran görüntüsü "
+"için ölçeklendirmeyi devre dışı bırakın."
+
+#. send a desktop notification
+#: src/rcw.c:1856
+msgid "Screenshot taken"
+msgstr "Ekran görüntüsü alındı"
+
+#: src/rcw.c:1923
+msgid "Resize the window to fit in remote resolution"
+msgstr "Pencereyi uzak sunucu çözünürlüğüne göre ayarla"
+
+#: src/rcw.c:1934 data/ui/remmina_preferences.glade:740
+msgid "Toggle fullscreen mode"
+msgstr "Tam ekran modunu değiştir"
+
+#: src/rcw.c:1980 data/ui/remmina_preferences.glade:796
+msgid "Switch tab pages"
+msgstr "Sekme sayfalarını değiştir"
+
+#: src/rcw.c:1994
+msgid "Toggle dynamic resolution update"
+msgstr "Çözünürlük güncellemesini değiştir"
+
+#: src/rcw.c:2004 data/ui/remmina_preferences.glade:837
+msgid "Toggle scaled mode"
+msgstr "Ölçekleme modunu değiştir"
+
+#: src/rcw.c:2040
+msgid "Grab all keyboard events"
+msgstr "Tüm klavye olaylarını yakala"
+
+#: src/rcw.c:2049
+msgid "Preferences"
+msgstr "Seçenekler"
+
+#: src/rcw.c:2057 src/rcw.c:2058 data/ui/remmina_main.glade:278
+msgid "Tools"
+msgstr "Araçlar"
+
+#: src/rcw.c:2070 data/ui/remmina_preferences.glade:978
+msgid "Screenshot"
+msgstr "Ekran görüntüsü"
+
+#: src/rcw.c:2078 data/ui/remmina_preferences.glade:893
+msgid "Minimize window"
+msgstr "Pencereyi simge durumuna küçült"
+
+#: src/rcw.c:2088 data/ui/remmina_preferences.glade:922
+msgid "Disconnect"
+msgstr "Bağlantıyı kes"
+
+#: src/rcw.c:3729
+#, c-format
+msgid "File %s is corrupted, unreadable or not found."
+msgstr "Dosya %s bozuk, okunamıyor veya bulunamadı."
+
+#: src/rcw.c:3873
+msgid "Warning: This plugin require GtkSocket, but it’s not available."
+msgstr "Uyarı: Bu eklenti GtkSocket gerektirir, ancak mevcut değil."
 
 #: src/remmina_ssh.c:205
 #, c-format
 msgid "SSH password authentication failed: %s"
 msgstr "SSH Parola yetkilendirmesi başarısız: %s"
 
-#: src/remmina_ssh.c:223 src/remmina_ssh.c:232 src/remmina_ssh.c:240
+#: src/remmina_ssh.c:225 src/remmina_ssh.c:244 src/remmina_ssh.c:252
 #, c-format
 msgid "SSH public key authentication failed: %s"
 msgstr "SSH genel anahtar yetkilendirmesi başarısız: %s"
 
-#: src/remmina_ssh.c:224
+#: src/remmina_ssh.c:226
 msgid "SSH Key file not yet set."
 msgstr "SSH Anahtar dosyası belirtilmemiş."
 
-#: src/remmina_ssh.c:255
+#: src/remmina_ssh.c:234
+#, c-format
+msgid "SSH public key cannot be imported: %s"
+msgstr "SSH ortak anahtarı alınamıyor: %s"
+
+#: src/remmina_ssh.c:267
 #, c-format
 msgid "SSH automatic public key authentication failed: %s"
 msgstr "SSH otomatik genel anahtar yetkilendirmesi başarısız: %s"
 
-#: src/remmina_ssh.c:271
+#: src/remmina_ssh.c:283
 #, c-format
 msgid "SSH public key authentication with SSH agent failed: %s"
 msgstr "SSH aracı ile SSH ortak anahtar kimlik doğrulaması başarısız: %s"
 
-#: src/remmina_ssh.c:290
+#: src/remmina_ssh.c:302
 #, c-format
 msgid "SSH Kerberos/GSSAPI authentication failed: %s"
 msgstr "SSH Kerberos/GSSAPI kimlik doğrulaması başarısız: %s"
 
-#: src/remmina_ssh.c:308
+#: src/remmina_ssh.c:319
 msgid "SSH public key has changed!"
+msgstr "SSH ortak anahtarı değişti!"
+
+#: src/remmina_ssh.c:409
+#, c-format
+msgid "ssh_get_server_publickey() has failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:391
+#: src/remmina_ssh.c:414
 #, c-format
 msgid "ssh_get_publickey() has failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:396
+#: src/remmina_ssh.c:420
 #, c-format
 msgid "ssh_get_publickey_hash() has failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:404
+#: src/remmina_ssh.c:428
 msgid "The server is unknown. The public key fingerprint is:"
 msgstr "Bilinmeyen sunucu, Ortak anahtar parmak izi:"
 
-#: src/remmina_ssh.c:406 src/remmina_ssh.c:412
+#: src/remmina_ssh.c:430 src/remmina_ssh.c:436
 msgid "Do you trust the new public key?"
 msgstr "Yeni ortak anahtara güveniyor musunuz?"
 
-#: src/remmina_ssh.c:409
+#: src/remmina_ssh.c:433
 msgid ""
 "WARNING: The server has changed its public key. This means either you are "
 "under attack,\n"
@@ -116,141 +219,141 @@ msgstr ""
 "altındasınız ya da\n"
 "yönetici anahtarı değiştirdi. Yeni genel anahtar parmak izi:"
 
-#: src/remmina_ssh.c:425
+#: src/remmina_ssh.c:449
 #, c-format
 msgid "SSH known host checking failed: %s"
-msgstr ""
+msgstr "SSH bilinen ana bilgisayar denetimi başarısız: %s"
 
-#: src/remmina_ssh.c:431
+#: src/remmina_ssh.c:455
 #, c-format
 msgid "Authenticating %s’s password to SSH server %s…"
 msgstr "Kimlik doğrulama %s’nin parolası SSH sunucu %s…"
 
-#: src/remmina_ssh.c:432 src/remmina_protocol_widget.c:1304
+#: src/remmina_ssh.c:456 src/remmina_protocol_widget.c:1331
 msgid "SSH password"
 msgstr "SSH parolası"
 
-#: src/remmina_ssh.c:438
+#: src/remmina_ssh.c:462
 #, c-format
 msgid "Authenticating %s’s identity to SSH server %s…"
 msgstr "Kimlik doğrulama %s’nin kimliği SSH sunucu %s…"
 
-#: src/remmina_ssh.c:439 src/remmina_protocol_widget.c:1307
+#: src/remmina_ssh.c:463 src/remmina_protocol_widget.c:1334
 msgid "SSH private key passphrase"
 msgstr "SSH özel anahtar şifresi"
 
-#: src/remmina_ssh.c:443
+#: src/remmina_ssh.c:467
 #, c-format
 msgid "Authenticating %s’s Kerberos to SSH server %s…"
 msgstr "Kimlik doğrulama %s Kerberos SSH sunucu %s…"
 
-#: src/remmina_ssh.c:444
+#: src/remmina_ssh.c:468
 msgid "SSH Kerberos/GSSAPI"
 msgstr "SSH Kerberos/GSSAPI"
 
-#: src/remmina_ssh.c:579
+#: src/remmina_ssh.c:605
 #, c-format
 msgid "Failed to startup SSH session: %s"
 msgstr "SSH oturumu başarısız: %s"
 
-#: src/remmina_ssh.c:942 src/remmina_ssh.c:1001
+#: src/remmina_ssh.c:968 src/remmina_ssh.c:1027
 #, c-format
 msgid "Failed to create channel: %s"
-msgstr ""
+msgstr "Kanal oluşturulamadı: %s"
 
-#: src/remmina_ssh.c:951
+#: src/remmina_ssh.c:977
 #, c-format
 msgid "Failed to connect to the SSH tunnel destination: %s"
 msgstr "SSH Tünel hedefine bağlanılamadı: %s"
 
-#: src/remmina_ssh.c:1015 src/remmina_ssh.c:1610
+#: src/remmina_ssh.c:1041 src/remmina_ssh.c:1636
 #, c-format
 msgid "Failed to open channel: %s"
-msgstr ""
+msgstr "Kanal açılamadı: %s"
 
-#: src/remmina_ssh.c:1021
+#: src/remmina_ssh.c:1047
 #, c-format
 msgid "Failed to execute %s on SSH server: %%s"
 msgstr "SSH sunucu üzerinde %s çalıştırılamadı: %%s"
 
-#: src/remmina_ssh.c:1059 src/remmina_ssh.c:1081 src/remmina_ssh.c:1090
+#: src/remmina_ssh.c:1085 src/remmina_ssh.c:1107 src/remmina_ssh.c:1116
 #, c-format
 msgid "Failed to request port forwarding: %s"
 msgstr "Port yönlendirme isteği başarısız: %s"
 
-#: src/remmina_ssh.c:1128
+#: src/remmina_ssh.c:1154
 msgid "No response from the server."
 msgstr "Sunucudan hiçbir cevap yok."
 
-#: src/remmina_ssh.c:1171
+#: src/remmina_ssh.c:1197
 #, c-format
 msgid "Cannot connect to local port %i."
-msgstr ""
+msgstr "Yerel bağlantı noktasına bağlanılamıyor %i."
 
-#: src/remmina_ssh.c:1222
+#: src/remmina_ssh.c:1248
 #, c-format
 msgid "ssh_channel_write() returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1228
+#: src/remmina_ssh.c:1254
 #, c-format
 msgid "read on tunnel listening socket returned an error: %s"
-msgstr ""
+msgstr "tünel üzerinde okuma dinleme soketi bir hata döndürdü: %s"
 
-#: src/remmina_ssh.c:1247
+#: src/remmina_ssh.c:1273
 #, c-format
 msgid "ssh_channel_poll() returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1253
+#: src/remmina_ssh.c:1279
 #, c-format
 msgid "ssh_channel_read_nonblocking() returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1272
+#: src/remmina_ssh.c:1298
 #, c-format
 msgid "write on tunnel listening socket returned an error: %s"
-msgstr ""
+msgstr "tüneldeki dinleme soketi yazma hatası verdi: %s"
 
-#: src/remmina_ssh.c:1351
+#: src/remmina_ssh.c:1377
 msgid "Destination port has not been assigned."
-msgstr ""
+msgstr "Hedef port atanmamış."
 
-#: src/remmina_ssh.c:1358
+#: src/remmina_ssh.c:1384
 msgid "Failed to create socket."
-msgstr ""
+msgstr "Soket oluşturulamadı."
 
-#: src/remmina_ssh.c:1368
+#: src/remmina_ssh.c:1394
 msgid "Failed to bind on local port."
-msgstr ""
+msgstr "Yerel bağlantı noktasına bağlanılamadı."
 
-#: src/remmina_ssh.c:1374
+#: src/remmina_ssh.c:1400
 msgid "Failed to listen on local port."
-msgstr ""
+msgstr "Yerel bağlantı noktası dinlenemedi."
 
-#: src/remmina_ssh.c:1383 src/remmina_ssh.c:1399 src/remmina_ssh.c:1415
-#: src/remmina_ssh.c:1432
+#: src/remmina_ssh.c:1409 src/remmina_ssh.c:1425 src/remmina_ssh.c:1441
+#: src/remmina_ssh.c:1458
 msgid "Failed to initialize pthread."
-msgstr ""
+msgstr "Pthread başlatılamadı."
 
-#: src/remmina_ssh.c:1521
+#: src/remmina_ssh.c:1547
 #, c-format
 msgid "Failed to create SFTP session: %s"
 msgstr "Oluşturulamadı! SFTP oturumu: %s"
 
-#: src/remmina_ssh.c:1525
+#: src/remmina_ssh.c:1551
 #, c-format
 msgid "Failed to initialize SFTP session: %s"
 msgstr "Başlatılamadı! SFTP oturumu: %s"
 
-#: src/remmina_ssh.c:1640
+#: src/remmina_ssh.c:1666
 #, c-format
 msgid "Failed to request shell: %s"
-msgstr ""
+msgstr "Kabuk istenemedi: %s"
 
-#: src/remmina_ssh.c:1734
+#: src/remmina_ssh.c:1760
 msgid "Failed to create pty device."
-msgstr ""
+msgstr "Pty cihazı oluşturulamadı."
 
 #: src/remmina_key_chooser.h:38
 msgid "Shift+"
@@ -281,7 +384,7 @@ msgid "<None>"
 msgstr "<Yok>"
 
 #. Profile: Protocol
-#: src/remmina_plugin_manager.c:69 src/remmina_file_editor.c:1431
+#: src/remmina_plugin_manager.c:69 src/remmina_file_editor.c:1460
 msgid "Protocol"
 msgstr "İletişim Kuralı"
 
@@ -305,19 +408,18 @@ msgstr "Tercih"
 msgid "Secret"
 msgstr "Gizli"
 
-#: src/remmina_plugin_manager.c:390 data/ui/remmina_main.glade:60
-#: data/ui/remmina_main.glade:61 data/ui/remmina_main.glade:463
+#: src/remmina_plugin_manager.c:390 data/ui/remmina_main.glade:356
 msgid "Plugins"
 msgstr "Eklentiler"
 
-#: src/remmina_plugin_manager.c:390 src/remmina_file_editor.c:160
+#: src/remmina_plugin_manager.c:390 src/remmina_file_editor.c:161
 #: src/remmina_message_panel.c:446 src/remmina_message_panel.c:615
 msgid "_OK"
 msgstr "_Tamam"
 
 #. Profile: Name
-#: src/remmina_plugin_manager.c:408 src/remmina_file_editor.c:1388
-#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:580
+#: src/remmina_plugin_manager.c:408 src/remmina_file_editor.c:1417
+#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:474
 #: data/ui/remmina_mpc.glade:314
 msgid "Name"
 msgstr "İsim"
@@ -334,119 +436,124 @@ msgstr "Açıklama"
 msgid "Version"
 msgstr "Sürüm"
 
-#: src/remmina_protocol_widget.c:268
+#: src/remmina_protocol_widget.c:276
 msgid "Open Secure Shell in New Terminal…"
 msgstr "Güvenli Komut Satırı Penceresi Aç…"
 
-#: src/remmina_protocol_widget.c:274
+#: src/remmina_protocol_widget.c:282
 msgid "Open Secure File Transfer…"
 msgstr "Güvenli Dosya Aktarım Penceresi Aç…"
 
-#: src/remmina_protocol_widget.c:302
+#: src/remmina_protocol_widget.c:310
 msgid "Executing external commands…"
 msgstr "Dış komutlar çalıştırılıyor…"
 
-#: src/remmina_protocol_widget.c:309
+#: src/remmina_protocol_widget.c:317
 #, c-format
 msgid "Connecting to '%s'…"
 msgstr "Bağlanıyor '%s'…"
 
-#: src/remmina_protocol_widget.c:658
+#: src/remmina_protocol_widget.c:666
 #, c-format
 msgid "Connecting to SSH server %s…"
 msgstr "Bağlanıyor SSH sunucu %s…"
 
-#: src/remmina_protocol_widget.c:741 src/remmina_protocol_widget.c:918
+#: src/remmina_protocol_widget.c:749 src/remmina_protocol_widget.c:926
 #, c-format
 msgid "Connecting to %s through SSH tunnel…"
 msgstr "Bağlanıyor %s SSH tüneli üstünden…"
 
-#: src/remmina_protocol_widget.c:793
+#: src/remmina_protocol_widget.c:801
 #, c-format
 msgid "Waiting for an incoming SSH tunnel at port %i…"
 msgstr "Porta gelecek SSH tünel istekleri bekleniyor %i…"
 
-#: src/remmina_protocol_widget.c:839
+#: src/remmina_protocol_widget.c:847
 #, c-format
 msgid "Command %s not found on SSH server"
 msgstr "Komut %s SSH sunucu üzerinde bulunamadı"
 
-#: src/remmina_protocol_widget.c:843
+#: src/remmina_protocol_widget.c:851
 #, c-format
 msgid "Command %s failed on SSH server (status = %i)."
 msgstr "Komut %s SSH sunucu üzerinde çalıştırılamadı (durum = %i)"
 
-#: src/remmina_protocol_widget.c:850
+#: src/remmina_protocol_widget.c:858
 #, c-format
 msgid "Failed to execute command: %s"
 msgstr "Komut çalıştırılamadı: %s"
 
-#: src/remmina_protocol_widget.c:1122 src/remmina_protocol_widget.c:1133
+#: src/remmina_protocol_widget.c:1132
+msgid "Enter SSH tunnel authentication credentials"
+msgstr "SSH tüneli kimlik doğrulama bilgilerini gir"
+
+#: src/remmina_protocol_widget.c:1132 src/remmina_protocol_widget.c:1146
 msgid "Enter authentication credentials"
 msgstr "Kimlik doğrulama bilgilerini girin"
 
-#: src/remmina_protocol_widget.c:1283 src/remmina_protocol_widget.c:1310
-#: src/remmina_ssh_plugin.c:964 src/remmina_file_editor.c:926
-#: src/remmina_sftp_plugin.c:323 data/ui/remmina_mpc.glade:113
+#: src/remmina_protocol_widget.c:1296 src/remmina_protocol_widget.c:1310
+#: src/remmina_protocol_widget.c:1337 src/remmina_ssh_plugin.c:964
+#: src/remmina_file_editor.c:937 src/remmina_sftp_plugin.c:323
+#: data/ui/remmina_mpc.glade:113
 msgid "Password"
 msgstr "Şifre"
 
-#: src/remmina_protocol_widget.c:1301
+#: src/remmina_protocol_widget.c:1328
 #, c-format
 msgid "%s password"
 msgstr "%s şifre"
 
-#: src/remmina_protocol_widget.c:1337
+#: src/remmina_protocol_widget.c:1364
 msgid "Certificate Details:"
 msgstr "Sertifika Detayları:"
 
-#: src/remmina_protocol_widget.c:1338 src/remmina_protocol_widget.c:1360
+#: src/remmina_protocol_widget.c:1365 src/remmina_protocol_widget.c:1387
 msgid "Subject:"
 msgstr "Konu:"
 
-#: src/remmina_protocol_widget.c:1339 src/remmina_protocol_widget.c:1361
+#: src/remmina_protocol_widget.c:1366 src/remmina_protocol_widget.c:1388
 msgid "Issuer:"
 msgstr "Dağıtıcı:"
 
-#: src/remmina_protocol_widget.c:1340
+#: src/remmina_protocol_widget.c:1367
 msgid "Fingerprint:"
 msgstr "Parmak izi:"
 
-#: src/remmina_protocol_widget.c:1341
+#: src/remmina_protocol_widget.c:1368
 msgid "Accept Certificate?"
 msgstr "Sertifikayı Kabul Et?"
 
-#: src/remmina_protocol_widget.c:1359
+#: src/remmina_protocol_widget.c:1386
 msgid "Certificate Changed! Details:"
 msgstr "Sertifika Değişti! Ayrıntılar:"
 
-#: src/remmina_protocol_widget.c:1362
+#: src/remmina_protocol_widget.c:1389
 msgid "Old Fingerprint:"
 msgstr "Eski Parmak İzi:"
 
-#: src/remmina_protocol_widget.c:1363
+#: src/remmina_protocol_widget.c:1390
 msgid "New Fingerprint:"
 msgstr "Yani Parmak İzi:"
 
-#: src/remmina_protocol_widget.c:1364
+#: src/remmina_protocol_widget.c:1391
 msgid "Accept Changed Certificate?"
 msgstr "Sertifika Değişimini Kabul Et?"
 
-#: src/remmina_protocol_widget.c:1507
+#: src/remmina_protocol_widget.c:1534
 #, c-format
 msgid "Listening on port %i for an incoming %s connection…"
 msgstr "Port dinleme %i gelen istekler için %s bağlantı…"
 
-#: src/remmina_protocol_widget.c:1532
+#: src/remmina_protocol_widget.c:1559
 msgid "Authentication failed. Trying to reconnect…"
 msgstr "Kimlik doğrulama başarısız. Tekrar bağlanılıyor…"
 
-#: src/remmina_protocol_widget.c:1596 src/remmina_file_editor.c:396
-#: src/remmina_file_editor.c:876 data/ui/remmina_main.glade:616
+#: src/remmina_protocol_widget.c:1623 src/remmina_file_editor.c:407
+#: src/remmina_file_editor.c:887 data/ui/remmina_main.glade:510
 msgid "Server"
 msgstr "Sunucu"
 
-#: src/remmina_protocol_widget.c:1613
+#: src/remmina_protocol_widget.c:1640
 #, c-format
 msgid "Protocol plugin %s is not installed."
 msgstr "Protokol eklentisi %s yüklenmemiş."
@@ -492,7 +599,7 @@ msgstr "SSH kimlik dosyası"
 msgid "SSH agent"
 msgstr "SSH istemci"
 
-#: src/remmina_ssh_plugin.c:967 src/remmina_file_editor.c:933
+#: src/remmina_ssh_plugin.c:967 src/remmina_file_editor.c:952
 #: src/remmina_sftp_plugin.c:326
 msgid "Public key (automatic)"
 msgstr "Genel anahtar (otomatik)"
@@ -501,8 +608,7 @@ msgstr "Genel anahtar (otomatik)"
 msgid "Kerberos (GSSAPI)"
 msgstr "Kerberos (GSSAPI)"
 
-#: src/remmina_ssh_plugin.c:1043 data/ui/remmina_main.glade:96
-#: data/ui/remmina_main.glade:97
+#: src/remmina_ssh_plugin.c:1043 data/ui/remmina_main.glade:248
 msgid "Copy"
 msgstr "Kopyala"
 
@@ -526,18 +632,18 @@ msgstr "Tümünü seç"
 msgid "_Select all"
 msgstr "_Tümünü seç"
 
-#: src/remmina_ssh_plugin.c:1063 src/remmina_file_editor.c:916
+#: src/remmina_ssh_plugin.c:1063 src/remmina_file_editor.c:927
 #: src/remmina_message_panel.c:330 src/remmina_sftp_plugin.c:355
-#: plugins/rdp/rdp_plugin.c:1540 plugins/nx/nx_plugin.c:698
-#: plugins/vnc/vnc_plugin.c:1866 plugins/vnc/vnc_plugin.c:1886
+#: plugins/rdp/rdp_plugin.c:1596 plugins/nx/nx_plugin.c:698
+#: plugins/vnc/vnc_plugin.c:1875 plugins/vnc/vnc_plugin.c:1895
 #: data/ui/remmina_mpc.glade:152
 msgid "User name"
 msgstr "Kullanıcı adı"
 
 #: src/remmina_ssh_plugin.c:1064 src/remmina_sftp_plugin.c:356
-#: plugins/rdp/rdp_plugin.c:1541 plugins/nx/nx_plugin.c:699
-#: plugins/spice/spice_plugin.c:427 plugins/vnc/vnc_plugin.c:1867
-#: plugins/vnc/vnc_plugin.c:1887
+#: plugins/rdp/rdp_plugin.c:1597 plugins/nx/nx_plugin.c:699
+#: plugins/spice/spice_plugin.c:427 plugins/vnc/vnc_plugin.c:1876
+#: plugins/vnc/vnc_plugin.c:1896
 msgid "User password"
 msgstr "Kullanıcı şifresi"
 
@@ -545,8 +651,8 @@ msgstr "Kullanıcı şifresi"
 msgid "Authentication type"
 msgstr "Kimlik doğrulama türü"
 
-#: src/remmina_ssh_plugin.c:1066 src/remmina_file_editor.c:348
-#: src/remmina_file_editor.c:355 src/remmina_sftp_plugin.c:358
+#: src/remmina_ssh_plugin.c:1066 src/remmina_file_editor.c:359
+#: src/remmina_file_editor.c:366 src/remmina_sftp_plugin.c:358
 #: plugins/nx/nx_plugin.c:697
 msgid "Identity file"
 msgstr "Kimlik dosyası"
@@ -555,7 +661,7 @@ msgstr "Kimlik dosyası"
 msgid "Private key passphrase"
 msgstr "Özel anahtar şifresi"
 
-#: src/remmina_ssh_plugin.c:1068 plugins/rdp/rdp_plugin.c:1569
+#: src/remmina_ssh_plugin.c:1068 plugins/rdp/rdp_plugin.c:1625
 #: plugins/nx/nx_plugin.c:702 plugins/xdmcp/xdmcp_plugin.c:370
 msgid "Startup program"
 msgstr "Başlangıç programı"
@@ -564,7 +670,7 @@ msgstr "Başlangıç programı"
 msgid "Terminal color scheme"
 msgstr "Uçbirim renk düzeni"
 
-#: src/remmina_ssh_plugin.c:1086 src/remmina_file_editor.c:895
+#: src/remmina_ssh_plugin.c:1086 src/remmina_file_editor.c:906
 msgid "Character set"
 msgstr "Karakter seti"
 
@@ -600,9 +706,9 @@ msgstr "Çıkışta SSH oturum kaydını etkinleştir"
 msgid "Enable SSH compression"
 msgstr "SSH sıkıştırmasını etkinleştir"
 
-#: src/remmina_ssh_plugin.c:1095 plugins/rdp/rdp_plugin.c:1580
+#: src/remmina_ssh_plugin.c:1095 plugins/rdp/rdp_plugin.c:1644
 #: plugins/nx/nx_plugin.c:720 plugins/spice/spice_plugin.c:446
-#: plugins/vnc/vnc_plugin.c:1910
+#: plugins/vnc/vnc_plugin.c:1919
 msgid "Disable password storing"
 msgstr "Parola depolamayı devre dışı bırak"
 
@@ -617,19 +723,19 @@ msgid "SSH - Secure Shell"
 msgstr "SSH - Güvenli Kabuk"
 
 #. Show in the status bar the total number of connections found
-#: src/remmina_main.c:599
+#: src/remmina_main.c:622
 #, c-format
 msgid "Total %i item."
 msgid_plural "Total %i items."
 msgstr[0] "Toplam %i öge."
 msgstr[1] "Toplam %i öge."
 
-#: src/remmina_main.c:763
+#: src/remmina_main.c:786
 #, c-format
 msgid "Are you sure to delete '%s'"
 msgstr "Silmek istiyor musunuz? '%s'"
 
-#: src/remmina_main.c:852
+#: src/remmina_main.c:857
 #, c-format
 msgid ""
 "Unable to import:\n"
@@ -638,20 +744,19 @@ msgstr ""
 "İçeri alınamıyor:\n"
 "%s"
 
-#: src/remmina_main.c:879 data/ui/remmina_main.glade:175
-#: data/ui/remmina_main.glade:176 data/ui/remmina_main.glade:398
+#: src/remmina_main.c:884 data/ui/remmina_main.glade:302
 msgid "Import"
 msgstr "İçeri Al"
 
-#: src/remmina_main.c:902 src/remmina_file_editor.c:1287
+#: src/remmina_main.c:907 src/remmina_file_editor.c:1316
 msgid "_Save"
 msgstr "_Kaydet"
 
-#: src/remmina_main.c:909
+#: src/remmina_main.c:914
 msgid "This protocol does not support exporting."
 msgstr "Bu protokol dışarı çıkartmayı desteklemiyor."
 
-#: src/remmina_main.c:1121
+#: src/remmina_main.c:1126
 msgid "Remmina Kiosk"
 msgstr "Remmina Kiosk"
 
@@ -713,15 +818,15 @@ msgstr ""
 "* [sunucu]:port\n"
 "* kullanıcıadı@sunucu:port (sadece SSH protokolü)</big></tt>"
 
-#: src/remmina_file_editor.c:157
+#: src/remmina_file_editor.c:158
 msgid "Choose a Remote Desktop Server"
 msgstr "Uzak Masaüstü Sunucusunu Seç"
 
 #. Buttons, ok and cancel
 #. gtk_grid_attach(GTK_GRID(grid), button_ok, 0, grid_row, 1, 1);
 #. Buttons, ok and cancel
-#: src/remmina_file_editor.c:159 src/remmina_file_editor.c:356
-#: src/remmina_file_editor.c:1280 src/remmina_sftp_client.c:917
+#: src/remmina_file_editor.c:160 src/remmina_file_editor.c:367
+#: src/remmina_file_editor.c:1309 src/remmina_sftp_client.c:917
 #: src/remmina_message_panel.c:452 src/remmina_message_panel.c:623
 #: plugins/nx/nx_session_manager.c:156
 #: plugins/spice/spice_plugin_file_transfer.c:84
@@ -730,230 +835,137 @@ msgstr "Uzak Masaüstü Sunucusunu Seç"
 msgid "_Cancel"
 msgstr "_İptal"
 
-#: src/remmina_file_editor.c:357
+#: src/remmina_file_editor.c:368
 msgid "_Open"
 msgstr "_Aç"
 
-#: src/remmina_file_editor.c:420
+#: src/remmina_file_editor.c:431
 #, c-format
 msgid "Browse the network to find a %s server"
 msgstr "Bulmak için ağa göz atın %s sunucu"
 
-#: src/remmina_file_editor.c:486 src/remmina_pref_dialog.c:82
+#: src/remmina_file_editor.c:497 src/remmina_pref_dialog.c:82
 #: data/ui/remmina_preferences.glade:240
 msgid "Resolutions"
 msgstr "Çözünürlük"
 
-#: src/remmina_file_editor.c:486 src/remmina_pref_dialog.c:82
+#: src/remmina_file_editor.c:497 src/remmina_pref_dialog.c:82
 msgid "Configure the available resolutions"
 msgstr "Kullanılabilir çözünürlükleri yapılandırma"
 
-#: src/remmina_file_editor.c:523
+#: src/remmina_file_editor.c:534
 msgid "Resolution"
 msgstr "Çözünürlük"
 
-#: src/remmina_file_editor.c:530
+#: src/remmina_file_editor.c:541
 msgid "Use initial window size"
 msgstr "İlk pencere boyutunu kullan"
 
-#: src/remmina_file_editor.c:534
+#: src/remmina_file_editor.c:545
 msgid "Use client resolution"
 msgstr "İstemci çözünürlüğünü kullan"
 
-#: src/remmina_file_editor.c:545 src/remmina_file_editor.c:855
+#: src/remmina_file_editor.c:556 src/remmina_file_editor.c:866
 msgid "Custom"
 msgstr "Özel"
 
-#: src/remmina_file_editor.c:733
+#: src/remmina_file_editor.c:744
 msgid "Keyboard mapping"
 msgstr "Klavye tuş haritası"
 
-#: src/remmina_file_editor.c:829
+#: src/remmina_file_editor.c:833
+msgid "SSH Tunnel"
+msgstr "SSH Tünel"
+
+#: src/remmina_file_editor.c:840
 msgid "Enable SSH tunnel"
 msgstr "SSH tünellemeyi aktifleştir"
 
-#: src/remmina_file_editor.c:836
+#: src/remmina_file_editor.c:847
 msgid "Tunnel via loopback address"
 msgstr "Loopback adres aracılığıyla tünelle"
 
-#: src/remmina_file_editor.c:846
+#: src/remmina_file_editor.c:857
 #, c-format
 msgid "Same server at port %i"
 msgstr "Aynı sunucu üstünde port %i"
 
-#: src/remmina_file_editor.c:900 plugins/rdp/rdp_plugin.c:1570
+#: src/remmina_file_editor.c:911 plugins/rdp/rdp_plugin.c:1626
 msgid "Startup path"
 msgstr "Başlangıç dizini"
 
-#: src/remmina_file_editor.c:909
+#: src/remmina_file_editor.c:920
 msgid "SSH Authentication"
 msgstr "SSH Doğrulama"
 
-#: src/remmina_file_editor.c:919
+#: src/remmina_file_editor.c:930
 msgid "SSH Agent (automatic)"
 msgstr "SSH İstemci (otomatik)"
 
-#: src/remmina_file_editor.c:990
+#: src/remmina_file_editor.c:1009
 msgid "Basic"
 msgstr "Basit"
 
-#: src/remmina_file_editor.c:996
+#: src/remmina_file_editor.c:1015
 msgid "Advanced"
 msgstr "Gelişmiş"
 
-#: src/remmina_file_editor.c:1208
+#: src/remmina_file_editor.c:1237
 msgid "Default settings saved."
 msgstr "Öntanımlı ayarlar kaydedildi."
 
 #. Create the editor dialog
-#: src/remmina_file_editor.c:1278
+#: src/remmina_file_editor.c:1307
 msgid "Remote Desktop Preference"
 msgstr "Uzak Masaüstü Ayarları"
 
 #. Default button
-#: src/remmina_file_editor.c:1284
+#: src/remmina_file_editor.c:1313
 msgid "Save as Default"
 msgstr "Öntanımlı olarak Kaydet"
 
-#: src/remmina_file_editor.c:1292 data/ui/remmina_main.glade:77
-#: data/ui/remmina_main.glade:78
+#: src/remmina_file_editor.c:1321 data/ui/remmina_main.glade:231
 msgid "Connect"
 msgstr "Bağlan"
 
-#: src/remmina_file_editor.c:1295
+#: src/remmina_file_editor.c:1324
 msgid "_Save and Connect"
 msgstr "_Kaydet ve Bağlan"
 
-#: src/remmina_file_editor.c:1385
+#: src/remmina_file_editor.c:1414
 msgid "Profile"
 msgstr "Bağlantı Profili"
 
-#: src/remmina_file_editor.c:1402
+#: src/remmina_file_editor.c:1431
 msgid "Quick Connect"
 msgstr "Hızlı Bağlantı"
 
 #. Profile: Group
-#: src/remmina_file_editor.c:1413 src/remmina_ftp_client.c:930
-#: data/ui/remmina_main.glade:602 data/ui/remmina_mpc.glade:99
+#: src/remmina_file_editor.c:1442 src/remmina_ftp_client.c:930
+#: data/ui/remmina_main.glade:496 data/ui/remmina_mpc.glade:99
 #: data/ui/remmina_mpc.glade:325
 msgid "Group"
 msgstr "Grup"
 
-#: src/remmina_file_editor.c:1426
+#: src/remmina_file_editor.c:1455
 #, c-format
 msgid "Use '%s' as subgroup delimiter"
 msgstr "Kullan '%s' alt grup sınırlayıcı olarak"
 
 #. Prior Connection Command
-#: src/remmina_file_editor.c:1445
+#: src/remmina_file_editor.c:1474
 msgid "Pre Command"
 msgstr "Öntanımlı Komut"
 
 #. POST Connection Command
-#: src/remmina_file_editor.c:1463
+#: src/remmina_file_editor.c:1492
 msgid "Post Command"
 msgstr "Yazılı Komut"
 
-#: src/remmina_file_editor.c:1527 src/remmina_file_editor.c:1545
+#: src/remmina_file_editor.c:1556 src/remmina_file_editor.c:1574
 #, c-format
 msgid "File %s not found."
 msgstr "Dosya %s bulunamadı."
-
-#: src/remmina_connection_window.c:588
-#, c-format
-msgid ""
-"There are %i active connections in the current window. Are you sure to close?"
-msgstr ""
-"Aktif pencerede %i aktif bağlantı var. Kapatmak istediğinizdem eminmisiniz?"
-
-#: src/remmina_connection_window.c:1169
-msgid "Viewport fullscreen mode"
-msgstr "Görünüm alanı tam ekran hali"
-
-#: src/remmina_connection_window.c:1178
-msgid "Scrolled fullscreen mode"
-msgstr "Kaydırmalı tam ekran"
-
-#: src/remmina_connection_window.c:1249
-msgid "Keep aspect ratio when scaled"
-msgstr "En boy oranını koru"
-
-#: src/remmina_connection_window.c:1258
-msgid "Fill client window when scaled"
-msgstr "İstemci penceresini doldur"
-
-#. Add a keystrokes submenu
-#: src/remmina_connection_window.c:1692 src/remmina_pref_dialog.c:142
-#: data/ui/remmina_preferences.glade:252
-msgid "Keystrokes"
-msgstr "Tuş vuruşları"
-
-#: src/remmina_connection_window.c:1795
-msgid ""
-"Warning: screenshot is scaled or distorted. Disable scaling to have better "
-"screenshot."
-msgstr ""
-"Uyarı: ekran görüntüsü ölçeklenmiş veya bozuk. Daha iyi bir ekran görüntüsü "
-"için ölçeklendirmeyi devre dışı bırakın."
-
-#. send a desktop notification
-#: src/remmina_connection_window.c:1856
-msgid "Screenshot taken"
-msgstr "Ekran görüntüsü alındı"
-
-#: src/remmina_connection_window.c:1923
-msgid "Resize the window to fit in remote resolution"
-msgstr "Pencereyi uzak sunucu çözünürlüğüne göre ayarla"
-
-#: src/remmina_connection_window.c:1934 data/ui/remmina_preferences.glade:740
-msgid "Toggle fullscreen mode"
-msgstr "Tam ekran modunu değiştir"
-
-#: src/remmina_connection_window.c:1980 data/ui/remmina_preferences.glade:796
-msgid "Switch tab pages"
-msgstr "Sekme sayfalarını değiştir"
-
-#: src/remmina_connection_window.c:1994
-msgid "Toggle dynamic resolution update"
-msgstr "Çözünürlük güncellemesini değiştir"
-
-#: src/remmina_connection_window.c:2004 data/ui/remmina_preferences.glade:837
-msgid "Toggle scaled mode"
-msgstr "Ölçekleme modunu değiştir"
-
-#: src/remmina_connection_window.c:2040
-msgid "Grab all keyboard events"
-msgstr "Tüm klavye olaylarını yakala"
-
-#: src/remmina_connection_window.c:2049 data/ui/remmina_main.glade:42
-#: data/ui/remmina_main.glade:43
-msgid "Preferences"
-msgstr "Seçenekler"
-
-#: src/remmina_connection_window.c:2057 src/remmina_connection_window.c:2058
-msgid "Tools"
-msgstr "Araçlar"
-
-#: src/remmina_connection_window.c:2070 data/ui/remmina_preferences.glade:978
-msgid "Screenshot"
-msgstr "Ekran görüntüsü"
-
-#: src/remmina_connection_window.c:2078 data/ui/remmina_preferences.glade:893
-msgid "Minimize window"
-msgstr "Pencereyi simge durumuna küçült"
-
-#: src/remmina_connection_window.c:2088 data/ui/remmina_preferences.glade:922
-msgid "Disconnect"
-msgstr "Bağlantıyı kes"
-
-#: src/remmina_connection_window.c:3730
-#, c-format
-msgid "File %s is corrupted, unreadable or not found."
-msgstr "Dosya %s bozuk, okunamıyor veya bulunamadı."
-
-#: src/remmina_connection_window.c:3874
-msgid "Warning: This plugin require GtkSocket, but it’s not available."
-msgstr "Uyarı: Bu eklenti GtkSocket gerektirir, ancak mevcut değil."
 
 #: src/remmina_sftp_client.c:170
 #, c-format
@@ -1083,15 +1095,15 @@ msgstr "İptal"
 msgid "Close"
 msgstr "Kapat"
 
-#: src/remmina_message_panel.c:260 data/ui/remmina_main.glade:732
+#: src/remmina_message_panel.c:260 data/ui/remmina_main.glade:626
 msgid "Yes"
 msgstr "Evet"
 
-#: src/remmina_message_panel.c:267 data/ui/remmina_main.glade:716
+#: src/remmina_message_panel.c:267 data/ui/remmina_main.glade:610
 msgid "No"
 msgstr "Hayır"
 
-#: src/remmina_message_panel.c:387 plugins/rdp/rdp_plugin.c:1542
+#: src/remmina_message_panel.c:387 plugins/rdp/rdp_plugin.c:1598
 #: data/ui/remmina_mpc.glade:138
 msgid "Domain"
 msgstr "Alan adı"
@@ -1143,7 +1155,7 @@ msgstr ""
 msgid "Start Remmina in Kiosk mode"
 msgstr "Remmina Kiosk modunda başlat"
 
-#: src/remmina.c:87 data/ui/remmina_main.glade:776
+#: src/remmina.c:87 data/ui/remmina_main.glade:69
 msgid "Create a new connection profile"
 msgstr "Yeni bağlantı profili oluştur"
 
@@ -1241,8 +1253,7 @@ msgstr "İndir"
 msgid "Upload"
 msgstr "Yükle"
 
-#: src/remmina_ftp_client.c:662 data/ui/remmina_main.glade:105
-#: data/ui/remmina_main.glade:106
+#: src/remmina_ftp_client.c:662
 msgid "_Delete"
 msgstr "_Sil"
 
@@ -1262,8 +1273,8 @@ msgstr "Yukarı"
 msgid "Go to parent folder"
 msgstr "Üst klasöre git"
 
-#: src/remmina_ftp_client.c:763 plugins/rdp/rdp_plugin.c:1597
-#: plugins/vnc/vnc_plugin.c:1923
+#: src/remmina_ftp_client.c:763 plugins/rdp/rdp_plugin.c:1661
+#: plugins/vnc/vnc_plugin.c:1932
 msgid "Refresh"
 msgstr "Yenile"
 
@@ -1279,7 +1290,7 @@ msgstr "Sunucudan indir"
 msgid "Upload to server"
 msgstr "Sunucuya yükle"
 
-#: src/remmina_ftp_client.c:790
+#: src/remmina_ftp_client.c:790 data/ui/remmina_main.glade:268
 msgid "Delete"
 msgstr "Sil"
 
@@ -1303,11 +1314,11 @@ msgstr "Kullanıcı"
 msgid "Permission"
 msgstr "İzinler"
 
-#: src/remmina_ftp_client.c:988 plugins/rdp/rdp_plugin.c:1506
+#: src/remmina_ftp_client.c:988 plugins/rdp/rdp_plugin.c:1562
 msgid "Remote"
 msgstr "Uzak"
 
-#: src/remmina_ftp_client.c:995 plugins/rdp/rdp_plugin.c:1502
+#: src/remmina_ftp_client.c:995 plugins/rdp/rdp_plugin.c:1558
 msgid "Local"
 msgstr "Yerel"
 
@@ -1335,7 +1346,7 @@ msgstr "_Temizle"
 msgid "Reconnection in progress. Attempt %d of %d…"
 msgstr "Yeniden bağlanılıyor. Deneme %d üzerinden %d…"
 
-#: plugins/rdp/rdp_plugin.c:1129
+#: plugins/rdp/rdp_plugin.c:1185
 #, c-format
 msgid ""
 "Authentication to RDP server %s failed.\n"
@@ -1344,7 +1355,7 @@ msgstr ""
 "Kimlik doğrulama RDP sunucu %s başarısız.\n"
 "Kullanıcı adı, şifre ve alan adını kontrol edin."
 
-#: plugins/rdp/rdp_plugin.c:1138
+#: plugins/rdp/rdp_plugin.c:1194
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
@@ -1353,7 +1364,7 @@ msgstr ""
 "RDP sunucusuna erişim %s başarısız oldu.\n"
 "Hesap kilitlendi."
 
-#: plugins/rdp/rdp_plugin.c:1145
+#: plugins/rdp/rdp_plugin.c:1201
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
@@ -1362,7 +1373,7 @@ msgstr ""
 "RDP sunucusuna erişim %s başarısız oldu.\n"
 "Hesap süresi doldu."
 
-#: plugins/rdp/rdp_plugin.c:1152
+#: plugins/rdp/rdp_plugin.c:1208
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
@@ -1371,7 +1382,7 @@ msgstr ""
 "RDP sunucusuna erişim %s başarısız oldu.\n"
 "Şifrenin zamanı doldu."
 
-#: plugins/rdp/rdp_plugin.c:1159
+#: plugins/rdp/rdp_plugin.c:1215
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
@@ -1380,7 +1391,7 @@ msgstr ""
 "RDP sunucusuna erişim %s başarısız oldu.\n"
 "Hesap devredışı."
 
-#: plugins/rdp/rdp_plugin.c:1165
+#: plugins/rdp/rdp_plugin.c:1221
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
@@ -1389,7 +1400,7 @@ msgstr ""
 "RDP sunucusuna erişim %s başarısız oldu.\n"
 "Kullanıcıda yeterli ayrıcalık yok."
 
-#: plugins/rdp/rdp_plugin.c:1173
+#: plugins/rdp/rdp_plugin.c:1229
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
@@ -1398,7 +1409,7 @@ msgstr ""
 "RDP sunucusuna erişim %s başarısız oldu.\n"
 "Hesabın kısıtlamaları var."
 
-#: plugins/rdp/rdp_plugin.c:1181
+#: plugins/rdp/rdp_plugin.c:1237
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
@@ -1407,17 +1418,17 @@ msgstr ""
 "RDP sunucusuna erişim %s başarısız oldu.\n"
 "Kullanıcı bağlanmadan önce şifreyi değiştirmelidir."
 
-#: plugins/rdp/rdp_plugin.c:1186
+#: plugins/rdp/rdp_plugin.c:1242
 #, c-format
 msgid "Connection to RDP server %s failed."
 msgstr "RDP sunucu %s bağlantısı başarısız oldu."
 
-#: plugins/rdp/rdp_plugin.c:1189
+#: plugins/rdp/rdp_plugin.c:1245
 #, c-format
 msgid "Unable to find the address of RDP server %s."
 msgstr "RDP sunucu %s adresini bulamıyor."
 
-#: plugins/rdp/rdp_plugin.c:1193
+#: plugins/rdp/rdp_plugin.c:1249
 #, c-format
 msgid ""
 "Error connecting to RDP server %s. TLS connection failed. Check that client "
@@ -1426,22 +1437,22 @@ msgstr ""
 "RDP sunucusuna %s bağlanırken hata oluştu, TLS bağlantısı başarısız oldu, "
 "kullanıcıyı kontrol et.ve sunucu ortak TLS sürümünü destekler."
 
-#: plugins/rdp/rdp_plugin.c:1196
+#: plugins/rdp/rdp_plugin.c:1252
 #, c-format
 msgid "Unable to establish a connection to RDP server %s."
 msgstr "RDP sunucu ile %s bağlantı kuramıyor."
 
 #. We should never come here
-#: plugins/rdp/rdp_plugin.c:1204
+#: plugins/rdp/rdp_plugin.c:1260
 #, c-format
 msgid "Unable to connect to RDP server %s."
 msgstr "RDP sunucuna %s bağlanılamıyor."
 
-#: plugins/rdp/rdp_plugin.c:1207
+#: plugins/rdp/rdp_plugin.c:1263
 msgid "Unable to initialize libfreerdp gdi"
 msgstr "Libfreerdp gdi başlatılamadı"
 
-#: plugins/rdp/rdp_plugin.c:1210
+#: plugins/rdp/rdp_plugin.c:1266
 #, c-format
 msgid ""
 "You requested an H264 GFX mode for server %s, but your libfreerdp does not "
@@ -1450,230 +1461,262 @@ msgstr ""
 "Sunucu için bir H264 GFX modu istediniz %s, ancak libfreerdp H264 desteği "
 "yok, lütfen AVC olmayan bir Renk Derinliği ayarı kullanın."
 
-#: plugins/rdp/rdp_plugin.c:1217
+#: plugins/rdp/rdp_plugin.c:1273
 #, c-format
 msgid "Server %s denied the connection."
 msgstr "Sunucu %s bağlantıyı reddetti."
 
-#: plugins/rdp/rdp_plugin.c:1222
+#: plugins/rdp/rdp_plugin.c:1278
 #, c-format
 msgid "Unable to connect to RDP server %s"
 msgstr "RDP sunucusuna %s bağlanılamıyor"
 
 #. 1st one is the default in a new install
-#: plugins/rdp/rdp_plugin.c:1476
+#: plugins/rdp/rdp_plugin.c:1532
 msgid "GFX AVC444 (32 bpp)"
 msgstr "GFX AVC444 (32 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1477
+#: plugins/rdp/rdp_plugin.c:1533
 msgid "GFX AVC420 (32 bpp)"
 msgstr "GFX AVC420 (32 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1478
+#: plugins/rdp/rdp_plugin.c:1534
 msgid "GFX RFX (32 bpp)"
 msgstr "GFX RFX (32 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1479
+#: plugins/rdp/rdp_plugin.c:1535
 msgid "RemoteFX (32 bpp)"
 msgstr "RemoteFX (32 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1480 plugins/vnc/vnc_plugin.c:1839
+#: plugins/rdp/rdp_plugin.c:1536 plugins/vnc/vnc_plugin.c:1848
 msgid "True color (32 bpp)"
 msgstr "Gerçek renk (32 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1481 plugins/vnc/vnc_plugin.c:1838
+#: plugins/rdp/rdp_plugin.c:1537 plugins/vnc/vnc_plugin.c:1847
 msgid "True color (24 bpp)"
 msgstr "Gerçek renk (24 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1482 plugins/vnc/vnc_plugin.c:1837
+#: plugins/rdp/rdp_plugin.c:1538 plugins/vnc/vnc_plugin.c:1846
 msgid "High color (16 bpp)"
 msgstr "Yüksek renk (16 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1483 plugins/vnc/vnc_plugin.c:1836
+#: plugins/rdp/rdp_plugin.c:1539 plugins/vnc/vnc_plugin.c:1845
 msgid "High color (15 bpp)"
 msgstr "Yüksek renk (15 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1484 plugins/vnc/vnc_plugin.c:1835
+#: plugins/rdp/rdp_plugin.c:1540 plugins/vnc/vnc_plugin.c:1844
 msgid "256 colors (8 bpp)"
 msgstr "256 renk (8 bit)"
 
-#: plugins/rdp/rdp_plugin.c:1491 plugins/rdp/rdp_settings.c:269
-#: plugins/nx/nx_plugin.c:678 plugins/vnc/vnc_plugin.c:1846
+#: plugins/rdp/rdp_plugin.c:1547 plugins/rdp/rdp_settings.c:269
+#: plugins/nx/nx_plugin.c:678 plugins/vnc/vnc_plugin.c:1855
 msgid "Poor (fastest)"
 msgstr "Zayıf (en hızlı)"
 
-#: plugins/rdp/rdp_plugin.c:1492 plugins/rdp/rdp_settings.c:271
-#: plugins/nx/nx_plugin.c:679 plugins/vnc/vnc_plugin.c:1847
+#: plugins/rdp/rdp_plugin.c:1548 plugins/rdp/rdp_settings.c:271
+#: plugins/nx/nx_plugin.c:679 plugins/vnc/vnc_plugin.c:1856
 msgid "Medium"
 msgstr "Orta"
 
-#: plugins/rdp/rdp_plugin.c:1493 plugins/rdp/rdp_settings.c:273
-#: plugins/nx/nx_plugin.c:680 plugins/vnc/vnc_plugin.c:1848
+#: plugins/rdp/rdp_plugin.c:1549 plugins/rdp/rdp_settings.c:273
+#: plugins/nx/nx_plugin.c:680 plugins/vnc/vnc_plugin.c:1857
 msgid "Good"
 msgstr "İyi"
 
-#: plugins/rdp/rdp_plugin.c:1494 plugins/rdp/rdp_settings.c:275
-#: plugins/nx/nx_plugin.c:681 plugins/vnc/vnc_plugin.c:1849
+#: plugins/rdp/rdp_plugin.c:1550 plugins/rdp/rdp_settings.c:275
+#: plugins/nx/nx_plugin.c:681 plugins/vnc/vnc_plugin.c:1858
 msgid "Best (slowest)"
 msgstr "En iyi (en yavaş)"
 
-#: plugins/rdp/rdp_plugin.c:1501
+#: plugins/rdp/rdp_plugin.c:1557
 msgid "Off"
 msgstr "Kapalı"
 
-#: plugins/rdp/rdp_plugin.c:1503
+#: plugins/rdp/rdp_plugin.c:1559
 msgid "Local - low quality"
 msgstr "Yerel - düşük kalite"
 
-#: plugins/rdp/rdp_plugin.c:1504
+#: plugins/rdp/rdp_plugin.c:1560
 msgid "Local - medium quality"
 msgstr "Yerel - orta kalite"
 
-#: plugins/rdp/rdp_plugin.c:1505
+#: plugins/rdp/rdp_plugin.c:1561
 msgid "Local - high quality"
 msgstr "Yerel - yüksek kalite"
 
-#: plugins/rdp/rdp_plugin.c:1513
+#: plugins/rdp/rdp_plugin.c:1569
 msgid "Negotiate"
 msgstr "Anlaşma"
 
-#: plugins/rdp/rdp_plugin.c:1544 plugins/vnc/vnc_plugin.c:1868
-#: plugins/vnc/vnc_plugin.c:1888 plugins/xdmcp/xdmcp_plugin.c:369
+#: plugins/rdp/rdp_plugin.c:1600 plugins/vnc/vnc_plugin.c:1877
+#: plugins/vnc/vnc_plugin.c:1897 plugins/xdmcp/xdmcp_plugin.c:369
 msgid "Color depth"
 msgstr "Renk derinliği"
 
-#: plugins/rdp/rdp_plugin.c:1545 plugins/spice/spice_plugin.c:430
+#: plugins/rdp/rdp_plugin.c:1601 plugins/spice/spice_plugin.c:430
 msgid "Share folder"
 msgstr "Klasör paylaş"
 
-#: plugins/rdp/rdp_plugin.c:1560 plugins/nx/nx_plugin.c:701
-#: plugins/vnc/vnc_plugin.c:1869 plugins/vnc/vnc_plugin.c:1889
+#: plugins/rdp/rdp_plugin.c:1616 plugins/nx/nx_plugin.c:701
+#: plugins/vnc/vnc_plugin.c:1878 plugins/vnc/vnc_plugin.c:1898
 msgid "Quality"
 msgstr "Kalite"
 
-#: plugins/rdp/rdp_plugin.c:1561
+#: plugins/rdp/rdp_plugin.c:1617
 msgid "Sound"
 msgstr "Ses"
 
-#: plugins/rdp/rdp_plugin.c:1562
+#: plugins/rdp/rdp_plugin.c:1618
 msgid "Security"
 msgstr "Güvenlik"
 
-#: plugins/rdp/rdp_plugin.c:1563
+#: plugins/rdp/rdp_plugin.c:1619
 msgid "Gateway transport type"
 msgstr "Ağ geçidi taşıma türü"
 
-#: plugins/rdp/rdp_plugin.c:1564
+#: plugins/rdp/rdp_plugin.c:1620
 msgid "RD Gateway server"
 msgstr "RD Ağ Geçidi sunucu"
 
-#: plugins/rdp/rdp_plugin.c:1565
+#: plugins/rdp/rdp_plugin.c:1621
 msgid "RD Gateway username"
 msgstr "RD Ağ Geçidi kullanıcı adı"
 
-#: plugins/rdp/rdp_plugin.c:1566
+#: plugins/rdp/rdp_plugin.c:1622
 msgid "RD Gateway password"
 msgstr "RD Ağ Geçidi şifre"
 
-#: plugins/rdp/rdp_plugin.c:1567
+#: plugins/rdp/rdp_plugin.c:1623
 msgid "RD Gateway domain"
 msgstr "RD Ağ Geçidi etki alanı"
 
-#: plugins/rdp/rdp_plugin.c:1568
+#: plugins/rdp/rdp_plugin.c:1624
 msgid "Client name"
 msgstr "İstemci adı"
 
-#: plugins/rdp/rdp_plugin.c:1571
-msgid "Load Balance Info"
-msgstr "Yük Dengesi Bilgisi"
+#: plugins/rdp/rdp_plugin.c:1627
+msgid "Load balance info"
+msgstr "Yük dengesi bilgisi"
 
-#: plugins/rdp/rdp_plugin.c:1572
-msgid "Local Printer Name"
-msgstr "Yerel Yazıcı Adı"
+#: plugins/rdp/rdp_plugin.c:1628
+msgid "Local printer name"
+msgstr "Yerel yazıcı adı"
 
-#: plugins/rdp/rdp_plugin.c:1573
-msgid "Local Printer Driver"
-msgstr "Yerel Yazıcı Sürücüsü"
+#: plugins/rdp/rdp_plugin.c:1629
+msgid "Local printer driver"
+msgstr "Yerel yazıcı sürücüsü"
 
-#: plugins/rdp/rdp_plugin.c:1574
+#: plugins/rdp/rdp_plugin.c:1630
+msgid "Local serial name"
+msgstr "Yerel seri port adı"
+
+#: plugins/rdp/rdp_plugin.c:1631
+msgid "Local serial driver"
+msgstr "Yerel seri port sürücüsü"
+
+#: plugins/rdp/rdp_plugin.c:1632
+msgid "Local serial path"
+msgstr "Yerel seri port yolu"
+
+#: plugins/rdp/rdp_plugin.c:1633
+msgid "Local parallel name"
+msgstr "Yerel paralel port adı"
+
+#: plugins/rdp/rdp_plugin.c:1634
+msgid "Local parallel device"
+msgstr "Yerel paralel port aygıtı"
+
+#: plugins/rdp/rdp_plugin.c:1635
 msgid "Smartcard Name"
 msgstr "Akıllı Kart Adı"
 
-#: plugins/rdp/rdp_plugin.c:1575
-msgid "Share local printers"
-msgstr "Yerel yazıcıları paylaş"
+#: plugins/rdp/rdp_plugin.c:1636
+msgid "Share printers"
+msgstr "Yazıcı paylaş"
 
-#: plugins/rdp/rdp_plugin.c:1576 plugins/spice/spice_plugin.c:449
+#: plugins/rdp/rdp_plugin.c:1637
+msgid "Share serial ports"
+msgstr "Seri port paylaş"
+
+#: plugins/rdp/rdp_plugin.c:1638
+msgid "Serial ports permissive mode"
+msgstr "Seri portları permissive modu"
+
+#: plugins/rdp/rdp_plugin.c:1639
+msgid "Share parallel ports"
+msgstr "Paralel port paylaş"
+
+#: plugins/rdp/rdp_plugin.c:1640 plugins/spice/spice_plugin.c:449
 msgid "Share smartcard"
 msgstr "Akıllı kartı paylaş"
 
-#: plugins/rdp/rdp_plugin.c:1577
+#: plugins/rdp/rdp_plugin.c:1641
 msgid "Redirect local microphone"
 msgstr "Yerel mikrofon yönlendirme"
 
-#: plugins/rdp/rdp_plugin.c:1578 plugins/nx/nx_plugin.c:717
+#: plugins/rdp/rdp_plugin.c:1642 plugins/nx/nx_plugin.c:717
 #: plugins/spice/spice_plugin.c:445 plugins/spice/spice_plugin.c:461
-#: plugins/vnc/vnc_plugin.c:1907
+#: plugins/vnc/vnc_plugin.c:1916
 msgid "Disable clipboard sync"
 msgstr "Pano eşlemeyi etkisizleştir"
 
-#: plugins/rdp/rdp_plugin.c:1579
+#: plugins/rdp/rdp_plugin.c:1643
 msgid "Ignore certificate"
 msgstr "Sertifika yoksay"
 
-#: plugins/rdp/rdp_plugin.c:1581
+#: plugins/rdp/rdp_plugin.c:1645
 msgid "Attach to console (2003/2003 R2)"
 msgstr "Uçbirimine ekle (Win 2003/2003 R2)"
 
-#: plugins/rdp/rdp_plugin.c:1582
+#: plugins/rdp/rdp_plugin.c:1646
 msgid "Disable fast-path"
 msgstr "Kapat fast-path"
 
-#: plugins/rdp/rdp_plugin.c:1583
+#: plugins/rdp/rdp_plugin.c:1647
 msgid "Server detection using RD Gateway"
 msgstr "RD Ağ Geçidi kullanarak sunucu algılama"
 
-#: plugins/rdp/rdp_plugin.c:1585
+#: plugins/rdp/rdp_plugin.c:1649
 msgid "Enable proxy support"
 msgstr "Proxy desteğini etkinleştir"
 
-#: plugins/rdp/rdp_plugin.c:1587
+#: plugins/rdp/rdp_plugin.c:1651
 msgid "Disable automatic reconnection"
 msgstr "Otomatik yeniden bağlanmayı devre dışı"
 
-#: plugins/rdp/rdp_plugin.c:1588
+#: plugins/rdp/rdp_plugin.c:1652
 msgid "Relax Order Checks"
 msgstr "Rahatlık Kontrolü"
 
-#: plugins/rdp/rdp_plugin.c:1589
+#: plugins/rdp/rdp_plugin.c:1653
 msgid "Glyph Cache"
 msgstr "Glyph Önbelleği"
 
-#: plugins/rdp/rdp_plugin.c:1600 plugins/nx/nx_plugin.c:728
-#: plugins/spice/spice_plugin.c:462 plugins/vnc/vnc_plugin.c:1925
+#: plugins/rdp/rdp_plugin.c:1664 plugins/nx/nx_plugin.c:728
+#: plugins/spice/spice_plugin.c:462 plugins/vnc/vnc_plugin.c:1934
 #: plugins/xdmcp/xdmcp_plugin.c:381
 msgid "Send Ctrl+Alt+Delete"
 msgstr "Gönder Ctrl+Alt+Delete"
 
 #. Type
 #. Name
-#: plugins/rdp/rdp_plugin.c:1613
+#: plugins/rdp/rdp_plugin.c:1677
 msgid "RDP - Remote Desktop Protocol"
 msgstr "RDP - Uzak Masaüstü Kuralları"
 
 #. Type
 #. Name
-#: plugins/rdp/rdp_plugin.c:1636
+#: plugins/rdp/rdp_plugin.c:1700
 msgid "RDP - RDP File Handler"
 msgstr "RDP - RDP Dosya İşleyici"
 
 #. Type
 #. Name
-#: plugins/rdp/rdp_plugin.c:1651
+#: plugins/rdp/rdp_plugin.c:1715
 msgid "RDP - Preferences"
 msgstr "RDP - Seçenekleri"
 
-#: plugins/rdp/rdp_plugin.c:1705
+#: plugins/rdp/rdp_plugin.c:1769
 msgid "Export connection in Windows .rdp file format"
 msgstr "Bağlantıyı Windows .rdp dosya biçiminde dışarı aktar"
 
@@ -1848,7 +1891,7 @@ msgid "Protocol %s is unavailable because GtkSocket only works under Xorg"
 msgstr ""
 "Gtksocket yalnızca xorg altında çalıştığı için %s protokolü kullanılamıyor"
 
-#: plugins/nx/nx_plugin.c:718 plugins/vnc/vnc_plugin.c:1908
+#: plugins/nx/nx_plugin.c:718 plugins/vnc/vnc_plugin.c:1917
 msgid "Disable encryption"
 msgstr "Şifrelemeyi devredışı bırak"
 
@@ -1936,7 +1979,7 @@ msgid "Resize guest to match window size"
 msgstr "Konuk pencere yeniden boyutlandırma"
 
 #: plugins/spice/spice_plugin.c:450 plugins/spice/spice_plugin.c:459
-#: plugins/vnc/vnc_plugin.c:1906 plugins/vnc/vnc_plugin.c:1921
+#: plugins/vnc/vnc_plugin.c:1915 plugins/vnc/vnc_plugin.c:1930
 msgid "View only"
 msgstr "Sadece görüntüle"
 
@@ -1981,35 +2024,35 @@ msgstr "VNC sunucusundan bilinmeyen kimlik doğrulama şeması: %s"
 msgid "Please retry after enabling encryption on this profile."
 msgstr "Bu profilde şifreleme etkinleştirmeyi sonra yeniden deneyin."
 
-#: plugins/vnc/vnc_plugin.c:1865
+#: plugins/vnc/vnc_plugin.c:1874
 msgid "Repeater"
 msgstr "Tekrarlayıcı"
 
-#: plugins/vnc/vnc_plugin.c:1885
+#: plugins/vnc/vnc_plugin.c:1894
 msgid "Listen on port"
 msgstr "Portu bekle"
 
-#: plugins/vnc/vnc_plugin.c:1905
+#: plugins/vnc/vnc_plugin.c:1914
 msgid "Show remote cursor"
 msgstr "Uzaktaki imleci göster"
 
-#: plugins/vnc/vnc_plugin.c:1909 plugins/vnc/vnc_plugin.c:1922
+#: plugins/vnc/vnc_plugin.c:1918 plugins/vnc/vnc_plugin.c:1931
 msgid "Disable server input"
 msgstr "Sunucu girdisini etkisizleştir"
 
-#: plugins/vnc/vnc_plugin.c:1924
+#: plugins/vnc/vnc_plugin.c:1933
 msgid "Open Chat…"
 msgstr "Sohbeti Aç…"
 
 #. Type
 #. Name
-#: plugins/vnc/vnc_plugin.c:1936
+#: plugins/vnc/vnc_plugin.c:1945
 msgid "VNC - VNC viewer"
 msgstr "VNC - VNC görüntüleyici"
 
 #. Type
 #. Name
-#: plugins/vnc/vnc_plugin.c:1958
+#: plugins/vnc/vnc_plugin.c:1967
 msgid "VNCI - VNC viewer listen mode"
 msgstr "VNCI - VNC görüntüleyici dinleme modu"
 
@@ -2120,8 +2163,8 @@ msgstr "Otomatik kaydırma adım boyutu"
 msgid "Maximum recent items"
 msgstr "Azami öge sayısı"
 
-#: data/ui/remmina_preferences.glade:224 data/ui/remmina_main.glade:269
-#: data/ui/remmina_main.glade:271
+#: data/ui/remmina_preferences.glade:224 data/ui/remmina_main.glade:173
+#: data/ui/remmina_main.glade:175
 msgid "Clear"
 msgstr "Temizle"
 
@@ -2526,123 +2569,78 @@ msgstr "Uçbirim renk şeması dosya seçici"
 msgid "Terminal"
 msgstr "Uçbirim"
 
-#: data/ui/remmina_main.glade:44
-msgid "Open the preferences dialog"
-msgstr "Tercihler iletişim kutusunu aç"
+#: data/ui/remmina_main.glade:81
+msgid "Show search bar"
+msgstr "Hızlı bağlantı çubuğu"
 
-#: data/ui/remmina_main.glade:67 data/ui/remmina_main.glade:418
-msgid "Multi password changer"
-msgstr "Çoklu Şifre Değiştirici"
+#: data/ui/remmina_main.glade:106
+msgid "Actions"
+msgstr "Eylem"
 
-#: data/ui/remmina_main.glade:68
-msgid "MPChange"
-msgstr "ÇŞDeğiştir"
+#: data/ui/remmina_main.glade:120
+msgid "Toggle view"
+msgstr "Görünümü değiştir"
 
-#: data/ui/remmina_main.glade:79
-msgid "Open the connection to the selected remote desktop file"
-msgstr "Seçilen uzak masaüstü dosyasındaki bağlantıyı aç"
-
-#: data/ui/remmina_main.glade:87 data/ui/remmina_main.glade:88
-msgid "_Edit"
-msgstr "_Düzenle"
-
-#: data/ui/remmina_main.glade:89
-msgid "Edit the selected remote desktop file"
-msgstr "Seçilen Uzak Masaüstü dosyasını düzenle"
-
-#: data/ui/remmina_main.glade:98
-msgid "Create a copy of the selected remote desktop file"
-msgstr "Seçilen Uzak Masaüstü dosyasının kopyasını oluştur"
-
-#: data/ui/remmina_main.glade:107
-msgid "Delete the selected remote desktop file"
-msgstr "Seçilen Uzak Masaüstü dosyasını sil"
-
-#: data/ui/remmina_main.glade:114 data/ui/remmina_main.glade:115
-msgid "External Tools"
-msgstr "Harici Araçlar"
-
-#: data/ui/remmina_main.glade:125 data/ui/remmina_main.glade:126
-msgid "_New"
-msgstr "_Yeni"
-
-#: data/ui/remmina_main.glade:127
-msgid "Create a new remote desktop file"
-msgstr "Yeni uzak masaüstü dosyası oluştur"
-
-#: data/ui/remmina_main.glade:138 data/ui/remmina_main.glade:139
-#: data/ui/remmina_main.glade:490
-msgid "Homepage"
-msgstr "Ana Sayfa"
-
-#: data/ui/remmina_main.glade:145 data/ui/remmina_main.glade:146
-#: data/ui/remmina_main.glade:500
-msgid "Online Wiki"
-msgstr "Çevrimiçi Bilgi"
-
-#: data/ui/remmina_main.glade:152
-msgid "Remmina Community"
-msgstr "Remmina Topluluğu"
-
-#: data/ui/remmina_main.glade:158 data/ui/remmina_main.glade:159
-#: data/ui/remmina_main.glade:520
-msgid "Donations"
-msgstr "Bağışlar"
-
-#: data/ui/remmina_main.glade:165 data/ui/remmina_main.glade:166
-#: data/ui/remmina_main.glade:435
-msgid "Debug Window"
-msgstr "Hata Ayıklama"
-
-#: data/ui/remmina_main.glade:182 data/ui/remmina_main.glade:183
-#: data/ui/remmina_main.glade:408
-msgid "Export"
-msgstr "Dışarı Aktar"
-
-#: data/ui/remmina_main.glade:192 data/ui/remmina_main.glade:193
-msgid "Statusbar"
-msgstr "Durum Çubuğu"
-
-#: data/ui/remmina_main.glade:264
+#: data/ui/remmina_main.glade:168
 msgid "search string or server name/ip address for quick connect"
 msgstr "hızlı bağlantı için listeyi ara veya sunucu adı/ip adresi gir"
 
-#: data/ui/remmina_main.glade:268 data/ui/remmina_main.glade:270
+#: data/ui/remmina_main.glade:172 data/ui/remmina_main.glade:174
 msgid "Server name or IP address"
 msgstr "Sunucu adı veya IP adresi"
 
+#: data/ui/remmina_main.glade:258
+msgid "Edit"
+msgstr "Düzenle"
+
+#: data/ui/remmina_main.glade:312
+msgid "Export"
+msgstr "Dışarı Aktar"
+
+#: data/ui/remmina_main.glade:322
+msgid "Multi password changer"
+msgstr "Çoklu Şifre Değiştirici"
+
+#: data/ui/remmina_main.glade:339
+msgid "Debug Window"
+msgstr "Hata Ayıklama"
+
+#: data/ui/remmina_main.glade:384
+msgid "Homepage"
+msgstr "Ana Sayfa"
+
+#: data/ui/remmina_main.glade:394
+msgid "Online Wiki"
+msgstr "Çevrimiçi Bilgi"
+
 #. Online Remmina community, like reddit, facebook, etc
-#: data/ui/remmina_main.glade:510
+#: data/ui/remmina_main.glade:404
 msgid "Online Community"
 msgstr "Çevrimiçi Topluluk"
 
-#: data/ui/remmina_main.glade:630
+#: data/ui/remmina_main.glade:414
+msgid "Donations"
+msgstr "Bağışlar"
+
+#: data/ui/remmina_main.glade:424
+msgid "About"
+msgstr "Hakkında"
+
+#: data/ui/remmina_main.glade:524
 msgid "Plugin"
 msgstr "Eklenti"
 
-#: data/ui/remmina_main.glade:644
+#: data/ui/remmina_main.glade:538
 msgid "Last time used"
 msgstr "Son Bağlantı"
 
-#: data/ui/remmina_main.glade:705
+#: data/ui/remmina_main.glade:599
 msgid ""
 "Do you allow Remmina to send periodic anonymous usage statistics to its "
 "developers?"
 msgstr ""
 "Remmina’ya periyodik anonim kullanım istatistikleri gönderilmesine izin "
 "veriyor musunuz?"
-
-#: data/ui/remmina_main.glade:788
-msgid "Show search bar"
-msgstr "Hızlı bağlantı çubuğu"
-
-#: data/ui/remmina_main.glade:813
-msgid "Actions"
-msgstr "Eylem"
-
-#: data/ui/remmina_main.glade:827
-msgid "Toggle view"
-msgstr "Görünümü değiştir"
 
 #: data/ui/remmina_about.glade:30
 msgid "About Remmina"

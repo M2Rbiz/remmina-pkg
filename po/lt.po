@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: admin@remmina.org\n"
-"POT-Creation-Date: 2019-01-30 14:45+0000\n"
+"POT-Creation-Date: 2019-02-19 07:38+0000\n"
 "PO-Revision-Date: 2013-03-28 10:51+0000\n"
 "Last-Translator: Aurimas Fišeras <Unknown>\n"
 "Language-Team: Lithuanian <lt@li.org>\n"
@@ -24,12 +24,11 @@ msgstr ""
 msgid "Open Main Window"
 msgstr "Atverti pagrindinį langą"
 
-#: src/remmina_icon.c:144
+#: src/remmina_icon.c:144 data/ui/remmina_main.glade:366
 msgid "_Preferences"
 msgstr ""
 
-#: src/remmina_icon.c:149 data/ui/remmina_main.glade:52
-#: data/ui/remmina_main.glade:53
+#: src/remmina_icon.c:149
 msgid "_About"
 msgstr ""
 
@@ -37,8 +36,7 @@ msgstr ""
 msgid "Enable Service Discovery"
 msgstr "Įjungti paslaugų paiešką"
 
-#: src/remmina_icon.c:172 data/ui/remmina_main.glade:33
-#: data/ui/remmina_main.glade:34
+#: src/remmina_icon.c:172 data/ui/remmina_main.glade:440
 msgid "_Quit"
 msgstr ""
 
@@ -51,62 +49,164 @@ msgstr "Remmina programėlė"
 msgid "Connect to remote desktops through the applet menu"
 msgstr "Prisijungti prie nutolusių kompiuterių naudojant meniu"
 
-#: src/remmina_icon.c:480 src/remmina_icon.c:481 src/remmina_main.c:1119
+#: src/remmina_icon.c:480 src/remmina_icon.c:481 src/remmina_main.c:1124
 msgid "Remmina Remote Desktop Client"
 msgstr "Nutolusių kompiuterių valdymas - Remmina"
+
+#: src/rcw.c:588
+#, c-format
+msgid ""
+"There are %i active connections in the current window. Are you sure to close?"
+msgstr "Dabartiniame lange yra %i aktyvūs ryšiai. Ar norite užverti?"
+
+#: src/rcw.c:1169
+msgid "Viewport fullscreen mode"
+msgstr "Peržiūros srities viso ekrano veiksena"
+
+#: src/rcw.c:1178
+msgid "Scrolled fullscreen mode"
+msgstr "Slankiojama viso ekrano veiksena"
+
+#: src/rcw.c:1249
+msgid "Keep aspect ratio when scaled"
+msgstr ""
+
+#: src/rcw.c:1258
+msgid "Fill client window when scaled"
+msgstr ""
+
+#. Add a keystrokes submenu
+#: src/rcw.c:1692 src/remmina_pref_dialog.c:142
+#: data/ui/remmina_preferences.glade:252
+msgid "Keystrokes"
+msgstr ""
+
+#: src/rcw.c:1795
+msgid ""
+"Warning: screenshot is scaled or distorted. Disable scaling to have better "
+"screenshot."
+msgstr ""
+
+#. send a desktop notification
+#: src/rcw.c:1856
+msgid "Screenshot taken"
+msgstr ""
+
+#: src/rcw.c:1923
+msgid "Resize the window to fit in remote resolution"
+msgstr "Pakeisti lango dydį, kad tilptų nutolusi skiriamoji geba"
+
+#: src/rcw.c:1934 data/ui/remmina_preferences.glade:740
+msgid "Toggle fullscreen mode"
+msgstr "Perjungti viso ekrano veikseną"
+
+#: src/rcw.c:1980 data/ui/remmina_preferences.glade:796
+msgid "Switch tab pages"
+msgstr "Perjungti kortelių puslapius"
+
+#: src/rcw.c:1994
+msgid "Toggle dynamic resolution update"
+msgstr ""
+
+#: src/rcw.c:2004 data/ui/remmina_preferences.glade:837
+msgid "Toggle scaled mode"
+msgstr "Perjungti mastelio keitimo veiskeną"
+
+#: src/rcw.c:2040
+msgid "Grab all keyboard events"
+msgstr "Pasisavinti visus klaviatūros įvykius"
+
+#: src/rcw.c:2049
+msgid "Preferences"
+msgstr "Nustatymai"
+
+#: src/rcw.c:2057 src/rcw.c:2058 data/ui/remmina_main.glade:278
+msgid "Tools"
+msgstr "Įrankiai"
+
+#: src/rcw.c:2070 data/ui/remmina_preferences.glade:978
+msgid "Screenshot"
+msgstr ""
+
+#: src/rcw.c:2078 data/ui/remmina_preferences.glade:893
+msgid "Minimize window"
+msgstr "Sutraukti langą"
+
+#: src/rcw.c:2088 data/ui/remmina_preferences.glade:922
+msgid "Disconnect"
+msgstr "Nutraukti ryšį"
+
+#: src/rcw.c:3729
+#, c-format
+msgid "File %s is corrupted, unreadable or not found."
+msgstr ""
+
+#: src/rcw.c:3873
+msgid "Warning: This plugin require GtkSocket, but it’s not available."
+msgstr ""
 
 #: src/remmina_ssh.c:205
 #, c-format
 msgid "SSH password authentication failed: %s"
 msgstr "Nepavyko SSH tapatumo nustatymas slaptažodžiu: %s"
 
-#: src/remmina_ssh.c:223 src/remmina_ssh.c:232 src/remmina_ssh.c:240
+#: src/remmina_ssh.c:225 src/remmina_ssh.c:244 src/remmina_ssh.c:252
 #, c-format
 msgid "SSH public key authentication failed: %s"
 msgstr "Nepavyko SSH tapatumo nustatymas viešuoju raktu: %s"
 
-#: src/remmina_ssh.c:224
+#: src/remmina_ssh.c:226
 msgid "SSH Key file not yet set."
 msgstr "SSH rakto failas dar nenurodytas."
 
-#: src/remmina_ssh.c:255
+#: src/remmina_ssh.c:234
+#, c-format
+msgid "SSH public key cannot be imported: %s"
+msgstr ""
+
+#: src/remmina_ssh.c:267
 #, c-format
 msgid "SSH automatic public key authentication failed: %s"
 msgstr "Nepavyko automatinis SSH tapatumo nustatymas viešuoju raktu: %s"
 
-#: src/remmina_ssh.c:271
+#: src/remmina_ssh.c:283
 #, c-format
 msgid "SSH public key authentication with SSH agent failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:290
+#: src/remmina_ssh.c:302
 #, c-format
 msgid "SSH Kerberos/GSSAPI authentication failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:308
+#: src/remmina_ssh.c:319
 msgid "SSH public key has changed!"
 msgstr ""
 
-#: src/remmina_ssh.c:391
+#: src/remmina_ssh.c:409
+#, c-format
+msgid "ssh_get_server_publickey() has failed: %s"
+msgstr ""
+
+#: src/remmina_ssh.c:414
 #, c-format
 msgid "ssh_get_publickey() has failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:396
+#: src/remmina_ssh.c:420
 #, c-format
 msgid "ssh_get_publickey_hash() has failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:404
+#: src/remmina_ssh.c:428
 msgid "The server is unknown. The public key fingerprint is:"
 msgstr "Serveris nežinomas. Viešojo rakto pirštų antspaudas yra:"
 
-#: src/remmina_ssh.c:406 src/remmina_ssh.c:412
+#: src/remmina_ssh.c:430 src/remmina_ssh.c:436
 msgid "Do you trust the new public key?"
 msgstr "Ar pasitikite nauju viešuoju raktu?"
 
-#: src/remmina_ssh.c:409
+#: src/remmina_ssh.c:433
 msgid ""
 "WARNING: The server has changed its public key. This means either you are "
 "under attack,\n"
@@ -116,139 +216,139 @@ msgstr ""
 "atakuoja arba\n"
 "administratorius pakeitė raktą. Naujojo viešojo rakto pirštų antspaudas yra:"
 
-#: src/remmina_ssh.c:425
+#: src/remmina_ssh.c:449
 #, c-format
 msgid "SSH known host checking failed: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:431
+#: src/remmina_ssh.c:455
 #, c-format
 msgid "Authenticating %s’s password to SSH server %s…"
 msgstr "Nustatomas %s slaptažodžio tapatumas SSH serveriui %s…"
 
-#: src/remmina_ssh.c:432 src/remmina_protocol_widget.c:1304
+#: src/remmina_ssh.c:456 src/remmina_protocol_widget.c:1331
 msgid "SSH password"
 msgstr "SSH slaptažodis"
 
-#: src/remmina_ssh.c:438
+#: src/remmina_ssh.c:462
 #, c-format
 msgid "Authenticating %s’s identity to SSH server %s…"
 msgstr "Nustatomas %s tapatybės tapatumas SSH serveriui %s…"
 
-#: src/remmina_ssh.c:439 src/remmina_protocol_widget.c:1307
+#: src/remmina_ssh.c:463 src/remmina_protocol_widget.c:1334
 msgid "SSH private key passphrase"
 msgstr "SSH privačiojo rakto slaptafrazė"
 
-#: src/remmina_ssh.c:443
+#: src/remmina_ssh.c:467
 #, c-format
 msgid "Authenticating %s’s Kerberos to SSH server %s…"
 msgstr ""
 
-#: src/remmina_ssh.c:444
+#: src/remmina_ssh.c:468
 msgid "SSH Kerberos/GSSAPI"
 msgstr ""
 
-#: src/remmina_ssh.c:579
+#: src/remmina_ssh.c:605
 #, c-format
 msgid "Failed to startup SSH session: %s"
 msgstr "Nepavyko paleisti SSH seanso: %s"
 
-#: src/remmina_ssh.c:942 src/remmina_ssh.c:1001
+#: src/remmina_ssh.c:968 src/remmina_ssh.c:1027
 #, c-format
 msgid "Failed to create channel: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:951
+#: src/remmina_ssh.c:977
 #, c-format
 msgid "Failed to connect to the SSH tunnel destination: %s"
 msgstr "Nepavyko prisijungti prie SSH tunelio paskirties: %s"
 
-#: src/remmina_ssh.c:1015 src/remmina_ssh.c:1610
+#: src/remmina_ssh.c:1041 src/remmina_ssh.c:1636
 #, c-format
 msgid "Failed to open channel: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1021
+#: src/remmina_ssh.c:1047
 #, c-format
 msgid "Failed to execute %s on SSH server: %%s"
 msgstr "Nepavyko paleisti %s SSH serveryje: %%s"
 
-#: src/remmina_ssh.c:1059 src/remmina_ssh.c:1081 src/remmina_ssh.c:1090
+#: src/remmina_ssh.c:1085 src/remmina_ssh.c:1107 src/remmina_ssh.c:1116
 #, c-format
 msgid "Failed to request port forwarding: %s"
 msgstr "Nepavyko užklausti prievadų persiuntimo: %s"
 
-#: src/remmina_ssh.c:1128
+#: src/remmina_ssh.c:1154
 msgid "No response from the server."
 msgstr "Nėra atsako iš serverio."
 
-#: src/remmina_ssh.c:1171
+#: src/remmina_ssh.c:1197
 #, c-format
 msgid "Cannot connect to local port %i."
 msgstr ""
 
-#: src/remmina_ssh.c:1222
+#: src/remmina_ssh.c:1248
 #, c-format
 msgid "ssh_channel_write() returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1228
+#: src/remmina_ssh.c:1254
 #, c-format
 msgid "read on tunnel listening socket returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1247
+#: src/remmina_ssh.c:1273
 #, c-format
 msgid "ssh_channel_poll() returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1253
+#: src/remmina_ssh.c:1279
 #, c-format
 msgid "ssh_channel_read_nonblocking() returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1272
+#: src/remmina_ssh.c:1298
 #, c-format
 msgid "write on tunnel listening socket returned an error: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1351
+#: src/remmina_ssh.c:1377
 msgid "Destination port has not been assigned."
 msgstr ""
 
-#: src/remmina_ssh.c:1358
+#: src/remmina_ssh.c:1384
 msgid "Failed to create socket."
 msgstr ""
 
-#: src/remmina_ssh.c:1368
+#: src/remmina_ssh.c:1394
 msgid "Failed to bind on local port."
 msgstr ""
 
-#: src/remmina_ssh.c:1374
+#: src/remmina_ssh.c:1400
 msgid "Failed to listen on local port."
 msgstr ""
 
-#: src/remmina_ssh.c:1383 src/remmina_ssh.c:1399 src/remmina_ssh.c:1415
-#: src/remmina_ssh.c:1432
+#: src/remmina_ssh.c:1409 src/remmina_ssh.c:1425 src/remmina_ssh.c:1441
+#: src/remmina_ssh.c:1458
 msgid "Failed to initialize pthread."
 msgstr ""
 
-#: src/remmina_ssh.c:1521
+#: src/remmina_ssh.c:1547
 #, c-format
 msgid "Failed to create SFTP session: %s"
 msgstr "Nepavyko sukurti SFTP seanso: %s"
 
-#: src/remmina_ssh.c:1525
+#: src/remmina_ssh.c:1551
 #, c-format
 msgid "Failed to initialize SFTP session: %s"
 msgstr "Nepavyko inicijuoti SFTP seanso: %s"
 
-#: src/remmina_ssh.c:1640
+#: src/remmina_ssh.c:1666
 #, c-format
 msgid "Failed to request shell: %s"
 msgstr ""
 
-#: src/remmina_ssh.c:1734
+#: src/remmina_ssh.c:1760
 msgid "Failed to create pty device."
 msgstr ""
 
@@ -281,7 +381,7 @@ msgid "<None>"
 msgstr ""
 
 #. Profile: Protocol
-#: src/remmina_plugin_manager.c:69 src/remmina_file_editor.c:1431
+#: src/remmina_plugin_manager.c:69 src/remmina_file_editor.c:1460
 msgid "Protocol"
 msgstr "Protokolas"
 
@@ -305,19 +405,18 @@ msgstr "Parinktis"
 msgid "Secret"
 msgstr "Paslaptis"
 
-#: src/remmina_plugin_manager.c:390 data/ui/remmina_main.glade:60
-#: data/ui/remmina_main.glade:61 data/ui/remmina_main.glade:463
+#: src/remmina_plugin_manager.c:390 data/ui/remmina_main.glade:356
 msgid "Plugins"
 msgstr "Papildiniai"
 
-#: src/remmina_plugin_manager.c:390 src/remmina_file_editor.c:160
+#: src/remmina_plugin_manager.c:390 src/remmina_file_editor.c:161
 #: src/remmina_message_panel.c:446 src/remmina_message_panel.c:615
 msgid "_OK"
 msgstr ""
 
 #. Profile: Name
-#: src/remmina_plugin_manager.c:408 src/remmina_file_editor.c:1388
-#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:580
+#: src/remmina_plugin_manager.c:408 src/remmina_file_editor.c:1417
+#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:474
 #: data/ui/remmina_mpc.glade:314
 msgid "Name"
 msgstr "Pavadinimas"
@@ -334,119 +433,124 @@ msgstr "Aprašas"
 msgid "Version"
 msgstr "Versija"
 
-#: src/remmina_protocol_widget.c:268
+#: src/remmina_protocol_widget.c:276
 msgid "Open Secure Shell in New Terminal…"
 msgstr "Atverti saugų shell naujame terminale…"
 
-#: src/remmina_protocol_widget.c:274
+#: src/remmina_protocol_widget.c:282
 msgid "Open Secure File Transfer…"
 msgstr "Atverti saugų failų siuntimą…"
 
-#: src/remmina_protocol_widget.c:302
+#: src/remmina_protocol_widget.c:310
 msgid "Executing external commands…"
 msgstr ""
 
-#: src/remmina_protocol_widget.c:309
+#: src/remmina_protocol_widget.c:317
 #, c-format
 msgid "Connecting to '%s'…"
 msgstr "Jungiamasi prie „%s“…"
 
-#: src/remmina_protocol_widget.c:658
+#: src/remmina_protocol_widget.c:666
 #, c-format
 msgid "Connecting to SSH server %s…"
 msgstr "Jungiamasi prie SSH serverio %s…"
 
-#: src/remmina_protocol_widget.c:741 src/remmina_protocol_widget.c:918
+#: src/remmina_protocol_widget.c:749 src/remmina_protocol_widget.c:926
 #, c-format
 msgid "Connecting to %s through SSH tunnel…"
 msgstr "Jungiamasi prie %s per SSH tunelį…"
 
-#: src/remmina_protocol_widget.c:793
+#: src/remmina_protocol_widget.c:801
 #, c-format
 msgid "Waiting for an incoming SSH tunnel at port %i…"
 msgstr "Laukiama įeinančio SSH tunelio per prievadą %i…"
 
-#: src/remmina_protocol_widget.c:839
+#: src/remmina_protocol_widget.c:847
 #, c-format
 msgid "Command %s not found on SSH server"
 msgstr "Komanda %s nerasta SSH serveryje"
 
-#: src/remmina_protocol_widget.c:843
+#: src/remmina_protocol_widget.c:851
 #, c-format
 msgid "Command %s failed on SSH server (status = %i)."
 msgstr "Nepavyko įvykdyti komandos %s SSH serveryje (būsena = %i)."
 
-#: src/remmina_protocol_widget.c:850
+#: src/remmina_protocol_widget.c:858
 #, c-format
 msgid "Failed to execute command: %s"
 msgstr "Nepavyko įvykdyti komandos: %s"
 
-#: src/remmina_protocol_widget.c:1122 src/remmina_protocol_widget.c:1133
+#: src/remmina_protocol_widget.c:1132
+msgid "Enter SSH tunnel authentication credentials"
+msgstr ""
+
+#: src/remmina_protocol_widget.c:1132 src/remmina_protocol_widget.c:1146
 msgid "Enter authentication credentials"
 msgstr ""
 
-#: src/remmina_protocol_widget.c:1283 src/remmina_protocol_widget.c:1310
-#: src/remmina_ssh_plugin.c:964 src/remmina_file_editor.c:926
-#: src/remmina_sftp_plugin.c:323 data/ui/remmina_mpc.glade:113
+#: src/remmina_protocol_widget.c:1296 src/remmina_protocol_widget.c:1310
+#: src/remmina_protocol_widget.c:1337 src/remmina_ssh_plugin.c:964
+#: src/remmina_file_editor.c:937 src/remmina_sftp_plugin.c:323
+#: data/ui/remmina_mpc.glade:113
 msgid "Password"
 msgstr "Slaptažodis"
 
-#: src/remmina_protocol_widget.c:1301
+#: src/remmina_protocol_widget.c:1328
 #, c-format
 msgid "%s password"
 msgstr "%s slaptažodis"
 
-#: src/remmina_protocol_widget.c:1337
+#: src/remmina_protocol_widget.c:1364
 msgid "Certificate Details:"
 msgstr ""
 
-#: src/remmina_protocol_widget.c:1338 src/remmina_protocol_widget.c:1360
+#: src/remmina_protocol_widget.c:1365 src/remmina_protocol_widget.c:1387
 msgid "Subject:"
 msgstr "Subjektas:"
 
-#: src/remmina_protocol_widget.c:1339 src/remmina_protocol_widget.c:1361
+#: src/remmina_protocol_widget.c:1366 src/remmina_protocol_widget.c:1388
 msgid "Issuer:"
 msgstr "Išdavėjas:"
 
-#: src/remmina_protocol_widget.c:1340
+#: src/remmina_protocol_widget.c:1367
 msgid "Fingerprint:"
 msgstr "Pirštų atspaudas:"
 
-#: src/remmina_protocol_widget.c:1341
+#: src/remmina_protocol_widget.c:1368
 msgid "Accept Certificate?"
 msgstr "Priimti liudijimą?"
 
-#: src/remmina_protocol_widget.c:1359
+#: src/remmina_protocol_widget.c:1386
 msgid "Certificate Changed! Details:"
 msgstr ""
 
-#: src/remmina_protocol_widget.c:1362
+#: src/remmina_protocol_widget.c:1389
 msgid "Old Fingerprint:"
 msgstr ""
 
-#: src/remmina_protocol_widget.c:1363
+#: src/remmina_protocol_widget.c:1390
 msgid "New Fingerprint:"
 msgstr ""
 
-#: src/remmina_protocol_widget.c:1364
+#: src/remmina_protocol_widget.c:1391
 msgid "Accept Changed Certificate?"
 msgstr ""
 
-#: src/remmina_protocol_widget.c:1507
+#: src/remmina_protocol_widget.c:1534
 #, c-format
 msgid "Listening on port %i for an incoming %s connection…"
 msgstr "Per prievadą %i laukiama įeinančio %s prisijungimo…"
 
-#: src/remmina_protocol_widget.c:1532
+#: src/remmina_protocol_widget.c:1559
 msgid "Authentication failed. Trying to reconnect…"
 msgstr "Nepavyko nustatyti tapatumo. Mėginama prisijungti iš naujo…"
 
-#: src/remmina_protocol_widget.c:1596 src/remmina_file_editor.c:396
-#: src/remmina_file_editor.c:876 data/ui/remmina_main.glade:616
+#: src/remmina_protocol_widget.c:1623 src/remmina_file_editor.c:407
+#: src/remmina_file_editor.c:887 data/ui/remmina_main.glade:510
 msgid "Server"
 msgstr "Serveris"
 
-#: src/remmina_protocol_widget.c:1613
+#: src/remmina_protocol_widget.c:1640
 #, c-format
 msgid "Protocol plugin %s is not installed."
 msgstr "Protokolo papildinys %s neįdiegtas."
@@ -492,7 +596,7 @@ msgstr ""
 msgid "SSH agent"
 msgstr ""
 
-#: src/remmina_ssh_plugin.c:967 src/remmina_file_editor.c:933
+#: src/remmina_ssh_plugin.c:967 src/remmina_file_editor.c:952
 #: src/remmina_sftp_plugin.c:326
 msgid "Public key (automatic)"
 msgstr "Viešasis raktas (automatiškai)"
@@ -501,8 +605,7 @@ msgstr "Viešasis raktas (automatiškai)"
 msgid "Kerberos (GSSAPI)"
 msgstr ""
 
-#: src/remmina_ssh_plugin.c:1043 data/ui/remmina_main.glade:96
-#: data/ui/remmina_main.glade:97
+#: src/remmina_ssh_plugin.c:1043 data/ui/remmina_main.glade:248
 msgid "Copy"
 msgstr "Kopijuoti"
 
@@ -526,18 +629,18 @@ msgstr ""
 msgid "_Select all"
 msgstr ""
 
-#: src/remmina_ssh_plugin.c:1063 src/remmina_file_editor.c:916
+#: src/remmina_ssh_plugin.c:1063 src/remmina_file_editor.c:927
 #: src/remmina_message_panel.c:330 src/remmina_sftp_plugin.c:355
-#: plugins/rdp/rdp_plugin.c:1540 plugins/nx/nx_plugin.c:698
-#: plugins/vnc/vnc_plugin.c:1866 plugins/vnc/vnc_plugin.c:1886
+#: plugins/rdp/rdp_plugin.c:1596 plugins/nx/nx_plugin.c:698
+#: plugins/vnc/vnc_plugin.c:1875 plugins/vnc/vnc_plugin.c:1895
 #: data/ui/remmina_mpc.glade:152
 msgid "User name"
 msgstr "Naudotojo vardas"
 
 #: src/remmina_ssh_plugin.c:1064 src/remmina_sftp_plugin.c:356
-#: plugins/rdp/rdp_plugin.c:1541 plugins/nx/nx_plugin.c:699
-#: plugins/spice/spice_plugin.c:427 plugins/vnc/vnc_plugin.c:1867
-#: plugins/vnc/vnc_plugin.c:1887
+#: plugins/rdp/rdp_plugin.c:1597 plugins/nx/nx_plugin.c:699
+#: plugins/spice/spice_plugin.c:427 plugins/vnc/vnc_plugin.c:1876
+#: plugins/vnc/vnc_plugin.c:1896
 msgid "User password"
 msgstr ""
 
@@ -545,8 +648,8 @@ msgstr ""
 msgid "Authentication type"
 msgstr ""
 
-#: src/remmina_ssh_plugin.c:1066 src/remmina_file_editor.c:348
-#: src/remmina_file_editor.c:355 src/remmina_sftp_plugin.c:358
+#: src/remmina_ssh_plugin.c:1066 src/remmina_file_editor.c:359
+#: src/remmina_file_editor.c:366 src/remmina_sftp_plugin.c:358
 #: plugins/nx/nx_plugin.c:697
 msgid "Identity file"
 msgstr "Tapatumo failas"
@@ -555,7 +658,7 @@ msgstr "Tapatumo failas"
 msgid "Private key passphrase"
 msgstr ""
 
-#: src/remmina_ssh_plugin.c:1068 plugins/rdp/rdp_plugin.c:1569
+#: src/remmina_ssh_plugin.c:1068 plugins/rdp/rdp_plugin.c:1625
 #: plugins/nx/nx_plugin.c:702 plugins/xdmcp/xdmcp_plugin.c:370
 msgid "Startup program"
 msgstr "Paleidimo programa"
@@ -564,7 +667,7 @@ msgstr "Paleidimo programa"
 msgid "Terminal color scheme"
 msgstr ""
 
-#: src/remmina_ssh_plugin.c:1086 src/remmina_file_editor.c:895
+#: src/remmina_ssh_plugin.c:1086 src/remmina_file_editor.c:906
 msgid "Character set"
 msgstr "Ženklų rinkinys"
 
@@ -600,9 +703,9 @@ msgstr ""
 msgid "Enable SSH compression"
 msgstr ""
 
-#: src/remmina_ssh_plugin.c:1095 plugins/rdp/rdp_plugin.c:1580
+#: src/remmina_ssh_plugin.c:1095 plugins/rdp/rdp_plugin.c:1644
 #: plugins/nx/nx_plugin.c:720 plugins/spice/spice_plugin.c:446
-#: plugins/vnc/vnc_plugin.c:1910
+#: plugins/vnc/vnc_plugin.c:1919
 msgid "Disable password storing"
 msgstr ""
 
@@ -617,7 +720,7 @@ msgid "SSH - Secure Shell"
 msgstr "SSH - saugus apvalkalas"
 
 #. Show in the status bar the total number of connections found
-#: src/remmina_main.c:599
+#: src/remmina_main.c:622
 #, c-format
 msgid "Total %i item."
 msgid_plural "Total %i items."
@@ -625,12 +728,12 @@ msgstr[0] "Iš viso %i elementas."
 msgstr[1] "Iš viso %i elementai."
 msgstr[2] "Iš viso %i elementų."
 
-#: src/remmina_main.c:763
+#: src/remmina_main.c:786
 #, c-format
 msgid "Are you sure to delete '%s'"
 msgstr "Ar tikrai norite pašalinti „%s“"
 
-#: src/remmina_main.c:852
+#: src/remmina_main.c:857
 #, c-format
 msgid ""
 "Unable to import:\n"
@@ -639,20 +742,19 @@ msgstr ""
 "Nepavyko importuoti:\n"
 "%s"
 
-#: src/remmina_main.c:879 data/ui/remmina_main.glade:175
-#: data/ui/remmina_main.glade:176 data/ui/remmina_main.glade:398
+#: src/remmina_main.c:884 data/ui/remmina_main.glade:302
 msgid "Import"
 msgstr "Importuoti"
 
-#: src/remmina_main.c:902 src/remmina_file_editor.c:1287
+#: src/remmina_main.c:907 src/remmina_file_editor.c:1316
 msgid "_Save"
 msgstr ""
 
-#: src/remmina_main.c:909
+#: src/remmina_main.c:914
 msgid "This protocol does not support exporting."
 msgstr "Šis protokolas nepalaiko eksportavimo."
 
-#: src/remmina_main.c:1121
+#: src/remmina_main.c:1126
 msgid "Remmina Kiosk"
 msgstr ""
 
@@ -697,15 +799,15 @@ msgid ""
 "* username@server:port (SSH protocol only)</big></tt>"
 msgstr ""
 
-#: src/remmina_file_editor.c:157
+#: src/remmina_file_editor.c:158
 msgid "Choose a Remote Desktop Server"
 msgstr "Pasirinkite nutolusio darbastalio serverį"
 
 #. Buttons, ok and cancel
 #. gtk_grid_attach(GTK_GRID(grid), button_ok, 0, grid_row, 1, 1);
 #. Buttons, ok and cancel
-#: src/remmina_file_editor.c:159 src/remmina_file_editor.c:356
-#: src/remmina_file_editor.c:1280 src/remmina_sftp_client.c:917
+#: src/remmina_file_editor.c:160 src/remmina_file_editor.c:367
+#: src/remmina_file_editor.c:1309 src/remmina_sftp_client.c:917
 #: src/remmina_message_panel.c:452 src/remmina_message_panel.c:623
 #: plugins/nx/nx_session_manager.c:156
 #: plugins/spice/spice_plugin_file_transfer.c:84
@@ -714,227 +816,137 @@ msgstr "Pasirinkite nutolusio darbastalio serverį"
 msgid "_Cancel"
 msgstr ""
 
-#: src/remmina_file_editor.c:357
+#: src/remmina_file_editor.c:368
 msgid "_Open"
 msgstr ""
 
-#: src/remmina_file_editor.c:420
+#: src/remmina_file_editor.c:431
 #, c-format
 msgid "Browse the network to find a %s server"
 msgstr "Naršyti tinkle %s serveriui rasti"
 
-#: src/remmina_file_editor.c:486 src/remmina_pref_dialog.c:82
+#: src/remmina_file_editor.c:497 src/remmina_pref_dialog.c:82
 #: data/ui/remmina_preferences.glade:240
 msgid "Resolutions"
 msgstr "Skiriamosios gebos"
 
-#: src/remmina_file_editor.c:486 src/remmina_pref_dialog.c:82
+#: src/remmina_file_editor.c:497 src/remmina_pref_dialog.c:82
 msgid "Configure the available resolutions"
 msgstr ""
 
-#: src/remmina_file_editor.c:523
+#: src/remmina_file_editor.c:534
 msgid "Resolution"
 msgstr "Skiriamoji geba"
 
-#: src/remmina_file_editor.c:530
+#: src/remmina_file_editor.c:541
 msgid "Use initial window size"
 msgstr ""
 
-#: src/remmina_file_editor.c:534
+#: src/remmina_file_editor.c:545
 msgid "Use client resolution"
 msgstr "Naudoti kliento skiriamąją gebą"
 
-#: src/remmina_file_editor.c:545 src/remmina_file_editor.c:855
+#: src/remmina_file_editor.c:556 src/remmina_file_editor.c:866
 msgid "Custom"
 msgstr "Kita"
 
-#: src/remmina_file_editor.c:733
+#: src/remmina_file_editor.c:744
 msgid "Keyboard mapping"
 msgstr "Klaviatūros atvaizdavimas"
 
-#: src/remmina_file_editor.c:829
+#: src/remmina_file_editor.c:833
+msgid "SSH Tunnel"
+msgstr ""
+
+#: src/remmina_file_editor.c:840
 msgid "Enable SSH tunnel"
 msgstr "Įjungti SSH tunelį"
 
-#: src/remmina_file_editor.c:836
+#: src/remmina_file_editor.c:847
 msgid "Tunnel via loopback address"
 msgstr "Tunelis per loopback adresą"
 
-#: src/remmina_file_editor.c:846
+#: src/remmina_file_editor.c:857
 #, c-format
 msgid "Same server at port %i"
 msgstr "Tas pats serveris, prievadas %i"
 
-#: src/remmina_file_editor.c:900 plugins/rdp/rdp_plugin.c:1570
+#: src/remmina_file_editor.c:911 plugins/rdp/rdp_plugin.c:1626
 msgid "Startup path"
 msgstr "Paleidimo kelias"
 
-#: src/remmina_file_editor.c:909
+#: src/remmina_file_editor.c:920
 msgid "SSH Authentication"
 msgstr "SSH tapatumo nustatymas"
 
-#: src/remmina_file_editor.c:919
+#: src/remmina_file_editor.c:930
 msgid "SSH Agent (automatic)"
 msgstr ""
 
-#: src/remmina_file_editor.c:990
+#: src/remmina_file_editor.c:1009
 msgid "Basic"
 msgstr "Pagrindinės"
 
-#: src/remmina_file_editor.c:996
+#: src/remmina_file_editor.c:1015
 msgid "Advanced"
 msgstr "Išplėstinės"
 
-#: src/remmina_file_editor.c:1208
+#: src/remmina_file_editor.c:1237
 msgid "Default settings saved."
 msgstr "Numatytieji nustatymai išsaugoti."
 
 #. Create the editor dialog
-#: src/remmina_file_editor.c:1278
+#: src/remmina_file_editor.c:1307
 msgid "Remote Desktop Preference"
 msgstr "Nutolusio darbastalio nustatymai"
 
 #. Default button
-#: src/remmina_file_editor.c:1284
+#: src/remmina_file_editor.c:1313
 msgid "Save as Default"
 msgstr ""
 
-#: src/remmina_file_editor.c:1292 data/ui/remmina_main.glade:77
-#: data/ui/remmina_main.glade:78
+#: src/remmina_file_editor.c:1321 data/ui/remmina_main.glade:231
 msgid "Connect"
 msgstr ""
 
-#: src/remmina_file_editor.c:1295
+#: src/remmina_file_editor.c:1324
 msgid "_Save and Connect"
 msgstr ""
 
-#: src/remmina_file_editor.c:1385
+#: src/remmina_file_editor.c:1414
 msgid "Profile"
 msgstr "Profilis"
 
-#: src/remmina_file_editor.c:1402
+#: src/remmina_file_editor.c:1431
 msgid "Quick Connect"
 msgstr "Greitas prisijungimas"
 
 #. Profile: Group
-#: src/remmina_file_editor.c:1413 src/remmina_ftp_client.c:930
-#: data/ui/remmina_main.glade:602 data/ui/remmina_mpc.glade:99
+#: src/remmina_file_editor.c:1442 src/remmina_ftp_client.c:930
+#: data/ui/remmina_main.glade:496 data/ui/remmina_mpc.glade:99
 #: data/ui/remmina_mpc.glade:325
 msgid "Group"
 msgstr "Grupė"
 
-#: src/remmina_file_editor.c:1426
+#: src/remmina_file_editor.c:1455
 #, c-format
 msgid "Use '%s' as subgroup delimiter"
 msgstr "Naudoti „%s“ kaip pogrupio skirtuką"
 
 #. Prior Connection Command
-#: src/remmina_file_editor.c:1445
+#: src/remmina_file_editor.c:1474
 msgid "Pre Command"
 msgstr ""
 
 #. POST Connection Command
-#: src/remmina_file_editor.c:1463
+#: src/remmina_file_editor.c:1492
 msgid "Post Command"
 msgstr ""
 
-#: src/remmina_file_editor.c:1527 src/remmina_file_editor.c:1545
+#: src/remmina_file_editor.c:1556 src/remmina_file_editor.c:1574
 #, c-format
 msgid "File %s not found."
 msgstr "Failas %s nerastas."
-
-#: src/remmina_connection_window.c:588
-#, c-format
-msgid ""
-"There are %i active connections in the current window. Are you sure to close?"
-msgstr "Dabartiniame lange yra %i aktyvūs ryšiai. Ar norite užverti?"
-
-#: src/remmina_connection_window.c:1169
-msgid "Viewport fullscreen mode"
-msgstr "Peržiūros srities viso ekrano veiksena"
-
-#: src/remmina_connection_window.c:1178
-msgid "Scrolled fullscreen mode"
-msgstr "Slankiojama viso ekrano veiksena"
-
-#: src/remmina_connection_window.c:1249
-msgid "Keep aspect ratio when scaled"
-msgstr ""
-
-#: src/remmina_connection_window.c:1258
-msgid "Fill client window when scaled"
-msgstr ""
-
-#. Add a keystrokes submenu
-#: src/remmina_connection_window.c:1692 src/remmina_pref_dialog.c:142
-#: data/ui/remmina_preferences.glade:252
-msgid "Keystrokes"
-msgstr ""
-
-#: src/remmina_connection_window.c:1795
-msgid ""
-"Warning: screenshot is scaled or distorted. Disable scaling to have better "
-"screenshot."
-msgstr ""
-
-#. send a desktop notification
-#: src/remmina_connection_window.c:1856
-msgid "Screenshot taken"
-msgstr ""
-
-#: src/remmina_connection_window.c:1923
-msgid "Resize the window to fit in remote resolution"
-msgstr "Pakeisti lango dydį, kad tilptų nutolusi skiriamoji geba"
-
-#: src/remmina_connection_window.c:1934 data/ui/remmina_preferences.glade:740
-msgid "Toggle fullscreen mode"
-msgstr "Perjungti viso ekrano veikseną"
-
-#: src/remmina_connection_window.c:1980 data/ui/remmina_preferences.glade:796
-msgid "Switch tab pages"
-msgstr "Perjungti kortelių puslapius"
-
-#: src/remmina_connection_window.c:1994
-msgid "Toggle dynamic resolution update"
-msgstr ""
-
-#: src/remmina_connection_window.c:2004 data/ui/remmina_preferences.glade:837
-msgid "Toggle scaled mode"
-msgstr "Perjungti mastelio keitimo veiskeną"
-
-#: src/remmina_connection_window.c:2040
-msgid "Grab all keyboard events"
-msgstr "Pasisavinti visus klaviatūros įvykius"
-
-#: src/remmina_connection_window.c:2049 data/ui/remmina_main.glade:42
-#: data/ui/remmina_main.glade:43
-msgid "Preferences"
-msgstr "Nustatymai"
-
-#: src/remmina_connection_window.c:2057 src/remmina_connection_window.c:2058
-msgid "Tools"
-msgstr "Įrankiai"
-
-#: src/remmina_connection_window.c:2070 data/ui/remmina_preferences.glade:978
-msgid "Screenshot"
-msgstr ""
-
-#: src/remmina_connection_window.c:2078 data/ui/remmina_preferences.glade:893
-msgid "Minimize window"
-msgstr "Sutraukti langą"
-
-#: src/remmina_connection_window.c:2088 data/ui/remmina_preferences.glade:922
-msgid "Disconnect"
-msgstr "Nutraukti ryšį"
-
-#: src/remmina_connection_window.c:3730
-#, c-format
-msgid "File %s is corrupted, unreadable or not found."
-msgstr ""
-
-#: src/remmina_connection_window.c:3874
-msgid "Warning: This plugin require GtkSocket, but it’s not available."
-msgstr ""
 
 #: src/remmina_sftp_client.c:170
 #, c-format
@@ -1065,15 +1077,15 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: src/remmina_message_panel.c:260 data/ui/remmina_main.glade:732
+#: src/remmina_message_panel.c:260 data/ui/remmina_main.glade:626
 msgid "Yes"
 msgstr ""
 
-#: src/remmina_message_panel.c:267 data/ui/remmina_main.glade:716
+#: src/remmina_message_panel.c:267 data/ui/remmina_main.glade:610
 msgid "No"
 msgstr ""
 
-#: src/remmina_message_panel.c:387 plugins/rdp/rdp_plugin.c:1542
+#: src/remmina_message_panel.c:387 plugins/rdp/rdp_plugin.c:1598
 #: data/ui/remmina_mpc.glade:138
 msgid "Domain"
 msgstr "Sritis"
@@ -1121,7 +1133,7 @@ msgstr ""
 msgid "Start Remmina in Kiosk mode"
 msgstr ""
 
-#: src/remmina.c:87 data/ui/remmina_main.glade:776
+#: src/remmina.c:87 data/ui/remmina_main.glade:69
 msgid "Create a new connection profile"
 msgstr ""
 
@@ -1211,8 +1223,7 @@ msgstr "Atsisiųsti"
 msgid "Upload"
 msgstr "Išsiuntimas"
 
-#: src/remmina_ftp_client.c:662 data/ui/remmina_main.glade:105
-#: data/ui/remmina_main.glade:106
+#: src/remmina_ftp_client.c:662
 msgid "_Delete"
 msgstr ""
 
@@ -1232,8 +1243,8 @@ msgstr ""
 msgid "Go to parent folder"
 msgstr "Eiti į virškatalogį"
 
-#: src/remmina_ftp_client.c:763 plugins/rdp/rdp_plugin.c:1597
-#: plugins/vnc/vnc_plugin.c:1923
+#: src/remmina_ftp_client.c:763 plugins/rdp/rdp_plugin.c:1661
+#: plugins/vnc/vnc_plugin.c:1932
 msgid "Refresh"
 msgstr "Atnaujinti"
 
@@ -1249,7 +1260,7 @@ msgstr "Atsiųsti iš serverio"
 msgid "Upload to server"
 msgstr "Išsiųsti į serverį"
 
-#: src/remmina_ftp_client.c:790
+#: src/remmina_ftp_client.c:790 data/ui/remmina_main.glade:268
 msgid "Delete"
 msgstr ""
 
@@ -1273,11 +1284,11 @@ msgstr "Naudotojas"
 msgid "Permission"
 msgstr "Leidimas"
 
-#: src/remmina_ftp_client.c:988 plugins/rdp/rdp_plugin.c:1506
+#: src/remmina_ftp_client.c:988 plugins/rdp/rdp_plugin.c:1562
 msgid "Remote"
 msgstr "Nutolęs"
 
-#: src/remmina_ftp_client.c:995 plugins/rdp/rdp_plugin.c:1502
+#: src/remmina_ftp_client.c:995 plugins/rdp/rdp_plugin.c:1558
 msgid "Local"
 msgstr "Vietinis"
 
@@ -1305,325 +1316,357 @@ msgstr "Iš_valyti"
 msgid "Reconnection in progress. Attempt %d of %d…"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1129
+#: plugins/rdp/rdp_plugin.c:1185
 #, c-format
 msgid ""
 "Authentication to RDP server %s failed.\n"
 "Check username, password and domain."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1138
+#: plugins/rdp/rdp_plugin.c:1194
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
 "Account is locked out."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1145
+#: plugins/rdp/rdp_plugin.c:1201
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
 "Account is expired."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1152
+#: plugins/rdp/rdp_plugin.c:1208
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
 "Password expired."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1159
+#: plugins/rdp/rdp_plugin.c:1215
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
 "Account is disabled."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1165
+#: plugins/rdp/rdp_plugin.c:1221
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
 "User has insufficient privileges."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1173
+#: plugins/rdp/rdp_plugin.c:1229
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
 "Account has restrictions."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1181
+#: plugins/rdp/rdp_plugin.c:1237
 #, c-format
 msgid ""
 "Access to RDP server %s failed.\n"
 "User must change password before connecting."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1186
+#: plugins/rdp/rdp_plugin.c:1242
 #, c-format
 msgid "Connection to RDP server %s failed."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1189
+#: plugins/rdp/rdp_plugin.c:1245
 #, c-format
 msgid "Unable to find the address of RDP server %s."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1193
+#: plugins/rdp/rdp_plugin.c:1249
 #, c-format
 msgid ""
 "Error connecting to RDP server %s. TLS connection failed. Check that client "
 "and server support a common TLS version."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1196
+#: plugins/rdp/rdp_plugin.c:1252
 #, c-format
 msgid "Unable to establish a connection to RDP server %s."
 msgstr ""
 
 #. We should never come here
-#: plugins/rdp/rdp_plugin.c:1204
+#: plugins/rdp/rdp_plugin.c:1260
 #, c-format
 msgid "Unable to connect to RDP server %s."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1207
+#: plugins/rdp/rdp_plugin.c:1263
 msgid "Unable to initialize libfreerdp gdi"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1210
+#: plugins/rdp/rdp_plugin.c:1266
 #, c-format
 msgid ""
 "You requested an H264 GFX mode for server %s, but your libfreerdp does not "
 "support H264. Please use a non-AVC Color Depth setting."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1217
+#: plugins/rdp/rdp_plugin.c:1273
 #, c-format
 msgid "Server %s denied the connection."
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1222
+#: plugins/rdp/rdp_plugin.c:1278
 #, c-format
 msgid "Unable to connect to RDP server %s"
 msgstr "Nepavyko prisijungti prie RDP serverio %s"
 
 #. 1st one is the default in a new install
-#: plugins/rdp/rdp_plugin.c:1476
+#: plugins/rdp/rdp_plugin.c:1532
 msgid "GFX AVC444 (32 bpp)"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1477
+#: plugins/rdp/rdp_plugin.c:1533
 msgid "GFX AVC420 (32 bpp)"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1478
+#: plugins/rdp/rdp_plugin.c:1534
 msgid "GFX RFX (32 bpp)"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1479
+#: plugins/rdp/rdp_plugin.c:1535
 msgid "RemoteFX (32 bpp)"
 msgstr "RemoteFX (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:1480 plugins/vnc/vnc_plugin.c:1839
+#: plugins/rdp/rdp_plugin.c:1536 plugins/vnc/vnc_plugin.c:1848
 msgid "True color (32 bpp)"
 msgstr "Tikrosios spalvos (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:1481 plugins/vnc/vnc_plugin.c:1838
+#: plugins/rdp/rdp_plugin.c:1537 plugins/vnc/vnc_plugin.c:1847
 msgid "True color (24 bpp)"
 msgstr "Tikrosios spalvos (24 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:1482 plugins/vnc/vnc_plugin.c:1837
+#: plugins/rdp/rdp_plugin.c:1538 plugins/vnc/vnc_plugin.c:1846
 msgid "High color (16 bpp)"
 msgstr "Daug spalvų (16 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:1483 plugins/vnc/vnc_plugin.c:1836
+#: plugins/rdp/rdp_plugin.c:1539 plugins/vnc/vnc_plugin.c:1845
 msgid "High color (15 bpp)"
 msgstr "Daug spalvų (15 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:1484 plugins/vnc/vnc_plugin.c:1835
+#: plugins/rdp/rdp_plugin.c:1540 plugins/vnc/vnc_plugin.c:1844
 msgid "256 colors (8 bpp)"
 msgstr "256 spalvos (8 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:1491 plugins/rdp/rdp_settings.c:269
-#: plugins/nx/nx_plugin.c:678 plugins/vnc/vnc_plugin.c:1846
+#: plugins/rdp/rdp_plugin.c:1547 plugins/rdp/rdp_settings.c:269
+#: plugins/nx/nx_plugin.c:678 plugins/vnc/vnc_plugin.c:1855
 msgid "Poor (fastest)"
 msgstr "Prasta (greičiausia)"
 
-#: plugins/rdp/rdp_plugin.c:1492 plugins/rdp/rdp_settings.c:271
-#: plugins/nx/nx_plugin.c:679 plugins/vnc/vnc_plugin.c:1847
+#: plugins/rdp/rdp_plugin.c:1548 plugins/rdp/rdp_settings.c:271
+#: plugins/nx/nx_plugin.c:679 plugins/vnc/vnc_plugin.c:1856
 msgid "Medium"
 msgstr "Vidutinė"
 
-#: plugins/rdp/rdp_plugin.c:1493 plugins/rdp/rdp_settings.c:273
-#: plugins/nx/nx_plugin.c:680 plugins/vnc/vnc_plugin.c:1848
+#: plugins/rdp/rdp_plugin.c:1549 plugins/rdp/rdp_settings.c:273
+#: plugins/nx/nx_plugin.c:680 plugins/vnc/vnc_plugin.c:1857
 msgid "Good"
 msgstr "Gera"
 
-#: plugins/rdp/rdp_plugin.c:1494 plugins/rdp/rdp_settings.c:275
-#: plugins/nx/nx_plugin.c:681 plugins/vnc/vnc_plugin.c:1849
+#: plugins/rdp/rdp_plugin.c:1550 plugins/rdp/rdp_settings.c:275
+#: plugins/nx/nx_plugin.c:681 plugins/vnc/vnc_plugin.c:1858
 msgid "Best (slowest)"
 msgstr "Geriausia (lėčiausia)"
 
-#: plugins/rdp/rdp_plugin.c:1501
+#: plugins/rdp/rdp_plugin.c:1557
 msgid "Off"
 msgstr "Išjungta"
 
-#: plugins/rdp/rdp_plugin.c:1503
+#: plugins/rdp/rdp_plugin.c:1559
 msgid "Local - low quality"
 msgstr "Vietinis – žema kokybė"
 
-#: plugins/rdp/rdp_plugin.c:1504
+#: plugins/rdp/rdp_plugin.c:1560
 msgid "Local - medium quality"
 msgstr "Vietinis – vidutinė kokybė"
 
-#: plugins/rdp/rdp_plugin.c:1505
+#: plugins/rdp/rdp_plugin.c:1561
 msgid "Local - high quality"
 msgstr "Vietinis – aukšta kokybė"
 
-#: plugins/rdp/rdp_plugin.c:1513
+#: plugins/rdp/rdp_plugin.c:1569
 msgid "Negotiate"
 msgstr "Susitarti"
 
-#: plugins/rdp/rdp_plugin.c:1544 plugins/vnc/vnc_plugin.c:1868
-#: plugins/vnc/vnc_plugin.c:1888 plugins/xdmcp/xdmcp_plugin.c:369
+#: plugins/rdp/rdp_plugin.c:1600 plugins/vnc/vnc_plugin.c:1877
+#: plugins/vnc/vnc_plugin.c:1897 plugins/xdmcp/xdmcp_plugin.c:369
 msgid "Color depth"
 msgstr "Spalvų skaičius"
 
-#: plugins/rdp/rdp_plugin.c:1545 plugins/spice/spice_plugin.c:430
+#: plugins/rdp/rdp_plugin.c:1601 plugins/spice/spice_plugin.c:430
 msgid "Share folder"
 msgstr "Dalintis aplanku"
 
-#: plugins/rdp/rdp_plugin.c:1560 plugins/nx/nx_plugin.c:701
-#: plugins/vnc/vnc_plugin.c:1869 plugins/vnc/vnc_plugin.c:1889
+#: plugins/rdp/rdp_plugin.c:1616 plugins/nx/nx_plugin.c:701
+#: plugins/vnc/vnc_plugin.c:1878 plugins/vnc/vnc_plugin.c:1898
 msgid "Quality"
 msgstr "Kokybė"
 
-#: plugins/rdp/rdp_plugin.c:1561
+#: plugins/rdp/rdp_plugin.c:1617
 msgid "Sound"
 msgstr "Garsas"
 
-#: plugins/rdp/rdp_plugin.c:1562
+#: plugins/rdp/rdp_plugin.c:1618
 msgid "Security"
 msgstr "Saugumas"
 
-#: plugins/rdp/rdp_plugin.c:1563
+#: plugins/rdp/rdp_plugin.c:1619
 msgid "Gateway transport type"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1564
+#: plugins/rdp/rdp_plugin.c:1620
 msgid "RD Gateway server"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1565
+#: plugins/rdp/rdp_plugin.c:1621
 msgid "RD Gateway username"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1566
+#: plugins/rdp/rdp_plugin.c:1622
 msgid "RD Gateway password"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1567
+#: plugins/rdp/rdp_plugin.c:1623
 msgid "RD Gateway domain"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1568
+#: plugins/rdp/rdp_plugin.c:1624
 msgid "Client name"
 msgstr "Kliento vardas"
 
-#: plugins/rdp/rdp_plugin.c:1571
-msgid "Load Balance Info"
+#: plugins/rdp/rdp_plugin.c:1627
+msgid "Load balance info"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1572
-msgid "Local Printer Name"
+#: plugins/rdp/rdp_plugin.c:1628
+msgid "Local printer name"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1573
-msgid "Local Printer Driver"
+#: plugins/rdp/rdp_plugin.c:1629
+msgid "Local printer driver"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1574
+#: plugins/rdp/rdp_plugin.c:1630
+msgid "Local serial name"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1631
+msgid "Local serial driver"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1632
+msgid "Local serial path"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1633
+msgid "Local parallel name"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1634
+msgid "Local parallel device"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1635
 msgid "Smartcard Name"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1575
-msgid "Share local printers"
-msgstr "Dalintis vietiniais spausdintuvais"
+#: plugins/rdp/rdp_plugin.c:1636
+msgid "Share printers"
+msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1576 plugins/spice/spice_plugin.c:449
+#: plugins/rdp/rdp_plugin.c:1637
+msgid "Share serial ports"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1638
+msgid "Serial ports permissive mode"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1639
+msgid "Share parallel ports"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:1640 plugins/spice/spice_plugin.c:449
 msgid "Share smartcard"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1577
+#: plugins/rdp/rdp_plugin.c:1641
 msgid "Redirect local microphone"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1578 plugins/nx/nx_plugin.c:717
+#: plugins/rdp/rdp_plugin.c:1642 plugins/nx/nx_plugin.c:717
 #: plugins/spice/spice_plugin.c:445 plugins/spice/spice_plugin.c:461
-#: plugins/vnc/vnc_plugin.c:1907
+#: plugins/vnc/vnc_plugin.c:1916
 msgid "Disable clipboard sync"
 msgstr "Išjungti iškarpinės sinchronizavimą"
 
-#: plugins/rdp/rdp_plugin.c:1579
+#: plugins/rdp/rdp_plugin.c:1643
 msgid "Ignore certificate"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1581
+#: plugins/rdp/rdp_plugin.c:1645
 msgid "Attach to console (2003/2003 R2)"
 msgstr "Prisijungti prie pulto (Windows 2003 / 2003 R2)"
 
-#: plugins/rdp/rdp_plugin.c:1582
+#: plugins/rdp/rdp_plugin.c:1646
 msgid "Disable fast-path"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1583
+#: plugins/rdp/rdp_plugin.c:1647
 msgid "Server detection using RD Gateway"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1585
+#: plugins/rdp/rdp_plugin.c:1649
 msgid "Enable proxy support"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1587
+#: plugins/rdp/rdp_plugin.c:1651
 msgid "Disable automatic reconnection"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1588
+#: plugins/rdp/rdp_plugin.c:1652
 msgid "Relax Order Checks"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1589
+#: plugins/rdp/rdp_plugin.c:1653
 msgid "Glyph Cache"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:1600 plugins/nx/nx_plugin.c:728
-#: plugins/spice/spice_plugin.c:462 plugins/vnc/vnc_plugin.c:1925
+#: plugins/rdp/rdp_plugin.c:1664 plugins/nx/nx_plugin.c:728
+#: plugins/spice/spice_plugin.c:462 plugins/vnc/vnc_plugin.c:1934
 #: plugins/xdmcp/xdmcp_plugin.c:381
 msgid "Send Ctrl+Alt+Delete"
 msgstr ""
 
 #. Type
 #. Name
-#: plugins/rdp/rdp_plugin.c:1613
+#: plugins/rdp/rdp_plugin.c:1677
 msgid "RDP - Remote Desktop Protocol"
 msgstr "RDP – nutolusių kompiuterių valdymo protokolas"
 
 #. Type
 #. Name
-#: plugins/rdp/rdp_plugin.c:1636
+#: plugins/rdp/rdp_plugin.c:1700
 msgid "RDP - RDP File Handler"
 msgstr "RDP - RDP failų doroklė"
 
 #. Type
 #. Name
-#: plugins/rdp/rdp_plugin.c:1651
+#: plugins/rdp/rdp_plugin.c:1715
 msgid "RDP - Preferences"
 msgstr "RDP - nuostatos"
 
-#: plugins/rdp/rdp_plugin.c:1705
+#: plugins/rdp/rdp_plugin.c:1769
 msgid "Export connection in Windows .rdp file format"
 msgstr "Eksportuoti prisijungimą Windows .rdp failo formatu"
 
@@ -1795,7 +1838,7 @@ msgstr "Būsena"
 msgid "Protocol %s is unavailable because GtkSocket only works under Xorg"
 msgstr ""
 
-#: plugins/nx/nx_plugin.c:718 plugins/vnc/vnc_plugin.c:1908
+#: plugins/nx/nx_plugin.c:718 plugins/vnc/vnc_plugin.c:1917
 msgid "Disable encryption"
 msgstr "Išjungti šifravimą"
 
@@ -1883,7 +1926,7 @@ msgid "Resize guest to match window size"
 msgstr ""
 
 #: plugins/spice/spice_plugin.c:450 plugins/spice/spice_plugin.c:459
-#: plugins/vnc/vnc_plugin.c:1906 plugins/vnc/vnc_plugin.c:1921
+#: plugins/vnc/vnc_plugin.c:1915 plugins/vnc/vnc_plugin.c:1930
 msgid "View only"
 msgstr "Tik peržiūra"
 
@@ -1928,35 +1971,35 @@ msgstr ""
 msgid "Please retry after enabling encryption on this profile."
 msgstr ""
 
-#: plugins/vnc/vnc_plugin.c:1865
+#: plugins/vnc/vnc_plugin.c:1874
 msgid "Repeater"
 msgstr "Kartotuvas"
 
-#: plugins/vnc/vnc_plugin.c:1885
+#: plugins/vnc/vnc_plugin.c:1894
 msgid "Listen on port"
 msgstr "Klausytis prievado"
 
-#: plugins/vnc/vnc_plugin.c:1905
+#: plugins/vnc/vnc_plugin.c:1914
 msgid "Show remote cursor"
 msgstr "Rodyti nuotolinį žymeklį"
 
-#: plugins/vnc/vnc_plugin.c:1909 plugins/vnc/vnc_plugin.c:1922
+#: plugins/vnc/vnc_plugin.c:1918 plugins/vnc/vnc_plugin.c:1931
 msgid "Disable server input"
 msgstr "Išjungti serverio įvedimą"
 
-#: plugins/vnc/vnc_plugin.c:1924
+#: plugins/vnc/vnc_plugin.c:1933
 msgid "Open Chat…"
 msgstr "Atverti pokalbį…"
 
 #. Type
 #. Name
-#: plugins/vnc/vnc_plugin.c:1936
+#: plugins/vnc/vnc_plugin.c:1945
 msgid "VNC - VNC viewer"
 msgstr ""
 
 #. Type
 #. Name
-#: plugins/vnc/vnc_plugin.c:1958
+#: plugins/vnc/vnc_plugin.c:1967
 msgid "VNCI - VNC viewer listen mode"
 msgstr ""
 
@@ -2067,8 +2110,8 @@ msgstr ""
 msgid "Maximum recent items"
 msgstr ""
 
-#: data/ui/remmina_preferences.glade:224 data/ui/remmina_main.glade:269
-#: data/ui/remmina_main.glade:271
+#: data/ui/remmina_preferences.glade:224 data/ui/remmina_main.glade:173
+#: data/ui/remmina_main.glade:175
 msgid "Clear"
 msgstr ""
 
@@ -2459,120 +2502,75 @@ msgstr ""
 msgid "Terminal"
 msgstr ""
 
-#: data/ui/remmina_main.glade:44
-msgid "Open the preferences dialog"
-msgstr ""
-
-#: data/ui/remmina_main.glade:67 data/ui/remmina_main.glade:418
-msgid "Multi password changer"
-msgstr ""
-
-#: data/ui/remmina_main.glade:68
-msgid "MPChange"
-msgstr ""
-
-#: data/ui/remmina_main.glade:79
-msgid "Open the connection to the selected remote desktop file"
-msgstr ""
-
-#: data/ui/remmina_main.glade:87 data/ui/remmina_main.glade:88
-msgid "_Edit"
-msgstr ""
-
-#: data/ui/remmina_main.glade:89
-msgid "Edit the selected remote desktop file"
-msgstr ""
-
-#: data/ui/remmina_main.glade:98
-msgid "Create a copy of the selected remote desktop file"
-msgstr ""
-
-#: data/ui/remmina_main.glade:107
-msgid "Delete the selected remote desktop file"
-msgstr ""
-
-#: data/ui/remmina_main.glade:114 data/ui/remmina_main.glade:115
-msgid "External Tools"
-msgstr ""
-
-#: data/ui/remmina_main.glade:125 data/ui/remmina_main.glade:126
-msgid "_New"
-msgstr ""
-
-#: data/ui/remmina_main.glade:127
-msgid "Create a new remote desktop file"
-msgstr ""
-
-#: data/ui/remmina_main.glade:138 data/ui/remmina_main.glade:139
-#: data/ui/remmina_main.glade:490
-msgid "Homepage"
-msgstr ""
-
-#: data/ui/remmina_main.glade:145 data/ui/remmina_main.glade:146
-#: data/ui/remmina_main.glade:500
-msgid "Online Wiki"
-msgstr ""
-
-#: data/ui/remmina_main.glade:152
-msgid "Remmina Community"
-msgstr ""
-
-#: data/ui/remmina_main.glade:158 data/ui/remmina_main.glade:159
-#: data/ui/remmina_main.glade:520
-msgid "Donations"
-msgstr ""
-
-#: data/ui/remmina_main.glade:165 data/ui/remmina_main.glade:166
-#: data/ui/remmina_main.glade:435
-msgid "Debug Window"
-msgstr ""
-
-#: data/ui/remmina_main.glade:182 data/ui/remmina_main.glade:183
-#: data/ui/remmina_main.glade:408
-msgid "Export"
-msgstr ""
-
-#: data/ui/remmina_main.glade:192 data/ui/remmina_main.glade:193
-msgid "Statusbar"
-msgstr ""
-
-#: data/ui/remmina_main.glade:264
-msgid "search string or server name/ip address for quick connect"
-msgstr ""
-
-#: data/ui/remmina_main.glade:268 data/ui/remmina_main.glade:270
-msgid "Server name or IP address"
-msgstr ""
-
-#. Online Remmina community, like reddit, facebook, etc
-#: data/ui/remmina_main.glade:510
-msgid "Online Community"
-msgstr ""
-
-#: data/ui/remmina_main.glade:630
-msgid "Plugin"
-msgstr ""
-
-#: data/ui/remmina_main.glade:644
-msgid "Last time used"
-msgstr ""
-
-#: data/ui/remmina_main.glade:705
-msgid ""
-"Do you allow Remmina to send periodic anonymous usage statistics to its "
-"developers?"
-msgstr ""
-
-#: data/ui/remmina_main.glade:788
+#: data/ui/remmina_main.glade:81
 msgid "Show search bar"
 msgstr ""
 
-#: data/ui/remmina_main.glade:813
+#: data/ui/remmina_main.glade:106
 msgid "Actions"
 msgstr ""
 
-#: data/ui/remmina_main.glade:827
+#: data/ui/remmina_main.glade:120
 msgid "Toggle view"
+msgstr ""
+
+#: data/ui/remmina_main.glade:168
+msgid "search string or server name/ip address for quick connect"
+msgstr ""
+
+#: data/ui/remmina_main.glade:172 data/ui/remmina_main.glade:174
+msgid "Server name or IP address"
+msgstr ""
+
+#: data/ui/remmina_main.glade:258
+msgid "Edit"
+msgstr ""
+
+#: data/ui/remmina_main.glade:312
+msgid "Export"
+msgstr ""
+
+#: data/ui/remmina_main.glade:322
+msgid "Multi password changer"
+msgstr ""
+
+#: data/ui/remmina_main.glade:339
+msgid "Debug Window"
+msgstr ""
+
+#: data/ui/remmina_main.glade:384
+msgid "Homepage"
+msgstr ""
+
+#: data/ui/remmina_main.glade:394
+msgid "Online Wiki"
+msgstr ""
+
+#. Online Remmina community, like reddit, facebook, etc
+#: data/ui/remmina_main.glade:404
+msgid "Online Community"
+msgstr ""
+
+#: data/ui/remmina_main.glade:414
+msgid "Donations"
+msgstr ""
+
+#: data/ui/remmina_main.glade:424
+msgid "About"
+msgstr ""
+
+#: data/ui/remmina_main.glade:524
+msgid "Plugin"
+msgstr ""
+
+#: data/ui/remmina_main.glade:538
+msgid "Last time used"
+msgstr ""
+
+#: data/ui/remmina_main.glade:599
+msgid ""
+"Do you allow Remmina to send periodic anonymous usage statistics to its "
+"developers?"
 msgstr ""
 
 #: data/ui/remmina_about.glade:30
