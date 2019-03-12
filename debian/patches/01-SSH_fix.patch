@@ -1,0 +1,165 @@
+Description: SSH plugin not working if pubkey is not supplied
+Author: Antenore Gatta <antenore@remmina.org>
+Bug: https://gitlab.com/Remmina/Remmina/issues/1850
+Bug-Debian: https://bugs.debian.org/924319
+Date: 2019-03-11
+
+diff --git a/src/remmina_sftp_client.c b/src/remmina_sftp_client.c
+index 0f43f2b3..3540e1c1 100644
+--- a/src/remmina_sftp_client.c
++++ b/src/remmina_sftp_client.c
+@@ -507,7 +507,7 @@ remmina_sftp_client_thread_main(gpointer data)
+ 		if (!sftp) {
+ 			sftp = remmina_sftp_new_from_ssh(REMMINA_SSH(client->sftp));
+ 			if (!remmina_ssh_init_session(REMMINA_SSH(sftp)) ||
+-			    remmina_ssh_auth(REMMINA_SSH(sftp), NULL) <= 0 ||
++			    remmina_ssh_auth(REMMINA_SSH(sftp), NULL, NULL, NULL) <= 0 ||
+ 			    !remmina_sftp_open(sftp)) {
+ 				remmina_sftp_client_thread_set_error(client, task, (REMMINA_SSH(sftp))->error);
+ 				remmina_ftp_task_free(task);
+@@ -980,7 +980,7 @@ remmina_sftp_client_new_init(RemminaSFTP *sftp)
+ 	gdk_display_flush(display);
+ 
+ 	if (!remmina_ssh_init_session(REMMINA_SSH(sftp)) ||
+-	    remmina_ssh_auth(REMMINA_SSH(sftp), NULL) <= 0 ||
++	    remmina_ssh_auth(REMMINA_SSH(sftp), NULL, NULL, NULL) <= 0 ||
+ 	    !remmina_sftp_open(sftp)) {
+ 		dialog = gtk_message_dialog_new(GTK_WINDOW(gtk_widget_get_toplevel(client)),
+ 			GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+diff --git a/src/remmina_sftp_plugin.c b/src/remmina_sftp_plugin.c
+index af55c4cf..08994ac1 100644
+--- a/src/remmina_sftp_plugin.c
++++ b/src/remmina_sftp_plugin.c
+@@ -135,7 +135,7 @@ remmina_plugin_sftp_main_thread(gpointer data)
+ 		/* Create SFTP connection based on existing SSH session */
+ 		sftp = remmina_sftp_new_from_ssh(ssh);
+ 		if (remmina_ssh_init_session(REMMINA_SSH(sftp)) &&
+-		    remmina_ssh_auth(REMMINA_SSH(sftp), NULL) > 0 &&
++		    remmina_ssh_auth(REMMINA_SSH(sftp), NULL, gp, remminafile) > 0 &&
+ 		    remmina_sftp_open(sftp)) {
+ 			cont = TRUE;
+ 		}
+diff --git a/src/remmina_ssh.c b/src/remmina_ssh.c
+index 9e6ba2a8..851d4446 100644
+--- a/src/remmina_ssh.c
++++ b/src/remmina_ssh.c
+@@ -229,13 +229,16 @@ remmina_ssh_auth_pubkey(RemminaSSH *ssh)
+ 
+ 	g_snprintf (pubkey, sizeof(pubkey), "%s.pub", ssh->privkeyfile);
+ 
+-	ret = ssh_pki_import_pubkey_file( pubkey, &key);
+-	if (ret != SSH_OK) {
+-		remmina_ssh_set_error(ssh, _("SSH public key cannot be imported: %s"));
+-		return 0;
++	/*G_FILE_TEST_EXISTS*/
++	if (g_file_test(pubkey, G_FILE_TEST_EXISTS)) {
++		ret = ssh_pki_import_pubkey_file(pubkey, &key);
++		if (ret != SSH_OK) {
++			remmina_ssh_set_error(ssh, _("SSH public key cannot be imported: %s"));
++			return 0;
++		}
++		ssh_key_free(key);
+ 	}
+ 
+-	ssh_key_free(key);
+ 
+ 	if ( ssh_pki_import_privkey_file( ssh->privkeyfile, (ssh->passphrase ? ssh->passphrase : ""),
+ 		NULL, NULL, &key ) != SSH_OK ) {
+@@ -258,10 +261,33 @@ remmina_ssh_auth_pubkey(RemminaSSH *ssh)
+ }
+ 
+ static gint
+-remmina_ssh_auth_auto_pubkey(RemminaSSH* ssh)
++remmina_ssh_auth_auto_pubkey(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *remminafile)
+ {
+ 	TRACE_CALL(__func__);
+-	gint ret = ssh_userauth_publickey_auto(ssh->session, NULL, ssh->passphrase);
++
++	gboolean disablepasswordstoring;
++	gboolean save_password;
++	gchar *pwd;
++	gchar *pwdtype = "ssh_passphrase";
++	gint ret;
++
++	if (!ssh->passphrase) {
++		disablepasswordstoring = remmina_file_get_int(remminafile, "disablepasswordstoring", FALSE);
++		ret = remmina_protocol_widget_panel_authpwd(gp, REMMINA_AUTHPWD_TYPE_SSH_PRIVKEY, !disablepasswordstoring);
++		save_password = remmina_protocol_widget_get_savepassword(gp);
++
++		if (ret == GTK_RESPONSE_OK) {
++			if (save_password) {
++				pwd = remmina_protocol_widget_get_password(gp);
++				remmina_file_set_string(remminafile, pwdtype, pwd);
++				g_free(pwd);
++			}
++		} else {
++			return -1;
++		}
++		ssh->passphrase = remmina_protocol_widget_get_password(gp);
++	}
++	ret = ssh_userauth_publickey_auto(ssh->session, NULL, ssh->passphrase);
+ 
+ 	if (ret != SSH_AUTH_SUCCESS) {
+ 		remmina_ssh_set_error(ssh, _("SSH automatic public key authentication failed: %s"));
+@@ -308,7 +334,7 @@ remmina_ssh_auth_gssapi(RemminaSSH *ssh)
+ }
+ 
+ gint
+-remmina_ssh_auth(RemminaSSH *ssh, const gchar *password)
++remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *gp, RemminaFile *remminafile)
+ {
+ 	TRACE_CALL(__func__);
+ 	gint method;
+@@ -359,7 +385,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password)
+ 
+ 	case SSH_AUTH_AUTO_PUBLICKEY:
+ 		/* ssh_agent or none */
+-		return remmina_ssh_auth_auto_pubkey(ssh);
++		return remmina_ssh_auth_auto_pubkey(ssh, gp, remminafile);
+ 
+ #if 0
+ 	/* Not yet supported by libssh */
+@@ -472,7 +498,7 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
+ 		return FALSE;
+ 	}
+ 	/* Try empty password or existing password/passphrase first */
+-	ret = remmina_ssh_auth(ssh, remmina_file_get_string(remminafile, pwdtype));
++	ret = remmina_ssh_auth(ssh, remmina_file_get_string(remminafile, pwdtype), gp, remminafile);
+ 	if (ret > 0) return 1;
+ 
+ 	/* Requested for a non-empty password */
+@@ -499,7 +525,7 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
+ 			return -1;
+ 		}
+ 		pwd = remmina_protocol_widget_get_password(gp);
+-		ret = remmina_ssh_auth(ssh, pwd);
++		ret = remmina_ssh_auth(ssh, pwd, gp, remminafile);
+ 		g_free(pwd);
+ 	}
+ 
+diff --git a/src/remmina_ssh.h b/src/remmina_ssh.h
+index ec97bd43..29d7e930 100644
+--- a/src/remmina_ssh.h
++++ b/src/remmina_ssh.h
+@@ -96,7 +96,7 @@ gboolean remmina_ssh_init_session(RemminaSSH *ssh);
+ 
+ /* Authenticate SSH session */
+ /* -1: Require password; 0: Failed; 1: Succeeded */
+-gint remmina_ssh_auth(RemminaSSH *ssh, const gchar *password);
++gint remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *gp, RemminaFile *remminafile);
+ 
+ /* -1: Cancelled; 0: Failed; 1: Succeeded */
+ gint remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *remminafile);
+diff --git a/src/remmina_ssh_plugin.c b/src/remmina_ssh_plugin.c
+index 3bdfef22..8f9bc4ba 100644
+--- a/src/remmina_ssh_plugin.c
++++ b/src/remmina_ssh_plugin.c
+@@ -289,7 +289,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
+ 		/* Create SSH Shell connection based on existing SSH session */
+ 		shell = remmina_ssh_shell_new_from_ssh(ssh);
+ 		if (remmina_ssh_init_session(REMMINA_SSH(shell)) &&
+-		    remmina_ssh_auth(REMMINA_SSH(shell), NULL) > 0 &&
++		    remmina_ssh_auth(REMMINA_SSH(shell), NULL, gp, remminafile) > 0 &&
+ 		    remmina_ssh_shell_open(shell, (RemminaSSHExitFunc)
+ 			    remmina_plugin_service->protocol_plugin_close_connection, gp)) {
+ 			cont = TRUE;
