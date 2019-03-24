@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2011 Marc-Andre Moreau
 # Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
-# Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+# Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -83,6 +83,8 @@ install(FILES ${ICON96_DATA} DESTINATION ${ICON96_DIR})
 install(FILES ${ICON128_DATA} DESTINATION ${ICON128_DIR})
 install(FILES ${ICON256_DATA} DESTINATION ${ICON256_DIR})
 install(FILES ${ICONSVG_DATA} DESTINATION ${ICONSVG_DIR})
+
+gtk_update_icon_cache("${REMMINA_DATADIR}/icons/hicolor")
 
 set(REMMINA_BINARY_PATH ${CMAKE_INSTALL_FULL_BINDIR}/remmina)
 

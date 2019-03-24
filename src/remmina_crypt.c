@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009 - Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +107,7 @@ gchar* remmina_crypt_encrypt(const gchar *str)
 		return NULL;
 
 	buf_len = strlen(str);
-	/* Pack to 64bit block size, and make sure it's always 0-terminated */
+	/* Pack to 64bit block size, and make sure it’s always 0-terminated */
 	buf_len += 8 - buf_len % 8;
 	buf = (guchar*)g_malloc(buf_len);
 	memset(buf, 0, buf_len);

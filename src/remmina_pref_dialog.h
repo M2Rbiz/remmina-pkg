@@ -1,7 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
- * Copyright (C) 2017-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2017-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,8 +59,6 @@ typedef struct _RemminaPrefDialog {
 	GtkComboBox *comboboxtext_options_double_click;
 	GtkComboBox *comboboxtext_appearance_view_mode;
 	GtkComboBox *comboboxtext_appearance_tab_interface;
-	GtkComboBox *comboboxtext_appearance_show_buttons_icons;
-	GtkComboBox *comboboxtext_appearance_show_menu_icons;
 	GtkComboBox *comboboxtext_options_scale_quality;
 	GtkComboBox *comboboxtext_options_ssh_loglevel;
 	GtkComboBox *comboboxtext_appearance_fullscreen_toolbar_visibility;

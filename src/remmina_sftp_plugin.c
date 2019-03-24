@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,10 +96,10 @@ remmina_plugin_sftp_main_thread(gpointer data)
 	 *
 	 * */
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
-	/* We save the ssh server name, so that we can restore it at the end of the connection */
+	/* We save the SSH server name, so that we can restore it at the end of the connection */
 	saveserver = remmina_plugin_service->file_get_string(remminafile, "ssh_server");
 	remmina_plugin_service->file_set_string(remminafile, "save_ssh_server", g_strdup(saveserver));
-	/* We save the ssh username, so that we can restore it at the end of the connection */
+	/* We save the SSH username, so that we can restore it at the end of the connection */
 	saveusername = remmina_plugin_service->file_get_string(remminafile, "ssh_username");
 	remmina_plugin_service->file_set_string(remminafile, "save_ssh_username", g_strdup(saveusername));
 
@@ -123,7 +123,7 @@ remmina_plugin_sftp_main_thread(gpointer data)
         }
 
 	hostport = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, 22, FALSE);
-	/* We restore the ssh username as the tunnel is set */
+	/* We restore the SSH username as the tunnel is set */
 	remmina_plugin_service->file_set_string(remminafile, "ssh_username", g_strdup(saveusername));
 	if (hostport == NULL) {
 		return FALSE;
@@ -157,9 +157,7 @@ remmina_plugin_sftp_main_thread(gpointer data)
 				break;
 			}
 
-			ret = remmina_ssh_auth_gui(REMMINA_SSH(sftp),
-				REMMINA_INIT_DIALOG(remmina_protocol_widget_get_init_dialog(gp)),
-				remminafile);
+			ret = remmina_ssh_auth_gui(REMMINA_SSH(sftp), gp, remminafile);
 			if (ret == 0) {
 				remmina_plugin_service->protocol_plugin_set_error(gp, "%s", REMMINA_SSH(sftp)->error);
 			}
@@ -250,7 +248,7 @@ remmina_plugin_sftp_open_connection(RemminaProtocolWidget *gp)
 
 	if (pthread_create(&gpdata->thread, NULL, remmina_plugin_sftp_main_thread, gp)) {
 		remmina_plugin_service->protocol_plugin_set_error(gp,
-			"Failed to initialize pthread. Falling back to non-thread mode...");
+			"Failed to initialize pthread. Falling back to non-thread mode…");
 		gpdata->thread = 0;
 		return FALSE;
 	}else {

@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -556,7 +556,7 @@ static rfbBool remmina_plugin_vnc_rfb_allocfb(rfbClient *cl)
 	/* Notify window of change so that scroll border can be hidden or shown if needed */
 	remmina_plugin_service->protocol_plugin_emit_signal(gp, "desktop-resize");
 
-	/* Refresh the client's updateRect - bug in xvncclient */
+	/* Refresh the client’s updateRect - bug in xvncclient */
 	cl->updateRect.w = width;
 	cl->updateRect.h = height;
 
@@ -935,10 +935,10 @@ static void remmina_plugin_vnc_rfb_bell(rfbClient *cl)
 		gdk_window_beep(window);
 }
 
-/* Translate known VNC messages. It's for intltool only, not for gcc */
+/* Translate known VNC messages. It’s for intltool only, not for gcc */
 #ifdef __DO_NOT_COMPILE_ME__
 N_("Unable to connect to VNC server")
-N_("Couldn't convert '%s' to host address")
+N_("Couldn’t convert '%s' to host address")
 N_("VNC connection failed: %s")
 N_("Your connection has been rejected.")
 #endif
@@ -1041,7 +1041,7 @@ static void remmina_plugin_vnc_rfb_chat(rfbClient* cl, int value, char *text)
 		IDLE_ADD((GSourceFunc)remmina_plugin_vnc_open_chat, gp);
 		break;
 	case rfbTextChatClose:
-		/* Do nothing... but wait for the next rfbTextChatFinished signal */
+		/* Do nothing… but wait for the next rfbTextChatFinished signal */
 		break;
 	case rfbTextChatFinished:
 		IDLE_ADD((GSourceFunc)remmina_plugin_vnc_close_chat, gp);
@@ -1059,6 +1059,10 @@ static gboolean remmina_plugin_vnc_incoming_connection(RemminaProtocolWidget *gp
 	RemminaPluginVncData *gpdata = GET_PLUGIN_DATA(gp);
 	fd_set fds;
 
+	/**
+	 * @fixme This may fail or not working as expected with multiple network interfaces,
+	 * change with ListenAtTcpPortAndAddress
+	 */
 	gpdata->listen_sock = ListenAtTcpPort(cl->listenPort);
 	if (gpdata->listen_sock < 0)
 		return FALSE;
@@ -1068,7 +1072,9 @@ static gboolean remmina_plugin_vnc_incoming_connection(RemminaProtocolWidget *gp
 	remmina_plugin_service->protocol_plugin_start_reverse_tunnel(gp, cl->listenPort);
 
 	FD_ZERO(&fds);
-	FD_SET(gpdata->listen_sock, &fds);
+	if(gpdata->listen_sock >= 0)
+		FD_SET(gpdata->listen_sock, &fds);
+
 	select(gpdata->listen_sock + 1, &fds, NULL, NULL, NULL);
 
 	if (!FD_ISSET(gpdata->listen_sock, &fds)) {
@@ -1077,9 +1083,12 @@ static gboolean remmina_plugin_vnc_incoming_connection(RemminaProtocolWidget *gp
 		return FALSE;
 	}
 
-	cl->sock = AcceptTcpConnection(gpdata->listen_sock);
-	close(gpdata->listen_sock);
-	gpdata->listen_sock = -1;
+	if (FD_ISSET(gpdata->listen_sock, &fds))
+		cl->sock = AcceptTcpConnection(gpdata->listen_sock);
+	if(cl->sock >= 0) {
+		close(gpdata->listen_sock);
+		gpdata->listen_sock = -1;
+	}
 	if (cl->sock < 0 || !SetNonBlocking(cl->sock)) {
 		return FALSE;
 	}
@@ -1104,6 +1113,16 @@ static gboolean remmina_plugin_vnc_main_loop(RemminaProtocolWidget *gp)
 
 	cl = (rfbClient*)gpdata->client;
 
+	/*
+	 * Do not explicitly wait while data is on the buffer, see:
+	 * - https://jira.glyptodon.com/browse/GUAC-1056
+	 * - https://jira.glyptodon.com/browse/GUAC-1056?focusedCommentId=14348&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-14348
+	 * - https://github.com/apache/guacamole-server/blob/67680bd2d51e7949453f0f7ffc7f4234a1136715/src/protocols/vnc/vnc.c#L155
+	 */
+	if (cl->buffered) {
+		goto handle_buffered;
+	}
+
 	timeout.tv_sec = 10;
 	timeout.tv_usec = 0;
 	FD_ZERO(&fds);
@@ -1123,6 +1142,7 @@ static gboolean remmina_plugin_vnc_main_loop(RemminaProtocolWidget *gp)
 		i = WaitForMessage(cl, 500);
 		if (i < 0)
 			return TRUE;
+	handle_buffered:
 		if (!HandleRFBServerMessage(cl)) {
 			gpdata->running = FALSE;
 			if (gpdata->connected && !remmina_plugin_service->protocol_plugin_is_closed(gp)) {
@@ -1238,7 +1258,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 			break;
 		}
 
-		/* Otherwise, it's a password error. Try to clear saved password if any */
+		/* Otherwise, it’s a password error. Try to clear saved password if any */
 		remmina_plugin_service->file_set_string(remminafile, "password", NULL);
 
 		if (!gpdata->connected)
@@ -1246,7 +1266,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 
 		remmina_plugin_service->protocol_plugin_init_show_retry(gp);
 
-		/* It's safer to sleep a while before reconnect */
+		/* It’s safer to sleep a while before reconnect */
 		sleep(2);
 
 		gpdata->auth_first = FALSE;
@@ -1425,6 +1445,9 @@ static void remmina_plugin_vnc_release_key(RemminaProtocolWidget *gp, guint16 ke
 	RemminaKeyVal *k;
 	gint i;
 
+	if (!gpdata)
+		return;
+
 	if (keycode == 0) {
 		/* Send all release key events for previously pressed keys */
 		for (i = 0; i < gpdata->pressed_keys->len; i++) {
@@ -1506,7 +1529,7 @@ static void remmina_plugin_vnc_on_cuttext_request(GtkClipboard *clipboard, const
 	const char *cur_charset;
 
 	if (text) {
-		/* A timer (1 second) to avoid clipboard "loopback": text cut out from VNC won't paste back into VNC */
+		/* A timer (1 second) to avoid clipboard "loopback": text cut out from VNC won’t paste back into VNC */
 		g_get_current_time(&t);
 		diff = (t.tv_sec - gpdata->clipboard_timer.tv_sec) * 10
 		       + (t.tv_usec - gpdata->clipboard_timer.tv_usec) / 100000;
@@ -1586,8 +1609,8 @@ static gboolean remmina_plugin_vnc_open_connection(RemminaProtocolWidget *gp)
 
 
 	if (pthread_create(&gpdata->thread, NULL, remmina_plugin_vnc_main_thread, gp)) {
-		/* I don't think this will ever happen... */
-		g_print("Failed to initialize pthread. Falling back to non-thread mode...\n");
+		/* I don’t think this will ever happen… */
+		g_print("Failed to initialize pthread. Falling back to non-thread mode…\n");
 		g_timeout_add(0, (GSourceFunc)remmina_plugin_vnc_main, gp);
 		gpdata->thread = 0;
 	}
@@ -1907,7 +1930,7 @@ static const RemminaProtocolFeature remmina_plugin_vnc_features[] =
 	  N_("View only")									      },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF,	 REMMINA_PLUGIN_VNC_FEATURE_PREF_DISABLESERVERINPUT,	GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_CHECK),		    "disableserverinput",					       N_("Disable server input")															      },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	 REMMINA_PLUGIN_VNC_FEATURE_TOOL_REFRESH,		N_("Refresh"),							    NULL,							       NULL																		      },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	 REMMINA_PLUGIN_VNC_FEATURE_TOOL_CHAT,			N_("Open Chat..."),						    "face-smile",						       NULL																		      },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	 REMMINA_PLUGIN_VNC_FEATURE_TOOL_CHAT,			N_("Open Chat…"),						    "face-smile",						       NULL																		      },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	 REMMINA_PLUGIN_VNC_FEATURE_TOOL_SENDCTRLALTDEL,	N_("Send Ctrl+Alt+Delete"),					    NULL,							       NULL																		      },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_SCALE,	 REMMINA_PLUGIN_VNC_FEATURE_SCALE,			NULL,								    NULL,							       NULL																		      },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_UNFOCUS, REMMINA_PLUGIN_VNC_FEATURE_UNFOCUS,			NULL,								    NULL,							       NULL																		      },

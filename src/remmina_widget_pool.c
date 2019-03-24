@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009 - Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ remmina_widget_pool_find_by_window(GType type, GdkWindow *window)
 		widget = GTK_WIDGET(g_ptr_array_index(remmina_widget_pool, i));
 		if (!G_TYPE_CHECK_INSTANCE_TYPE(widget, type))
 			continue;
-		/* gdk_window_get_toplevel won't work here, if the window is an embedded client. So we iterate the window tree */
+		/* gdk_window_get_toplevel won’t work here, if the window is an embedded client. So we iterate the window tree */
 		for (parent = window; parent && parent != GDK_WINDOW_ROOT; parent = gdk_window_get_parent(parent)) {
 			if (gtk_widget_get_window(widget) == parent)
 				return widget;

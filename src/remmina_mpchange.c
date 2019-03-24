@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -241,7 +241,7 @@ static void remmina_mpchange_dochange_clicked(GtkButton *btn, gpointer user_data
 	mpcp->password = g_strdup(passwd1);
 	mpcp->changed_passwords_count = 0;
 
-	gtk_label_set_text(mpcp->statusLabel, _("Resetting passwords, please wait..."));
+	gtk_label_set_text(mpcp->statusLabel, _("Resetting passwords, please wait…"));
 
 	enable_inputs(mpcp, FALSE);
 	mpcp->sid = g_idle_add(changenext, (gpointer)mpcp);

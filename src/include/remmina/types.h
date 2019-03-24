@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,6 +120,13 @@ typedef enum {
 	REMMINA_PROTOCOL_WIDGET_SCALE_MODE_SCALED	= 1,
 	REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES	= 2
 } RemminaScaleMode;
+
+typedef enum {
+	RES_INVALID = -1,
+	RES_USE_CUSTOM = 0,
+	RES_USE_CLIENT = 1,
+	RES_USE_INITIAL_WINDOW_SIZE = 2
+} RemminaProtocolWidgetResolutionMode;
 
 G_END_DECLS
 

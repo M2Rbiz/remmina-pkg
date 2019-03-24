@@ -1,7 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009 - Vic Lee
- * Copyright (C) 2017-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2017-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,8 @@ G_GNUC_CONST;
 
 GtkWidget* remmina_scrolled_viewport_new(void);
 void remmina_scrolled_viewport_remove_motion(RemminaScrolledViewport *gsv);
+
+#define SCROLL_BORDER_SIZE 1
 
 G_END_DECLS
 

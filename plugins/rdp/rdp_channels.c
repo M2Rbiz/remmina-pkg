@@ -1,7 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2012-2012 Jean-Louis Dupond
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,10 +50,10 @@ void remmina_rdp_OnChannelConnectedEventHandler(rdpContext* context, ChannelConn
 	rfContext* rfi = (rfContext*)context;
 
 	if (g_strcmp0(e->name, RDPEI_DVC_CHANNEL_NAME) == 0) {
-		g_print("Unimplemented: channel %s connected but we can't use it\n", e->name);
+		g_print("Unimplemented: channel %s connected but we can’t use it\n", e->name);
 		// xfc->rdpei = (RdpeiClientContext*) e->pInterface;
 	}else if (g_strcmp0(e->name, TSMF_DVC_CHANNEL_NAME) == 0) {
-		g_print("Unimplemented: channel %s connected but we can't use it\n", e->name);
+		g_print("Unimplemented: channel %s connected but we can’t use it\n", e->name);
 		// xf_tsmf_init(xfc, (TsmfClientContext*) e->pInterface);
 	}else if (g_strcmp0(e->name, RDPGFX_DVC_CHANNEL_NAME) == 0) {
 	   if (rfi->settings->SoftwareGdi)
@@ -61,17 +61,17 @@ void remmina_rdp_OnChannelConnectedEventHandler(rdpContext* context, ChannelConn
 	   else
 			g_print("Unimplemented: channel %s connected but libfreerdp is in HardwareGdi mode\n", e->name);
 	}else if (g_strcmp0(e->name, RAIL_SVC_CHANNEL_NAME) == 0) {
-		g_print("Unimplemented: channel %s connected but we can't use it\n", e->name);
+		g_print("Unimplemented: channel %s connected but we can’t use it\n", e->name);
 		// xf_rail_init(xfc, (RailClientContext*) e->pInterface);
 	}else if (g_strcmp0(e->name, CLIPRDR_SVC_CHANNEL_NAME) == 0) {
 		remmina_rdp_cliprdr_init( rfi, (CliprdrClientContext*)e->pInterface);
 	}else if (g_strcmp0(e->name, ENCOMSP_SVC_CHANNEL_NAME) == 0) {
-		g_print("Unimplemented: channel %s connected but we can't use it\n", e->name);
+		g_print("Unimplemented: channel %s connected but we can’t use it\n", e->name);
 		// xf_encomsp_init(xfc, (EncomspClientContext*) e->pInterface);
 	}else if (g_strcmp0(e->name, DISP_DVC_CHANNEL_NAME) == 0) {
 		// "disp" channel connected, save its context pointer
 		rfi->dispcontext = (DispClientContext*)e->pInterface;
-		// Notify remmina_connection_window to unlock dynres capability
+		// Notify rcw to unlock dynres capability
 		remmina_plugin_service->protocol_plugin_emit_signal(rfi->protocol_widget, "unlock-dynres");
 		// Send monitor layout message here to ask for resize of remote desktop now
 		if (rfi->scale == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES) {

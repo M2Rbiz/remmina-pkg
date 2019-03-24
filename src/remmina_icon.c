@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 #include "remmina_avahi.h"
 #include "remmina_applet_menu_item.h"
 #include "remmina_applet_menu.h"
-#include "remmina_connection_window.h"
+#include "rcw.h"
 #include "remmina_icon.h"
 #include "remmina/remmina_trace_calls.h"
 #include "remmina_sysinfo.h"
@@ -449,7 +449,7 @@ void remmina_icon_init(void)
 #ifdef HAVE_LIBAPPINDICATOR
 		strcat(msg, " and libappindicator is compiled in remmina. Good!");
 #else
-		strcat(msg, ", but you did not compile remmina with cmake's -DWITH_APPINDICATOR=on");
+		strcat(msg, ", but you did not compile remmina with cmake’s -DWITH_APPINDICATOR=on");
 #endif
 	} else {
 #ifdef HAVE_LIBAPPINDICATOR

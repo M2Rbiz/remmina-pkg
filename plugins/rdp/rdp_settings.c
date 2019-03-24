@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -264,7 +264,7 @@ static void remmina_rdp_settings_grid_load_quality(RemminaPluginRdpsetGrid* grid
 	GtkTreeIter iter;
 
 	gtk_list_store_append(grid->quality_store, &iter);
-	gtk_list_store_set(grid->quality_store, &iter, 0, -1, 1, _("<Choose a quality level to edit...>"), -1);
+	gtk_list_store_set(grid->quality_store, &iter, 0, -1, 1, _("<Choose a quality level to edit…>"), -1);
 	gtk_list_store_append(grid->quality_store, &iter);
 	gtk_list_store_set(grid->quality_store, &iter, 0, 0, 1, _("Poor (fastest)"), -1);
 	gtk_list_store_append(grid->quality_store, &iter);

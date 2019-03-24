@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,7 +129,7 @@ void remmina_ftp_client_load_state(RemminaFTPClient *client, RemminaFile *remmin
 
 void remmina_ftp_client_set_show_hidden(RemminaFTPClient *client, gboolean show_hidden);
 void remmina_ftp_client_clear_file_list(RemminaFTPClient *client);
-/* column, value, ..., -1 */
+/* column, value, …, -1 */
 void remmina_ftp_client_add_file(RemminaFTPClient *client, ...);
 /* Set the current directory. Should be called by opendir signal handler */
 void remmina_ftp_client_set_dir(RemminaFTPClient *client, const gchar *dir);

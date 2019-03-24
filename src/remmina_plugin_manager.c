@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@
 #include "remmina_protocol_widget.h"
 #include "remmina_log.h"
 #include "remmina_widget_pool.h"
-#include "remmina_connection_window.h"
+#include "rcw.h"
 #include "remmina_plugin_manager.h"
 #include "remmina_public.h"
 #include "remmina_masterthread_exec.h"
@@ -185,24 +185,24 @@ RemminaPluginService remmina_plugin_manager_service =
 	remmina_protocol_widget_start_xport_tunnel,
 	remmina_protocol_widget_set_display,
 	remmina_protocol_widget_close_connection,
-	remmina_protocol_widget_init_authpwd,
-	remmina_protocol_widget_init_authuserpwd,
-	remmina_protocol_widget_init_certificate,
-	remmina_protocol_widget_changed_certificate,
-	remmina_protocol_widget_init_get_username,
-	remmina_protocol_widget_init_get_password,
-	remmina_protocol_widget_init_get_domain,
-	remmina_protocol_widget_init_get_savepassword,
-	remmina_protocol_widget_init_authx509,
-	remmina_protocol_widget_init_get_cacert,
-	remmina_protocol_widget_init_get_cacrl,
-	remmina_protocol_widget_init_get_clientcert,
-	remmina_protocol_widget_init_get_clientkey,
-	remmina_protocol_widget_init_save_cred,
-	remmina_protocol_widget_init_show_listen,
-	remmina_protocol_widget_init_show_retry,
-	remmina_protocol_widget_init_show,
-	remmina_protocol_widget_init_hide,
+	remmina_protocol_widget_panel_authpwd,
+	remmina_protocol_widget_panel_authuserpwd,
+	remmina_protocol_widget_panel_new_certificate,
+	remmina_protocol_widget_panel_changed_certificate,
+	remmina_protocol_widget_get_username,
+	remmina_protocol_widget_get_password,
+	remmina_protocol_widget_get_domain,
+	remmina_protocol_widget_get_savepassword,
+	remmina_protocol_widget_panel_authx509,
+	remmina_protocol_widget_get_cacert,
+	remmina_protocol_widget_get_cacrl,
+	remmina_protocol_widget_get_clientcert,
+	remmina_protocol_widget_get_clientkey,
+	remmina_protocol_widget_save_cred,
+	remmina_protocol_widget_panel_show_listen,
+	remmina_protocol_widget_panel_show_retry,
+	remmina_protocol_widget_panel_show,
+	remmina_protocol_widget_panel_hide,
 	remmina_protocol_widget_ssh_exec,
 	remmina_protocol_widget_chat_open,
 	remmina_protocol_widget_chat_close,
@@ -233,7 +233,7 @@ RemminaPluginService remmina_plugin_manager_service =
 
 	remmina_widget_pool_register,
 
-	remmina_connection_window_open_from_file_full,
+	rcw_open_from_file_full,
 	remmina_public_get_server_port,
 	remmina_masterthread_exec_is_main_thread,
 	remmina_gtksocket_available,
@@ -266,7 +266,7 @@ static void remmina_plugin_manager_load_plugin(const gchar *name)
 		return;
 	}
 
-	/* We don't close the module because we will need it throughout the process lifetime */
+	/* We don’t close the module because we will need it throughout the process lifetime */
 }
 
 void remmina_plugin_manager_init(void)

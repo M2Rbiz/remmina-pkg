@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -598,7 +598,7 @@ static gboolean remmina_plugin_nx_open_connection(RemminaProtocolWidget *gp)
 
 	if (pthread_create(&gpdata->thread, NULL, remmina_plugin_nx_main_thread, gp)) {
 		remmina_plugin_nx_service->protocol_plugin_set_error(gp,
-			"Failed to initialize pthread. Falling back to non-thread mode...");
+			"Failed to initialize pthread. Falling back to non-thread mode…");
 		gpdata->thread = 0;
 		return FALSE;
 	}else  {

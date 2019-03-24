@@ -3,7 +3,7 @@
  *
  * @copyright Copyright (C) 2010-2011 Vic Lee.
  * @copyright Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo.
- * @copyright Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo.
+ * @copyright Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -206,10 +206,14 @@ typedef struct _RemminaPluginSshData {
 
 static RemminaPluginService *remmina_plugin_service = NULL;
 
+static gboolean
+remmina_plugin_ssh_on_size_allocate(GtkWidget *widget, GtkAllocation *alloc, RemminaProtocolWidget *gp);
+
+
 /**
  * Remmina Protocol plugin main function.
  *
- * First it starts the SSH tunnel if needed and than the SSH connection.
+ * First it starts the SSH tunnel if needed and then the SSH connection.
  *
  */
 static gpointer
@@ -246,10 +250,10 @@ remmina_plugin_ssh_main_thread(gpointer data)
 	 *
 	 **/
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
-	/* We save the ssh server name, so that we can restore it at the end of the connection */
+	/* We save the SSH server name, so that we can restore it at the end of the connection */
 	saveserver = remmina_plugin_service->file_get_string(remminafile, "ssh_server");
 	remmina_plugin_service->file_set_string(remminafile, "save_ssh_server", g_strdup(saveserver));
-	/* We save the ssh username, so that we can restore it at the end of the connection */
+	/* We save the SSH username, so that we can restore it at the end of the connection */
 	saveusername = remmina_plugin_service->file_get_string(remminafile, "ssh_username");
 	remmina_plugin_service->file_set_string(remminafile, "save_ssh_username", g_strdup(saveusername));
 
@@ -273,7 +277,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
         }
 
 	hostport = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, 22, FALSE);
-	/* We restore the ssh username as the tunnel is set */
+	/* We restore the SSH username as the tunnel is set */
 	remmina_plugin_service->file_set_string(remminafile, "ssh_username", g_strdup(saveusername));
 	if (hostport == NULL) {
 		return FALSE;
@@ -308,9 +312,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
 				break;
 			}
 
-			ret = remmina_ssh_auth_gui(REMMINA_SSH(shell),
-				REMMINA_INIT_DIALOG(remmina_protocol_widget_get_init_dialog(gp)),
-				remminafile);
+			ret = remmina_ssh_auth_gui(REMMINA_SSH(shell), gp, remminafile);
 			if (ret == 0) {
 				remmina_plugin_service->protocol_plugin_set_error(gp, "%s", REMMINA_SSH(shell)->error);
 			}
@@ -340,6 +342,10 @@ remmina_plugin_ssh_main_thread(gpointer data)
 
 	charset = REMMINA_SSH(shell)->charset;
 	remmina_plugin_ssh_vte_terminal_set_encoding_and_pty(VTE_TERMINAL(gpdata->vte), charset, shell->master, shell->slave);
+
+	/* ToDo: the following call should be moved on the main thread, or something weird could happen */
+	remmina_plugin_ssh_on_size_allocate(GTK_WIDGET(gpdata->vte), NULL, gp);
+
 	remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
 
 	gpdata->thread = 0;
@@ -406,7 +412,8 @@ remmina_plugin_ssh_on_size_allocate(GtkWidget *widget, GtkAllocation *alloc, Rem
 	cols = vte_terminal_get_column_count(VTE_TERMINAL(widget));
 	rows = vte_terminal_get_row_count(VTE_TERMINAL(widget));
 
-	remmina_ssh_shell_set_size(gpdata->shell, cols, rows);
+	if (gpdata->shell)
+		remmina_ssh_shell_set_size(gpdata->shell, cols, rows);
 
 	return FALSE;
 }
@@ -781,7 +788,7 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 	vte_terminal_set_color_background(VTE_TERMINAL(vte), &background_color);
 	vte_terminal_set_color_cursor(VTE_TERMINAL(vte), &cursor_color);
 #else
-	/* VTE <= 2.90 doesn't support GdkRGBA so we must convert GdkRGBA to GdkColor */
+	/* VTE <= 2.90 doesn’t support GdkRGBA so we must convert GdkRGBA to GdkColor */
 	foreground_gdkcolor.red = (guint16)(foreground_color.red * 0xFFFF);
 	foreground_gdkcolor.green = (guint16)(foreground_color.green * 0xFFFF);
 	foreground_gdkcolor.blue = (guint16)(foreground_color.blue * 0xFFFF);
@@ -796,8 +803,6 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 	gpdata->vte = vte;
 	remmina_plugin_ssh_set_vte_pref(gp);
 	g_signal_connect(G_OBJECT(vte), "size-allocate", G_CALLBACK(remmina_plugin_ssh_on_size_allocate), gp);
-
-	remmina_plugin_ssh_on_size_allocate(GTK_WIDGET(vte), NULL, gp);
 
 	remmina_plugin_service->protocol_plugin_register_hostkey(gp, vte);
 
@@ -856,7 +861,7 @@ remmina_plugin_ssh_open_connection(RemminaProtocolWidget *gp)
 
 	if (pthread_create(&gpdata->thread, NULL, remmina_plugin_ssh_main_thread, gp)) {
 		remmina_plugin_service->protocol_plugin_set_error(gp,
-			"Failed to initialize pthread. Falling back to non-thread mode...");
+			"Failed to initialize pthread. Falling back to non-thread mode…");
 		gpdata->thread = 0;
 		return FALSE;
 	}else  {
@@ -909,7 +914,7 @@ remmina_plugin_ssh_query_feature(RemminaProtocolWidget *gp, const RemminaProtoco
  * In the Remmina Connection Window toolbar, there is a tool menu, this function is used to
  * call the right function for each entry with its parameters.
  *
- * At the moment it's possible to:
+ * At the moment it’s possible to:
  * - Open a new SSH session.
  * - Open an SFTP session.
  * - Select, copy and paste text.
@@ -953,7 +958,7 @@ remmina_plugin_ssh_call_feature(RemminaProtocolWidget *gp, const RemminaProtocol
 	}
 }
 
-/** Array of key/value pairs for ssh auth type*/
+/** Array of key/value pairs for SSH auth type*/
 static gpointer ssh_auth[] =
 {
 	"0", N_("Password"),

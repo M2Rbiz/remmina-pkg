@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,8 +91,8 @@ static GOptionEntry remmina_options[] =
 	{ "server",	  's', 0,		     G_OPTION_ARG_STRING,  	    NULL, N_("Use default server name (for --new)"),			       "SERVER"	  },
 	{ "protocol",	  't', 0,		     G_OPTION_ARG_STRING,  	    NULL, N_("Use default protocol (for --new)"),			       "PROTOCOL" },
 	{ "icon",	  'i', 0,		     G_OPTION_ARG_NONE,	   	    NULL, N_("Start as tray icon"),					       NULL	  },
-	{ "version",	  'v', 0,		     G_OPTION_ARG_NONE,	   	    NULL, N_("Show the application's version"),				       NULL	  },
-	{ "full-version", 'V', 0,		     G_OPTION_ARG_NONE,	   	    NULL, N_("Show the application's version, including the pulgin versions"), NULL	  },
+	{ "version",	  'v', 0,		     G_OPTION_ARG_NONE,	   	    NULL, N_("Show the application’s version"),				       NULL	  },
+	{ "full-version", 'V', 0,		     G_OPTION_ARG_NONE,	   	    NULL, N_("Show the application’s version, including the plugin versions"), NULL	  },
 	{ NULL }
 };
 

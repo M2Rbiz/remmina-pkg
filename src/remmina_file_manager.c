@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ gchar *remmina_file_get_datadir(void)
 static gboolean remmina_file_manager_do_copy(const char *src_path, const char *dst_path)
 {
 	GFile *src = g_file_new_for_path(src_path), *dst = g_file_new_for_path(dst_path);
-	/* We don't overwrite the target if it exists */
+	/* We don’t overwrite the target if it exists */
 	const gboolean ok = g_file_copy(src, dst, G_FILE_COPY_NONE, NULL, NULL, NULL, NULL);
 
 	g_object_unref(dst);

@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2018 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -169,7 +169,7 @@ static void remmina_pref_init_keymap(void)
 static gboolean remmina_pref_file_do_copy(const char *src_path, const char *dst_path)
 {
 	GFile *src = g_file_new_for_path(src_path), *dst = g_file_new_for_path(dst_path);
-	/* We don't overwrite the target if it exists, because overwrite is not set */
+	/* We don’t overwrite the target if it exists, because overwrite is not set */
 	const gboolean ok = g_file_copy(src, dst, G_FILE_COPY_NONE, NULL, NULL, NULL, NULL);
 
 	g_object_unref(dst);
@@ -333,11 +333,6 @@ void remmina_pref_init(void)
 	else
 		remmina_pref.hide_toolbar = FALSE;
 
-	if (g_key_file_has_key(gkeyfile, "remmina_pref", "hide_statusbar", NULL))
-		remmina_pref.hide_statusbar = g_key_file_get_boolean(gkeyfile, "remmina_pref", "hide_statusbar", NULL);
-	else
-		remmina_pref.hide_statusbar = FALSE;
-
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "small_toolbutton", NULL))
 		remmina_pref.small_toolbutton = g_key_file_get_boolean(gkeyfile, "remmina_pref", "small_toolbutton", NULL);
 	else
@@ -493,22 +488,6 @@ void remmina_pref_init(void)
 		remmina_pref.fullscreen_toolbar_visibility = g_key_file_get_integer(gkeyfile, "remmina_pref", "fullscreen_toolbar_visibility", NULL);
 	else
 		remmina_pref.fullscreen_toolbar_visibility = FLOATING_TOOLBAR_VISIBILITY_PEEKING;
-	/* Show buttons icons */
-	if (g_key_file_has_key(gkeyfile, "remmina_pref", "show_buttons_icons", NULL)) {
-		remmina_pref.show_buttons_icons = g_key_file_get_integer(gkeyfile, "remmina_pref", "show_buttons_icons", NULL);
-		if (remmina_pref.show_buttons_icons) {
-			g_object_set(gtk_settings_get_default(), "gtk-button-images", remmina_pref.show_buttons_icons == 1, NULL);
-		}
-	}else
-		remmina_pref.show_buttons_icons = 0;
-	/* Show menu icons */
-	if (g_key_file_has_key(gkeyfile, "remmina_pref", "show_menu_icons", NULL)) {
-		remmina_pref.show_menu_icons = g_key_file_get_integer(gkeyfile, "remmina_pref", "show_menu_icons", NULL);
-		if (remmina_pref.show_menu_icons) {
-			g_object_set(gtk_settings_get_default(), "gtk-menu-images", remmina_pref.show_menu_icons == 1, NULL);
-		}
-	}else
-		remmina_pref.show_menu_icons = 0;
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "auto_scroll_step", NULL))
 		remmina_pref.auto_scroll_step = g_key_file_get_integer(gkeyfile, "remmina_pref", "auto_scroll_step", NULL);
@@ -692,7 +671,6 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_string(gkeyfile, "remmina_pref", "screenshot_name", remmina_pref.screenshot_name);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "ssh_parseconfig", remmina_pref.ssh_parseconfig);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_toolbar", remmina_pref.hide_toolbar);
-	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_statusbar", remmina_pref.hide_statusbar);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "small_toolbutton", remmina_pref.small_toolbutton);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "view_file_mode", remmina_pref.view_file_mode);
 	g_key_file_set_string(gkeyfile, "remmina_pref", "resolutions", remmina_pref.resolutions);
@@ -718,8 +696,6 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "default_mode", remmina_pref.default_mode);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "tab_mode", remmina_pref.tab_mode);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "fullscreen_toolbar_visibility", remmina_pref.fullscreen_toolbar_visibility);
-	g_key_file_set_integer(gkeyfile, "remmina_pref", "show_buttons_icons", remmina_pref.show_buttons_icons);
-	g_key_file_set_integer(gkeyfile, "remmina_pref", "show_menu_icons", remmina_pref.show_menu_icons);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "auto_scroll_step", remmina_pref.auto_scroll_step);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "hostkey", remmina_pref.hostkey);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "shortcutkey_fullscreen", remmina_pref.shortcutkey_fullscreen);
