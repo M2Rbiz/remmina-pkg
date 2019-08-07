@@ -16,6 +16,7 @@ Build-Depends:
  libgtk-3-dev,
  libjpeg-dev,
  libjson-glib-dev,
+ libkf5wallet-dev,
  libsecret-1-dev,
  libsoup2.4-dev,
  libspice-client-gtk-3.0-dev,
@@ -262,3 +263,24 @@ Description: EXEC plugin for Remmina
  Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the EXEC plugin for Remmina.
+
+Package: remmina-plugin-kwallet
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ remmina (= ${binary:Version})
+Description: KWallet plugin for Remmina
+ Remmina is a remote desktop client written in GTK+, aiming to be
+ useful for system administrators and travellers, who need to work
+ with lots of remote computers in front of either large monitors or
+ tiny netbooks.
+ .
+ Remmina supports multiple network protocols in an integrated and
+ consistent user interface.
+ .
+ Currently RDP, VNC, SPICE, WWW, NX, XDMCP, EXEC and SSH are supported.
+ .
+ This package contains the KWallet plugin for Remmina, which
+ allows one to store and retrieve passwords using the KDE wallet.
