@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/utsname.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -281,6 +282,26 @@ static gchar* remmina_utils_read_distrofile(gchar *filename)
 }
 
 /**
+ * Return the current language defined in the LC_ALL.
+ * @return a language string or en_US.
+ */
+gchar* remmina_utils_get_lang()
+{
+	gchar *lang = setlocale(LC_ALL, NULL);
+	gchar *ptr;
+
+	if (!lang || lang[0] == '\0') {
+		lang = "en_US\0";
+	} else {
+		ptr = strchr(lang, '.');
+		if (ptr != NULL) {
+			*ptr = '\0';
+		}
+	}
+
+	return lang;
+}
+/**
  * Return the OS name as in "uname -s".
  * @return The OS name or NULL.
  */
@@ -427,3 +448,55 @@ const gchar* remmina_utils_get_os_info()
 	return kernel_string;
 }
 
+/**
+ * Create a hexadecimal string version of the SHA-1 digest of the
+ * contents of the named file.
+ *
+ * @return a newly allocated string which the caller
+ * should free() when finished.
+ *
+ * If any error occurs while reading the file, (permission denied,
+ * file not found, etc.), this function returns NULL.
+ *
+ * Taken from https://github.com/ttuegel/notmuch do PR in case of substantial modifications.
+ *
+ */
+gchar* remmina_sha1_file (const gchar *filename)
+{
+    FILE *file;
+#define BLOCK_SIZE 4096
+    unsigned char block[BLOCK_SIZE];
+    size_t bytes_read;
+    GChecksum *sha1;
+    char *digest = NULL;
+
+    file = fopen (filename, "r");
+    if (file == NULL)
+	return NULL;
+
+    sha1 = g_checksum_new (G_CHECKSUM_SHA1);
+    if (sha1 == NULL)
+	goto DONE;
+
+    while (1) {
+	bytes_read = fread (block, 1, 4096, file);
+	if (bytes_read == 0) {
+	    if (feof (file))
+		break;
+	    else if (ferror (file))
+		goto DONE;
+	} else {
+	    g_checksum_update (sha1, block, bytes_read);
+	}
+    }
+
+    digest = g_strdup (g_checksum_get_string (sha1));
+
+  DONE:
+    if (sha1)
+	g_checksum_free (sha1);
+    if (file)
+	fclose (file);
+
+    return digest;
+}

@@ -53,7 +53,7 @@ enum {
 };
 
 enum {
-	AUTO_MODE			= 0,
+	UNDEFINED_MODE			= 0,
 	SCROLLED_WINDOW_MODE		= 1,
 	FULLSCREEN_MODE			= 2,
 	SCROLLED_FULLSCREEN_MODE	= 3,
@@ -110,12 +110,18 @@ typedef struct _RemminaColorPref {
 
 typedef struct _RemminaPref {
 	/* In RemminaPrefDialog options tab */
+	const gchar *datadir_path;
+	const gchar *remmina_file_name;
+	const gchar *screenshot_path;
+	gboolean deny_screenshot_clipboard;
+	const gchar *screenshot_name;
 	gboolean save_view_mode;
+	gboolean use_master_password;
+	const gchar *unlock_password;
+	const gchar *unlock_repassword;
+	gint unlock_timeout;
 	gint default_action;
 	gint scale_quality;
-	gboolean deny_screenshot_clipboard;
-	const gchar *screenshot_path;
-	const gchar *screenshot_name;
 	gint auto_scroll_step;
 	gint recent_maximum;
 	gchar *resolutions;
@@ -180,6 +186,7 @@ typedef struct _RemminaPref {
 	gint floating_toolbar_placement;
 	gint toolbar_placement;
 	gboolean prevent_snap_welcome_message;
+	gchar *last_quickconnect_protocol;
 
 	/* Crypto */
 	gchar *secret;
@@ -190,12 +197,13 @@ typedef struct _RemminaPref {
 	RemminaColorPref color_pref;
 
 	/* Usage stats */
-	gboolean periodic_usage_stats_permission_asked;
 	gboolean periodic_usage_stats_permitted;
 	glong periodic_usage_stats_last_sent;
 	gchar *periodic_usage_stats_uuid_prefix;
 	gchar *last_success;
 
+	/* Remmina news */
+	glong periodic_rmnews_last_get;
 
 } RemminaPref;
 
@@ -214,6 +222,7 @@ extern gchar *remmina_colors_file;
 extern RemminaPref remmina_pref;
 
 void remmina_pref_init(void);
+gboolean remmina_pref_is_rw(void);
 gboolean remmina_pref_save(void);
 
 void remmina_pref_add_recent(const gchar *protocol, const gchar *server);
@@ -235,6 +244,7 @@ gint remmina_pref_get_ssh_tcp_usrtimeout(void);
 
 void remmina_pref_set_value(const gchar *key, const gchar *value);
 gchar* remmina_pref_get_value(const gchar *key);
+gboolean remmina_pref_get_boolean(const gchar *key);
 
 G_END_DECLS
 

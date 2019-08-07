@@ -51,6 +51,11 @@
 
 #include <winpr/clipboard.h>
 
+
+/* Constants to workaround FreeRDP issue #5417 (min resolution in AVC mode) */
+#define AVC_MIN_DESKTOP_WIDTH 642
+#define AVC_MIN_DESKTOP_HEIGHT 480
+
 typedef struct rf_context rfContext;
 
 #define GET_PLUGIN_DATA(gp) (rfContext*)g_object_get_data(G_OBJECT(gp), "plugin-data")
@@ -99,7 +104,6 @@ struct rf_glyph {
 };
 typedef struct rf_glyph rfGlyph;
 
-
 typedef enum {
 	REMMINA_RDP_EVENT_TYPE_SCANCODE,
 	REMMINA_RDP_EVENT_TYPE_SCANCODE_UNICODE,
@@ -129,7 +133,8 @@ struct remmina_plugin_rdp_event {
 			CLIPRDR_FORMAT_LIST* pFormatList;
 		} clipboard_formatlist;
 		struct {
-			CLIPRDR_FORMAT_DATA_RESPONSE* pFormatDataResponse;
+			BYTE *data;
+			int size;
 		} clipboard_formatdataresponse;
 		struct {
 			CLIPRDR_FORMAT_DATA_REQUEST* pFormatDataRequest;
@@ -257,6 +262,7 @@ struct rf_context {
 	gchar rdpsnd_options[20];
 
 	RFX_CONTEXT* rfx_context;
+	gboolean rdpgfxchan;
 
 	gboolean connected;
 	gboolean is_reconnecting;

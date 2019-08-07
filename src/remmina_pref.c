@@ -46,6 +46,8 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
+#include "remmina_sodium.h"
+
 #include "remmina_public.h"
 #include "remmina_string_array.h"
 #include "remmina_pref.h"
@@ -281,6 +283,22 @@ void remmina_pref_init(void)
 	else
 		remmina_pref.save_view_mode = TRUE;
 
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "use_master_password", NULL))
+		remmina_pref.use_master_password = g_key_file_get_boolean(gkeyfile, "remmina_pref", "use_master_password", NULL);
+	else
+		remmina_pref.use_master_password = FALSE;
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "unlock_timeout", NULL))
+		remmina_pref.unlock_timeout  = g_key_file_get_integer(gkeyfile, "remmina_pref", "unlock_timeout", NULL);
+	else
+		remmina_pref.unlock_timeout  = 0;
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "unlock_password", NULL))
+		remmina_pref.unlock_password  = g_key_file_get_string(gkeyfile, "remmina_pref", "unlock_password", NULL);
+	else
+		remmina_pref.unlock_password = g_strdup("");
+
+
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "fullscreen_on_auto", NULL))
 		remmina_pref.fullscreen_on_auto = g_key_file_get_boolean(gkeyfile, "remmina_pref", "fullscreen_on_auto", NULL);
 	else
@@ -295,6 +313,11 @@ void remmina_pref_init(void)
 		remmina_pref.prevent_snap_welcome_message = g_key_file_get_boolean(gkeyfile, "remmina_pref", "prevent_snap_welcome_message", NULL);
 	else
 		remmina_pref.prevent_snap_welcome_message = FALSE;
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "last_quickconnect_protocol", NULL))
+		remmina_pref.last_quickconnect_protocol = g_key_file_get_string(gkeyfile, "remmina_pref", "last_quickconnect_protocol", NULL);
+	else
+		remmina_pref.last_quickconnect_protocol = g_strdup("");
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "toolbar_placement", NULL))
 		remmina_pref.toolbar_placement = g_key_file_get_integer(gkeyfile, "remmina_pref", "toolbar_placement", NULL);
@@ -398,6 +421,17 @@ void remmina_pref_init(void)
 		remmina_pref.deny_screenshot_clipboard = g_key_file_get_boolean(gkeyfile, "remmina_pref", "deny_screenshot_clipboard", NULL);
 	else
 		remmina_pref.deny_screenshot_clipboard = TRUE;
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "datadir_path", NULL))
+		remmina_pref.datadir_path = g_key_file_get_string(gkeyfile, "remmina_pref", "datadir_path", NULL);
+	else
+		remmina_pref.datadir_path = g_strdup("");
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "remmina_file_name", NULL)) {
+		remmina_pref.remmina_file_name = g_key_file_get_string(gkeyfile, "remmina_pref", "remmina_file_name", NULL);
+	}else{
+		remmina_pref.remmina_file_name = g_strdup("%G_%P_%N_%h");
+	}
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "screenshot_path", NULL)) {
 		remmina_pref.screenshot_path = g_key_file_get_string(gkeyfile, "remmina_pref", "screenshot_path", NULL);
@@ -614,11 +648,6 @@ void remmina_pref_init(void)
 
 	remmina_pref_file_load_colors(gkeyfile, &remmina_pref.color_pref);
 
-	if (g_key_file_has_key(gkeyfile, "usage_stats", "periodic_usage_stats_permission_asked", NULL))
-		remmina_pref.periodic_usage_stats_permission_asked = g_key_file_get_boolean(gkeyfile, "usage_stats", "periodic_usage_stats_permission_asked", NULL);
-	else
-		remmina_pref.periodic_usage_stats_permission_asked = FALSE;
-
 	if (g_key_file_has_key(gkeyfile, "usage_stats", "periodic_usage_stats_permitted", NULL))
 		remmina_pref.periodic_usage_stats_permitted = g_key_file_get_boolean(gkeyfile, "usage_stats", "periodic_usage_stats_permitted", NULL);
 	else
@@ -634,6 +663,18 @@ void remmina_pref_init(void)
 	else
 		remmina_pref.periodic_usage_stats_uuid_prefix = NULL;
 
+	if (g_key_file_has_key(gkeyfile, "remmina_news", "periodic_rmnews_last_get", NULL))
+		remmina_pref.periodic_rmnews_last_get = g_key_file_get_int64(gkeyfile, "remmina_news", "periodic_rmnews_last_get", NULL);
+	else
+		remmina_pref.periodic_rmnews_last_get = 0;
+
+	/* Default settings */
+	if (!g_key_file_has_key(gkeyfile, "remmina", "name", NULL)) {
+		g_key_file_set_string(gkeyfile, "remmina", "name", "");
+		g_key_file_set_integer(gkeyfile, "remmina", "ignore-tls-errors", 1);
+		g_key_file_set_integer(gkeyfile, "remmina", "enable-plugins", 1);
+		remmina_pref_save();
+	}
 
 	g_key_file_free(gkeyfile);
 
@@ -643,9 +684,24 @@ void remmina_pref_init(void)
 	remmina_pref_init_keymap();
 }
 
+gboolean remmina_pref_is_rw(void)
+{
+	TRACE_CALL(__func__);
+	if (access(remmina_pref_file, W_OK) == 0)
+		return TRUE;
+	else
+		return FALSE;
+	return FALSE;
+}
+
 gboolean remmina_pref_save(void)
 {
 	TRACE_CALL(__func__);
+
+	if (remmina_pref_is_rw() == FALSE) {
+		g_debug ("remmina.pref is not writable, returning");
+		return FALSE;
+	}
 	GKeyFile *gkeyfile;
 	GError *error = NULL;
 	gchar *content;
@@ -655,11 +711,25 @@ gboolean remmina_pref_save(void)
 
 	g_key_file_load_from_file(gkeyfile, remmina_pref_file, G_KEY_FILE_NONE, NULL);
 
-	g_key_file_set_boolean(gkeyfile, "remmina_pref", "save_view_mode", remmina_pref.save_view_mode);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "datadir_path", remmina_pref.datadir_path);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "remmina_file_name", remmina_pref.remmina_file_name);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "screenshot_path", remmina_pref.screenshot_path);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "remmina_file_name", remmina_pref.remmina_file_name);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "deny_screenshot_clipboard", remmina_pref.deny_screenshot_clipboard);
+	g_key_file_set_boolean(gkeyfile, "remmina_pref", "save_view_mode", remmina_pref.save_view_mode);
+#if SODIUM_VERSION_INT >= 90200
+	g_key_file_set_boolean(gkeyfile, "remmina_pref", "use_master_password", remmina_pref.use_master_password);
+	g_key_file_set_integer(gkeyfile, "remmina_pref", "unlock_timeout", remmina_pref.unlock_timeout);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "unlock_password", remmina_pref.unlock_password);
+#else
+	g_key_file_set_boolean(gkeyfile, "remmina_pref", "use_master_password", FALSE);
+	g_key_file_set_integer(gkeyfile, "remmina_pref", "unlock_timeout", 0);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "unlock_password", g_strdup(""));
+#endif
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "floating_toolbar_placement", remmina_pref.floating_toolbar_placement);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "toolbar_placement", remmina_pref.toolbar_placement);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "prevent_snap_welcome_message", remmina_pref.prevent_snap_welcome_message);
+	g_key_file_set_string(gkeyfile, "remmina_pref", "last_quickconnect_protocol", remmina_pref.last_quickconnect_protocol);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "fullscreen_on_auto", remmina_pref.fullscreen_on_auto);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "always_show_tab", remmina_pref.always_show_tab);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_connection_toolbar", remmina_pref.hide_connection_toolbar);
@@ -667,8 +737,6 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "default_action", remmina_pref.default_action);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "scale_quality", remmina_pref.scale_quality);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "ssh_loglevel", remmina_pref.ssh_loglevel);
-	g_key_file_set_string(gkeyfile, "remmina_pref", "screenshot_path", remmina_pref.screenshot_path);
-	g_key_file_set_string(gkeyfile, "remmina_pref", "screenshot_name", remmina_pref.screenshot_name);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "ssh_parseconfig", remmina_pref.ssh_parseconfig);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_toolbar", remmina_pref.hide_toolbar);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "small_toolbutton", remmina_pref.small_toolbutton);
@@ -732,18 +800,21 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color14", remmina_pref.color_pref.color14 ? remmina_pref.color_pref.color14 : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color15", remmina_pref.color_pref.color15 ? remmina_pref.color_pref.color15 : "");
 
-	g_key_file_set_boolean(gkeyfile, "usage_stats", "periodic_usage_stats_permission_asked", remmina_pref.periodic_usage_stats_permission_asked);
 	g_key_file_set_boolean(gkeyfile, "usage_stats", "periodic_usage_stats_permitted", remmina_pref.periodic_usage_stats_permitted);
 	g_key_file_set_int64(gkeyfile, "usage_stats", "periodic_usage_stats_last_sent", remmina_pref.periodic_usage_stats_last_sent);
+	g_key_file_set_int64(gkeyfile, "remmina_news", "periodic_rmnews_last_get", remmina_pref.periodic_rmnews_last_get);
 	g_key_file_set_string(gkeyfile, "usage_stats", "periodic_usage_stats_uuid_prefix",
 			remmina_pref.periodic_usage_stats_uuid_prefix ? remmina_pref.periodic_usage_stats_uuid_prefix : "");
+	/* Default settings */
+	g_key_file_set_string(gkeyfile, "remmina", "name", "");
+	g_key_file_set_integer(gkeyfile, "remmina", "ignore-tls-errors", 1);
 
 	content = g_key_file_to_data(gkeyfile, &length, NULL);
 	g_file_set_contents(remmina_pref_file, content, length, &error);
 
 	if (error != NULL)
 	{
-		g_print ("%s\n", error->message);
+		g_warning ("remmina_pref_save error: %s", error->message);
 		g_clear_error (&error);
 		g_key_file_free(gkeyfile);
 		g_free(content);
@@ -955,8 +1026,7 @@ void remmina_pref_set_value(const gchar *key, const gchar *value)
 	g_free(content);
 }
 
-gchar*
-remmina_pref_get_value(const gchar *key)
+gchar* remmina_pref_get_value(const gchar *key)
 {
 	TRACE_CALL(__func__);
 	GKeyFile *gkeyfile;
@@ -965,6 +1035,20 @@ remmina_pref_get_value(const gchar *key)
 	gkeyfile = g_key_file_new();
 	g_key_file_load_from_file(gkeyfile, remmina_pref_file, G_KEY_FILE_NONE, NULL);
 	value = g_key_file_get_string(gkeyfile, "remmina_pref", key, NULL);
+	g_key_file_free(gkeyfile);
+
+	return value;
+}
+
+gboolean remmina_pref_get_boolean(const gchar *key)
+{
+	TRACE_CALL(__func__);
+	GKeyFile *gkeyfile;
+	gboolean value;
+
+	gkeyfile = g_key_file_new();
+	g_key_file_load_from_file(gkeyfile, remmina_pref_file, G_KEY_FILE_NONE, NULL);
+	value = g_key_file_get_boolean(gkeyfile, "remmina_pref", key, NULL);
 	g_key_file_free(gkeyfile);
 
 	return value;
