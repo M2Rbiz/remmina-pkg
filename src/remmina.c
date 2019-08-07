@@ -41,6 +41,7 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "remmina_sodium.h"
 #include "remmina.h"
 #include "remmina_exec.h"
 #include "remmina_file_manager.h"
@@ -54,6 +55,7 @@
 #include "remmina_ssh_plugin.h"
 #include "remmina_widget_pool.h"
 #include "remmina/remmina_trace_calls.h"
+#include "rmnews.h"
 #include "remmina_stats_sender.h"
 
 
@@ -119,6 +121,11 @@ static gint remmina_on_command_line(GApplication *app, GApplicationCommandLine *
 	const gchar **remaining_args;
 	gchar *protocol;
 	gchar *server;
+
+#if SODIUM_VERSION_INT >= 90200
+	remmina_sodium_init();
+#endif
+	remmina_pref_init();
 
 	opts = g_application_command_line_get_options_dict(cmdline);
 
@@ -214,8 +221,8 @@ static void remmina_on_startup(GApplication *app)
 
 	RemminaSecretPlugin *secret_plugin;
 
-	remmina_file_manager_init();
 	remmina_pref_init();
+	remmina_file_manager_init();
 	remmina_plugin_manager_init();
 	remmina_widget_pool_init();
 	remmina_sftp_plugin_register();
@@ -234,6 +241,7 @@ static void remmina_on_startup(GApplication *app)
 	g_application_hold(app);
 
 	remmina_stats_sender_schedule();
+	rmnews_schedule();
 
 	/* Check for secret plugin and service initialization and show some warnings on the console if
 	 * there is something missing */

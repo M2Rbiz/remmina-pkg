@@ -330,6 +330,7 @@ static gboolean remmina_rdp_event_delayed_monitor_layout(RemminaProtocolWidget* 
 {
 	TRACE_CALL(__func__);
 	rfContext* rfi = GET_PLUGIN_DATA(gp);
+
 	RemminaPluginRdpEvent rdp_event = { 0 };
 	GtkAllocation a;
 	gint desktopOrientation, desktopScaleFactor, deviceScaleFactor;
@@ -355,6 +356,13 @@ static gboolean remmina_rdp_event_delayed_monitor_layout(RemminaProtocolWidget* 
 		    gpwidth >= 200 && gpwidth < 8192 &&
 		    gpheight >= 200 && gpheight < 8192
 		    ) {
+			if (rfi->rdpgfxchan) {
+				/* Workaround for FreeRDP issue #5417 */
+				if (gpwidth < AVC_MIN_DESKTOP_WIDTH)
+					gpwidth = AVC_MIN_DESKTOP_WIDTH;
+				if (gpheight < AVC_MIN_DESKTOP_HEIGHT)
+					gpheight = AVC_MIN_DESKTOP_HEIGHT;
+			}
 			rdp_event.type = REMMINA_RDP_EVENT_TYPE_SEND_MONITOR_LAYOUT;
 			rdp_event.monitor_layout.width = gpwidth;
 			rdp_event.monitor_layout.height = gpheight;
@@ -795,7 +803,14 @@ void remmina_rdp_event_init(RemminaProtocolWidget* gp)
 	rfi->object_table = g_hash_table_new_full(NULL, NULL, NULL, g_free);
 
 	rfi->display = gdk_display_get_default();
+
+#if GTK_CHECK_VERSION(3, 22, 0)
+	GdkVisual *visual = gdk_screen_get_system_visual(
+			gdk_display_get_default_screen(rfi->display));
+	rfi->bpp = gdk_visual_get_depth (visual);
+#else
 	rfi->bpp = gdk_visual_get_best_depth();
+#endif
 }
 
 

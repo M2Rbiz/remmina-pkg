@@ -39,6 +39,7 @@
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
+#include "remmina_scheduler.h"
 #include "remmina/remmina_trace_calls.h"
 #include "remmina_log.h"
 #include "remmina_stats.h"
@@ -57,8 +58,8 @@
 #define PERIODIC_UPLOAD_URL "https://www.remmina.org/stats/upload_stats.php"
 
 
-static gint periodic_check_source;
-static gint periodic_check_counter;
+//static gint periodic_check_source;
+//static gint periodic_check_counter;
 
 static char *remmina_RSA_PubKey_v1 =
 	"-----BEGIN PUBLIC KEY-----\n"
@@ -292,7 +293,7 @@ void remmina_stats_sender_send(gboolean show_only)
 
 gboolean remmina_stat_sender_can_send()
 {
-	if (remmina_pref.periodic_usage_stats_permission_asked && remmina_pref.periodic_usage_stats_permitted && remmina_pref_save())
+	if (remmina_pref.periodic_usage_stats_permitted && remmina_pref_save())
 		return TRUE;
 	else
 		return FALSE;
@@ -315,27 +316,14 @@ static gboolean remmina_stats_sender_periodic_check(gpointer user_data)
 		remmina_stats_sender_send(FALSE);
 	}
 
-	periodic_check_counter++;
-	if (periodic_check_counter <= 1) {
-		/* Reschedule periodic check less frequently after 1st tick.
-		 * Note that PERIODIC_CHECK_INTERVAL_MS becomes also a retry interval in case of
-		 * upload failure */
-		periodic_check_source = g_timeout_add_full(G_PRIORITY_LOW, PERIODIC_CHECK_INTERVAL_MS, remmina_stats_sender_periodic_check, NULL, NULL);
-		return G_SOURCE_REMOVE;
-	}
 	return G_SOURCE_CONTINUE;
 }
 
 void remmina_stats_sender_schedule()
 {
 	TRACE_CALL(__func__);
-	/* If permitted, schedule the 1st statistics periodic check */
-	if (remmina_stat_sender_can_send()) {
-		periodic_check_counter = 0;
-		periodic_check_source = g_timeout_add_full(G_PRIORITY_LOW, PERIODIC_CHECK_1ST_MS, remmina_stats_sender_periodic_check, NULL, NULL);
-	} else
-		periodic_check_source = 0;
+	remmina_scheduler_setup(remmina_stats_sender_periodic_check,
+			NULL,
+			PERIODIC_CHECK_1ST_MS,
+			PERIODIC_CHECK_INTERVAL_MS);
 }
-
-
-

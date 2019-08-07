@@ -41,6 +41,7 @@
 #if defined (HAVE_LIBSSH) && defined (HAVE_LIBVTE)
 #include <vte/vte.h>
 #endif
+#include "remmina_sodium.h"
 #include "remmina_public.h"
 #include "remmina_string_list.h"
 #include "remmina_widget_pool.h"
@@ -147,6 +148,43 @@ void remmina_pref_on_button_keystrokes_clicked(GtkWidget *widget, gpointer user_
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 }
 
+void remmina_prefdiag_unlock_repwd_on_changed(GtkEditable* editable, RemminaPrefDialog *dialog)
+{
+	TRACE_CALL(__func__);
+	GtkCssProvider  *provider;
+	const gchar *color;
+	const gchar *password;
+	const gchar *repassword;
+
+	provider = gtk_css_provider_new();
+
+	password = gtk_entry_get_text(remmina_pref_dialog->unlock_password);
+	repassword = gtk_entry_get_text(remmina_pref_dialog->unlock_repassword);
+	if (g_strcmp0(password, repassword) == 0) {
+		color = g_strdup("green");
+	} else {
+		color = g_strdup("red");
+	}
+
+	if (repassword == NULL || repassword[0] == '\0')
+		color = g_strdup("inherit");
+
+	gtk_css_provider_load_from_data(provider,
+			g_strdup_printf (
+			".unlock_repassword {\n"
+			"  color: %s;\n"
+			"}\n"
+			, color)
+			, -1, NULL);
+	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+		GTK_STYLE_PROVIDER(provider),
+		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+	gtk_widget_queue_draw(GTK_WIDGET(remmina_pref_dialog->unlock_repassword));
+	g_object_unref(provider);
+
+}
+
 void remmina_pref_dialog_on_close_clicked(GtkWidget *widget, RemminaPrefDialog *dialog)
 {
 	TRACE_CALL(__func__);
@@ -160,20 +198,27 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	GdkRGBA color;
 	gboolean rebuild_remmina_icon = FALSE;
 
-	remmina_pref.save_view_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_options_remember_last_view_mode));
-	remmina_pref.deny_screenshot_clipboard = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_options_deny_screenshot_clipboard));
+	remmina_pref.datadir_path = gtk_file_chooser_get_filename(remmina_pref_dialog->filechooserbutton_options_datadir_path);
+	if (remmina_pref.datadir_path == NULL)
+		remmina_pref.datadir_path = g_strdup("");
+	remmina_pref.remmina_file_name = gtk_entry_get_text(remmina_pref_dialog->entry_options_file_name);
+	remmina_pref.screenshot_path = gtk_file_chooser_get_filename(remmina_pref_dialog->filechooserbutton_options_screenshots_path);
+	remmina_pref.screenshot_name = gtk_entry_get_text(remmina_pref_dialog->entry_options_screenshot_name);
+	remmina_pref.deny_screenshot_clipboard = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_options_deny_screenshot_clipboard));
+	remmina_pref.save_view_mode = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_options_remember_last_view_mode));
+	remmina_pref.use_master_password = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_security_use_master_password));
+#if SODIUM_VERSION_INT >= 90200
+	remmina_pref.unlock_repassword = gtk_entry_get_text(remmina_pref_dialog->unlock_repassword);
+	if (gtk_entry_get_text_length(remmina_pref_dialog->unlock_repassword) != 0)
+		remmina_pref.unlock_password = remmina_sodium_pwhash_str(gtk_entry_get_text(remmina_pref_dialog->unlock_password));
+#endif
+	remmina_pref.screenshot_path = gtk_file_chooser_get_filename(remmina_pref_dialog->filechooserbutton_options_screenshots_path);
 	remmina_pref.fullscreen_on_auto = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_fullscreen_on_auto));
 	remmina_pref.always_show_tab = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_show_tabs));
 	remmina_pref.hide_connection_toolbar = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_toolbar));
 	remmina_pref.hide_searchbar = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_searchbar));
 
-	b = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_permit_send_stats));
-	if (remmina_pref.periodic_usage_stats_permitted) {
-		if (!b) remmina_pref.periodic_usage_stats_permission_asked = FALSE;
-	}
-	else {
-		if (b) remmina_pref.periodic_usage_stats_permission_asked = TRUE;
-	}
+	b = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_permit_send_stats));
 	remmina_pref.periodic_usage_stats_permitted = b;
 
 	remmina_pref.default_action = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_options_double_click);
@@ -181,8 +226,6 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	remmina_pref.tab_mode = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_appearance_tab_interface);
 	remmina_pref.fullscreen_toolbar_visibility = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_appearance_fullscreen_toolbar_visibility);
 	remmina_pref.scale_quality = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_options_scale_quality);
-	remmina_pref.screenshot_path = gtk_file_chooser_get_filename(remmina_pref_dialog->filechooserbutton_options_screenshots_path);
-	remmina_pref.screenshot_name = gtk_entry_get_text(remmina_pref_dialog->entry_options_screenshot_name);
 	remmina_pref.ssh_loglevel = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_options_ssh_loglevel);
 	remmina_pref.sshtunnel_port = atoi(gtk_entry_get_text(remmina_pref_dialog->entry_options_ssh_port));
 	if (remmina_pref.sshtunnel_port <= 0)
@@ -200,6 +243,11 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	if (remmina_pref.ssh_tcp_usrtimeout <= 0)
 		remmina_pref.ssh_tcp_usrtimeout = SSH_SOCKET_TCP_USER_TIMEOUT;
 	remmina_pref.ssh_parseconfig = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_options_ssh_parseconfig));
+#if SODIUM_VERSION_INT >= 90200
+	remmina_pref.unlock_timeout = atoi(gtk_entry_get_text(remmina_pref_dialog->unlock_timeout));
+	if (remmina_pref.unlock_timeout < 0)
+		remmina_pref.unlock_timeout = 0;
+#endif
 
 	remmina_pref.auto_scroll_step = atoi(gtk_entry_get_text(remmina_pref_dialog->entry_options_scroll));
 	if (remmina_pref.auto_scroll_step < 10)
@@ -377,14 +425,34 @@ static void remmina_pref_dialog_init(void)
 
 	gtk_dialog_set_default_response(GTK_DIALOG(remmina_pref_dialog->dialog), GTK_RESPONSE_CLOSE);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_options_remember_last_view_mode), remmina_pref.save_view_mode);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_options_deny_screenshot_clipboard), remmina_pref.deny_screenshot_clipboard);
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_options_remember_last_view_mode), remmina_pref.save_view_mode);
+#if SODIUM_VERSION_INT >= 90200
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_security_use_master_password), remmina_pref.use_master_password);
+	if (remmina_pref.unlock_password != NULL) {
+		gtk_entry_set_text(remmina_pref_dialog->unlock_password, remmina_pref.unlock_password);
+	}else{
+		gtk_entry_set_text(remmina_pref_dialog->unlock_password, "");
+	}
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->switch_security_use_master_password), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_password), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_repassword), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_timeout), TRUE);
+#else
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_security_use_master_password), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->switch_security_use_master_password), FALSE);
+	gtk_widget_set_tooltip_text (GTK_WIDGET(remmina_pref_dialog->switch_security_use_master_password), _("libsodium >= 1.9.0 is required to use master password"));
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_password), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_repassword), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_timeout), FALSE);
+#endif
+
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_options_deny_screenshot_clipboard), remmina_pref.deny_screenshot_clipboard);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_fullscreen_on_auto), remmina_pref.fullscreen_on_auto);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_show_tabs), remmina_pref.always_show_tab);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_toolbar), remmina_pref.hide_connection_toolbar);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_searchbar), remmina_pref.hide_searchbar);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_permit_send_stats), remmina_pref.periodic_usage_stats_permitted);
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_permit_send_stats), remmina_pref.periodic_usage_stats_permitted);
 
 	g_snprintf(buf, sizeof(buf), "%i", remmina_pref.sshtunnel_port);
 	gtk_entry_set_text(remmina_pref_dialog->entry_options_ssh_port, buf);
@@ -500,12 +568,25 @@ static void remmina_pref_dialog_init(void)
 	g_snprintf(buf, sizeof(buf), "%i", remmina_pref.vte_lines);
 	gtk_entry_set_text(remmina_pref_dialog->entry_scrollback_lines, buf);
 
+#if SODIUM_VERSION_INT >= 90200
+	g_snprintf(buf, sizeof(buf), "%i", remmina_pref.unlock_timeout);
+	gtk_entry_set_text(remmina_pref_dialog->unlock_timeout, buf);
+#endif
+
 	gtk_combo_box_set_active(remmina_pref_dialog->comboboxtext_options_double_click, remmina_pref.default_action);
 	gtk_combo_box_set_active(remmina_pref_dialog->comboboxtext_appearance_view_mode, remmina_pref.default_mode);
 	gtk_combo_box_set_active(remmina_pref_dialog->comboboxtext_appearance_tab_interface, remmina_pref.tab_mode);
 	gtk_combo_box_set_active(remmina_pref_dialog->comboboxtext_appearance_fullscreen_toolbar_visibility, remmina_pref.fullscreen_toolbar_visibility);
 	gtk_combo_box_set_active(remmina_pref_dialog->comboboxtext_options_scale_quality, remmina_pref.scale_quality);
 	gtk_combo_box_set_active(remmina_pref_dialog->comboboxtext_options_ssh_loglevel, remmina_pref.ssh_loglevel);
+	if (remmina_pref.datadir_path != NULL && strlen(remmina_pref.datadir_path) > 0) {
+		gtk_file_chooser_set_filename(remmina_pref_dialog->filechooserbutton_options_datadir_path, remmina_pref.datadir_path);
+	}
+	if (remmina_pref.remmina_file_name != NULL) {
+		gtk_entry_set_text(remmina_pref_dialog->entry_options_file_name, remmina_pref.remmina_file_name);
+	}else{
+		gtk_entry_set_text(remmina_pref_dialog->entry_options_file_name, "%G_%P_%N_%h.remmina");
+	}
 	if (remmina_pref.screenshot_path != NULL) {
 		gtk_file_chooser_set_filename(remmina_pref_dialog->filechooserbutton_options_screenshots_path, remmina_pref.screenshot_path);
 	}else{
@@ -543,14 +624,21 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 
 	remmina_pref_dialog->notebook_preferences = GTK_NOTEBOOK(GET_OBJECT("notebook_preferences"));
 
-	remmina_pref_dialog->checkbutton_options_remember_last_view_mode = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_options_remember_last_view_mode"));
+	remmina_pref_dialog->filechooserbutton_options_datadir_path = GTK_FILE_CHOOSER(GET_OBJECT("filechooserbutton_options_datadir_path"));
+	remmina_pref_dialog->entry_options_file_name = GTK_ENTRY(GET_OBJECT("entry_options_file_name"));
+	remmina_pref_dialog->filechooserbutton_options_screenshots_path = GTK_FILE_CHOOSER(GET_OBJECT("filechooserbutton_options_screenshots_path"));
+	remmina_pref_dialog->entry_options_screenshot_name = GTK_ENTRY(GET_OBJECT("entry_options_screenshot_name"));
+	remmina_pref_dialog->switch_options_deny_screenshot_clipboard = GTK_SWITCH(GET_OBJECT("switch_options_deny_screenshot_clipboard"));
+	remmina_pref_dialog->switch_options_remember_last_view_mode = GTK_SWITCH(GET_OBJECT("switch_options_remember_last_view_mode"));
+	remmina_pref_dialog->switch_security_use_master_password = GTK_SWITCH(GET_OBJECT("switch_security_use_master_password"));
+	remmina_pref_dialog->unlock_password = GTK_ENTRY(GET_OBJECT("unlock_password"));
+	remmina_pref_dialog->unlock_repassword = GTK_ENTRY(GET_OBJECT("unlock_repassword"));
 	remmina_pref_dialog->checkbutton_options_save_settings = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_options_save_settings"));
-	remmina_pref_dialog->checkbutton_options_deny_screenshot_clipboard = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_options_deny_screenshot_clipboard"));
 	remmina_pref_dialog->checkbutton_appearance_fullscreen_on_auto = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_fullscreen_on_auto"));
 	remmina_pref_dialog->checkbutton_appearance_show_tabs = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_show_tabs"));
 	remmina_pref_dialog->checkbutton_appearance_hide_toolbar = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_hide_toolbar"));
 	remmina_pref_dialog->checkbutton_appearance_hide_searchbar = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_hide_searchbar"));
-	remmina_pref_dialog->checkbutton_permit_send_stats = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_permit_send_stats"));
+	remmina_pref_dialog->switch_permit_send_stats = GTK_SWITCH(GET_OBJECT("switch_permit_send_stats"));
 	remmina_pref_dialog->comboboxtext_options_double_click = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_options_double_click"));
 	remmina_pref_dialog->comboboxtext_appearance_view_mode = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_appearance_view_mode"));
 	remmina_pref_dialog->comboboxtext_appearance_tab_interface = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_appearance_tab_interface"));
@@ -558,8 +646,6 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->comboboxtext_options_scale_quality = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_options_scale_quality"));
 	remmina_pref_dialog->checkbutton_options_ssh_parseconfig = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_options_ssh_parseconfig"));
 	remmina_pref_dialog->comboboxtext_options_ssh_loglevel = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_options_ssh_loglevel"));
-	remmina_pref_dialog->filechooserbutton_options_screenshots_path = GTK_FILE_CHOOSER(GET_OBJECT("filechooserbutton_options_screenshots_path"));
-	remmina_pref_dialog->entry_options_screenshot_name = GTK_ENTRY(GET_OBJECT("entry_options_screenshot_name"));
 	remmina_pref_dialog->entry_options_ssh_port = GTK_ENTRY(GET_OBJECT("entry_options_ssh_port"));
 	remmina_pref_dialog->entry_options_ssh_tcp_keepidle = GTK_ENTRY(GET_OBJECT("entry_options_ssh_tcp_keepidle"));
 	remmina_pref_dialog->entry_options_ssh_tcp_keepintvl = GTK_ENTRY(GET_OBJECT("entry_options_ssh_tcp_keepintvl"));
@@ -568,6 +654,7 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->entry_options_scroll = GTK_ENTRY(GET_OBJECT("entry_options_scroll"));
 	remmina_pref_dialog->entry_options_recent_items = GTK_ENTRY(GET_OBJECT("entry_options_recent_items"));
 	remmina_pref_dialog->button_options_recent_items_clear = GTK_BUTTON(GET_OBJECT("button_options_recent_items_clear"));
+	remmina_pref_dialog->unlock_timeout = GTK_ENTRY(GET_OBJECT("unlock_timeout"));
 
 	remmina_pref_dialog->checkbutton_applet_new_connection_on_top = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_applet_new_connection_on_top"));
 	remmina_pref_dialog->checkbutton_applet_hide_totals = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_applet_hide_totals"));

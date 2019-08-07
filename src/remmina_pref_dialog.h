@@ -48,22 +48,28 @@ typedef struct _RemminaPrefDialog {
 	GtkDialog *dialog;
 	GtkNotebook *notebook_preferences;
 
-	GtkCheckButton *checkbutton_options_remember_last_view_mode;
-	GtkCheckButton *checkbutton_options_deny_screenshot_clipboard;
+	GtkFileChooser *filechooserbutton_options_datadir_path;
+	GtkEntry *entry_options_file_name;
+	GtkFileChooser *filechooserbutton_options_screenshots_path;
+	GtkEntry *entry_options_screenshot_name;
+	GtkSwitch *switch_options_deny_screenshot_clipboard;
+	GtkSwitch *switch_options_remember_last_view_mode;
+	GtkSwitch *switch_security_use_master_password;
+	GtkEntry *unlock_timeout;
+	GtkEntry *unlock_password;
+	GtkEntry *unlock_repassword;
 	GtkCheckButton *checkbutton_options_save_settings;
 	GtkCheckButton *checkbutton_appearance_fullscreen_on_auto;
 	GtkCheckButton *checkbutton_appearance_show_tabs;
 	GtkCheckButton *checkbutton_appearance_hide_toolbar;
 	GtkCheckButton *checkbutton_appearance_hide_searchbar;
-	GtkCheckButton *checkbutton_permit_send_stats;
+	GtkSwitch *switch_permit_send_stats;
 	GtkComboBox *comboboxtext_options_double_click;
 	GtkComboBox *comboboxtext_appearance_view_mode;
 	GtkComboBox *comboboxtext_appearance_tab_interface;
 	GtkComboBox *comboboxtext_options_scale_quality;
 	GtkComboBox *comboboxtext_options_ssh_loglevel;
 	GtkComboBox *comboboxtext_appearance_fullscreen_toolbar_visibility;
-	GtkFileChooser *filechooserbutton_options_screenshots_path;
-	GtkEntry *entry_options_screenshot_name;
 	GtkCheckButton *checkbutton_options_ssh_parseconfig;
 	GtkEntry *entry_options_ssh_port;
 	GtkEntry *entry_options_ssh_tcp_keepidle;
@@ -143,6 +149,7 @@ G_BEGIN_DECLS
 GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent);
 /* Get the current PrefDialog or NULL if not initialized */
 GtkDialog* remmina_pref_dialog_get_dialog(void);
+void remmina_prefdiag_unlock_repwd_on_changed(GtkEditable* editable, RemminaPrefDialog *dialog);
 
 G_END_DECLS
 

@@ -1,4 +1,38 @@
-
+/*
+ * Remmina - The GTK+ Remote Desktop Client
+ * Copyright (C) 2010-2011 Vic Lee
+ * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
+ * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ *
+ *  In addition, as a special exception, the copyright holders give
+ *  permission to link the code of portions of this program with the
+ *  OpenSSL library under certain conditions as described in each
+ *  individual source file, and distribute linked combinations
+ *  including the two.
+ *  You must obey the GNU General Public License in all respects
+ *  for all of the code used other than OpenSSL. *  If you modify
+ *  file(s) with this exception, you may extend this exception to your
+ *  version of the file(s), but you are not obligated to do so. *  If you
+ *  do not wish to do so, delete this exception statement from your
+ *  version. *  If you delete this exception statement from all source
+ *  files in the program, then also delete it here.
+ *
+ */
 
 #define _GNU_SOURCE
 
@@ -52,6 +86,7 @@ static BOOL rf_process_event_queue(RemminaProtocolWidget* gp)
 	rfContext* rfi = GET_PLUGIN_DATA(gp);
 	RemminaPluginRdpEvent* event;
 	DISPLAY_CONTROL_MONITOR_LAYOUT* dcml;
+	CLIPRDR_FORMAT_DATA_RESPONSE response = { 0 };
 
 	if (rfi->event_queue == NULL)
 		return True;
@@ -89,10 +124,10 @@ static BOOL rf_process_event_queue(RemminaProtocolWidget* gp)
 			break;
 
 		case REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_DATA_RESPONSE:
-			rfi->clipboard.context->ClientFormatDataResponse(rfi->clipboard.context, event->clipboard_formatdataresponse.pFormatDataResponse);
-			if (event->clipboard_formatdataresponse.pFormatDataResponse->requestedFormatData)
-				free(event->clipboard_formatdataresponse.pFormatDataResponse->requestedFormatData);
-			free(event->clipboard_formatdataresponse.pFormatDataResponse);
+			response.msgFlags = (event->clipboard_formatdataresponse.data) ? CB_RESPONSE_OK : CB_RESPONSE_FAIL;
+			response.dataLen = event->clipboard_formatdataresponse.size;
+			response.requestedFormatData = event->clipboard_formatdataresponse.data;
+			rfi->clipboard.context->ClientFormatDataResponse(rfi->clipboard.context, &response);
 			break;
 
 		case REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_DATA_REQUEST:
@@ -388,7 +423,7 @@ static BOOL rf_keyboard_set_indicators(rdpContext* context, UINT16 led_flags)
 
 #ifdef GDK_WINDOWING_X11
 	if (GDK_IS_X11_DISPLAY(disp)) {
-		/* ToDo: we are not on the main thread. Will Xorg complain ? */
+		/* ToDo: we are not on the main thread. Will X.Org complain ? */
 		Display* x11_display;
 		x11_display = gdk_x11_display_get_xdisplay(disp);
 		XkbLockModifiers(x11_display, XkbUseCoreKbd,
@@ -700,7 +735,8 @@ static void remmina_rdp_main_loop(RemminaProtocolWidget* gp)
 				remmina_plugin_service->protocol_plugin_set_error(gp, NULL);
 				continue;
 			}
-			fprintf(stderr, "Failed to check FreeRDP event handles\n");
+			if (freerdp_get_last_error(rfi->instance->context) == FREERDP_ERROR_SUCCESS)
+				fprintf(stderr, "Failed to check FreeRDP file descriptor\n");
 			break;
 		}
 	}
@@ -774,7 +810,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 	rfi->settings->SoftwareGdi = TRUE;
 
-	/* Avoid using H264 modes if they are not available on libfreerdp */
+	/* Avoid using H.264 modes if they are not available on libfreerdp */
 	if (!gfx_h264_available && (rfi->settings->ColorDepth == 65 || rfi->settings->ColorDepth == 66))
 		rfi->settings->ColorDepth = 64;	// Fallback to GFX RFX
 
@@ -805,6 +841,21 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 
 	rfi->settings->DesktopWidth = remmina_plugin_service->get_profile_remote_width(gp);
 	rfi->settings->DesktopHeight = remmina_plugin_service->get_profile_remote_height(gp);
+
+	/* Workaround for FreeRDP issue #5417: in GFX avc modes we can't go under
+	 * AVC_MIN_DESKTOP_WIDTH x AVC_MIN_DESKTOP_HEIGHT */
+	if (rfi->settings->SupportGraphicsPipeline && rfi->settings->GfxH264) {
+		if (rfi->settings->DesktopWidth < AVC_MIN_DESKTOP_WIDTH)
+			rfi->settings->DesktopWidth = AVC_MIN_DESKTOP_WIDTH;
+		if (rfi->settings->DesktopHeight < AVC_MIN_DESKTOP_HEIGHT)
+			rfi->settings->DesktopHeight = AVC_MIN_DESKTOP_HEIGHT;
+	}
+
+	/* Workaround for FreeRDP issue #5119. This will make our horizontal resolution
+	 * an even value, but it will add a vertical black 1 pixel line on the
+	 * right of the desktop */
+	if ((rfi->settings->DesktopWidth & 1) != 0)
+		rfi->settings->DesktopWidth -= 1;
 
 	remmina_plugin_service->protocol_plugin_set_width(gp, rfi->settings->DesktopWidth);
 	remmina_plugin_service->protocol_plugin_set_height(gp, rfi->settings->DesktopHeight);
@@ -1185,7 +1236,8 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 				remmina_plugin_service->protocol_plugin_set_error(gp, _("Authentication to RDP server %s failed.\nCheck username, password and domain."),
 					rfi->settings->ServerHostname );
 				// Invalidate the saved password, so the user will be re-asked at next logon
-				remmina_plugin_service->file_unsave_password(remminafile);
+				if (!remmina_rdp_authenticate(rfi->instance, NULL, NULL, NULL))
+					remmina_plugin_service->file_unsave_password(remminafile);
 				break;
 			case STATUS_ACCOUNT_LOCKED_OUT:
 #ifdef FREERDP_ERROR_CONNECT_ACCOUNT_LOCKED_OUT
@@ -1263,7 +1315,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget* gp)
 						remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to initialize libfreerdp gdi") );
 						break;
 					case REMMINA_POSTCONNECT_ERROR_NO_H264:
-						remmina_plugin_service->protocol_plugin_set_error(gp, _("You requested an H264 GFX mode for server %s, but your libfreerdp does not support H264. Please use a non-AVC Color Depth setting."), rfi->settings->ServerHostname);
+						remmina_plugin_service->protocol_plugin_set_error(gp, _("You requested an H.264 GFX mode for server %s, but your libfreerdp does not support H.264. Please use a non-AVC Color Depth setting."), rfi->settings->ServerHostname);
 						break;
 				}
 				break;
@@ -1795,7 +1847,7 @@ G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService* service)
 	}
 
 	snprintf(remmina_plugin_rdp_version, sizeof(remmina_plugin_rdp_version),
-		"RDP Plugin: %s (git %s), Compiled with FreeRDP lib: %s (%s), Running with FreeRDP lib: %s (rev %s), H264: %s",
+		"RDP Plugin: %s (git %s), Compiled with FreeRDP lib: %s (%s), Running with FreeRDP lib: %s (rev %s), H.264: %s",
 		VERSION, REMMINA_GIT_REVISION,
 		FREERDP_VERSION_FULL, GIT_REVISION,
 		freerdp_get_version_string(),
