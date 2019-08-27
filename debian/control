@@ -23,7 +23,6 @@ Build-Depends:
  libspice-client-gtk-3.0-dev,
  libspice-protocol-dev,
  libssh-dev (>= 0.8.1),
- libtelepathy-glib-dev,
  libvncserver-dev,
  libvte-2.91-dev,
  libxkbfile-dev
@@ -48,7 +47,6 @@ Suggests:
  remmina-plugin-exec,
  remmina-plugin-nx,
  remmina-plugin-spice,
- remmina-plugin-telepathy,
  remmina-plugin-xdmcp
 Description: GTK+ Remote Desktop Client
  Remmina is a remote desktop client written in GTK+, aiming to be
@@ -200,26 +198,6 @@ Description: Spice plugin for Remmina
  Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the Spice plugin for Remmina.
-
-Package: remmina-plugin-telepathy
-Architecture: any
-Multi-Arch: same
-Depends:
- ${shlibs:Depends},
- ${misc:Depends},
- remmina (= ${binary:Version})
-Description: Telepathy plugin for Remmina
- Remmina is a remote desktop client written in GTK+, aiming to be
- useful for system administrators and travellers, who need to work
- with lots of remote computers in front of either large monitors or
- tiny netbooks.
- .
- Remmina supports multiple network protocols in an integrated and
- consistent user interface.
- .
- Currently RDP, VNC, SPICE, NX, XDMCP, EXEC and SSH are supported.
- .
- This package contains the Telepathy plugin for Remmina.
 
 Package: remmina-plugin-secret
 Architecture: any
