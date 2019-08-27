@@ -157,9 +157,22 @@ static void rmnews_close_clicked(GtkButton *btn, gpointer user_data)
 	TRACE_CALL(__func__);
 	gtk_widget_destroy(GTK_WIDGET(rmnews_news_dialog->dialog));
 	rmnews_news_dialog->dialog = NULL;
+	g_free(rmnews_news_dialog->dialog);
+	rmnews_news_dialog = NULL;
+
 }
 
-static gint rmnews_show_news(GtkWindow *parent)
+static gboolean rmnews_dialog_deleted(GtkButton *btn, gpointer user_data)
+{
+	TRACE_CALL(__func__);
+	rmnews_news_dialog->dialog = NULL;
+	g_free(rmnews_news_dialog->dialog);
+	rmnews_news_dialog = NULL;
+
+	return FALSE;
+}
+
+static void rmnews_show_news(GtkWindow *parent)
 {
 	TRACE_CALL(__func__);
 
@@ -168,8 +181,6 @@ static gint rmnews_show_news(GtkWindow *parent)
 
 	rmnews_news_dialog->builder = remmina_public_gtk_builder_new_from_file("remmina_news.glade");
 	rmnews_news_dialog->dialog = GTK_DIALOG(gtk_builder_get_object(rmnews_news_dialog->builder, "RemminaNewsDialog"));
-	if (parent)
-		gtk_window_set_transient_for(GTK_WINDOW(rmnews_news_dialog->dialog), parent);
 
 	rmnews_news_dialog->rmnews_text_view = GTK_TEXT_VIEW(GET_OBJ("rmnews_text_view"));
 	rmnews_news_dialog->rmnews_label = GTK_LABEL(GET_OBJ("rmnews_label"));
@@ -193,13 +204,22 @@ static gint rmnews_show_news(GtkWindow *parent)
 	g_signal_connect(rmnews_news_dialog->rmnews_button_close, "clicked",
 			 G_CALLBACK(rmnews_close_clicked), (gpointer)rmnews_news_dialog);
 	g_signal_connect(rmnews_news_dialog->dialog, "close",
-			 G_CALLBACK(rmnews_close_clicked), (gpointer)rmnews_news_dialog);
+			 G_CALLBACK(rmnews_close_clicked), NULL);
+	g_signal_connect(rmnews_news_dialog->dialog, "delete-event",
+			 G_CALLBACK(rmnews_dialog_deleted), NULL);
 
 	/* Connect signals */
 	gtk_builder_connect_signals(rmnews_news_dialog->builder, NULL);
-	gtk_dialog_run(rmnews_news_dialog->dialog);
-	return rmnews_news_dialog->retval;
+
+	if (parent)
+		gtk_window_set_transient_for(GTK_WINDOW(rmnews_news_dialog->dialog), parent);
+
+	/* Show the non-modal news dialog */
+	gtk_widget_show_all(GTK_WIDGET(rmnews_news_dialog->dialog));
+	gtk_window_present(GTK_WINDOW(rmnews_news_dialog->dialog));
+
 }
+
 
 static void rmnews_get_url_cb(SoupSession *session, SoupMessage *msg, gpointer data)
 {
@@ -313,7 +333,8 @@ static void rmnews_get_url_cb(SoupSession *session, SoupMessage *msg, gpointer d
 			if (g_strcmp0(filesha, filesha_after) != 0) {
 				g_info("SHA1 differs, we show the news and reset the counter");
 				remmina_pref.periodic_rmnews_last_get = 0;
-				rmnews_show_news(remmina_main_get_window());
+				GtkWindow *parent = remmina_main_get_window();
+				rmnews_show_news(parent);
 			} else {
 				g_get_current_time(&t);
 				remmina_pref.periodic_rmnews_last_get = t.tv_sec;
@@ -346,6 +367,7 @@ void rmnews_get_news()
 	SoupLogger *logger = NULL;
 	int fd;
 	gchar *uid;
+	gboolean sa;
 
 	gchar *cachedir = g_build_path("/", g_get_user_cache_dir(), REMMINA_APP_ID, NULL);
 	gint d = g_mkdir_with_parents(cachedir, 0750);
@@ -365,7 +387,7 @@ void rmnews_get_news()
 	}
 	g_close(fd, NULL);
 
-	g_info("Output file %s created succesfully", output_file_path);
+	g_info("Output file %s created successfully", output_file_path);
 
 	if (output_file_path) {
 	} else {
@@ -389,14 +411,23 @@ void rmnews_get_news()
 
 	uid = remmina_sysinfo_get_unique_user_id();
 
+	sa = FALSE;
+	if (remmina_pref.periodic_usage_stats_permitted &&
+		remmina_pref.periodic_usage_stats_uuid_prefix != NULL &&
+		remmina_pref.periodic_usage_stats_uuid_prefix[0] != 0) {
+		sa = TRUE;
+	}
+
 	rmnews_get_url(g_strconcat(REMMINA_URL,
-				   "news/remmina_news.php?lang=",
-				   lang,
-				   "&ver="
-				   VERSION,
-				   "&uid=",
-				   uid,
-				   NULL));
+				"news/remmina_news.php?lang=",
+				lang,
+				"&ver="
+				VERSION,
+				"&uid=",
+				uid,
+				"&sa=",
+				sa ? "1" : "0",
+				NULL));
 
 	g_free(uid);
 	g_object_unref(session);

@@ -79,6 +79,8 @@ G_DEFINE_TYPE(RemminaConnectionWindow, rcw, GTK_TYPE_WINDOW)
 /* default timeout used to hide the floating toolbar wen switching profile */
 #define TB_HIDE_TIME_TIME 1000
 
+#define FULL_SCREEN_TARGET_MONITOR_UNDEFINED -1
+
 struct _RemminaConnectionWindowPriv {
 	GtkNotebook *					notebook;
 	guint						switch_page_handler;
@@ -174,7 +176,7 @@ static guint rcw_signals[LAST_SIGNAL] =
 { 0 };
 
 static RemminaConnectionWindow *rcw_create_scrolled(gint width, gint height, gboolean maximize);
-static RemminaConnectionWindow *rcw_create_fullscreen(gint view_mode);
+static RemminaConnectionWindow *rcw_create_fullscreen(GtkWindow *old, gint view_mode);
 static gboolean rcw_hostkey_func(RemminaProtocolWidget *gp, guint keyval, gboolean release);
 static GtkWidget *rco_create_tab_page(RemminaConnectionObject *cnnobj);
 static GtkWidget *rco_create_tab_label(RemminaConnectionObject *cnnobj);
@@ -210,7 +212,6 @@ static void rcw_class_init(RemminaConnectionWindowClass *klass)
 {
 	TRACE_CALL(__func__);
 	GtkCssProvider *provider;
-
 	provider = gtk_css_provider_new();
 
 	/* It’s important to remove padding, border and shadow from GtkViewport or
@@ -1195,7 +1196,7 @@ static void rcw_switch_viewmode(RemminaConnectionWindow *cnnwin, int newmode)
 			gtk_window_get_size(GTK_WINDOW(cnnwin), &old_width, &old_height);
 			s = gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(cnnwin)));
 		}
-		newwin = rcw_create_fullscreen(cnnwin->priv->fss_view_mode);
+		newwin = rcw_create_fullscreen(GTK_WINDOW(cnnwin), cnnwin->priv->fss_view_mode);
 		rcw_migrate(cnnwin, newwin);
 		if (old_mode == SCROLLED_WINDOW_MODE) {
 			newwin->priv->ss_maximized = (s & GDK_WINDOW_STATE_MAXIMIZED) ? TRUE : FALSE;
@@ -1238,7 +1239,7 @@ static void rco_viewport_fullscreen_mode(GtkWidget *widget, RemminaConnectionObj
 	if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
 		return;
 	cnnobj->cnnwin->priv->fss_view_mode = VIEWPORT_FULLSCREEN_MODE;
-	newwin = rcw_create_fullscreen(VIEWPORT_FULLSCREEN_MODE);
+	newwin = rcw_create_fullscreen(GTK_WINDOW(cnnobj->cnnwin), VIEWPORT_FULLSCREEN_MODE);
 	rcw_migrate(cnnobj->cnnwin, newwin);
 }
 
@@ -1249,7 +1250,7 @@ static void rco_scrolled_fullscreen_mode(GtkWidget *widget, RemminaConnectionObj
 	if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
 		return;
 	cnnobj->cnnwin->priv->fss_view_mode = SCROLLED_FULLSCREEN_MODE;
-	newwin = rcw_create_fullscreen(SCROLLED_FULLSCREEN_MODE);
+	newwin = rcw_create_fullscreen(GTK_WINDOW(cnnobj->cnnwin), SCROLLED_FULLSCREEN_MODE);
 	rcw_migrate(cnnobj->cnnwin, newwin);
 }
 
@@ -2736,11 +2737,8 @@ static void rcw_init(RemminaConnectionWindow *cnnwin)
 	priv->ss_height = 480;
 	priv->ss_maximized = FALSE;
 
-	gtk_container_set_border_width(GTK_CONTAINER(cnnwin), 0);
-
 	remmina_widget_pool_register(GTK_WIDGET(cnnwin));
 
-	g_signal_connect(G_OBJECT(cnnwin), "toolbar-place", G_CALLBACK(rcw_toolbar_place_signal), NULL);
 }
 
 static gboolean rcw_state_event(GtkWidget *widget, GdkEventWindowState *event, gpointer user_data)
@@ -2760,14 +2758,53 @@ static gboolean rcw_state_event(GtkWidget *widget, GdkEventWindowState *event, g
 	return FALSE; // moved here because a function should return a value. Should be correct
 }
 
+static gboolean rcw_map_event_fullscreen(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	gint target_monitor;
+
+	TRACE_CALL(__func__);
+
+	if (!REMMINA_IS_CONNECTION_WINDOW(widget))
+		return FALSE;
+
+	target_monitor = GPOINTER_TO_INT(data);
+
+#if GTK_CHECK_VERSION(3, 18, 0)
+	if (remmina_pref.fullscreen_on_auto) {
+		if (target_monitor == FULL_SCREEN_TARGET_MONITOR_UNDEFINED) {
+			gtk_window_fullscreen(GTK_WINDOW(widget));
+		} else {
+			gtk_window_fullscreen_on_monitor(GTK_WINDOW(widget), gtk_window_get_screen(GTK_WINDOW(widget)),
+				target_monitor);
+		}
+	} else {
+		remmina_log_print("Fullscreen managed by WM or by the user, as per settings");
+		gtk_window_fullscreen(GTK_WINDOW(widget));
+	}
+#else
+	remmina_log_print("Cannot fullscreen on a specific monitor, feature available from GTK 3.18");
+	gtk_window_fullscreen(GTK_WINDOW(widget));
+#endif
+
+	return FALSE;
+}
+
 static RemminaConnectionWindow *
-rcw_new()
+rcw_new(gboolean fullscreen, int full_screen_target_monitor)
 {
 	TRACE_CALL(__func__);
 	RemminaConnectionWindow *cnnwin;
 
 	cnnwin = RCW(g_object_new(REMMINA_TYPE_CONNECTION_WINDOW, NULL));
 	cnnwin->priv->on_delete_confirm_mode = RCW_ONDELETE_CONFIRM_IF_2_OR_MORE;
+
+	if (fullscreen) {
+		/* Put the window in fullscreen after it is mapped to have it appear on the same monitor */
+		g_signal_connect(G_OBJECT(cnnwin), "map-event", G_CALLBACK(rcw_map_event_fullscreen), GINT_TO_POINTER(full_screen_target_monitor));
+	}
+
+	gtk_container_set_border_width(GTK_CONTAINER(cnnwin), 0);
+	g_signal_connect(G_OBJECT(cnnwin), "toolbar-place", G_CALLBACK(rcw_toolbar_place_signal), NULL);
 
 	g_signal_connect(G_OBJECT(cnnwin), "delete-event", G_CALLBACK(rcw_delete_event), NULL);
 	g_signal_connect(G_OBJECT(cnnwin), "destroy", G_CALLBACK(rcw_destroy), NULL);
@@ -3131,7 +3168,7 @@ static RemminaConnectionWindow *rcw_create_scrolled(gint width, gint height, gbo
 	GtkNotebook *notebook;
 	GList *chain;
 
-	cnnwin = rcw_new();
+	cnnwin = rcw_new(FALSE, 0);
 	gtk_widget_realize(GTK_WIDGET(cnnwin));
 
 	gtk_window_set_default_size(GTK_WINDOW(cnnwin), width, height);
@@ -3189,32 +3226,6 @@ static RemminaConnectionWindow *rcw_create_scrolled(gint width, gint height, gbo
 	rcw_set_toolbar_visibility(cnnwin);
 
 	return cnnwin;
-}
-
-static gboolean rcw_go_fullscreen(GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-	TRACE_CALL(__func__);
-
-	if (!REMMINA_IS_CONNECTION_WINDOW(widget))
-		return FALSE;
-
-#if GTK_CHECK_VERSION(3, 18, 0)
-	if (remmina_pref.fullscreen_on_auto) {
-		gtk_window_fullscreen_on_monitor(GTK_WINDOW(widget),
-				gdk_screen_get_default(),
-				gdk_screen_get_monitor_at_window (
-					gdk_screen_get_default(),
-					gtk_widget_get_window(widget)));
-	} else {
-		remmina_log_print("Fullscreen managed by WM or by the user, as per settings");
-		gtk_window_fullscreen(GTK_WINDOW(widget));
-	}
-#else
-	remmina_log_print("Cannot fullscreen on a specific monitor, feature available from GTK 3.18");
-	gtk_window_fullscreen(GTK_WINDOW(widget));
-#endif
-
-	return FALSE;
 }
 
 static void rcw_create_overlay_ftb_overlay(RemminaConnectionWindow *cnnwin)
@@ -3348,13 +3359,41 @@ static void rcw_ftb_drag_begin(GtkWidget *widget, GdkDragContext *context, gpoin
 	gtk_drag_set_icon_surface(context, surface);
 }
 
-RemminaConnectionWindow *rcw_create_fullscreen(gint view_mode)
+RemminaConnectionWindow *rcw_create_fullscreen(GtkWindow *old, gint view_mode)
 {
 	TRACE_CALL(__func__);
 	RemminaConnectionWindow *cnnwin;
 	GtkNotebook *notebook;
+#if GTK_CHECK_VERSION(3, 22, 0)
+	gint n_monitors;
+	gint i;
+	GdkMonitor* old_monitor;
+	GdkDisplay* old_display;
+	GdkWindow* old_window;
+#endif
+	gint full_screen_target_monitor;
 
-	cnnwin = rcw_new();
+    full_screen_target_monitor = FULL_SCREEN_TARGET_MONITOR_UNDEFINED;
+    if (old) {
+		#if GTK_CHECK_VERSION(3, 22, 0)
+			old_window = gtk_widget_get_window(GTK_WIDGET(old));
+			old_display = gdk_window_get_display(old_window);
+			old_monitor = gdk_display_get_monitor_at_window(old_display, old_window);
+			n_monitors = gdk_display_get_n_monitors(old_display);
+			for (i = 0; i < n_monitors; ++i) {
+				if (gdk_display_get_monitor(old_display, i) == old_monitor) {
+					full_screen_target_monitor = i;
+					break;
+				}
+			}
+		#else
+			full_screen_target_monitor = gdk_screen_get_monitor_at_window(
+				gdk_screen_get_default(),
+				gtk_widget_get_window(GTK_WIDGET(old)));
+		#endif
+	}
+
+	cnnwin = rcw_new(TRUE, full_screen_target_monitor);
 	gtk_widget_set_name(GTK_WIDGET(cnnwin), "remmina-connection-window-fullscreen");
 	gtk_widget_realize(GTK_WIDGET(cnnwin));
 
@@ -3383,9 +3422,6 @@ RemminaConnectionWindow *rcw_create_fullscreen(gint view_mode)
 	}
 
 	gtk_widget_show(GTK_WIDGET(cnnwin));
-
-	/* Put the window in fullscreen after it is mapped to have it appear on the same monitor */
-	g_signal_connect(G_OBJECT(cnnwin), "map-event", G_CALLBACK(rcw_go_fullscreen), NULL);
 
 	return cnnwin;
 }
@@ -3490,6 +3526,7 @@ static gboolean rcw_hostkey_func(RemminaProtocolWidget *gp, guint keyval, gboole
 		switch (priv->view_mode) {
 		case SCROLLED_WINDOW_MODE:
 			rcw_switch_viewmode(cnnobj->cnnwin, priv->fss_view_mode);
+			break;
 		case SCROLLED_FULLSCREEN_MODE:
 		case VIEWPORT_FULLSCREEN_MODE:
 			rcw_switch_viewmode(cnnobj->cnnwin, SCROLLED_WINDOW_MODE);
@@ -3606,6 +3643,7 @@ void rco_on_connect(RemminaProtocolWidget *gp, RemminaConnectionObject *cnnobj)
 
 	gchar *last_success;
 
+	g_debug("Connect signal emitted");
 	GDateTime *date = g_date_time_new_now_utc();
 
 	/* This signal handler is called by a plugin when it’s correctly connected
@@ -3626,9 +3664,13 @@ void rco_on_connect(RemminaProtocolWidget *gp, RemminaConnectionObject *cnnobj)
 	if (remmina_file_get_filename(cnnobj->remmina_file) == NULL)
 		remmina_pref_add_recent(remmina_file_get_string(cnnobj->remmina_file, "protocol"),
 					remmina_file_get_string(cnnobj->remmina_file, "server"));
-	if (remmina_pref.periodic_usage_stats_permitted)
+	if (remmina_pref.periodic_usage_stats_permitted) {
+		g_debug("Stats are allowed, we save the last successful connection date");
 		remmina_file_set_string(cnnobj->remmina_file, "last_success", last_success);
+		g_debug("Last successful connection date is %s ", last_success);
+	}
 
+	g_debug("Saving credentials");
 	/* Save credentials */
 	remmina_file_save(cnnobj->remmina_file);
 
@@ -3637,6 +3679,7 @@ void rco_on_connect(RemminaProtocolWidget *gp, RemminaConnectionObject *cnnobj)
 
 	rco_update_toolbar(cnnobj);
 
+	g_debug("Trying to present the window");
 	/* Try to present window */
 	g_timeout_add(200, rco_delayed_window_present, (gpointer)cnnobj);
 }
@@ -3654,6 +3697,7 @@ void rco_on_disconnect(RemminaProtocolWidget *gp, gpointer data)
 	RemminaConnectionWindowPriv *priv = cnnobj->cnnwin->priv;
 	GtkWidget *pparent;
 
+	g_debug("disconnect signal emitted");
 	/* Detach the protocol widget from the notebook now, or we risk that a
 	 * window delete will destroy cnnobj->proto before we complete disconnection.
 	 */
@@ -3687,8 +3731,10 @@ void rco_on_disconnect(RemminaProtocolWidget *gp, gpointer data)
 		mp = remmina_message_panel_new();
 		remmina_message_panel_setup_message(mp, remmina_protocol_widget_get_error_message(gp), cb_lasterror_confirmed, gp);
 		rco_show_message_panel(gp->cnnobj, mp);
+		g_debug("disconnect was not successful");
 	} else {
 		rco_closewin(gp);
+		g_debug("disconnect was successful");
 	}
 }
 
@@ -3840,7 +3886,7 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 		switch (view_mode) {
 		case SCROLLED_FULLSCREEN_MODE:
 		case VIEWPORT_FULLSCREEN_MODE:
-			cnnobj->cnnwin = rcw_create_fullscreen(view_mode);
+			cnnobj->cnnwin = rcw_create_fullscreen(NULL, view_mode);
 			break;
 		case SCROLLED_WINDOW_MODE:
 		default:
