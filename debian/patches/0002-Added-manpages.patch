@@ -1,0 +1,192 @@
+From: Antenore Gatta <antenore@simbiosi.org>
+Date: Sat, 31 Aug 2019 01:22:44 +0200
+Subject: Added manpages
+
+---
+ data/desktop/CMakeLists.txt                 | 10 +++++---
+ data/desktop/org.remmina.Remmina.desktop.in |  4 +--
+ data/desktop/remmina-file-wrapper.1         | 15 +++++++++++
+ data/desktop/remmina-file-wrapper.in        | 40 +++++++++++++++++++++++++++++
+ data/desktop/remmina-file-wrapper.sh.in     | 40 -----------------------------
+ data/desktop/remmina-file.desktop.in        |  2 +-
+ 6 files changed, 65 insertions(+), 46 deletions(-)
+ create mode 100644 data/desktop/remmina-file-wrapper.1
+ create mode 100755 data/desktop/remmina-file-wrapper.in
+ delete mode 100755 data/desktop/remmina-file-wrapper.sh.in
+
+diff --git a/data/desktop/CMakeLists.txt b/data/desktop/CMakeLists.txt
+index f7ac43f..d758772 100644
+--- a/data/desktop/CMakeLists.txt
++++ b/data/desktop/CMakeLists.txt
+@@ -118,8 +118,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${REMMINA_APP_ID}.desktop.in
+     ${CMAKE_CURRENT_BINARY_DIR}/${REMMINA_APP_ID}.desktop @ONLY)
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/remmina-file.desktop.in
+     ${CMAKE_CURRENT_BINARY_DIR}/remmina-file.desktop @ONLY)
+-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/remmina-file-wrapper.sh.in
+-    ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper.sh @ONLY)
++configure_file(${CMAKE_CURRENT_SOURCE_DIR}/remmina-file-wrapper.in
++    ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper @ONLY)
+ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${REMMINA_APP_ID}.desktop
+     DESTINATION "${REMMINA_DATADIR}/applications")
+ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file.desktop
+@@ -127,7 +127,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file.desktop
+ install(FILES ${REMMINA_APP_ID}.appdata.xml
+     DESTINATION "${REMMINA_DATADIR}/metainfo")
+ install(
+-    FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper.sh
++    FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper
+     DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}"
+     PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_READ WORLD_EXECUTE
+     )
+@@ -178,6 +178,10 @@ if(WITH_MANPAGES)
+         FILES gnome-session-remmina.1
+         DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1
+         )
++    install(
++        FILES remmina-file-wrapper.1
++        DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1
++        )
+ endif()
+ 
+ # XML mime types
+diff --git a/data/desktop/org.remmina.Remmina.desktop.in b/data/desktop/org.remmina.Remmina.desktop.in
+index 192df52..bea5a94 100644
+--- a/data/desktop/org.remmina.Remmina.desktop.in
++++ b/data/desktop/org.remmina.Remmina.desktop.in
+@@ -67,8 +67,8 @@ Comment[th]=เชื่อมต่อไปยังพื้นโต๊ะ
+ Comment[tr]=Uzak masaüstlerine bağlan
+ Comment[uk]=Приєднатися до віддаленого комп’ютера
+ Comment[zh_CN]=连接到远程桌面
+-TryExec=@CMAKE_INSTALL_FULL_BINDIR@/remmina-file-wrapper.sh
+-Exec=@CMAKE_INSTALL_FULL_BINDIR@/remmina-file-wrapper.sh %U
++TryExec=remmina-file-wrapper
++Exec=remmina-file-wrapper %U
+ Icon=@REMMINA_ICON@
+ Terminal=false
+ Type=Application
+diff --git a/data/desktop/remmina-file-wrapper.1 b/data/desktop/remmina-file-wrapper.1
+new file mode 100644
+index 0000000..51584ba
+--- /dev/null
++++ b/data/desktop/remmina-file-wrapper.1
+@@ -0,0 +1,15 @@
++.Dd August 30, 2019
++.Dt remmina-file-wrapper 1
++.Os Linux
++.Sh NAME
++.Nm remmina-file-wrapper
++.Sh SYNOPSIS
++.Nm
++.Op Ar protocol:///file
++.Op Ar remmina options
++.Sh DESCRIPTION
++Wrapper script to execute Remmina with protocol handlers.
++.Sh SEE ALSO
++.Xr remmina 1
++.Sh AUTHORS
++.An Antenore Gatta Aq Mt antenore@simbiosi.org
+diff --git a/data/desktop/remmina-file-wrapper.in b/data/desktop/remmina-file-wrapper.in
+new file mode 100755
+index 0000000..4fd9e8c
+--- /dev/null
++++ b/data/desktop/remmina-file-wrapper.in
+@@ -0,0 +1,40 @@
++#!/usr/bin/env bash
++#===============================================================================
++#
++#          FILE: remmina-file-wrapper
++#
++#         USAGE: ./remmina-file-wrapper
++#
++#   DESCRIPTION: Wrapper used by xdg to connect or edit a remmina file clicking
++#                on it, or clicking to an URL like remmina:///profile.remmina
++#
++#       OPTIONS: File path or URL
++#  REQUIREMENTS: ---
++#          BUGS: ---
++#         NOTES: ---
++#        AUTHOR: Antenore Gatta (tmow), antenore@simbiosi.org
++#  ORGANIZATION: Remmina
++#       CREATED: 15. 06. 19 00:32:11
++#      REVISION:  ---
++#       LICENSE: GPLv2
++#===============================================================================
++
++set -o nounset                                  # Treat unset variables as an error
++
++case "$@" in
++    *rdp:*)
++        @REMMINA_BINARY_PATH@ "${@#rdp:\/\/}"
++        ;;
++    *spice:*)
++        @REMMINA_BINARY_PATH@ "${@#spice:\/\/}"
++        ;;
++    *vnc:*)
++        @REMMINA_BINARY_PATH@ "${@#vnc:\/\/}"
++        ;;
++    *remmina:*)
++        @REMMINA_BINARY_PATH@ "${@#remmina:\/\/}"
++        ;;
++    *)
++        @REMMINA_BINARY_PATH@ "${@}"
++        ;;
++esac
+diff --git a/data/desktop/remmina-file-wrapper.sh.in b/data/desktop/remmina-file-wrapper.sh.in
+deleted file mode 100755
+index 5cea499..0000000
+--- a/data/desktop/remmina-file-wrapper.sh.in
++++ /dev/null
+@@ -1,40 +0,0 @@
+-#!/bin/bash -
+-#===============================================================================
+-#
+-#          FILE: remmina-file-wrapper.sh
+-#
+-#         USAGE: ./remmina-file-wrapper.sh
+-#
+-#   DESCRIPTION: Wrapper used by xdg to connect or edit a remmina file clicking
+-#                on it, or clicking to an URL like remmina:///profile.remmina
+-#
+-#       OPTIONS: File path or URL
+-#  REQUIREMENTS: ---
+-#          BUGS: ---
+-#         NOTES: ---
+-#        AUTHOR: Antenore Gatta (tmow), antenore@simbiosi.org
+-#  ORGANIZATION: Remmina
+-#       CREATED: 15. 06. 19 00:32:11
+-#      REVISION:  ---
+-#       LICENSE: GPLv2
+-#===============================================================================
+-
+-set -o nounset                                  # Treat unset variables as an error
+-
+-case "$@" in
+-	*rdp:*)
+-		@REMMINA_BINARY_PATH@ "${@#rdp:\/\/}"
+-		;;
+-	*spice:*)
+-		@REMMINA_BINARY_PATH@ "${@#spice:\/\/}"
+-		;;
+-	*vnc:*)
+-		@REMMINA_BINARY_PATH@ "${@#vnc:\/\/}"
+-		;;
+-	*remmina:*)
+-		@REMMINA_BINARY_PATH@ "${@#remmina:\/\/}"
+-		;;
+-	*)
+-		@REMMINA_BINARY_PATH@ "${@}"
+-		;;
+-esac
+diff --git a/data/desktop/remmina-file.desktop.in b/data/desktop/remmina-file.desktop.in
+index 689701a..f85fa19 100644
+--- a/data/desktop/remmina-file.desktop.in
++++ b/data/desktop/remmina-file.desktop.in
+@@ -4,7 +4,7 @@ Type=Application
+ Name=Remmina Connect
+ Comment=Access remote desktops with Remmina
+ TryExec=@REMMINA_BINARY_PATH@
+-Exec=@CMAKE_INSTALL_FULL_BINDIR@/remmina-file-wrapper -c %U
++Exec=remmina-file-wrapper -c %U
+ Icon=@REMMINA_ICON@
+ MimeType=application/x-remmina;x-scheme-handler/remmina;x-scheme-handler/rdp;x-scheme-handler/spice;x-scheme-handler/vnc
+ Actions=Edit;

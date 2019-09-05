@@ -1,0 +1,33 @@
+From: Antenore Gatta <antenore@simbiosi.org>
+Date: Thu, 5 Sep 2019 23:08:00 +0200
+Subject: Fix_desktop_files
+
+---
+ data/desktop/remmina-file.desktop.in | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/data/desktop/remmina-file.desktop.in b/data/desktop/remmina-file.desktop.in
+index 1a41f5f..689701a 100644
+--- a/data/desktop/remmina-file.desktop.in
++++ b/data/desktop/remmina-file.desktop.in
+@@ -4,18 +4,14 @@ Type=Application
+ Name=Remmina Connect
+ Comment=Access remote desktops with Remmina
+ TryExec=@REMMINA_BINARY_PATH@
+-Exec=@CMAKE_INSTALL_FULL_BINDIR@/remmina-file-wrapper.sh -c %U
++Exec=@CMAKE_INSTALL_FULL_BINDIR@/remmina-file-wrapper -c %U
+ Icon=@REMMINA_ICON@
+-MimeType=application/x-remmina;
++MimeType=application/x-remmina;x-scheme-handler/remmina;x-scheme-handler/rdp;x-scheme-handler/spice;x-scheme-handler/vnc
+ Actions=Edit;
+ Terminal=false
+ StartupNotify=true
+ NoDisplay=true
+ X-Desktop-File-Install-Version=0.24
+-x-scheme-handler/remmina=remmina-file.desktop
+-x-scheme-handler/rdp=remmina-file.desktop
+-x-scheme-handler/spice=remmina-file.desktop
+-x-scheme-handler/vnc=remmina-file.desktop
+ 
+ [Desktop Action Edit]
+ Name=Remmina Edit
