@@ -101,6 +101,7 @@ static void init_settings_cache(RemminaPlugin *plugin)
 	}
 
 	/* Some settings are encrypted "by name" */
+	/* g_hash_table_insert(pht, g_strdup("proxy_password"), (gpointer)TRUE); */
 	g_hash_table_insert(pht, g_strdup("ssh_password"), (gpointer)TRUE);
 	g_hash_table_insert(pht, g_strdup("ssh_passphrase"), (gpointer)TRUE);
 
@@ -182,9 +183,12 @@ RemminaPluginService remmina_plugin_manager_service =
 	remmina_protocol_widget_start_reverse_tunnel,
 	remmina_protocol_widget_start_xport_tunnel,
 	remmina_protocol_widget_set_display,
-	remmina_protocol_widget_close_connection,
-	remmina_protocol_widget_panel_authpwd,
-	remmina_protocol_widget_panel_authuserpwd,
+	remmina_protocol_widget_signal_connection_closed,
+    remmina_protocol_widget_signal_connection_opened,
+    remmina_protocol_widget_update_align,
+    remmina_protocol_widget_unlock_dynres,
+    remmina_protocol_widget_desktop_resize,
+	remmina_protocol_widget_panel_auth,
 	remmina_protocol_widget_panel_new_certificate,
 	remmina_protocol_widget_panel_changed_certificate,
 	remmina_protocol_widget_get_username,
@@ -216,7 +220,7 @@ RemminaPluginService remmina_plugin_manager_service =
 	remmina_file_get_secret,
 	remmina_file_set_int,
 	remmina_file_get_int,
-	remmina_file_unsave_password,
+	remmina_file_unsave_passwords,
 
 	remmina_pref_set_value,
 	remmina_pref_get_value,
@@ -554,7 +558,3 @@ gboolean remmina_plugin_manager_is_encrypted_setting(RemminaProtocolPlugin *pp, 
 
 	return TRUE;
 }
-
-
-
-

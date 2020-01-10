@@ -211,7 +211,7 @@ remmina_plugin_ssh_on_size_allocate(GtkWidget *widget, GtkAllocation *alloc, Rem
 
 
 /**
- * Remmina Protocol plugin main function.
+ * Remmina protocol plugin main function.
  *
  * First it starts the SSH tunnel if needed and then the SSH connection.
  *
@@ -230,8 +230,8 @@ remmina_plugin_ssh_main_thread(gpointer data)
 	const gchar *saveserver;
 	const gchar *saveusername;
 	gchar *hostport;
-	gchar tunneluser[33];           /**< On linux a username can have a 32 char lenght */
-	gchar tunnelserver[256];        /**< On linux a servername can have a 255 char lenght */
+	gchar tunneluser[33];           /**< On Linux a username can have a 32 char length */
+	gchar tunnelserver[256];        /**< On Linux a servername can have a 255 char length */
 	gchar tunnelport[6];            /**< A TCP port can have a maximum value of 65535 */
 	gchar *host;
 	gint port;
@@ -273,22 +273,24 @@ remmina_plugin_ssh_main_thread(gpointer data)
 								g_strconcat(tunnelserver, ":", tunnelport, NULL));
 		}
 	}
-
+	g_debug ("Trying to initiate SSH tunnel…");
 	hostport = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, 22, FALSE);
+	g_debug ("Tunnel started on %s", hostport);
 	/* We restore the SSH username as the tunnel is set */
 	remmina_plugin_service->file_set_string(remminafile, "ssh_username", g_strdup(saveusername));
+	remmina_plugin_service->file_set_string(remminafile, "ssh_server", g_strdup(saveserver));
 	if (hostport == NULL)
 		return FALSE;
 	remmina_plugin_service->get_server_port(hostport, 22, &host, &port);
 
 	ssh = g_object_get_data(G_OBJECT(gp), "user-data");
 	if (ssh) {
-		/* Create SSH Shell connection based on existing SSH session */
+		/* Create SSH shell connection based on existing SSH session */
 		shell = remmina_ssh_shell_new_from_ssh(ssh);
 		if (remmina_ssh_init_session(REMMINA_SSH(shell)) &&
 		    remmina_ssh_auth(REMMINA_SSH(shell), NULL, gp, remminafile) > 0 &&
 		    remmina_ssh_shell_open(shell, (RemminaSSHExitFunc)
-					   remmina_plugin_service->protocol_plugin_close_connection, gp))
+					   remmina_plugin_service->protocol_plugin_signal_connection_closed, gp))
 			cont = TRUE;
 	} else {
 		/* New SSH Shell connection */
@@ -296,7 +298,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
 			remmina_plugin_service->file_set_string(remminafile, "ssh_server", g_strdup(hostport));
 		else
 			remmina_plugin_service->file_set_string(remminafile, "ssh_server",
-								remmina_plugin_service->file_get_string(remminafile, "server"));
+								remmina_plugin_service->file_get_string(remminafile, "save_ssh_server"));
 		g_free(hostport);
 		g_free(host);
 
@@ -313,7 +315,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
 			if (ret <= 0) break;
 
 			if (!remmina_ssh_shell_open(shell, (RemminaSSHExitFunc)
-						    remmina_plugin_service->protocol_plugin_close_connection, gp)) {
+						    remmina_plugin_service->protocol_plugin_signal_connection_closed, gp)) {
 				remmina_plugin_service->protocol_plugin_set_error(gp, "%s", REMMINA_SSH(shell)->error);
 				break;
 			}
@@ -328,7 +330,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
 	}
 	if (!cont) {
 		if (shell) remmina_ssh_shell_free(shell);
-		IDLE_ADD((GSourceFunc)remmina_plugin_service->protocol_plugin_close_connection, gp);
+		remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 		return NULL;
 	}
 
@@ -337,10 +339,10 @@ remmina_plugin_ssh_main_thread(gpointer data)
 	gchar *charset = REMMINA_SSH(shell)->charset;
 	remmina_plugin_ssh_vte_terminal_set_encoding_and_pty(VTE_TERMINAL(gpdata->vte), charset, shell->master, shell->slave);
 
-	/* ToDo: the following call should be moved on the main thread, or something weird could happen */
+	/* TODO: The following call should be moved on the main thread, or something weird could happen */
 	remmina_plugin_ssh_on_size_allocate(GTK_WIDGET(gpdata->vte), NULL, gp);
 
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+	remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 
 	gpdata->thread = 0;
 	return NULL;
@@ -474,8 +476,9 @@ remmina_plugin_ssh_vte_save_session(GtkMenuItem *menuitem, RemminaProtocolWidget
 	GFileOutputStream *stream = g_file_replace(gpdata->vte_session_file, NULL, FALSE, G_FILE_CREATE_NONE, NULL, &err);
 
 	if (err != NULL) {
+		// TRANSLATORS: %s is a placeholder for an error message
 		widget = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-						_("%s"), err->message);
+						_("Error: %s"), err->message);
 		g_signal_connect(G_OBJECT(widget), "response", G_CALLBACK(gtk_widget_destroy), NULL);
 		gtk_widget_show(widget);
 		return;
@@ -546,9 +549,9 @@ void remmina_plugin_ssh_popup_ui(RemminaProtocolWidget *gp)
 	/* Context menu for slection and clipboard */
 	GtkWidget *menu = gtk_menu_new();
 
-	GtkWidget *select_all = gtk_menu_item_new_with_label(_("Select All (Host+a)"));
-	GtkWidget *copy = gtk_menu_item_new_with_label(_("Copy (Host+c)"));
-	GtkWidget *paste = gtk_menu_item_new_with_label(_("Paste (Host+v)"));
+	GtkWidget *select_all = gtk_menu_item_new_with_label(_("Select All (Host + A)"));
+	GtkWidget *copy = gtk_menu_item_new_with_label(_("Copy (host + C)"));
+	GtkWidget *paste = gtk_menu_item_new_with_label(_("Paste (host + V)"));
 	GtkWidget *save = gtk_menu_item_new_with_label(_("Save session to file"));
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), select_all);
@@ -647,7 +650,7 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 		for (i = 0; dirs[i] != NULL; ++i) {
 			remmina_dir = g_build_path("/", dirs[i], "remmina", "theme", NULL);
 			GDir *system_data_dir = g_dir_open(remmina_dir, 0, &error);
-			// ignoring this error is ok, because the folder may not existing
+			// ignoring this error is OK, because the folder may not exist
 			if (error) {
 				g_error_free(error);
 				error = NULL;
@@ -853,7 +856,7 @@ remmina_plugin_ssh_open_connection(RemminaProtocolWidget *gp)
 
 	if (pthread_create(&gpdata->thread, NULL, remmina_plugin_ssh_main_thread, gp)) {
 		remmina_plugin_service->protocol_plugin_set_error(gp,
-								  "Failed to initialize pthread. Falling back to non-thread mode…");
+			"Failed to initialize pthread. Falling back to non-thread mode…");
 		gpdata->thread = 0;
 		return FALSE;
 	} else {
@@ -883,7 +886,7 @@ remmina_plugin_ssh_close_connection(RemminaProtocolWidget *gp)
 		gpdata->shell = NULL;
 	}
 
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "disconnect");
+	remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 	return FALSE;
 }
 
@@ -1045,17 +1048,17 @@ static RemminaProtocolFeature remmina_plugin_ssh_features[] =
  *  3. Setting description.
  *  4. Compact disposition.
  *  5. Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO.
- *  6. Unused pointer.
+ *  6. Setting Tooltip.
  * .
  */
 static const RemminaProtocolSetting remmina_ssh_basic_settings[] =
 {
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	  "ssh_server",	    NULL,			  FALSE, "_ssh._tcp", NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "ssh_username",   N_("User name"),		  FALSE, NULL,	      NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "ssh_username",   N_("Username"),		  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "ssh_password",   N_("User password"),	  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "ssh_auth",	    N_("Authentication type"),	  FALSE, ssh_auth,    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	  "ssh_privatekey", N_("Identity file"),	  FALSE, NULL,	      NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "ssh_passphrase", N_("Private key passphrase"), FALSE, NULL,	      NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "ssh_passphrase", N_("Password to unlock private key"), FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "exec",	    N_("Startup program"),	  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		    NULL,			  FALSE, NULL,	      NULL }
 };
@@ -1068,7 +1071,7 @@ static const RemminaProtocolSetting remmina_ssh_basic_settings[] =
  *  3. Setting description.
  *  4. Compact disposition.
  *  5. Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO.
- *  6. Unused pointer.
+ *  6. Setting Tooltip.
  *
  */
 static const RemminaProtocolSetting remmina_ssh_advanced_settings[] =
@@ -1079,12 +1082,12 @@ static const RemminaProtocolSetting remmina_ssh_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	"ssh_kex_algorithms",	  N_("KEX (Key Exchange) algorithms"),	    FALSE, NULL,		 NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	"ssh_ciphers",		  N_("Symmetric cipher client to server"),  FALSE, NULL,		 NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	"ssh_hostkeytypes",	  N_("Preferred server host key types"),    FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_FOLDER, "sshlogfolder",		  N_("SSH session log folder"),		    FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	"sshlogname",		  N_("SSH session log file name"),	    FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"sshlogenabled",	  N_("Enable SSH session logging at exit"), FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"audiblebell",		  N_("Enable terminal audible bell"),	    FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"ssh_compression",	  N_("Enable SSH compression"),		    FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"disablepasswordstoring", N_("Disable password storing"),	    TRUE,  NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FOLDER, "sshlogfolder",		  N_("Folder for SSH session log"),		    FALSE, NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	"sshlogname",		  N_("Filename for SSH session log"),	    FALSE, NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"sshlogenabled",	  N_("Log SSH session when exiting Remmina"), FALSE, NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"audiblebell",		  N_("Audible terminal bell"),	    FALSE, NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"ssh_compression",	  N_("SSH compression"),		    FALSE, NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"disablepasswordstoring", N_("Don't remember passwords"),	    TRUE,  NULL,		 NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	"ssh_stricthostkeycheck", N_("Strict host key checking"),	    TRUE,  NULL,		 NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	NULL,			  NULL,					    FALSE, NULL,		 NULL }
 };
@@ -1150,7 +1153,7 @@ remmina_ssh_plugin_load_terminal_palettes(gpointer *ssh_terminal_palette_new)
 		gchar *remmina_dir = g_build_path("/", dirs[i], "remmina", "theme", NULL);
 		system_data_dir = g_dir_open(remmina_dir, 0, &error);
 		g_free(remmina_dir);
-		// ignoring this error is ok, because the folder may not existing
+		// ignoring this error is OK, because the folder may not exist
 		if (error) {
 			g_error_free(error);
 			error = NULL;
