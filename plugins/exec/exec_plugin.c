@@ -156,14 +156,14 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 	if (!cmd) {
 		gtk_text_buffer_set_text (gpdata->log_buffer,
 				_("You did not set any command to be executed"), -1);
-		remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+		remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 		return TRUE;
 	}
 
 	g_shell_parse_argv(cmd, NULL, &argv, &error);
 	if (error) {
 		gtk_text_buffer_set_text (gpdata->log_buffer, error->message, -1);
-		remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+		remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 		return TRUE;
 		g_error_free(error);
 	}
@@ -186,7 +186,7 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 		if (error != NULL) {
 			gtk_text_buffer_set_text (gpdata->log_buffer, error->message, -1);
 			g_error_free(error);
-			remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+			remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 			return TRUE;
 		}
 		g_child_watch_add(child_pid, (GChildWatchFunc)cb_child_watch, gp );
@@ -201,7 +201,7 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 	}else {
 		dialog = GTK_DIALOG(gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL,
 					GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
-			_("WARNING! Executing a command synchronously, may hung Remmina.\nDo you really want to continue?")));
+			_("Warning: Running a command synchronously may cause Remmina not to respond.\nDo you really want to continue?")));
 		gint result = gtk_dialog_run (GTK_DIALOG (dialog));
 
 		switch (result)
@@ -238,7 +238,7 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 
 	g_strfreev(argv);
 
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+	remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 	return TRUE;
 }
 
@@ -246,7 +246,7 @@ static gboolean remmina_plugin_exec_close(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 	remmina_plugin_service->log_printf("[%s] Plugin close\n", PLUGIN_NAME);
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "disconnect");
+	remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 	return FALSE;
 }
 
@@ -257,7 +257,7 @@ static gboolean remmina_plugin_exec_close(RemminaProtocolWidget *gp)
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting Tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_exec_basic_settings[] =
 {

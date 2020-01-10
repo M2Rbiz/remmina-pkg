@@ -157,7 +157,7 @@ static gboolean remmina_plugin_spice_close_connection(RemminaProtocolWidget *gp)
 		spice_session_disconnect(gpdata->session);
 		g_object_unref(gpdata->session);
 		gpdata->session = NULL;
-		remmina_plugin_service->protocol_plugin_emit_signal(gp, "disconnect");
+		remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 	}
 
 #ifdef SPICE_GTK_CHECK_VERSION
@@ -226,25 +226,35 @@ static gboolean remmina_plugin_spice_ask_auth(RemminaProtocolWidget *gp)
 
 	gint ret;
 	gboolean disablepasswordstoring;
+	gchar *s_password;
+	gboolean save;
 
 	RemminaPluginSpiceData *gpdata = GET_PLUGIN_DATA(gp);
 	RemminaFile *remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	disablepasswordstoring = remmina_plugin_service->file_get_int(remminafile, "disablepasswordstoring", FALSE);
-	ret = remmina_plugin_service->protocol_plugin_init_authpwd(gp, REMMINA_AUTHPWD_TYPE_PROTOCOL, !disablepasswordstoring);
 
+	ret = remmina_plugin_service->protocol_plugin_init_auth(gp,
+		(disablepasswordstoring ? 0 : REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD),
+		_("Enter SPICE password"),
+		NULL,
+		remmina_plugin_service->file_get_string(remminafile, "password"),
+		NULL,
+		NULL);
 	if (ret == GTK_RESPONSE_OK) {
-		gchar *password = remmina_plugin_service->protocol_plugin_init_get_password(gp);
-		if (remmina_plugin_service->protocol_plugin_init_get_savepassword(gp))
-			remmina_plugin_service->file_set_string( remminafile, "password", password );
-		g_object_set(gpdata->session,
-			"password",
-			password,
-			NULL);
-		return TRUE;
-	}else {
+		s_password = remmina_plugin_service->protocol_plugin_init_get_password(gp);
+		save = remmina_plugin_service->protocol_plugin_init_get_savepassword(gp);
+		if (save) {
+			remmina_plugin_service->file_set_string(remminafile, "password", s_password);
+		} else {
+			remmina_plugin_service->file_set_string(remminafile, "password", NULL);
+		}
+	} else {
 		return FALSE;
 	}
+
+	g_object_set(gpdata->session, "password", s_password, NULL);
+	return TRUE;
 }
 
 static void remmina_plugin_spice_main_channel_event_cb(SpiceChannel *channel, SpiceChannelEvent event, RemminaProtocolWidget *gp)
@@ -261,7 +271,7 @@ static void remmina_plugin_spice_main_channel_event_cb(SpiceChannel *channel, Sp
 			XSPICE_DEFAULT_PORT,
 			&server,
 			&port);
-		remmina_plugin_service->protocol_plugin_set_error(gp, _("Disconnected from SPICE server %s."), server);
+		remmina_plugin_service->protocol_plugin_set_error(gp, _("Disconnected from the SPICE server \"%s\"."), server);
 		g_free(server);
 		remmina_plugin_spice_close_connection(gp);
 		break;
@@ -283,7 +293,7 @@ static void remmina_plugin_spice_main_channel_event_cb(SpiceChannel *channel, Sp
 	case SPICE_CHANNEL_ERROR_IO:
 	case SPICE_CHANNEL_ERROR_LINK:
 	case SPICE_CHANNEL_ERROR_CONNECT:
-		remmina_plugin_service->protocol_plugin_set_error(gp, _("Connection to SPICE server failed."));
+		remmina_plugin_service->protocol_plugin_set_error(gp, _("Connection to the SPICE server dropped."));
 		remmina_plugin_spice_close_connection(gp);
 		break;
 	default:
@@ -313,7 +323,7 @@ static void remmina_plugin_spice_display_ready_cb(GObject *display, GParamSpec *
 		gtk_widget_show(GTK_WIDGET(display));
 
 		remmina_plugin_service->protocol_plugin_register_hostkey(gp, GTK_WIDGET(display));
-		remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+		remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 	}
 }
 
@@ -419,7 +429,7 @@ static void remmina_plugin_spice_call_feature(RemminaProtocolWidget *gp, const R
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting Tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_spice_basic_settings[] =
 {
@@ -438,7 +448,7 @@ static const RemminaProtocolSetting remmina_plugin_spice_basic_settings[] =
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting Tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_spice_advanced_settings[] =
 {

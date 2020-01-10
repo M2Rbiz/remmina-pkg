@@ -251,9 +251,9 @@ remmina_plugin_www_decide_resource(WebKitPolicyDecision *decision, RemminaProtoc
 
 	mime_type = webkit_uri_response_get_mime_type(response);
 
-	g_debug("Mymetype is %s", mime_type);
+	g_debug("The media type is %s", mime_type);
 
-	/* If WebKit can't handle the mime type start the download
+	/* If WebKit can't handle the media type, start the download
 	 * process */
 	if (webkit_response_policy_decision_is_mime_type_supported(response_decision))
 		return FALSE;
@@ -277,7 +277,7 @@ remmina_plugin_www_decide_resource(WebKitPolicyDecision *decision, RemminaProtoc
 
 	g_debug("Document type is %i", type);
 
-	/* FIXME: maybe it makes more sense to have an API to query the mime
+	/* FIXME: Maybe it makes more sense to have an API to query the media
 	 * type when the load of a page starts than doing this here.
 	 */
 	if (gpdata->document_type != type) {
@@ -301,7 +301,7 @@ static void remmina_www_web_view_js_finished(GObject *object, GAsyncResult *resu
 
 	js_result = webkit_web_view_run_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
 	if (!js_result) {
-		g_warning("Error running javascript: %s", error->message);
+		g_warning("Could not run JavaScript code: %s", error->message);
 		g_error_free(error);
 		return;
 	}
@@ -315,13 +315,13 @@ static void remmina_www_web_view_js_finished(GObject *object, GAsyncResult *resu
 		str_value = jsc_value_to_string(value);
 		exception = jsc_context_get_exception(jsc_value_get_context(value));
 		if (exception)
-			g_warning("Error running javascript: %s", jsc_exception_get_message(exception));
+			g_warning("Could not run JavaScript code: %s", jsc_exception_get_message(exception));
 		else
 			g_print("Script result: %s\n", str_value);
 		g_free(str_value);
 	} else {
 		str_value = jsc_value_to_string(value);
-		g_warning("javascript: unexpected return value, is not a string: %s", str_value);
+		g_warning("Received something other than a string from JavaScript: %s", str_value);
 		g_free(str_value);
 	}
 #endif
@@ -340,7 +340,7 @@ static gboolean remmina_plugin_www_load_failed_tls_cb(WebKitWebView *webview,
 						      GTlsCertificateFlags errors, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
-	/* Avoid to fail if certificate is not good. TODO: Add widgets to let the user decide */
+	/* Avoid failing if certificate is not good. TODO: Add widgets to let the user decide */
 	g_debug("Ignoring certificate and return TRUE");
 	return TRUE;
 }
@@ -407,7 +407,7 @@ static void remmina_plugin_www_init(RemminaProtocolWidget *gp)
 	/* enable-fullscreen, default TRUE, TODO: Try FALSE */
 
 #ifdef DEBUG
-	/* Enable the developer extras */
+	/* Turn on the developer extras */
 	webkit_settings_set_enable_developer_extras(gpdata->settings, TRUE);
 #endif
 
@@ -473,7 +473,6 @@ static gboolean remmina_plugin_www_on_auth(WebKitWebView *webview, WebKitAuthent
 	gboolean disablepasswordstoring;
 	RemminaFile *remminafile;
 
-
 	gpdata = (RemminaPluginWWWData *)g_object_get_data(G_OBJECT(gp), "plugin-data");
 
 	g_info("Authenticate");
@@ -481,13 +480,25 @@ static gboolean remmina_plugin_www_on_auth(WebKitWebView *webview, WebKitAuthent
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	disablepasswordstoring = remmina_plugin_service->file_get_int(remminafile, "disablepasswordstoring", FALSE);
-	ret = remmina_plugin_service->protocol_plugin_init_authuserpwd(gp, FALSE, !disablepasswordstoring);
-
+	ret = remmina_plugin_service->protocol_plugin_init_auth(gp,
+		(disablepasswordstoring ? 0 : REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD) | REMMINA_MESSAGE_PANEL_FLAG_USERNAME,
+		_("Enter WWW authentication credentials"),
+		remmina_plugin_service->file_get_string(remminafile, "username"),
+		remmina_plugin_service->file_get_string(remminafile, "password"),
+		NULL,
+		NULL);
 	if (ret == GTK_RESPONSE_OK) {
 		s_username = remmina_plugin_service->protocol_plugin_init_get_username(gp);
 		s_password = remmina_plugin_service->protocol_plugin_init_get_password(gp);
-		if (remmina_plugin_service->protocol_plugin_init_get_savepassword(gp))
+
+		save = remmina_plugin_service->protocol_plugin_init_get_savepassword(gp);
+		if (save) {
+			remmina_plugin_service->file_set_string(remminafile, "username", s_username);
 			remmina_plugin_service->file_set_string(remminafile, "password", s_password);
+		} else {
+			remmina_plugin_service->file_set_string(remminafile, "username", NULL);
+			remmina_plugin_service->file_set_string(remminafile, "password", NULL);
+		}
 		if (request) {
 			gpdata->credentials = webkit_credential_new(
 				g_strdup(s_username),
@@ -496,22 +507,8 @@ static gboolean remmina_plugin_www_on_auth(WebKitWebView *webview, WebKitAuthent
 			webkit_authentication_request_authenticate(request, gpdata->credentials);
 			webkit_credential_free(gpdata->credentials);
 		}
-
-		save = remmina_plugin_service->protocol_plugin_init_get_savepassword(gp);
-		if (save) {
-			// User has requested to save credentials. We put all the new credentials
-			// into remminafile->settings. They will be saved later, on successful connection, by
-			// rcw.c
-
-			remmina_plugin_service->file_set_string(remminafile, "username", s_username);
-			remmina_plugin_service->file_set_string(remminafile, "password", s_password);
-		}
-
 		if (s_username) g_free(s_username);
 		if (s_password) g_free(s_password);
-
-		/* Free credentials */
-
 		gpdata->authenticated = TRUE;
 	} else {
 		gpdata->authenticated = FALSE;
@@ -577,7 +574,7 @@ static void remmina_plugin_www_form_auth(WebKitWebView *webview,
 		break;
 	case WEBKIT_LOAD_FINISHED:
 		/* Load finished, we can now set user/password
-		 * in the html form */
+		 * in the HTML form */
 		g_debug("Load finished");
 		if (gpdata && gpdata->formauthenticated == TRUE)
 			break;
@@ -585,27 +582,38 @@ static void remmina_plugin_www_form_auth(WebKitWebView *webview,
 		if (remmina_plugin_service->file_get_string(remminafile, "username") ||
 		    remmina_plugin_service->file_get_string(remminafile, "password")) {
 			g_debug("Authentication is enabled");
-			g_file_get_contents(www_js_file, &s_js, NULL, NULL);
-			jsstr = g_string_new(s_js);
-			if (remmina_plugin_service->file_get_string(remminafile, "username"))
-				www_utils_string_replace_all(jsstr, "USRPLACEHOLDER",
-							     remmina_plugin_service->file_get_string(remminafile, "username"));
-			if (remmina_plugin_service->file_get_string(remminafile, "password"))
-				www_utils_string_replace_all(jsstr, "PWDPLACEHOLDER",
-							     remmina_plugin_service->file_get_string(remminafile, "password"));
-			s_js = g_string_free(jsstr, FALSE);
+			if (www_js_file) {
+				error = NULL;
+				if (g_file_get_contents(www_js_file, &s_js, NULL, &error)) {
+					jsstr = g_string_new(s_js);
+					if (remmina_plugin_service->file_get_string(remminafile, "username"))
+						www_utils_string_replace_all(jsstr, "USRPLACEHOLDER",
+										remmina_plugin_service->file_get_string(remminafile, "username"));
+					if (remmina_plugin_service->file_get_string(remminafile, "password"))
+						www_utils_string_replace_all(jsstr, "PWDPLACEHOLDER",
+										remmina_plugin_service->file_get_string(remminafile, "password"));
+					s_js = g_string_free(jsstr, FALSE);
 
-			if (!s_js || s_js[0] == '\0') {
-				break;
-			} else {
-				g_debug("We are trying to send this JS: %s", s_js);
-				webkit_web_view_run_javascript(
-						webview,
-						s_js,
-						NULL,
-						remmina_www_web_view_js_finished,
-						gp);
-				g_free(s_js);
+					if (!s_js || s_js[0] == '\0') {
+						break;
+					} else {
+						g_debug("Trying to send this JavaScript: %s", s_js);
+						webkit_web_view_run_javascript(
+								webview,
+								s_js,
+								NULL,
+								remmina_www_web_view_js_finished,
+								gp);
+						g_free(s_js);
+					}
+				} else {
+					if (error) {
+						g_debug("Unable to read file: %s\n", error->message);
+						g_error_free(error);
+					} else {
+						g_debug("Unable to read file. No error returned from glib.\n");
+					}
+				}
 			}
 		}
 		break;
@@ -631,7 +639,7 @@ static gboolean remmina_plugin_www_close_connection(RemminaProtocolWidget *gp)
 	/* Remove instance->context from gp object data to avoid double free */
 	g_object_steal_data(G_OBJECT(gp), "plugin-data");
 
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "disconnect");
+	remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 	return FALSE;
 }
 
@@ -680,7 +688,7 @@ static gboolean remmina_plugin_www_open_connection(RemminaProtocolWidget *gp)
 		webkit_web_inspector_show(WEBKIT_WEB_INSPECTOR(inspector));
 	}
 #endif
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+	remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 	gtk_widget_show_all(gpdata->box);
 
 	return TRUE;
@@ -776,14 +784,14 @@ static gboolean remmina_plugin_www_get_snapshot(RemminaProtocolWidget *gp, Remmi
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting Tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_www_basic_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "server",   N_("URL (http://address or https://address)"), FALSE, NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username", N_("Username"),				     FALSE, NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password", N_("Password"),				     FALSE, NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,	      NULL,					     FALSE, NULL, NULL }
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "server",   N_("URL"),	FALSE, NULL, N_("http://address or https://address") },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username", N_("Username"),   FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password", N_("Password"),   FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,	      NULL,		FALSE, NULL, NULL }
 };
 
 /* Array of RemminaProtocolSetting for advanced settings.
@@ -793,21 +801,21 @@ static const RemminaProtocolSetting remmina_plugin_www_basic_settings[] =
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting Tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_www_advanced_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,  "user-agent",		    N_("User Agent"),		       FALSE, NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-java",		    N_("Enable Java support"),	       TRUE,  NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-smooth-scrolling",   N_("Enable smooth scrolling"),     TRUE,  NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-spatial-navigation", N_("Enable Spatial Navigation"),   TRUE,  NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-plugins",	    N_("Enable support for plugins"),  TRUE,  NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-webgl",		    N_("Enable support for WebGL"),    TRUE,  NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-webaudio",	    N_("Enable support for WebAudio"), TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,  "user-agent",		    N_("User agent"),		       FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-java",		    N_("Turn on Java support"),	       TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-smooth-scrolling",   N_("Turn on smooth scrolling"),     TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-spatial-navigation", N_("Turn on spatial navigation"),   TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-plugins",	    N_("Turn on plugin support"),  TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-webgl",		    N_("Turn on WebGL support"),    TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-webaudio",	    N_("Turn on HTML5 audio support"), TRUE,  NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "ignore-tls-errors",	    N_("Ignore TLS errors"),	       TRUE,  NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring",    N_("Disable password storing"),    TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring",    N_("No password storage"),    TRUE,  NULL, NULL },
 #ifdef DEBUG
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-webinspector",	    N_("Enable Web Inspector"),	       TRUE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-webinspector",	    N_("Turn on Web Inspector"),	       TRUE,  NULL, NULL },
 #endif
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,   NULL,			    NULL,			       FALSE, NULL, NULL }
 };
@@ -837,8 +845,8 @@ static RemminaProtocolPlugin remmina_plugin =
 	remmina_plugin_www_open_connection,     // Plugin open connection
 	remmina_plugin_www_close_connection,    // Plugin close connection
 	remmina_www_query_feature,              // Query for available features
-	NULL,                                   // Call a feature
-	NULL,                                   // Send a keystroke
+	NULL,                                   // Call feature
+	NULL,                                   // Send keystroke
 	remmina_plugin_www_get_snapshot         // Capture screenshot
 };
 

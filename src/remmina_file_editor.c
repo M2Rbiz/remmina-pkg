@@ -83,8 +83,8 @@ static const gchar *cmd_tips = N_("<tt><big>"
 				  "* /path/to/foo -options %h %u\n"
 				  "* %h is substituted with the server name\n"
 				  "* %t is substituted with the SSH server name\n"
-				  "* %u is substituted with the user name\n"
-				  "* %U is substituted with the SSH user name\n"
+				  "* %u is substituted with the username\n"
+				  "* %U is substituted with the SSH username\n"
 				  "* %p is substituted with Remmina profile name\n"
 				  "* %g is substituted with Remmina profile group name\n"
 				  "Do not run in background if you want the command to be executed before connecting.\n"
@@ -743,6 +743,8 @@ static void remmina_file_editor_create_settings(RemminaFileEditor *gfe, GtkWidge
 								 g_dgettext(priv->plugin->domain, settings->label),
 								 remmina_file_get_string(priv->remmina_file, setting_name));
 			g_hash_table_insert(priv->setting_widgets, setting_name, widget);
+			if (settings->opt2)
+				gtk_widget_set_tooltip_text (widget, (const gchar *)settings->opt2);
 			grid_row++;
 			break;
 
@@ -752,6 +754,8 @@ static void remmina_file_editor_create_settings(RemminaFileEditor *gfe, GtkWidge
 								   (const gpointer *)settings->opt1,
 								   remmina_file_get_string(priv->remmina_file, setting_name));
 			g_hash_table_insert(priv->setting_widgets, setting_name, widget);
+			if (settings->opt2)
+				gtk_widget_set_tooltip_text (widget, (const gchar *)settings->opt2);
 			break;
 
 		case REMMINA_PROTOCOL_SETTING_TYPE_COMBO:
@@ -760,6 +764,8 @@ static void remmina_file_editor_create_settings(RemminaFileEditor *gfe, GtkWidge
 								  (const gchar *)settings->opt1,
 								  remmina_file_get_string(priv->remmina_file, setting_name));
 			g_hash_table_insert(priv->setting_widgets, setting_name, widget);
+			if (settings->opt2)
+				gtk_widget_set_tooltip_text (widget, (const gchar *)settings->opt2);
 			break;
 
 		case REMMINA_PROTOCOL_SETTING_TYPE_CHECK:
@@ -767,6 +773,8 @@ static void remmina_file_editor_create_settings(RemminaFileEditor *gfe, GtkWidge
 								  g_dgettext(priv->plugin->domain, settings->label),
 								  remmina_file_get_int(priv->remmina_file, setting_name, FALSE));
 			g_hash_table_insert(priv->setting_widgets, setting_name, widget);
+			if (settings->opt2)
+				gtk_widget_set_tooltip_text (widget, (const gchar *)settings->opt2);
 			break;
 
 		case REMMINA_PROTOCOL_SETTING_TYPE_FILE:
@@ -775,6 +783,8 @@ static void remmina_file_editor_create_settings(RemminaFileEditor *gfe, GtkWidge
 								    remmina_file_get_string(priv->remmina_file, setting_name),
 								    GTK_FILE_CHOOSER_ACTION_OPEN);
 			g_hash_table_insert(priv->setting_widgets, setting_name, widget);
+			if (settings->opt2)
+				gtk_widget_set_tooltip_text (widget, (const gchar *)settings->opt2);
 			break;
 
 		case REMMINA_PROTOCOL_SETTING_TYPE_FOLDER:
@@ -783,6 +793,8 @@ static void remmina_file_editor_create_settings(RemminaFileEditor *gfe, GtkWidge
 								    remmina_file_get_string(priv->remmina_file, setting_name),
 								    GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
 			g_hash_table_insert(priv->setting_widgets, setting_name, widget);
+			if (settings->opt2)
+				gtk_widget_set_tooltip_text (widget, (const gchar *)settings->opt2);
 			break;
 
 		default:
@@ -808,7 +820,6 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor *gfe, RemminaPr
 #ifdef HAVE_LIBSSH
 	RemminaFileEditorPriv *priv = gfe->priv;
 	GtkWidget *grid;
-	GtkWidget *hbox;
 	GtkWidget *widget;
 	const gchar *cs;
 	gchar *s;
@@ -820,22 +831,15 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor *gfe, RemminaPr
 	/* The SSH tab (implementation) */
 	grid = remmina_file_editor_create_notebook_tab(gfe, NULL,
 						       _("SSH Tunnel"), 9, 3);
-
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_widget_show(hbox);
-	gtk_grid_attach(GTK_GRID(grid), hbox, 0, 0, 3, 1);
-	row++;
-
 	widget = gtk_toggle_button_new_with_label(_("Enable SSH tunnel"));
-	gtk_widget_show(widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+	gtk_widget_set_halign(widget, GTK_ALIGN_START);
+	gtk_grid_attach(GTK_GRID(grid), widget, 0, 0, 1, 1);
 	g_signal_connect(G_OBJECT(widget), "toggled",
 			 G_CALLBACK(remmina_file_editor_ssh_enabled_check_on_toggled), gfe);
 	priv->ssh_enabled_check = widget;
 
 	widget = gtk_check_button_new_with_label(_("Tunnel via loopback address"));
-	gtk_widget_show(widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+	gtk_grid_attach(GTK_GRID(grid), widget, 1, 0, 2, 1);
 	priv->ssh_loopback_check = widget;
 
 	row++;
@@ -846,21 +850,18 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor *gfe, RemminaPr
 		s = g_strdup_printf(_("Same server at port %i"), DEFAULT_SSH_PORT);
 		widget = gtk_radio_button_new_with_label(NULL, s);
 		g_free(s);
-		gtk_widget_show(widget);
 		gtk_grid_attach(GTK_GRID(grid), widget, 0, row, 3, 1);
 		priv->ssh_server_default_radio = widget;
 		row++;
 
 		widget = gtk_radio_button_new_with_label_from_widget(
 			GTK_RADIO_BUTTON(priv->ssh_server_default_radio), _("Custom"));
-		gtk_widget_show(widget);
 		gtk_grid_attach(GTK_GRID(grid), widget, 0, row, 1, 1);
 		g_signal_connect(G_OBJECT(widget), "toggled",
 				 G_CALLBACK(remmina_file_editor_ssh_server_custom_radio_on_toggled), gfe);
 		priv->ssh_server_custom_radio = widget;
 
 		widget = gtk_entry_new();
-		gtk_widget_show(widget);
 		gtk_entry_set_max_length(GTK_ENTRY(widget), 100);
 		gtk_widget_set_tooltip_markup(widget, _(server_tips2));
 		gtk_grid_attach(GTK_GRID(grid), widget, 1, row, 2, 1);
@@ -913,23 +914,20 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor *gfe, RemminaPr
 		    ssh_setting == REMMINA_PROTOCOL_SSH_SETTING_REVERSE_TUNNEL) {
 			priv->ssh_username_entry =
 				remmina_file_editor_create_text(gfe, grid, row + 10, 0,
-								_("User name"), NULL);
+								_("Username"), NULL);
 			row++;
 		}
-		widget = gtk_radio_button_new_with_label(NULL, _("SSH Agent (automatic)"));
-		gtk_widget_show(widget);
+		widget = gtk_radio_button_new_with_label(NULL, _("SSH agent (automatic)"));
 		gtk_grid_attach(GTK_GRID(grid), widget, 0, row + 19, 1, 1);
 		priv->ssh_auth_agent_radio = widget;
 		row++;
 
 		widget = gtk_radio_button_new_with_label_from_widget(
 			GTK_RADIO_BUTTON(priv->ssh_auth_agent_radio), _("Password"));
-		gtk_widget_show(widget);
 		gtk_grid_attach(GTK_GRID(grid), widget, 0, row + 21, 1, 1);
 		priv->ssh_auth_password_radio = widget;
 
 		widget = gtk_entry_new();
-		gtk_widget_show(widget);
 		gtk_grid_attach(GTK_GRID(grid), widget, 1, row + 21, 2, 1);
 		gtk_entry_set_max_length(GTK_ENTRY(widget), 300);
 		gtk_entry_set_visibility(GTK_ENTRY(widget), FALSE);
@@ -939,7 +937,6 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor *gfe, RemminaPr
 
 		widget = gtk_radio_button_new_with_label_from_widget(
 			GTK_RADIO_BUTTON(priv->ssh_auth_password_radio), _("Public key (automatic)"));
-		gtk_widget_show(widget);
 		gtk_grid_attach(GTK_GRID(grid), widget, 0, row + 22, 1, 1);
 		priv->ssh_auth_auto_publickey_radio = widget;
 		row++;
@@ -981,6 +978,7 @@ static void remmina_file_editor_create_ssh_tab(RemminaFileEditor *gfe, RemminaPr
 
 		remmina_file_editor_ssh_enabled_check_on_toggled(NULL, gfe, ssh_setting);
 	}
+	gtk_widget_show_all(grid);
 	g_free(p);
 #endif
 }
@@ -990,6 +988,12 @@ static void remmina_file_editor_create_all_settings(RemminaFileEditor *gfe)
 	TRACE_CALL(__func__);
 	RemminaFileEditorPriv *priv = gfe->priv;
 	GtkWidget *grid;
+
+	static const RemminaProtocolSetting autostart_settings[] =
+	{
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "enable-autostart", N_("Turn on \"Autostart\" for this profile"),	       FALSE,  NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END, NULL, NULL, FALSE, NULL, NULL }
+	};
 
 	remmina_file_editor_create_notebook_container(gfe);
 
@@ -1005,8 +1009,13 @@ static void remmina_file_editor_create_all_settings(RemminaFileEditor *gfe)
 		remmina_file_editor_create_settings(gfe, grid, priv->plugin->advanced_settings);
 	}
 
+	/* Autostart tab */
+	grid = remmina_file_editor_create_notebook_tab(gfe, NULL, _("Autostart"), 20, 2);
+	remmina_file_editor_create_settings(gfe, grid, autostart_settings);
+
 	/* The SSH tab */
 	remmina_file_editor_create_ssh_tab(gfe, priv->plugin->ssh_setting);
+
 }
 
 static void remmina_file_editor_protocol_combo_on_changed(GtkComboBox *combo, RemminaFileEditor *gfe)
@@ -1168,7 +1177,7 @@ static void remmina_file_editor_update(RemminaFileEditor *gfe)
 
 	if (priv->resolution_auto_radio) {
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->resolution_auto_radio))) {
-			/* Resolution is set to auto (which means: use client fullscreen resolution, aka use client resolution) */
+			/* Resolution is set to auto (which means: Use client fullscreen resolution, aka use client resolution) */
 			res_w = res_h = 0;
 			res_mode = RES_USE_CLIENT;
 		} else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->resolution_iws_radio))) {
@@ -1246,7 +1255,7 @@ static void remmina_file_editor_on_connect(GtkWidget *button, RemminaFileEditor 
 	remmina_file_editor_update(gfe);
 
 	gf = remmina_file_dup(gfe->priv->remmina_file);
-	/* Put server into name for Quick Connect */
+	/* Put server into name for "Quick Connect" */
 	if (remmina_file_get_filename(gf) == NULL)
 		remmina_file_set_string(gf, "name", remmina_file_get_string(gf, "server"));
 	gtk_widget_destroy(GTK_WIDGET(gfe));
@@ -1257,7 +1266,7 @@ static void remmina_file_editor_on_connect(GtkWidget *button, RemminaFileEditor 
 static void remmina_file_editor_on_save_connect(GtkWidget *button, RemminaFileEditor *gfe)
 {
 	TRACE_CALL(__func__);
-	/** @todo Call remmina_file_editor_on_save */
+	/** @TODO: Call remmina_file_editor_on_save */
 	RemminaFile *gf;
 
 	remmina_file_editor_update(gfe);
@@ -1363,7 +1372,7 @@ static void remmina_file_editor_entry_on_changed(GtkEditable *editable, RemminaF
 	priv = gfe->priv;
 	if (remmina_file_get_filename(priv->remmina_file) == NULL) {
 		remmina_file_generate_filename(priv->remmina_file);
-		/* TODO Probably to be removed */
+		/* TODO: Probably to be removed */
 		remmina_file_editor_check_profile(gfe);
 	} else {
 		remmina_file_delete(remmina_file_get_filename(priv->remmina_file));
@@ -1405,7 +1414,7 @@ GtkWidget *remmina_file_editor_new_from_file(RemminaFile *remminafile)
 	if (remmina_file_get_filename(remminafile) == NULL)
 		gtk_dialog_set_response_sensitive(GTK_DIALOG(gfe), GTK_RESPONSE_APPLY, FALSE);
 
-	/* Create the Profile group on the top (for name and protocol) */
+	/* Create the "Profile" group on the top (for name and protocol) */
 	grid = gtk_grid_new();
 	gtk_widget_show(grid);
 	gtk_grid_set_row_spacing(GTK_GRID(grid), 4);
@@ -1414,7 +1423,7 @@ GtkWidget *remmina_file_editor_new_from_file(RemminaFile *remminafile)
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 8);
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(gfe))), grid, FALSE, FALSE, 2);
 
-	remmina_public_create_group(GTK_GRID(grid), _("Profile"), 0, 4, 3);
+	//remmina_public_create_group(GTK_GRID(grid), _("Profile"), 0, 4, 3);
 
 	/* Profile: Name */
 	widget = gtk_label_new(_("Name"));
@@ -1473,8 +1482,8 @@ GtkWidget *remmina_file_editor_new_from_file(RemminaFile *remminafile)
 	remmina_plugin_manager_for_each_plugin(REMMINA_PLUGIN_TYPE_PROTOCOL, remmina_file_editor_iterate_protocol, gfe);
 	g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(remmina_file_editor_protocol_combo_on_changed), gfe);
 
-	/* Prior Connection Command */
-	widget = gtk_label_new(_("Pre Command"));
+	/* Prior connection command */
+	widget = gtk_label_new(_("Pre-command"));
 	gtk_widget_show(widget);
 	gtk_widget_set_valign(widget, GTK_ALIGN_START);
 	gtk_widget_set_halign(widget, GTK_ALIGN_START);
@@ -1491,8 +1500,8 @@ GtkWidget *remmina_file_editor_new_from_file(RemminaFile *remminafile)
 	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), "command %h %u %t %U %p %g --option");
 	gtk_widget_set_tooltip_markup(widget, _(cmd_tips));
 
-	/* POST Connection Command */
-	widget = gtk_label_new(_("Post Command"));
+	/* POST connection command */
+	widget = gtk_label_new(_("Post-command"));
 	gtk_widget_show(widget);
 	gtk_widget_set_valign(widget, GTK_ALIGN_START);
 	gtk_widget_set_halign(widget, GTK_ALIGN_START);
@@ -1509,7 +1518,7 @@ GtkWidget *remmina_file_editor_new_from_file(RemminaFile *remminafile)
 	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), "/path/to/command -opt1 arg %h %u %t -opt2 %U %p %g");
 	gtk_widget_set_tooltip_markup(widget, _(cmd_tips));
 
-	/* Create the Preference frame */
+	/* Create the "Preference" frame */
 	widget = gtk_event_box_new();
 	gtk_widget_show(widget);
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(gfe))), widget, TRUE, TRUE, 2);
@@ -1557,7 +1566,7 @@ GtkWidget *remmina_file_editor_new_copy(const gchar *filename)
 		return remmina_file_editor_new_from_file(remminafile);
 	} else {
 		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-						_("File %s not found."), filename);
+						_("Could not find the file \"%s\"."), filename);
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);
 		return NULL;
@@ -1575,7 +1584,7 @@ GtkWidget *remmina_file_editor_new_from_filename(const gchar *filename)
 		return remmina_file_editor_new_from_file(remminafile);
 	} else {
 		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-						_("File %s not found."), filename);
+						_("Could not find the file \"%s\"."), filename);
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);
 		return NULL;

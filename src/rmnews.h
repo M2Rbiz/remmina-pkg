@@ -39,7 +39,7 @@ typedef struct _RemminaNewsDialog {
 	GtkTextView *	rmnews_text_view;
 	GtkLabel *	rmnews_label;
 	GtkButton *	rmnews_button_close;
-	GtkLabel *	rmnews_stats_label;
+	//GtkLabel *	rmnews_stats_label;
 	GtkSwitch *	rmnews_stats_switch;
 	GtkLabel *	rmnews_defaultcl_label;
 	GtkButton *	rmnews_defaultcl_button;
@@ -51,5 +51,6 @@ typedef struct _RemminaNewsDialog {
 
 G_BEGIN_DECLS
 void rmnews_schedule();
+void rmnews_show_news();
 void rmnews_get_url(const char *url);
 G_END_DECLS
