@@ -1,6 +1,6 @@
 version=4
 opts="dversionmangle=s%\+dfsg\d*$%%, \
-filenamemangle=s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%remmina-$1.tar.gz%, \
+filenamemangle=s%.*\/archive\/v(\d\S+)\/Remmina.*\.tar\.gz%remmina-$1\.tar\.gz%, \
 repack, \
 repacksuffix=+dfsg" \
-https://github.com/FreeRDP/Remmina/releases /FreeRDP/Remmina/archive/v(.+)\.(?:tar\.xz|txz|tar\.bz2|tbz2|tar\.gz|tgz)
+https://gitlab.com/Remmina/Remmina/tags?sort=updated_desc .*/archive/v(\d\S+)/.*\.tar\.gz
