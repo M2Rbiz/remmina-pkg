@@ -58,7 +58,7 @@ RemminaPluginService *remmina_plugin_nx_service = NULL;
 static gchar *remmina_kbtype = "pc102/us";
 
 /* When more than one NX sessions is connecting in progress, we need this mutex and array
- * to prevent them from stealing the same window id.
+ * to prevent them from stealing the same window ID.
  */
 static pthread_mutex_t remmina_nx_init_mutex;
 static GArray *remmina_nx_window_id_array;
@@ -88,7 +88,7 @@ static gboolean onMainThread_cb(struct onMainThread_cb_data *d)
 		}
 		pthread_mutex_unlock( &d->mu );
 	} else {
-		/* thread has been cancelled, so we must free d memory here */
+		/* Thread has been cancelled, so we must free d memory here */
 		g_free( d );
 	}
 	return G_SOURCE_REMOVE;
@@ -182,13 +182,13 @@ static void remmina_plugin_nx_remove_window_id(Window window_id)
 static void remmina_plugin_nx_on_plug_added(GtkSocket *socket, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
-	remmina_plugin_nx_service->protocol_plugin_emit_signal(gp, "connect");
+	remmina_plugin_nx_service->protocol_plugin_signal_connection_opened(gp);
 }
 
 static void remmina_plugin_nx_on_plug_removed(GtkSocket *socket, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
-	remmina_plugin_nx_service->protocol_plugin_close_connection(gp);
+	remmina_plugin_nx_service->protocol_plugin_signal_connection_closed(gp);
 }
 
 gboolean remmina_plugin_nx_ssh_auth_callback(gchar **passphrase, gpointer userdata)
@@ -198,13 +198,16 @@ gboolean remmina_plugin_nx_ssh_auth_callback(gchar **passphrase, gpointer userda
 	gint ret;
 
 	/* SSH passwords must not be saved */
-	ret = remmina_plugin_nx_service->protocol_plugin_init_authpwd(gp, REMMINA_AUTHPWD_TYPE_SSH_PRIVKEY, FALSE);
-
-	if (ret != GTK_RESPONSE_OK)
+	ret = remmina_plugin_nx_service->protocol_plugin_init_auth(gp, 0,
+		_("SSH credentials"), NULL,
+		NULL,
+		NULL,
+		_("Password for private SSH key"));
+	if (ret == GTK_RESPONSE_OK) {
+		*passphrase = remmina_plugin_nx_service->protocol_plugin_init_get_password(gp);
+		return TRUE;
+	} else
 		return FALSE;
-	*passphrase = remmina_plugin_nx_service->protocol_plugin_init_get_password(gp);
-
-	return TRUE;
 }
 
 static void remmina_plugin_nx_on_proxy_exit(GPid pid, gint status, gpointer data)
@@ -212,7 +215,7 @@ static void remmina_plugin_nx_on_proxy_exit(GPid pid, gint status, gpointer data
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = (RemminaProtocolWidget*)data;
 
-	remmina_plugin_nx_service->protocol_plugin_close_connection(gp);
+	remmina_plugin_nx_service->protocol_plugin_signal_connection_closed(gp);
 }
 
 static int remmina_plugin_nx_dummy_handler(Display *dsp, XErrorEvent *err)
@@ -355,15 +358,34 @@ static gboolean remmina_plugin_nx_start_session(RemminaProtocolWidget *gp)
 		g_free(s1);
 		g_free(s2);
 
+		gchar *s_username, *s_password;
+
 		disablepasswordstoring = remmina_plugin_nx_service->file_get_int(remminafile, "disablepasswordstoring", FALSE);
-		ret = remmina_plugin_nx_service->protocol_plugin_init_authuserpwd(gp, FALSE, !disablepasswordstoring);
 
-		if (ret != GTK_RESPONSE_OK)
-			return FALSE;
+		ret = remmina_plugin_nx_service->protocol_plugin_init_auth(gp,
+			(disablepasswordstoring ? 0 : REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD) | REMMINA_MESSAGE_PANEL_FLAG_USERNAME,
+			_("Enter NX authentication credentials"),
+			remmina_plugin_nx_service->file_get_string(remminafile, "username"),
+			remmina_plugin_nx_service->file_get_string(remminafile, "password"),
+			NULL,
+			NULL);
+		if (ret == GTK_RESPONSE_OK) {
+			gboolean save;
+			s_username = remmina_plugin_nx_service->protocol_plugin_init_get_username(gp);
+			s_password = remmina_plugin_nx_service->protocol_plugin_init_get_password(gp);
+			save = remmina_plugin_nx_service->protocol_plugin_init_get_savepassword(gp);
+			if (save) {
+				remmina_plugin_nx_service->file_set_string(remminafile, "username", s_username);
+				remmina_plugin_nx_service->file_set_string(remminafile, "password", s_password);
+			} else
+				remmina_plugin_nx_service->file_unsave_passwords(remminafile);
+		} else {
+			return False;
+		}
 
-		s1 = remmina_plugin_nx_service->protocol_plugin_init_get_username(gp);
-		s2 = remmina_plugin_nx_service->protocol_plugin_init_get_password(gp);
-		ret = remmina_nx_session_login(nx, s1, s2);
+		ret = remmina_nx_session_login(nx, s_username, s_password);
+		g_free(s_username);
+		g_free(s_password);
 	}
 	g_free(s1);
 	g_free(s2);
@@ -539,11 +561,12 @@ static gboolean remmina_plugin_nx_main(RemminaProtocolWidget *gp)
 static gpointer remmina_plugin_nx_main_thread(gpointer data)
 {
 	TRACE_CALL(__func__);
+	RemminaProtocolWidget *gp = (RemminaProtocolWidget *)data;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
 	CANCEL_ASYNC
-	if (!remmina_plugin_nx_main((RemminaProtocolWidget*)data)) {
-		IDLE_ADD((GSourceFunc)remmina_plugin_nx_service->protocol_plugin_close_connection, data);
+	if (!remmina_plugin_nx_main(gp)) {
+		remmina_plugin_nx_service->protocol_plugin_signal_connection_closed(gp);
 	}
 	return NULL;
 }
@@ -582,7 +605,7 @@ static gboolean remmina_plugin_nx_open_connection(RemminaProtocolWidget *gp)
 
 	if (!remmina_plugin_nx_service->gtksocket_available()) {
 		remmina_plugin_nx_service->protocol_plugin_set_error(gp,
-			_("Protocol %s is unavailable because GtkSocket only works under X.Org"),
+			_("The protocol \"%s\" is unavailable because GtkSocket only works under X.Org."),
 			remmina_plugin_nx.name);
 		return FALSE;
 	}
@@ -638,7 +661,7 @@ static gboolean remmina_plugin_nx_close_connection(RemminaProtocolWidget *gp)
 	close(gpdata->event_pipe[0]);
 	close(gpdata->event_pipe[1]);
 
-	remmina_plugin_nx_service->protocol_plugin_emit_signal(gp, "disconnect");
+	remmina_plugin_nx_service->protocol_plugin_signal_connection_closed(gp);
 
 	return FALSE;
 }
@@ -689,13 +712,13 @@ static gpointer quality_list[] =
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_nx_basic_settings[] =
 {
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	    "server",	     NULL,		    FALSE, NULL,		    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	    "nx_privatekey", N_("Identity file"),   FALSE, NULL,		    NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",	     N_("User name"),	    FALSE, NULL,		    NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",	     N_("Username"),	    FALSE, NULL,		    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "password",	     N_("User password"),   FALSE, NULL,		    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION, "resolution",    NULL,		    FALSE, GINT_TO_POINTER(1),	    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "quality",	     N_("Quality"),	    FALSE, quality_list,	    NULL },
@@ -710,7 +733,7 @@ static const RemminaProtocolSetting remmina_plugin_nx_basic_settings[] =
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_nx_advanced_settings[] =
 {
@@ -750,7 +773,7 @@ static RemminaProtocolPlugin remmina_plugin_nx =
 	remmina_plugin_nx_query_feature,                // Query for available features
 	remmina_plugin_nx_call_feature,                 // Call a feature
 	NULL,                                           // Send a keystroke
-	NULL                                            // No screenshot support available
+	NULL                                            // Screenshot support unavailable
 };
 
 G_MODULE_EXPORT gboolean
@@ -780,7 +803,7 @@ remmina_plugin_entry(RemminaPluginService *service)
 			s = strchr(remmina_kbtype, ',');
 			if (s)
 				*s = '\0';
-			/* g_print("NX: detected keyboard type %s\n", remmina_kbtype); */
+			/* g_print("NX: Detected \"%s\" keyboard type\n", remmina_kbtype); */
 		}
 		XCloseDisplay(dpy);
 	}
@@ -795,4 +818,3 @@ remmina_plugin_entry(RemminaPluginService *service)
 
 	return TRUE;
 }
-

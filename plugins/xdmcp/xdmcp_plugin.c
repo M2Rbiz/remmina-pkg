@@ -1,5 +1,5 @@
 /*
- * Remmina - The GTK+ Remote Desktop Client
+ * Remmina - The GTK Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
@@ -68,14 +68,14 @@ static void remmina_plugin_xdmcp_on_plug_added(GtkSocket *socket, RemminaProtoco
 	TRACE_CALL(__func__);
 	RemminaPluginXdmcpData *gpdata = GET_PLUGIN_DATA(gp);
 
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "connect");
+	remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 	gpdata->ready = TRUE;
 }
 
 static void remmina_plugin_xdmcp_on_plug_removed(GtkSocket *socket, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
-	remmina_plugin_service->protocol_plugin_close_connection(gp);
+	remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 }
 
 static gboolean remmina_plugin_xdmcp_start_xephyr(RemminaProtocolWidget *gp)
@@ -106,10 +106,10 @@ static gboolean remmina_plugin_xdmcp_start_xephyr(RemminaProtocolWidget *gp)
 	argv[argc++] = g_strdup("-parent");
 	argv[argc++] = g_strdup_printf("%i", gpdata->socket_id);
 
-	/* All Xephyr version between 1.5.0 and 1.6.4 will break when -screen argument is specified with -parent.
-	 * It’s not possible to support color depth if you have those Xephyr version. Please see this bug
+	/* All Xephyr version between 1.5.0 and 1.6.4 will break when "-screen" argument is specified with "-parent".
+	 * It’s not possible to support colour depth if you have those Xephyr version. Please see this bug
 	 * http://bugs.freedesktop.org/show_bug.cgi?id=24144
-	 * As a workaround, a "Default" color depth will not add the -screen argument.
+	 * As a workaround, a "Default" colour depth will not add the "-screen" argument.
 	 */
 	i = remmina_plugin_service->file_get_int(remminafile, "colordepth", 8);
 	if (i >= 8) {
@@ -129,7 +129,7 @@ static gboolean remmina_plugin_xdmcp_start_xephyr(RemminaProtocolWidget *gp)
 	if (remmina_plugin_service->file_get_int(remminafile, "once", FALSE)) {
 		argv[argc++] = g_strdup("-once");
 	}
-	/* Listen on protocol TCP */
+	/* Listen on TCP protocol */
 	if (remmina_plugin_service->file_get_int(remminafile, "listen_on_tcp", FALSE)) {
 		argv[argc++] = g_strdup("-listen");
 		argv[argc++] = g_strdup("tcp");
@@ -147,8 +147,8 @@ static gboolean remmina_plugin_xdmcp_start_xephyr(RemminaProtocolWidget *gp)
 			argv[argc++] = g_strdup_printf("%i", i);
 		}
 	}else  {
-		/* When the connection is through an SSH tunnel, it connects back to local unix socket,
-		 * so for security we can disable tcp listening */
+		/* When the connection is through an SSH tunnel, it connects back to local Unix socket,
+		 * so for security we can disable TCP listening */
 		argv[argc++] = g_strdup("-nolisten");
 		argv[argc++] = g_strdup("tcp");
 
@@ -228,7 +228,7 @@ remmina_plugin_xdmcp_main_thread(gpointer data)
 
 	CANCEL_ASYNC
 	if (!remmina_plugin_xdmcp_main((RemminaProtocolWidget*)data)) {
-		IDLE_ADD((GSourceFunc)remmina_plugin_service->protocol_plugin_close_connection, data);
+		IDLE_ADD((GSourceFunc)remmina_plugin_service->protocol_plugin_signal_connection_closed, data);
 	}
 	return NULL;
 }
@@ -261,7 +261,7 @@ static gboolean remmina_plugin_xdmcp_open_connection(RemminaProtocolWidget *gp)
 
 	if (!remmina_plugin_service->gtksocket_available()) {
 		remmina_plugin_service->protocol_plugin_set_error(gp,
-			_("Protocol %s is unavailable because GtkSocket only works under X.Org"),
+			_("The protocol \"%s\" is unavailable because GtkSocket only works under X.Org."),
 			remmina_plugin_xdmcp.name);
 		return FALSE;
 	}
@@ -307,12 +307,12 @@ static gboolean remmina_plugin_xdmcp_close_connection(RemminaProtocolWidget *gp)
 		gpdata->pid = 0;
 	}
 
-	remmina_plugin_service->protocol_plugin_emit_signal(gp, "disconnect");
+	remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 
 	return FALSE;
 }
 
-/* Send CTRL+ALT+DEL keys keystrokes to the plugin socket widget */
+/* Send Ctrl+Alt+Del keys keystrokes to the plugin socket widget */
 static void remmina_plugin_xdmcp_send_ctrlaltdel(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
@@ -342,14 +342,14 @@ static void remmina_plugin_xdmcp_call_feature(RemminaProtocolWidget *gp, const R
 	}
 }
 
-/* Array of key/value pairs for color depths */
+/* Array of key/value pairs for colour depths */
 static gpointer colordepth_list[] =
 {
 	"0",  N_("Default"),
 	"2",  N_("Grayscale"),
-	"8",  N_("256 colors"),
-	"16", N_("High color (16 bit)"),
-	"24", N_("True color (24 bit)"),
+	"8",  N_("256 colours"),
+	"16", N_("High colour (16 bit)"),
+	"24", N_("True colour (24 bit)"),
 	NULL
 };
 
@@ -360,17 +360,17 @@ static gpointer colordepth_list[] =
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Unused pointer
+ * f) Setting tooltip
  */
 static const RemminaProtocolSetting remmina_plugin_xdmcp_basic_settings[] =
 {
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	    "server",	     NULL,					 FALSE, NULL,		 NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION, "resolution",	     NULL,					 FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "colordepth",    N_("Color depth"),				 FALSE, colordepth_list, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "colordepth",    N_("Colour depth"),				 FALSE, colordepth_list, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "exec",	     N_("Startup program"),			 FALSE, NULL,		 NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "showcursor",    N_("Use local cursor"),			 FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "once",	     N_("Disconnect after one session"),	 FALSE, NULL,		 NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "listen_on_tcp", N_("Listening connection on protocol TCP"), FALSE, NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "once",	     N_("Disconnect after first session"),	 FALSE, NULL,		 NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "listen_on_tcp", N_("Listen for TCP connections"), FALSE, NULL,		 NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,	     NULL,					 FALSE, NULL,		 NULL }
 };
 
@@ -421,4 +421,3 @@ remmina_plugin_entry(RemminaPluginService *service)
 
 	return TRUE;
 }
-

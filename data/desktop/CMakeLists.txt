@@ -45,6 +45,8 @@ set(ICON96_DIR "${REMMINA_DATADIR}/icons/hicolor/96x96/apps")
 set(ICON128_DIR "${REMMINA_DATADIR}/icons/hicolor/128x128/apps")
 set(ICON256_DIR "${REMMINA_DATADIR}/icons/hicolor/256x256/apps")
 set(ICONSVG_DIR "${REMMINA_DATADIR}/icons/hicolor/scalable/apps")
+set(ICONAPPS_DIR "${REMMINA_DATADIR}/icons/hicolor/apps")
+set(ICONPANSVG_DIR "${REMMINA_DATADIR}/icons/hicolor/scalable/panel")
 
 set(ICON16_DATA 16x16/apps/${REMMINA_ICON}.png)
 set(ICON22_DATA 22x22/apps/${REMMINA_ICON}.png)
@@ -76,9 +78,11 @@ set(ICON72_DATA_PANEL_LIGHT 72x72/apps/remmina-panel-inverted.png)
 set(ICON96_DATA_PANEL_LIGHT 96x96/apps/remmina-panel-inverted.png)
 set(ICON128_DATA_PANEL_LIGHT 128x128/apps/remmina-panel-inverted.png)
 set(ICON256_DATA_PANEL_LIGHT 256x256/apps/remmina-panel-inverted.png)
-set(ICONSVG_DATA scalable/apps/remmina-panel.svg)
-set(ICONSVG_DATA scalable/apps/remmina-panel-inverted.svg)
+set(ICONSVG_PAN_DATA scalable/apps/remmina-panel.svg)
+set(ICONSVG_PANINV_DATA scalable/apps/remmina-panel-inverted.svg)
 set(ICONSVG_DATA scalable/apps/${REMMINA_ICON}.svg)
+set(ICONSVG_RM_DATA scalable/apps/remmina-symbolic.svg)
+set(ICONSVG_ORG_DATA scalable/apps/${REMMINA_ICON}-symbolic.svg)
 
 install(FILES ${ICON16_DATA} DESTINATION ${ICON16_DIR})
 install(FILES ${ICON22_DATA} DESTINATION ${ICON22_DIR})
@@ -91,6 +95,12 @@ install(FILES ${ICON96_DATA} DESTINATION ${ICON96_DIR})
 install(FILES ${ICON128_DATA} DESTINATION ${ICON128_DIR})
 install(FILES ${ICON256_DATA} DESTINATION ${ICON256_DIR})
 install(FILES ${ICONSVG_DATA} DESTINATION ${ICONSVG_DIR})
+install(FILES ${ICONSVG_PAN_DATA} DESTINATION ${ICONSVG_DIR})
+install(FILES ${ICONSVG_PAN_DATA} DESTINATION ${ICONPANSVG_DIR})
+install(FILES ${ICONSVG_PANINV_DATA} DESTINATION ${ICONSVG_DIR})
+install(FILES ${ICONSVG_PANINV_DATA} DESTINATION ${ICONPANSVG_DIR})
+install(FILES ${ICONSVG_RM_DATA} DESTINATION ${ICONAPPS_DIR})
+install(FILES ${ICONSVG_ORG_DATA} DESTINATION ${ICONAPPS_DIR})
 install(FILES ${ICON16_DATA_PANEL} DESTINATION ${ICON16_DIR})
 install(FILES ${ICON22_DATA_PANEL} DESTINATION ${ICON22_DIR})
 install(FILES ${ICON24_DATA_PANEL} DESTINATION ${ICON24_DIR})
@@ -118,8 +128,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${REMMINA_APP_ID}.desktop.in
     ${CMAKE_CURRENT_BINARY_DIR}/${REMMINA_APP_ID}.desktop @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/remmina-file.desktop.in
     ${CMAKE_CURRENT_BINARY_DIR}/remmina-file.desktop @ONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/remmina-file-wrapper.sh.in
-    ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper.sh @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/remmina-file-wrapper.in
+    ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${REMMINA_APP_ID}.desktop
     DESTINATION "${REMMINA_DATADIR}/applications")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file.desktop
@@ -127,7 +137,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file.desktop
 install(FILES ${REMMINA_APP_ID}.appdata.xml
     DESTINATION "${REMMINA_DATADIR}/metainfo")
 install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper.sh
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/remmina-file-wrapper
     DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}"
     PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_READ WORLD_EXECUTE
     )
@@ -176,6 +186,10 @@ install(
 if(WITH_MANPAGES)
     install(
         FILES gnome-session-remmina.1
+        DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1
+        )
+    install(
+        FILES remmina-file-wrapper.1
         DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1
         )
 endif()

@@ -1,9 +1,9 @@
-#!/bin/bash -
+#!/usr/bin/env bash
 #===============================================================================
 #
-#          FILE: remmina-file-wrapper.sh
+#          FILE: remmina-file-wrapper
 #
-#         USAGE: ./remmina-file-wrapper.sh
+#         USAGE: ./remmina-file-wrapper
 #
 #   DESCRIPTION: Wrapper used by xdg to connect or edit a remmina file clicking
 #                on it, or clicking to an URL like remmina:///profile.remmina
@@ -21,20 +21,31 @@
 
 set -o nounset                                  # Treat unset variables as an error
 
+USRBIN="$(dirname "$(readlink -f "${0}")")"
+REMMINA="@REMMINA_BINARY_PATH@"
+
+if [[ ! -f "$REMMINA" ]] ; then
+    REMMINA="${USRBIN}/remmina"
+else
+    REMMINA="remmina"
+fi
+
+export GLADE_HOME="$USRBIN/../share/remmina/ui/"
+
 case "$@" in
-	*rdp:*)
-		@REMMINA_BINARY_PATH@ "${@#rdp:\/\/}"
-		;;
-	*spice:*)
-		@REMMINA_BINARY_PATH@ "${@#spice:\/\/}"
-		;;
-	*vnc:*)
-		@REMMINA_BINARY_PATH@ "${@#vnc:\/\/}"
-		;;
-	*remmina:*)
-		@REMMINA_BINARY_PATH@ "${@#remmina:\/\/}"
-		;;
-	*)
-		@REMMINA_BINARY_PATH@ "${@}"
-		;;
+    *rdp:*)
+        "$REMMINA" "${@#rdp:\/\/}"
+        ;;
+    *spice:*)
+        "$REMMINA" "${@#spice:\/\/}"
+        ;;
+    *vnc:*)
+        "$REMMINA" "${@#vnc:\/\/}"
+        ;;
+    *remmina:*)
+        "$REMMINA" "${@#remmina:\/\/}"
+        ;;
+    *)
+        "$REMMINA" "${@}"
+        ;;
 esac

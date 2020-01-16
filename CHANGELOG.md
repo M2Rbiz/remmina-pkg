@@ -1,5 +1,130 @@
+## v1.3.10
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.9...v1.3.10)
+
+* VNC: Fix a buffer overflow during cuttext [!1987](https://gitlab.com/Remmina/Remmina/merge_requests/1987) *@giox069*
+* Fix KB/pointer grabbing again and add warning when GTK is using [!1988](https://gitlab.com/Remmina/Remmina/merge_requests/1988) *@giox069*
+* GDK_CORE_DEVICE_EVENTS refactoring [!1989](https://gitlab.com/Remmina/Remmina/merge_requests/1989) *@antenore*
+* Proxy support fixes [!1990](https://gitlab.com/Remmina/Remmina/merge_requests/1990) *@antenore*
+
+## v1.3.9
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.8...v1.3.9)
+
+* Grab and focus out woes [!1985](https://gitlab.com/Remmina/Remmina/merge_requests/1985) *@giox069*
+
+## v1.3.8
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.7...v1.3.8)
+
+* Avoid clearing username/domain when saving RDP password [!1981](https://gitlab.com/Remmina/Remmina/merge_requests/1981) *@giox069*
+* Make Remmina news dialog modal to the main window [!1982](https://gitlab.com/Remmina/Remmina/merge_requests/1982) *@antenore*
+* Change switch notebook page idle func order. Fixes #2034 *@giox069*
+* Fixing bad seat grabbing behaviour (grab all keys not working) *@antenore*
+* Adding cmake option to use latest FreeRDP symbols when compiling. Fixes #2024 [!1977](https://gitlab.com/Remmina/Remmina/merge_requests/1977) *@antenore*
+* Spelling: Private key, direct explanations [!1964](https://gitlab.com/Remmina/Remmina/merge_requests/1964) *@kingu*
+* Spelling: Colour theme [!1973](https://gitlab.com/Remmina/Remmina/merge_requests/1973) *@kingu*
+* Spelling: Error messages [!1965](https://gitlab.com/Remmina/Remmina/merge_requests/1965) *@kingu*
+* Spelling: URL moved to avoid ending dot [!1966](https://gitlab.com/Remmina/Remmina/merge_requests/1966) *@kingu*
+* Spelling: "web-browser plugin" [!1967](https://gitlab.com/Remmina/Remmina/merge_requests/1967) *@kingu*
+* Spelling: "simple terminal" [!1968](https://gitlab.com/Remmina/Remmina/merge_requests/1968) *@kingu*
+* Spelling: "Secure password storage in KWallet" [!1969](https://gitlab.com/Remmina/Remmina/merge_requests/1969) *@kingu*
+* Spelling: Connection name [!1971](https://gitlab.com/Remmina/Remmina/merge_requests/1971) *@kingu*
+* Spelling: Their desktop, do you accept? [!1970](https://gitlab.com/Remmina/Remmina/merge_requests/1970) *@kingu*
+* Spelling: "Warning:" [!1972](https://gitlab.com/Remmina/Remmina/merge_requests/1972) *@kingu*
+* Pluralized string for closing active connections [!1975](https://gitlab.com/Remmina/Remmina/merge_requests/1975) *@kingu*
+* Spelling: Log SSH session when exiting Remmina [!1976](https://gitlab.com/Remmina/Remmina/merge_requests/1976) *@kingu*
+* GitLab landing page now only links to installation instructions [!1978](https://gitlab.com/Remmina/Remmina/merge_requests/1978) *@kingu*
+* Spelling: -on, , [!1979](https://gitlab.com/Remmina/Remmina/merge_requests/1979) *@kingu*
+* Adding default application symbolic icons [!1980](https://gitlab.com/Remmina/Remmina/merge_requests/1980) *@antenore*
+
+## v1.3.7
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.6...v1.3.7)
+
+* Better authentication MessagePanel API [!1937](https://gitlab.com/Remmina/Remmina/merge_requests/1937) *@giox069*
+* Adding hidden proxy/socks settings for the RDP plugin [!1927](https://gitlab.com/Remmina/Remmina/merge_requests/1927) *@antenore*
+* Debian Lintian, appstream and AppImage detected issues fixes [!1901](https://gitlab.com/Remmina/Remmina/merge_requests/1901) *@antenore*
+* Using antenore/ubuntu docker image for standard build [!1903](https://gitlab.com/Remmina/Remmina/merge_requests/1903) *@antenore*
+* Tooltips in the remmina profile editor [!1904](https://gitlab.com/Remmina/Remmina/merge_requests/1904) *@antenore*
+* Fix for issue #1949 (and #1968). It also relocates --version and --full-version in local istance. [!1905](https://gitlab.com/Remmina/Remmina/merge_requests/1905) *@giox069*
+* Enumerate and share all local printers. [!1908](https://gitlab.com/Remmina/Remmina/merge_requests/1908) *@antenore*
+* Manually specify more then one printer&driver when connecting via RDP [!1909](https://gitlab.com/Remmina/Remmina/merge_requests/1909) *@antenore*
+* Printer sharing remediation for !1909 [!1915](https://gitlab.com/Remmina/Remmina/merge_requests/1915) *@antenore*
+* Remove useless include [!1910](https://gitlab.com/Remmina/Remmina/merge_requests/1910) *@Zlika1*
+* VTE is a suggested package [!1911](https://gitlab.com/Remmina/Remmina/merge_requests/1911) *@Zlika1*
+* Adding official Ubuntu Docker images [!1913](https://gitlab.com/Remmina/Remmina/merge_requests/1913) *@antenore*
+* AppImage path fixes [!1914](https://gitlab.com/Remmina/Remmina/merge_requests/1914) *@antenore*
+* Using remmina image for gnome 3.28 [!1916](https://gitlab.com/Remmina/Remmina/merge_requests/1916) *@antenore*
+* Fix crash when clicking AR-button [!1918](https://gitlab.com/Remmina/Remmina/merge_requests/1918) *@qgroup_f.beu*
+* snap: Update yaml to use GNOME extension [!1922](https://gitlab.com/Remmina/Remmina/merge_requests/1922) *@hellsworth*
+* Use ubuntudesktop/gnome-3-28-1804 docker image for snap build [!1925](https://gitlab.com/Remmina/Remmina/merge_requests/1925) *@kenvandine*
+* Various Fixes [!1931](https://gitlab.com/Remmina/Remmina/merge_requests/1931) *@antenore*
+* Fix RDP failed auth after credentials panel: big rework on plugin connection close flow [!1935](https://gitlab.com/Remmina/Remmina/merge_requests/1935) *@giox069*
+* Add RDP option to use old license workflow [!1961](https://gitlab.com/Remmina/Remmina/merge_requests/1961) *@antenore*
+
+### L10n, language and interface
+
+* Language reworked [!1938](https://gitlab.com/Remmina/Remmina/merge_requests/1938) *@kingu*
+* Spelling: Turn off scaling to avoid screenshot distortion. Scrolled fullscreen. Comments. [!1939](https://gitlab.com/Remmina/Remmina/merge_requests/1939) *@kingu*
+* Reworked [!1943](https://gitlab.com/Remmina/Remmina/merge_requests/1943) *@kingu*
+* Spelling: Connect via SSH, SFTP, details, comments [!1940](https://gitlab.com/Remmina/Remmina/merge_requests/1940) *@kingu*
+* Spelling: Reworked, labels, toggle, Show/hide * shown in the * [!1942](https://gitlab.com/Remmina/Remmina/merge_requests/1942) *@kingu*
+* Spelling: The file %s, Last connection was made, , which is not [!1944](https://gitlab.com/Remmina/Remmina/merge_requests/1944) *@kingu*
+* Keep it snimple snupple [!1945](https://gitlab.com/Remmina/Remmina/merge_requests/1945) *@kingu*
+* Spelling: secrecy plugin [!1941](https://gitlab.com/Remmina/Remmina/merge_requests/1941) *@kingu*
+* Are you sure you want to delete? HTTPS [!1947](https://gitlab.com/Remmina/Remmina/merge_requests/1947) *@kingu*
+* Adding comments for translators [!1948](https://gitlab.com/Remmina/Remmina/merge_requests/1948) *@antenore*
+* Spelling: Time, keepalive, TCP [!1949](https://gitlab.com/Remmina/Remmina/merge_requests/1949) *@kingu*
+* L10n/comments [!1950](https://gitlab.com/Remmina/Remmina/merge_requests/1950) *@antenore*
+* Spelling: SSH changed, could not x3 [!1952](https://gitlab.com/Remmina/Remmina/merge_requests/1952) *@kingu*
+* Spelling: Small/big versals, could not, library names [!1953](https://gitlab.com/Remmina/Remmina/merge_requests/1953) *@kingu*
+* No news widget when in kiosk mode. Fixes #2012 [!1954](https://gitlab.com/Remmina/Remmina/merge_requests/1954) *@antenore*
+* Markup: Button + [!1951](https://gitlab.com/Remmina/Remmina/merge_requests/1951) *@kingu*
+* SSH plugin minor fixes and enhanced debug output [!1946](https://gitlab.com/Remmina/Remmina/merge_requests/1946) *@antenore*
+* Adding autostart profiles at remmina startup, closes #2013 [!1955](https://gitlab.com/Remmina/Remmina/merge_requests/1955) *@antenore*
+* Adding expand/collpse all in the popup menu, closes #955 [!1956](https://gitlab.com/Remmina/Remmina/merge_requests/1956) *@antenore*
+* Spelling: shortcuts [!1919](https://gitlab.com/Remmina/Remmina/merge_requests/1919) *@kingu*
+* Language reworked [!1920](https://gitlab.com/Remmina/Remmina/merge_requests/1920) *@kingu*
+* Spelling: may cause Remmina not to respond [!1926](https://gitlab.com/Remmina/Remmina/merge_requests/1926) *@kingu*
+* Spelling: Website, About, GTK, ©, en dash + HTTPS link [!1924](https://gitlab.com/Remmina/Remmina/merge_requests/1924) *@kingu*
+* Language reworked [!1929](https://gitlab.com/Remmina/Remmina/merge_requests/1929) *@kingu*
+* Language reworked [!1932](https://gitlab.com/Remmina/Remmina/merge_requests/1932) *@kingu*
+* Language reworked [!1933](https://gitlab.com/Remmina/Remmina/merge_requests/1933) *@kingu*
+* Various string improvements [!1934](https://gitlab.com/Remmina/Remmina/merge_requests/1934) *@kingu*
+* Spelling: spatial navigation, - a x2 [!1936](https://gitlab.com/Remmina/Remmina/merge_requests/1936) *@kingu*
+* Update danish translation [!1907](https://gitlab.com/Remmina/Remmina/merge_requests/1907) *@scootergrisen*
+* Removed unnecessary word [!1921](https://gitlab.com/Remmina/Remmina/merge_requests/1921) *@hellsworth*
+* remmina_preferences: Improve file chooser words [!1928](https://gitlab.com/Remmina/Remmina/merge_requests/1928) *@rafaelff*
+* Brief on custom display numbers in usage. [!1902](https://gitlab.com/Remmina/Remmina/merge_requests/1902) *@kocielnik*
+* Fixing preferences layout [!1930](https://gitlab.com/Remmina/Remmina/merge_requests/1930) *@antenore*
+* Translations (Arabic) @Hosted Weblate
+* Translations (Basque) @Hosted Weblate
+* Translations (Bosnian) @Hosted Weblate
+* Translations (Catalan) @Hosted Weblate
+* Translations (Chinese (Traditional)) @Hosted Weblate
+* Translations (Croatian) @Hosted Weblate
+* Translations (Czech) @Hosted Weblate
+* Translations (Danish) @Hosted Weblate
+* Translations (Dutch) @Hosted Weblate
+* Translations (Finnish) @Hosted Weblate
+* Translations (French) @Hosted Weblate
+* Translations (German) @Hosted Weblate
+* Translations (Greek) @Hosted Weblate
+* Translations (Hebrew) @Hosted Weblate
+* Translations (Italian) @Hosted Weblate
+* Translations (Japanese) @Hosted Weblate
+* Translations (Norwegian Bokmål) @Hosted Weblate
+* Translations (Occidental) @Hosted Weblate
+* Translations (Polish) @Hosted Weblate
+* Translations (Portuguese (Brazil)) @Hosted Weblate
+* Translations (Portuguese (Portugal)) @Hosted Weblate
+* Translations (Spanish) @Hosted Weblate
+* Translations (Swedish) @Hosted Weblate
+* Translations (Turkish) @Hosted Weblate
+* Translations (Ukrainian) @Hosted Weblate
+* Translations (Uyghur) @Hosted Weblate
+* Translations (Uzbek) @Hosted Weblate
+
+
 ## v1.3.6
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.5...v.1.3.6)
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.5...v1.3.6)
 
 * Fix fullscreen switching [!1895](https://gitlab.com/Remmina/Remmina/merge_requests/1895) *@ToolsDevler*
 * Fullscreen fixes [!1897](https://gitlab.com/Remmina/Remmina/merge_requests/1897) *@giox069*
@@ -15,7 +140,7 @@
 * Remove G+ from documents [!1888](https://gitlab.com/Remmina/Remmina/merge_requests/1888) *@Cypresslin*
 
 ## v1.3.5
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.4...v.1.3.5)
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.4...v1.3.5)
 
 **ATTENTION** New dependencies.
 
@@ -83,7 +208,7 @@
 * Refactoring - warnings cleanup [!1877](https://gitlab.com/Remmina/Remmina/merge_requests/1877) *@antenore*
 
 ## v1.3.4
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.3...v.1.3.4)
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.3...v1.3.4)
 
 * Updated to use core18 and gnome-3-28-1804 [!1797](https://gitlab.com/Remmina/Remmina/merge_requests/1797) *@kenvandine*
 * Snap: Build snap in CI and publish to the edge channel for builds against master [!1810](https://gitlab.com/Remmina/Remmina/merge_requests/1810) *@kenvandine*
