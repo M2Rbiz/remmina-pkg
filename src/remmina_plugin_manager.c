@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,8 +102,13 @@ static void init_settings_cache(RemminaPlugin *plugin)
 
 	/* Some settings are encrypted "by name" */
 	/* g_hash_table_insert(pht, g_strdup("proxy_password"), (gpointer)TRUE); */
+
+	g_hash_table_insert(pht, g_strdup("ssh_tunnel_password"), (gpointer)TRUE);
+	g_hash_table_insert(pht, g_strdup("ssh_tunnel_passphrase"), (gpointer)TRUE);
+
+	/* ssh_password is no longer used starting from remmina 1.4.
+	 * But we MUST mark it as encrypted setting, or the migration procedure will fail */
 	g_hash_table_insert(pht, g_strdup("ssh_password"), (gpointer)TRUE);
-	g_hash_table_insert(pht, g_strdup("ssh_passphrase"), (gpointer)TRUE);
 
 	/* Other settings are encrypted because of their type */
 	protocol_plugin = (RemminaProtocolPlugin *)plugin;

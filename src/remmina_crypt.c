@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009 - Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ static gboolean remmina_crypt_init(gcry_cipher_hd_t *phd)
 	secret = g_base64_decode(remmina_pref.secret, &secret_len);
 
 	if (secret_len < 32) {
-		g_print("secret corrupted\n");
+		g_debug("secret corrupted\n");
 		g_free(secret);
 		return FALSE;
 	}
@@ -63,7 +63,7 @@ static gboolean remmina_crypt_init(gcry_cipher_hd_t *phd)
 	err = gcry_cipher_open(phd, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC, 0);
 
 	if (err) {
-		g_print("gcry_cipher_open failure: %s\n", gcry_strerror(err));
+		g_debug("gcry_cipher_open failure: %s\n", gcry_strerror(err));
 		g_free(secret);
 		return FALSE;
 	}
@@ -71,7 +71,7 @@ static gboolean remmina_crypt_init(gcry_cipher_hd_t *phd)
 	err = gcry_cipher_setkey((*phd), secret, 24);
 
 	if (err) {
-		g_print("gcry_cipher_setkey failure: %s\n", gcry_strerror(err));
+		g_debug("gcry_cipher_setkey failure: %s\n", gcry_strerror(err));
 		g_free(secret);
 		gcry_cipher_close((*phd));
 		return FALSE;
@@ -80,7 +80,7 @@ static gboolean remmina_crypt_init(gcry_cipher_hd_t *phd)
 	err = gcry_cipher_setiv((*phd), secret + 24, 8);
 
 	if (err) {
-		g_print("gcry_cipher_setiv failure: %s\n", gcry_strerror(err));
+		g_debug("gcry_cipher_setiv failure: %s\n", gcry_strerror(err));
 		g_free(secret);
 		gcry_cipher_close((*phd));
 		return FALSE;
@@ -116,7 +116,9 @@ gchar* remmina_crypt_encrypt(const gchar *str)
 	err = gcry_cipher_encrypt(hd, buf, buf_len, NULL, 0);
 
 	if (err) {
-		g_print("gcry_cipher_encrypt failure: %s\n", gcry_strerror(err));
+		g_debug("gcry_cipher_encrypt failure: %s/%s\n",
+				gcry_strsource(err),
+				gcry_strerror(err));
 		g_free(buf);
 		gcry_cipher_close(hd);
 		return NULL;
@@ -146,10 +148,22 @@ gchar* remmina_crypt_decrypt(const gchar *str)
 
 	buf = g_base64_decode(str, &buf_len);
 
-	err = gcry_cipher_decrypt(hd, buf, buf_len, NULL, 0);
+	g_debug ("%s base64 encoded as %p with length %lu",
+			str,
+			&buf,
+			buf_len);
+
+	err = gcry_cipher_decrypt(
+			hd,	    // gcry_cipher_hd_t
+			buf,	    // guchar
+			buf_len,    // gsize
+			NULL,	    // NULL and 0 -> in place decrypt
+			0);
 
 	if (err) {
-		g_print("gcry_cipher_decrypt failure: %s\n", gcry_strerror(err));
+		g_debug("gcry_cipher_decrypt failure: %s/%s\n",
+				gcry_strsource(err),
+				gcry_strerror(err));
 		g_free(buf);
 		gcry_cipher_close(hd);
 		return NULL;

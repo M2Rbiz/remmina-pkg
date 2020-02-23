@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -509,7 +509,7 @@ remmina_sftp_client_thread_main(gpointer data)
 		size = 0;
 		if (!sftp) {
 			sftp = remmina_sftp_new_from_ssh(REMMINA_SSH(client->sftp));
-			if (!remmina_ssh_init_session(REMMINA_SSH(sftp)) ||
+			if (!remmina_ssh_init_session(REMMINA_SSH(sftp), FALSE) ||
 			    remmina_ssh_auth(REMMINA_SSH(sftp), NULL, NULL, NULL) <= 0 ||
 			    !remmina_sftp_open(sftp)) {
 				remmina_sftp_client_thread_set_error(client, task, (REMMINA_SSH(sftp))->error);
@@ -977,7 +977,7 @@ remmina_sftp_client_new_init(RemminaSFTP *sftp)
 	SET_CURSOR(gdk_cursor_new_for_display(display, GDK_WATCH));
 	gdk_display_flush(display);
 
-	if (!remmina_ssh_init_session(REMMINA_SSH(sftp)) ||
+	if (!remmina_ssh_init_session(REMMINA_SSH(sftp), FALSE) ||
 	    remmina_ssh_auth(REMMINA_SSH(sftp), NULL, NULL, NULL) <= 0 ||
 	    !remmina_sftp_open(sftp)) {
 		dialog = gtk_message_dialog_new(GTK_WINDOW(gtk_widget_get_toplevel(client)),

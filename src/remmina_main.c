@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -242,23 +242,6 @@ static void remmina_main_clear_selection_data(void)
 	g_free(remminamain->priv->selected_name);
 	remminamain->priv->selected_filename = NULL;
 	remminamain->priv->selected_name = NULL;
-}
-
-static void remmina_main_check_env()
-{
-	GtkBuilder *dlgbuilder = NULL;
-	GtkWidget *dlg;
-	GtkWindow *parent;
-	GtkWidget* dsa;
-	int result;
-	gint64 nowsec;
-	static gboolean shown_once = FALSE;
-	#define SUPPRESS_DAYS 20
-
-	if (shown_once)
-		return;
-	else
-		shown_once = TRUE;
 }
 
 #ifdef SNAP_BUILD
@@ -1301,7 +1284,6 @@ void remmina_main_on_show(GtkWidget *w, gpointer user_data)
 #ifdef SNAP_BUILD
 	remmina_main_show_snap_welcome();
 #endif
-	remmina_main_check_env();
 }
 
 /* RemminaMain instance */

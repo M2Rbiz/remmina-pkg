@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ struct rf_clipboard {
 
 	pthread_mutex_t		transfer_clip_mutex;
 	pthread_cond_t		transfer_clip_cond;
-	enum  { SCDW_NONE, SCDW_BUSY_WAIT, SCDW_ASYNCWAIT } srv_clip_data_wait;
+	enum  { SCDW_NONE, SCDW_BUSY_WAIT, SCDW_ABORTING } srv_clip_data_wait;
 	gpointer		srv_data;
 };
 typedef struct rf_clipboard rfClipboard;

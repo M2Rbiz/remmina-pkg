@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,8 +130,10 @@ typedef enum {
 /* pflags field for remmina_protocol_widget_panel_auth() */
 typedef enum {
 	REMMINA_MESSAGE_PANEL_FLAG_USERNAME	= 1,    /* require username in auth panel */
-	REMMINA_MESSAGE_PANEL_FLAG_DOMAIN	= 2,    /* require domain in auth panel */
-	REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD = 4     /* require savepassword switch in auth panel */
+	REMMINA_MESSAGE_PANEL_FLAG_USERNAME_READONLY	= 2,    /* Username, if required, is readonly */
+	REMMINA_MESSAGE_PANEL_FLAG_DOMAIN	= 4,    /* require domain in auth panel */
+	REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD = 8     /* require savepassword switch in auth panel */
+
 } RemminaMessagePanelFlags;
 
 G_END_DECLS
