@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -348,6 +348,10 @@ void remmina_message_panel_setup_auth(RemminaMessagePanel *mp, RemminaMessagePan
 		//gtk_entry_set_activates_default (GTK_ENTRY(username_entry), TRUE);
 		gtk_grid_attach(GTK_GRID(grid), username_entry, 1, grid_row, 2, 1);
 		gtk_entry_set_max_length(GTK_ENTRY(username_entry), 100);
+
+		if (flags & REMMINA_MESSAGE_PANEL_FLAG_USERNAME_READONLY) {
+			g_object_set(username_entry, "editable", FALSE, NULL);
+		}
 
 		/*
 		if (default_username && default_username[0] != '\0') {

@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,8 +158,6 @@
 	#include <gdk/gdkx.h>
 #endif
 #include "remmina_stats.h"
-
-struct utsname u;
 
 struct ProfilesData {
 	GHashTable *proto_count;
@@ -863,9 +861,6 @@ JsonNode *remmina_stats_get_all()
 	n = remmina_stats_get_version();
 	json_builder_set_member_name(b, "REMMINAVERSION");
 	json_builder_add_value(b, n);
-
-	if (uname(&u) == -1)
-		g_print("uname:");
 
 	n = remmina_stats_get_os_info();
 	json_builder_set_member_name(b, "SYSTEM");

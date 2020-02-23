@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ static void remmina_unlock_timer_init()
 	TRACE_CALL(__func__);
 
 	timer = g_timer_new();
-	g_info("Unlock Master Password timer initilized");
+	g_info("Unlock Master Password timer initialized");
 }
 
 static void remmina_unlock_timer_reset(gpointer user_data)
