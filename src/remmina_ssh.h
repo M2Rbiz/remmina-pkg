@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,6 +81,10 @@ typedef struct _RemminaSSH {
 	pthread_mutex_t ssh_mutex;
 
 	gchar *		passphrase;
+
+	gboolean	is_tunnel;
+	gchar *		tunnel_host;
+	gint		tunnel_port;
 } RemminaSSH;
 
 gchar *remmina_ssh_identity_path(const gchar *id);
@@ -89,17 +93,24 @@ gchar *remmina_ssh_identity_path(const gchar *id);
 gchar *remmina_ssh_find_identity(void);
 
 /* Initialize the ssh object */
-gboolean remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile);
+gboolean remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile, gboolean is_tunnel);
 
 /* Initialize the SSH session */
-gboolean remmina_ssh_init_session(RemminaSSH *ssh);
+gboolean remmina_ssh_init_session(RemminaSSH *ssh, gboolean is_tunnel);
 
 /* Authenticate SSH session */
-/* -1: Require password; 0: Failed; 1: Succeeded */
-gint remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *gp, RemminaFile *remminafile);
 
-/* -1: Cancelled; 0: Failed; 1: Succeeded */
-gint remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *remminafile);
+
+enum remmina_ssh_auth_result {
+	REMMINA_SSH_AUTH_SUCCESS,
+	REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT,
+	REMMINA_SSH_AUTH_USERCANCEL,
+	REMMINA_SSH_AUTH_FATAL_ERROR
+};
+
+enum remmina_ssh_auth_result remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *gp, RemminaFile *remminafile);
+
+enum remmina_ssh_auth_result remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *remminafile);
 
 /* Error handling */
 #define remmina_ssh_has_error(ssh) (((RemminaSSH *)ssh)->error != NULL)
@@ -126,6 +137,7 @@ enum {
 	REMMINA_SSH_TUNNEL_XPORT,
 	REMMINA_SSH_TUNNEL_REVERSE
 };
+
 
 struct _RemminaSSHTunnel {
 	RemminaSSH			ssh;

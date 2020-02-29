@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2019 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1163,7 +1163,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		if (host[0] == '\0') {
 			cl->serverHost = g_strdup(host);
 			cl->listenSpecified = TRUE;
-			if (remmina_plugin_service->file_get_int(remminafile, "ssh_enabled", FALSE))
+			if (remmina_plugin_service->file_get_int(remminafile, "ssh_tunnel_enabled", FALSE))
 				/* When we use reverse tunnel, the local port does not really matter.
 				 * Hardcode a default port just in case the remote port is customized
 				 * to a privilege port then we will have problem listening. */
