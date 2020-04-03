@@ -1,0 +1,26 @@
+From 5b730bea76af89f37895398041fc47e6b7921dd3 Mon Sep 17 00:00:00 2001
+From: Antenore Gatta <antenore@simbiosi.org>
+Date: Fri, 27 Mar 2020 00:13:50 +0100
+Subject: Fixing_setting_array_for_VNCI
+
+(cherry picked from commit d9cd9a740de54210d464700ab87a9dc2bb71f92a)
+---
+ plugins/vnc/vnc_plugin.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plugins/vnc/vnc_plugin.c b/plugins/vnc/vnc_plugin.c
+index 8a0964fd..7e9d4e59 100644
+--- a/plugins/vnc/vnc_plugin.c
++++ b/plugins/vnc/vnc_plugin.c
+@@ -1852,7 +1852,7 @@ static const RemminaProtocolSetting remmina_plugin_vnci_basic_settings[] =
+ 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"),  FALSE, NULL,	      NULL },
+ 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Color depth"),    FALSE, colordepth_list, NULL },
+ 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	N_("Quality"),	      FALSE, quality_list,    NULL },
+-	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  NULL,		NULL,		      FALSE, NULL,	      NULL },
++	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	NULL,		      FALSE, NULL,	      NULL },
+ 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		NULL,		      FALSE, NULL,	      NULL }
+ };
+ 
+-- 
+2.21.1
+
