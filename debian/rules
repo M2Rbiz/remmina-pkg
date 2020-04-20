@@ -3,8 +3,6 @@
 # hardening
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
-LDFLAGS += -Wl,--as-needed
-
 %:
 	dh $@
 
