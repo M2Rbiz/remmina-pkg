@@ -68,6 +68,7 @@ void remmina_file_set_string(RemminaFile *remminafile, const gchar *setting, con
 void remmina_file_set_string_ref(RemminaFile *remminafile, const gchar *setting, gchar *value);
 const gchar *remmina_file_get_string(RemminaFile *remminafile, const gchar *setting);
 gchar *remmina_file_get_secret(RemminaFile *remminafile, const gchar *setting);
+gchar *remmina_file_format_properties(RemminaFile *remminafile, const gchar *setting);
 void remmina_file_set_int(RemminaFile *remminafile, const gchar *setting, gint value);
 gint remmina_file_get_int(RemminaFile *remminafile, const gchar *setting, gint default_value);
 void remmina_file_store_secret_plugin_password(RemminaFile *remminafile, const gchar *key, const gchar *value);
@@ -90,6 +91,6 @@ void remmina_file_unsave_passwords(RemminaFile *remminafile);
  * taken from suckless sbase */
 gchar *remmina_file_get_datetime(RemminaFile *remminafile);
 /* Function used to update the atime and mtime of a given remmina file */
-void remmina_file_touch(RemminaFile *remminafilefile);
+void remmina_file_touch(RemminaFile *remminafile);
 
 G_END_DECLS

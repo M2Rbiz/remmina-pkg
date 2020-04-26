@@ -44,12 +44,13 @@
 #include <cairo/cairo-xlib.h>
 #include <freerdp/locale/keyboard.h>
 
-static void remmina_rdp_event_on_focus_in(GtkWidget* widget, GdkEventKey* event, RemminaProtocolWidget* gp)
+static gboolean remmina_rdp_event_on_focus_in(GtkWidget* widget, GdkEventKey* event, RemminaProtocolWidget* gp)
 {
 	TRACE_CALL(__func__);
 	rfContext* rfi = GET_PLUGIN_DATA(gp);
 	rdpInput* input;
 	GdkModifierType state;
+
 #if GTK_CHECK_VERSION(3, 20, 0)
 	GdkSeat *seat;
 #else
@@ -58,7 +59,7 @@ static void remmina_rdp_event_on_focus_in(GtkWidget* widget, GdkEventKey* event,
 	GdkDevice *keyboard = NULL;
 
 	if (!rfi || !rfi->connected || rfi->is_reconnecting)
-		return;
+		return FALSE;
 
 	input = rfi->instance->input;
 	UINT32 toggle_keys_state = 0;
@@ -84,6 +85,8 @@ static void remmina_rdp_event_on_focus_in(GtkWidget* widget, GdkEventKey* event,
 
 	input->SynchronizeEvent(input, toggle_keys_state);
 	input->KeyboardEvent(input, KBD_FLAGS_RELEASE, 0x0F);
+
+	return FALSE;
 }
 
 void remmina_rdp_event_event_push(RemminaProtocolWidget* gp, const RemminaPluginRdpEvent* e)
@@ -905,8 +908,12 @@ static void remmina_rdp_event_create_cairo_surface(rfContext* rfi)
 	int stride;
 	rdpGdi* gdi;
 
+	if (!rfi)
+		return;
+
 	gdi = ((rdpContext *)rfi)->gdi;
-	if (!rfi || !gdi)
+
+	if (!gdi)
 		return;
 
 	if (rfi->surface) {
@@ -937,10 +944,8 @@ void remmina_rdp_event_update_scale(RemminaProtocolWidget* gp)
 	if ( rfi->surface && (cairo_image_surface_get_width(rfi->surface) != gdi->width ||
 		cairo_image_surface_get_height(rfi->surface) != gdi->height) ) {
 		/* Destroys and recreate rfi->surface with new width and height */
-		if (rfi->surface) {
-			cairo_surface_destroy(rfi->surface);
-			rfi->surface = NULL;
-		}
+		cairo_surface_destroy(rfi->surface);
+		rfi->surface = NULL;
 		remmina_rdp_event_create_cairo_surface(rfi);
 	} else if ( rfi->surface == NULL ) {
 		remmina_rdp_event_create_cairo_surface(rfi);
