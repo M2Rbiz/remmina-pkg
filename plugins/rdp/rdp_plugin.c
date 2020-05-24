@@ -49,6 +49,8 @@
 #include <pthread.h>
 #include <time.h>
 #include <cairo/cairo-xlib.h>
+#include <freerdp/addin.h>
+#include <freerdp/settings.h>
 #include <freerdp/freerdp.h>
 #include <freerdp/constants.h>
 #include <freerdp/client/cliprdr.h>
@@ -81,7 +83,7 @@
 #define REMMINA_RDP_FEATURE_TOOL_SENDCTRLALTDEL  4
 #define REMMINA_RDP_FEATURE_DYNRESUPDATE                 5
 
-/* Some string settings of freerdp are preallocated buffers of N bytes */
+/* Some string settings of FreeRDP are preallocated buffers of N bytes */
 #define FREERDP_CLIENTHOSTNAME_LEN      32
 
 RemminaPluginService *remmina_plugin_service = NULL;
@@ -160,7 +162,7 @@ static BOOL rf_process_event_queue(RemminaProtocolWidget *gp)
 			}
 			break;
 		case REMMINA_RDP_EVENT_DISCONNECT:
-			/* Disconnect requested via GUI (i.e.: tab destroy/close) */
+			/* Disconnect requested via GUI (i.e: tab destroy/close) */
 			freerdp_abort_connect(rfi->instance);
 			break;
 		}
@@ -176,7 +178,7 @@ static gboolean remmina_rdp_tunnel_init(RemminaProtocolWidget *gp)
 	TRACE_CALL(__func__);
 
 	/* Opens the optional SSH tunnel if needed.
-	 * Used also when reopening the same tunnel for a freerdp reconnect.
+	 * Used also when reopening the same tunnel for a FreeRDP reconnect.
 	 * Returns TRUE if all OK, and setups correct rfi->Settings values
 	 * with connection and certificate parameters */
 
@@ -188,14 +190,14 @@ static gboolean remmina_rdp_tunnel_init(RemminaProtocolWidget *gp)
 	gint port;
 
 	rfContext *rfi = GET_PLUGIN_DATA(gp);
-	g_debug("[RDP] %s\n", __func__);
+	remmina_plugin_service->debug("Tunnel init");
 	hostport = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, 3389, FALSE);
 	if (hostport == NULL)
 		return FALSE;
 
 	remmina_plugin_service->get_server_port(hostport, 3389, &host, &port);
 
-	g_debug("[RDP] protocol_plugin_start_direct_tunnel() returned %s\n", hostport);
+	remmina_plugin_service->debug("protocol_plugin_start_direct_tunnel() returned %s", hostport);
 
 	cert_host = host;
 	cert_port = port;
@@ -215,7 +217,7 @@ static gboolean remmina_rdp_tunnel_init(RemminaProtocolWidget *gp)
 		}
 	}
 
-	g_debug("[RDP] tunnel has been optionally initialized. Now connecting to %s:%d\n", host, port);
+	remmina_plugin_service->debug("Tunnel has been optionally initialized. Now connecting to %s:%d", host, port);
 
 	if (cert_host != host) g_free(cert_host);
 	g_free(host);
@@ -252,7 +254,7 @@ BOOL rf_auto_reconnect(rfContext *rfi)
 	}
 
 	/* A network disconnect was detected and we should try to reconnect */
-	remmina_plugin_service->log_printf("[RDP][%s] network disconnection detected, initiating reconnection attempt\n",
+	remmina_plugin_service->debug("[%s] network disconnection detected, initiating reconnection attempt",
 					   rfi->settings->ServerHostname);
 
 	ui = g_new0(RemminaPluginRdpUiObject, 1);
@@ -260,9 +262,9 @@ BOOL rf_auto_reconnect(rfContext *rfi)
 	remmina_rdp_event_queue_ui_async(rfi->protocol_widget, ui);
 
 	/* Sleep half a second to allow:
-	 *  - processing of the ui event we just pushed on the queue
+	 *  - processing of the UI event we just pushed on the queue
 	 *  - better network conditions
-	 *  Remember: we hare on a thread, so the main gui won’t lock */
+	 *  Remember: We hare on a thread, so the main gui won’t lock */
 
 	usleep(500000);
 
@@ -270,13 +272,13 @@ BOOL rf_auto_reconnect(rfContext *rfi)
 	while (TRUE) {
 		/* Quit retrying if max retries has been exceeded */
 		if (rfi->reconnect_nattempt++ >= rfi->reconnect_maxattempts) {
-			remmina_plugin_service->log_printf("[RDP][%s] maximum number of reconnection attempts exceeded.\n",
+			remmina_plugin_service->debug("[%s] maximum number of reconnection attempts exceeded.",
 							   rfi->settings->ServerHostname);
 			break;
 		}
 
 		/* Attempt the next reconnect */
-		remmina_plugin_service->log_printf("[RDP][%s] reconnection, attempt #%d of %d\n",
+		remmina_plugin_service->debug("[%s] reconnection, attempt #%d of %d",
 						   rfi->settings->ServerHostname, rfi->reconnect_nattempt, rfi->reconnect_maxattempts);
 
 		ui = g_new0(RemminaPluginRdpUiObject, 1);
@@ -287,13 +289,12 @@ BOOL rf_auto_reconnect(rfContext *rfi)
 
 		/* Reconnect the SSH tunnel, if needed */
 		if (!remmina_rdp_tunnel_init(rfi->protocol_widget)) {
-			remmina_plugin_service->log_printf("[RDP][%s] unable to recreate tunnel with remmina_rdp_tunnel_init.\n",
+			remmina_plugin_service->debug("[%s] unable to recreate tunnel with remmina_rdp_tunnel_init.",
 							   rfi->settings->ServerHostname);
 		} else {
 			if (freerdp_reconnect(rfi->instance)) {
 				/* Reconnection is successful */
-				remmina_plugin_service->log_printf("[RDP][%s] reconnected.\n",
-								   rfi->settings->ServerHostname);
+				remmina_plugin_service->debug("[%s] reconnected.", rfi->settings->ServerHostname);
 				rfi->is_reconnecting = FALSE;
 				return TRUE;
 			}
@@ -440,7 +441,7 @@ static BOOL rf_keyboard_set_indicators(rdpContext *context, UINT16 led_flags)
 				 ((led_flags & KBD_SYNC_NUM_LOCK) ? Mod2Mask : 0)
 				 );
 
-		/* ToDo: add support to KANA_LOCK and SCROLL_LOCK */
+		/* TODO: Add support to KANA_LOCK and SCROLL_LOCK */
 	}
 #endif
 
@@ -785,23 +786,38 @@ static void remmina_rdp_main_loop(RemminaProtocolWidget *gp)
 		}
 	}
 	freerdp_disconnect(rfi->instance);
-	g_debug("RDP client disconnected\n");
+	remmina_plugin_service->debug("RDP client disconnected");
 }
 
 int remmina_rdp_load_static_channel_addin(rdpChannels *channels, rdpSettings *settings, char *name, void *data)
 {
 	TRACE_CALL(__func__);
-	void *entry;
+	PVIRTUALCHANNELENTRY entry = NULL;
+	PVIRTUALCHANNELENTRYEX entryEx = NULL;
+	entryEx = (PVIRTUALCHANNELENTRYEX)(void*)freerdp_load_channel_addin_entry(
+	    name, NULL, NULL, FREERDP_ADDIN_CHANNEL_STATIC | FREERDP_ADDIN_CHANNEL_ENTRYEX);
 
-	entry = freerdp_load_channel_addin_entry(name, NULL, NULL, FREERDP_ADDIN_CHANNEL_STATIC);
-	if (entry) {
-		if (freerdp_channels_client_load(channels, settings, entry, data) == 0) {
+	if (!entryEx)
+		entry = freerdp_load_channel_addin_entry(name, NULL, NULL, FREERDP_ADDIN_CHANNEL_STATIC);
+
+	if (entryEx)
+	{
+		if (freerdp_channels_client_load_ex(channels, settings, entryEx, data) == 0)
+		{
 			fprintf(stderr, "loading channel %s\n", name);
-			return 0;
+			return TRUE;
+		}
+	}
+	else if (entry)
+	{
+		if (freerdp_channels_client_load(channels, settings, entry, data) == 0)
+		{
+			fprintf(stderr, "loading channel %s\n", name);
+			return TRUE;
 		}
 	}
 
-	return -1;
+	return FALSE;
 }
 
 gchar *remmina_rdp_find_prdriver(char *smap, char *prn)
@@ -909,24 +925,24 @@ int remmina_rdp_set_printers(void *user_data, unsigned flags, cups_dest_t *dest)
 	printer = (RDPDR_PRINTER *)calloc(1, sizeof(RDPDR_PRINTER));
 
 	printer->Type = RDPDR_DTYP_PRINT;
-	g_debug("Printer Type: %d", printer->Type);
+	remmina_plugin_service->debug("Printer Type: %d", printer->Type);
 
 	rfi->settings->RedirectPrinters = TRUE;
 	remmina_rdp_load_static_channel_addin(channels, rfi->settings, "rdpdr", rfi->settings);
 
-	g_debug("Destination: %s", dest->name);
+	remmina_plugin_service->debug("Destination: %s", dest->name);
 	if (!(printer->Name = _strdup(dest->name))) {
 		free(printer);
 		return 1;
 	}
 
-	g_debug("Printer Name: %s", printer->Name);
+	remmina_plugin_service->debug("Printer Name: %s", printer->Name);
 
 	if (s) {
 		gchar *d = remmina_rdp_find_prdriver(strdup(s), printer->Name);
 		if (d) {
 			printer->DriverName = strdup(d);
-			g_debug("Printer DriverName set to: %s", printer->DriverName);
+			remmina_plugin_service->debug("Printer DriverName set to: %s", printer->DriverName);
 			g_free(d);
 		} else {
 			/**
@@ -944,7 +960,7 @@ int remmina_rdp_set_printers(void *user_data, unsigned flags, cups_dest_t *dest)
 		printer->DriverName = _strdup(model);
 	}
 
-	g_debug("Printer Driver: %s", printer->DriverName);
+	remmina_plugin_service->debug("Printer Driver: %s", printer->DriverName);
 	if (!freerdp_device_collection_add(rfi->settings, (RDPDR_DEVICE *)printer)) {
 		free(printer->DriverName);
 		free(printer->Name);
@@ -956,7 +972,7 @@ int remmina_rdp_set_printers(void *user_data, unsigned flags, cups_dest_t *dest)
 }
 #endif /* HAVE_CUPS */
 
-/* Send Ctrl+Alt+Del keys keystrokes to the plugin drawing_area widget */
+/* Send Ctrl+Alt+Del keystrokes to the plugin drawing_area widget */
 static void remmina_rdp_send_ctrlaltdel(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
@@ -994,7 +1010,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 #if defined(PROXY_TYPE_IGNORE)
 	if (!remmina_plugin_service->file_get_int(remminafile, "useproxyenv", FALSE) ? TRUE : FALSE) {
-		remmina_plugin_service->log_print("[RDP] Not using system proxy settings\n");
+		remmina_plugin_service->debug("Not using system proxy settings");
 		rfi->settings->ProxyType = PROXY_TYPE_IGNORE;
 	}
 #endif
@@ -1075,18 +1091,18 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 	/**
 	 * Proxy support
-	 * Proxy settings are hidden at the moment as an advanced feauture
+	 * Proxy settings are hidden at the moment as an advanced feature
 	 */
 	gchar *proxy_type = g_strdup(remmina_plugin_service->file_get_string(remminafile, "proxy_type"));
 	gchar *proxy_username = g_strdup(remmina_plugin_service->file_get_string(remminafile, "proxy_username"));
 	gchar *proxy_password = g_strdup(remmina_plugin_service->file_get_string(remminafile, "proxy_password"));
 	gchar *proxy_hostname = g_strdup(remmina_plugin_service->file_get_string(remminafile, "proxy_hostname"));
 	gint proxy_port = remmina_plugin_service->file_get_int(remminafile, "proxy_port", 80);
-	g_debug("proxy_type: %s", proxy_type);
-	g_debug("proxy_username: %s", proxy_username);
-	g_debug("proxy_password: %s", proxy_password);
-	g_debug("proxy_hostname: %s", proxy_hostname);
-	g_debug("proxy_port: %d", proxy_port);
+	remmina_plugin_service->debug("proxy_type: %s", proxy_type);
+	remmina_plugin_service->debug("proxy_username: %s", proxy_username);
+	remmina_plugin_service->debug("proxy_password: %s", proxy_password);
+	remmina_plugin_service->debug("proxy_hostname: %s", proxy_hostname);
+	remmina_plugin_service->debug("proxy_port: %d", proxy_port);
 	if (proxy_type && proxy_hostname) {
 		if (g_strcmp0(proxy_type, "no_proxy") == 0)
 			rfi->settings->ProxyType = PROXY_TYPE_IGNORE;
@@ -1096,7 +1112,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 			rfi->settings->ProxyType = PROXY_TYPE_SOCKS;
 		else
 			g_warning("Invalid proxy protocol, at the moment only no_proxy, HTTP and SOCKS5 are supported");
-		g_debug("ProxyType set to: %d", rfi->settings->ProxyType);
+		remmina_plugin_service->debug("ProxyType set to: %d", rfi->settings->ProxyType);
 		rfi->settings->ProxyHostname = proxy_hostname;
 		if (proxy_username)
 			rfi->settings->ProxyUsername = proxy_username;
@@ -1261,10 +1277,15 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		rfi->settings->TlsSecurity = False;
 		rfi->settings->NlaSecurity = True;
 		rfi->settings->ExtSecurity = False;
-	}
+	} else if (g_strcmp0(cs, "ext") == 0) {
+		rfi->settings->RdpSecurity = False;
+		rfi->settings->TlsSecurity = False;
+		rfi->settings->NlaSecurity = False;
+		rfi->settings->ExtSecurity = True;
+	} else
+		/* This is "-nego" switch of xfreerdp */
+		rfi->settings->NegotiateSecurityLayer = True;
 
-	/* This is "-nego" switch of xfreerdp */
-	rfi->settings->NegotiateSecurityLayer = True;
 
 	rfi->settings->CompressionEnabled = True;
 	if (remmina_plugin_service->file_get_int(remminafile, "disable_fastpath", FALSE)) {
@@ -1336,6 +1357,9 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		freerdp_client_add_dynamic_channel(rfi->settings, count, p);
 	}
 
+	if (remmina_plugin_service->file_get_int(remminafile, "preferipv6", FALSE) ? TRUE : FALSE)
+		rfi->settings->PreferIPv6OverIPv4 = TRUE;
+
 	rfi->settings->RedirectClipboard = (remmina_plugin_service->file_get_int(remminafile, "disableclipboard", FALSE) ? FALSE : TRUE);
 
 	cs = remmina_plugin_service->file_get_string(remminafile, "sharefolder");
@@ -1367,12 +1391,12 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 	if (remmina_plugin_service->file_get_int(remminafile, "shareprinter", FALSE)) {
 #ifdef HAVE_CUPS
-		g_debug("Sharing printers");
+		remmina_plugin_service->debug("Sharing printers");
 		if (cupsEnumDests(CUPS_DEST_FLAGS_NONE, 1000, NULL, 0, 0, remmina_rdp_set_printers, rfi))
-			g_debug("All printers have been shared");
+			remmina_plugin_service->debug("All printers have been shared");
 
 		else
-			g_debug("Cannot share printers, are there any available?");
+			remmina_plugin_service->debug("Cannot share printers, are there any available?");
 
 #endif /* HAVE_CUPS */
 	}
@@ -1396,8 +1420,8 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	}
 
 	if (remmina_plugin_service->file_get_int(remminafile, "passwordispin", FALSE))
-		/* Option works only combined with Username and Domain, because freerdp
-		 * doesn’t know anything about information on smartcard */
+		/* Option works only combined with Username and Domain, because FreeRDP
+		 * doesn’t know anything about info on smart card */
 		rfi->settings->PasswordIsSmartcardPin = TRUE;
 
 	/* /serial[:<name>[,<path>[,<driver>[,permissive]]]] */
@@ -1451,6 +1475,18 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		freerdp_device_collection_add(rfi->settings, (RDPDR_DEVICE *)parallel);
 	}
 
+	/**
+	 * multitransport enables RDP8 UDP support
+	 */
+	if (remmina_plugin_service->file_get_int(remminafile, "multitransport", FALSE)) {
+		rfi->settings->DeviceRedirection = TRUE;
+		rfi->settings->SupportMultitransport = TRUE;
+		rfi->settings->MultitransportFlags =
+			(TRANSPORT_TYPE_UDP_FECR | TRANSPORT_TYPE_UDP_FECL | TRANSPORT_TYPE_UDP_PREFERRED);
+	} else {
+		rfi->settings->MultitransportFlags = 0;
+	}
+
 	/* If needed, force interactive authentication by deleting all authentication fields,
 	 * forcing libfreerdp to call our callbacks for authentication.
 	 *      This usually happens from a second attempt of connection, never on the 1st one. */
@@ -1482,7 +1518,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 			switch (e) {
 			case FREERDP_ERROR_AUTHENTICATION_FAILED:
-			case STATUS_LOGON_FAILURE:              // wrong return code from FreeRDP introduced at the end of July 2016 ? (fixed with b86c0ba)
+			case STATUS_LOGON_FAILURE:              // wrong return code from FreeRDP introduced at the end of July 2016? (fixed with b86c0ba)
 #ifdef FREERDP_ERROR_CONNECT_LOGON_FAILURE
 			case FREERDP_ERROR_CONNECT_LOGON_FAILURE:
 #endif
@@ -1551,7 +1587,8 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 										  _("Could not connect to the RDP server \"%s\" via TLS. Check that client and server support a common TLS version."), rfi->settings->ServerHostname);
 				break;
 			case FREERDP_ERROR_SECURITY_NEGO_CONNECT_FAILED:
-				remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to establish a connection to the RDP server \"%s\"."), rfi->settings->ServerHostname);
+				// TRANSLATORS: the placeholder may be either an IP/FQDN or a server hostname
+				remmina_plugin_service->protocol_plugin_set_error(gp, _("Unable to establish a connection to the RDP server. Check \"Security protocol negotiation\" \"%s\"."), rfi->settings->ServerHostname);
 				break;
 #ifdef FREERDP_ERROR_POST_CONNECT_FAILED
 			case FREERDP_ERROR_POST_CONNECT_FAILED:
@@ -1792,7 +1829,7 @@ static gboolean remmina_rdp_close_connection(RemminaProtocolWidget *gp)
 
 
 	if (rfi && rfi->clipboard.srv_clip_data_wait == SCDW_BUSY_WAIT) {
-		g_debug("[RDP] requesting clipboard transfer to abort");
+		remmina_plugin_service->debug("[RDP] requesting clipboard transfer to abort");
 		/* Allow clipboard transfer from server to terminate */
 		rfi->clipboard.srv_clip_data_wait = SCDW_ABORTING;
 		usleep(100000);
@@ -1825,7 +1862,7 @@ static void remmina_rdp_call_feature(RemminaProtocolWidget *gp, const RemminaPro
 			rfi->scale = remmina_plugin_service->remmina_protocol_widget_get_current_scale_mode(gp);
 			remmina_rdp_event_update_scale(gp);
 		} else {
-			printf("REMMINA RDP PLUGIN WARNING: rfi is null in %s REMMINA_RDP_FEATURE_SCALE\n", __func__);
+			printf("Remmina RDP plugin warning: Null value for rfi in %s REMMINA_RDP_FEATURE_SCALE\n", __func__);
 		}
 		break;
 
@@ -1838,7 +1875,7 @@ static void remmina_rdp_call_feature(RemminaProtocolWidget *gp, const RemminaPro
 						   remmina_plugin_service->protocol_plugin_get_width(gp),
 						   remmina_plugin_service->protocol_plugin_get_height(gp));
 		} else {
-			printf("REMMINA RDP PLUGIN WARNING: rfi is null in %s REMMINA_RDP_FEATURE_TOOL_REFRESH\n", __func__);
+			printf("Remmina RDP plugin warning: Null value for rfi in %s REMMINA_RDP_FEATURE_TOOL_REFRESH\n", __func__);
 		}
 		break;
 
@@ -1878,15 +1915,15 @@ static gboolean remmina_rdp_get_screenshot(RemminaProtocolWidget *gp, RemminaPlu
 	bytesPerPixel = GetBytesPerPixel(gdi->hdc->format);
 	bitsPerPixel = GetBitsPerPixel(gdi->hdc->format);
 
-	/** @todo we should lock freerdp subthread to update rfi->primary_buffer, rfi->gdi and w/h,
+	/** @todo we should lock FreeRDP subthread to update rfi->primary_buffer, rfi->gdi and w/h,
 	 * from here to memcpy, but… how ? */
 
 	szmem = gdi->width * gdi->height * bytesPerPixel;
 
-	remmina_plugin_service->log_printf("[RDP] allocating %zu bytes for a full screenshot\n", szmem);
+	remmina_plugin_service->debug("allocating %zu bytes for a full screenshot", szmem);
 	rpsd->buffer = malloc(szmem);
 	if (!rpsd->buffer) {
-		remmina_plugin_service->log_printf("[RDP] could not set aside %zu bytes for a full screenshot\n", szmem);
+		remmina_plugin_service->debug("could not set aside %zu bytes for a full screenshot", szmem);
 		return FALSE;
 	}
 	rpsd->width = gdi->width;
@@ -1941,27 +1978,28 @@ static gpointer sound_list[] =
 /* Array of key/value pairs for security */
 static gpointer security_list[] =
 {
-	"",    N_("Negotiate"),
-	"nla", "NLA",
-	"tls", "TLS",
-	"rdp", "RDP",
+	"",    N_("Automatically negotiate"),
+	"nla", N_("NLA protocol security"),
+	"tls", N_("TLS protocol security"),
+	"rdp", N_("RDP protocol security"),
+	"ext", N_("NLA extended protocol security"),
 	NULL
 };
 
 static gpointer gwtransp_list[] =
 {
-	"http", "http",
-	"rpc",	"rpc",
-	"auto", "auto",
+	"http", "HTTP",
+	"rpc",	"RPC",
+	"auto", "Auto",
 	NULL
 };
 
 static gchar clientbuild_list[] =
-	N_("2600 (Windows XP),7601 (Windows Vista/7),9600 (Windows 8 and newer)");
+	N_("2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)");
 
 static gchar clientbuild_tooltip[] =
-	N_("Used i.a. by Terminal services in SmartCard channel to distinguish client capabilities:\n"
-	   "  • < 4034: Windows XP base smartcard functions\n"
+	N_("Used i.a. by terminal services in smart card channel to distinguish client capabilities:\n"
+	   "  • < 4034: Windows XP base smart card functions\n"
 	   "  • 4034-7064: Windows Vista/7: SCardReadCache(), SCardWriteCache(),\n"
 	   "    SCardGetTransmitCount()\n"
 	   "  • >= 7065: Windows 8 and newer: SCardGetReaderIcon(), SCardGetDeviceTypeId()");
@@ -2000,14 +2038,14 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 {
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",		    N_("Quality"),					 FALSE, quality_list,  NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "sound",		    N_("Sound"),					 FALSE, sound_list,    NULL													      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "security",		    N_("Security"),					 FALSE, security_list, NULL													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "security",		    N_("Security protocol negotiation"),		 FALSE, security_list, NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "gwtransp",		    N_("Gateway transport type"),			 FALSE, gwtransp_list, NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "gateway_server",	    N_("Remote Desktop Gateway server"),		 FALSE, NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "gateway_username",	    N_("Remote Desktop Gateway username"),		 FALSE, NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "gateway_password",	    N_("Remote Desktop Gateway password"),		 FALSE, NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "gateway_domain",	    N_("Remote Desktop Gateway domain"),		 FALSE, NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "clientname",		    N_("Client name"),					 FALSE, NULL,	       NULL													      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_COMBO,	  "clientbuild",		    N_("Client build"),					 FALSE, clientbuild_list,	       clientbuild_tooltip													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_COMBO,	  "clientbuild",	    N_("Client build"),					 FALSE, clientbuild_list,	       clientbuild_tooltip									      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "exec",		    N_("Startup program"),				 FALSE, NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "execpath",		    N_("Startup path"),					 FALSE, NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "loadbalanceinfo",	    N_("Load balance info"),				 FALSE, NULL,	       NULL													      },
@@ -2017,17 +2055,18 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "serialpath",		    N_("Local serial path"),				 FALSE, NULL,	       N_("/dev/ttyS0, /dev/ttyS1, etc.")									      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "parallelname",	    N_("Local parallel name"),				 FALSE, NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "parallelpath",	    N_("Local parallel device"),			 FALSE, NULL,	       NULL													      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "smartcardname",	    N_("Smartcard name"),				 FALSE, NULL,	       NULL													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "smartcardname",	    N_("Name of smart card"),				 FALSE, NULL,	       NULL													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "preferipv6",	    	    N_("Prefer IPv6 AAAA record over IPv4 A record"),	 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "shareprinter",	    N_("Share printers"),				 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "shareserial",	    N_("Share serial ports"),				 TRUE,	NULL,	       NULL													      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "serialpermissive",	    N_("(SELinux) permissive mode for serial ports"),			 TRUE,	NULL,	       NULL													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "serialpermissive",	    N_("(SELinux) permissive mode for serial ports"),	 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "shareparallel",	    N_("Share parallel ports"),				 TRUE,	NULL,	       NULL													      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "sharesmartcard",	    N_("Share smartcard"),				 TRUE,	NULL,	       NULL													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "sharesmartcard",	    N_("Share a smart card"),				 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "microphone",		    N_("Redirect local microphone"),			 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "disableclipboard",	    N_("Turn off clipboard sync"),			 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "cert_ignore",	    N_("Ignore certificate"),				 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "old-license",	    N_("Use the old license workflow"),				 TRUE,	NULL,	       N_("It disables CAL and hwId is set to 0")													      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "disablepasswordstoring", N_("Turn off password storing"),			 TRUE,	NULL,	       NULL													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "disablepasswordstoring", N_("Forget passwords after use"),			 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "console",		    N_("Attach to console (2003/2003 R2)"),		 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "disable_fastpath",	    N_("Turn off fast-path"),				 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "gateway_usage",	    N_("Server detection using Remote Desktop Gateway"), TRUE,	NULL,	       NULL													      },
@@ -2037,6 +2076,7 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "disableautoreconnect",   N_("Turn off automatic reconnection"),		 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "relax-order-checks",	    N_("Relax order checks"),				 TRUE,	NULL,	       NULL													      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "glyph-cache",	    N_("Glyph cache"),					 TRUE,	NULL,	       NULL													      },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "multitransport",	    N_("Enable multitransport protocol (UDP)"),		 TRUE,	NULL,	       N_("Using the UDP protocol may improve performance")							      },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,			    NULL,						 FALSE, NULL,	       NULL													      }
 };
 
@@ -2138,8 +2178,8 @@ G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService *service)
 	if (vermaj < FREERDP_REQUIRED_MAJOR ||
 	    (vermaj == FREERDP_REQUIRED_MAJOR && (vermin < FREERDP_REQUIRED_MINOR ||
 						  (vermin == FREERDP_REQUIRED_MINOR && verrev < FREERDP_REQUIRED_REVISION)))) {
-		g_printf("Unable to load RDP plugin due to bad freerdp library version. Required "
-			 "libfreerdp version is at least %d.%d.%d but we found libfreerdp version %d.%d.%d\n",
+		g_printf("Upgrade your FreeRDP library version from %d.%d.%d to at least libfreerdp %d.%d.%d "
+			 "to run the RDP plugin.\n",
 			 FREERDP_REQUIRED_MAJOR, FREERDP_REQUIRED_MINOR, FREERDP_REQUIRED_REVISION,
 			 vermaj, vermin, verrev);
 		return FALSE;
@@ -2180,7 +2220,7 @@ G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService *service)
 	}
 
 	snprintf(remmina_plugin_rdp_version, sizeof(remmina_plugin_rdp_version),
-		 "RDP plugin: %s (Git %s), Compiled with FreeRDP lib: %s (%s), Running with FreeRDP lib: %s (rev %s), H.264: %s",
+		 "RDP plugin: %s (Git %s), Compiled with libfreerdp: %s (%s), Running with libfreerdp: %s (rev %s), H.264: %s",
 		 VERSION, REMMINA_GIT_REVISION,
 		 FREERDP_VERSION_FULL, GIT_REVISION,
 		 freerdp_get_version_string(),

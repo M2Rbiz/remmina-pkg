@@ -555,7 +555,7 @@ void remmina_protocol_widget_send_keystrokes(RemminaProtocolWidget *gp, GtkMenuI
 gboolean remmina_protocol_widget_plugin_screenshot(RemminaProtocolWidget *gp, RemminaPluginScreenshotData *rpsd)
 {
 	if (!gp->priv->plugin->get_plugin_screenshot) {
-		remmina_log_printf("plugin screenshot function is not implemented\n");
+		remmina_debug("plugin screenshot function is not implemented, using core Remmina functionality");
 		return FALSE;
 	}
 
@@ -748,14 +748,14 @@ static RemminaSSHTunnel* remmina_protocol_widget_init_tunnel(RemminaProtocolWidg
 	g_free(msg);
 
 	if (!remmina_ssh_init_session(REMMINA_SSH(tunnel))) {
-		g_debug ("[SSH] %s Cannot init SSH session with tunnel struct", __func__);
+		remmina_debug ("%s Cannot init SSH session with tunnel struct", __func__);
 		remmina_protocol_widget_set_error(gp, REMMINA_SSH(tunnel)->error);
 		remmina_ssh_tunnel_free(tunnel);
 		return NULL;
 	}
 
 	ret = remmina_ssh_auth_gui(REMMINA_SSH(tunnel), gp, gp->priv->remmina_file);
-	g_debug ("[SSH] tunnel auth returned %d", ret);
+	remmina_debug ("Tunnel auth returned %d", ret);
 	if (ret != REMMINA_SSH_AUTH_SUCCESS) {
 		if (ret != REMMINA_SSH_AUTH_USERCANCEL)
 			remmina_protocol_widget_set_error(gp, REMMINA_SSH(tunnel)->error);
@@ -855,7 +855,7 @@ gchar *remmina_protocol_widget_start_direct_tunnel(RemminaProtocolWidget *gp, gi
 	if (!tunnel) {
 		g_free(srv_host);
 		g_free(ssh_tunnel_host);
-		g_debug ("[SSH] %s remmina_protocol_widget_init_tunnel failed with error is %s\n",
+		remmina_debug ("%s remmina_protocol_widget_init_tunnel failed with error is %s",
 				 __func__, remmina_protocol_widget_get_error_message(gp));
 		return NULL;
 	}
@@ -923,7 +923,7 @@ gboolean remmina_protocol_widget_start_reverse_tunnel(RemminaProtocolWidget *gp,
 	if (!(tunnel = remmina_protocol_widget_init_tunnel(gp)))
 		return FALSE;
 
-	msg = g_strdup_printf(_("Awaiting incoming SSH connection at port %i…"), remmina_file_get_int(gp->priv->remmina_file, "listenport", 0));
+	msg = g_strdup_printf(_("Awaiting incoming SSH connection on port %i…"), remmina_file_get_int(gp->priv->remmina_file, "listenport", 0));
 	mp = remmina_protocol_widget_mpprogress(gp->cnnobj, msg, cancel_start_reverse_tunnel_cb, NULL);
 	g_free(msg);
 
@@ -1102,14 +1102,14 @@ void remmina_protocol_widget_set_display(RemminaProtocolWidget *gp, gint display
 gint remmina_protocol_widget_get_profile_remote_width(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
-	/* Returns the width of remote desktop as choosen by the user profile */
+	/* Returns the width of remote desktop as chosen by the user profile */
 	return gp->priv->profile_remote_width;
 }
 
 gint remmina_protocol_widget_get_profile_remote_height(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
-	/* Returns the height of remote desktop as choosen by the user profile */
+	/* Returns the height of remote desktop as chosen by the user profile */
 	return gp->priv->profile_remote_height;
 }
 
@@ -1439,7 +1439,7 @@ gint remmina_protocol_widget_panel_authuserpwd_ssh_tunnel(RemminaProtocolWidget 
 	username = remmina_file_get_string(remminafile, "ssh_tunnel_username");
 	password = remmina_file_get_string(remminafile, "ssh_tunnel_password");
 
-	return remmina_protocol_widget_dialog(RPWDT_AUTH, gp, pflags, _("Type in username and password for SSH."), username,
+	return remmina_protocol_widget_dialog(RPWDT_AUTH, gp, pflags, _("Type in SSH username and password."), username,
 					      password, NULL, _("Password"));
 }
 
