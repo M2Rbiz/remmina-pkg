@@ -83,28 +83,32 @@ static void soup_callback(SoupSession *session, SoupMessage *msg, gpointer user_
 	gchar *s = (gchar*)user_data;
 	SoupBuffer *sb;
 	gboolean passed;
-	GTimeVal t;
+	GDateTime *gdt;
+	gint64 unixts;
 
 	g_free(s);
 
 	if (msg->status_code != 200) {
-		remmina_log_printf("HTTP status error sending stats: %d\n",msg->status_code);
+		remmina_debug("HTTP status error sending stats: %d\n", msg->status_code);
 		return;
 	}
 
+	gdt = g_date_time_new_now_utc();
+	unixts = g_date_time_to_unix(gdt);
+	g_date_time_to_unix(gdt);
+
 	passed = FALSE;
 	sb = soup_message_body_flatten(msg->response_body);
-	remmina_log_printf("STATS script response: %.40s\n", sb->data);
+	remmina_debug("STATS script response: %.40s\n", sb->data);
 	if (strncmp(sb->data, "200 ", 4) != 0) {
-		remmina_log_printf("STATS http upload error from server side script: %s\n", sb->data);
+		remmina_debug("STATS http upload error from server side script: %s\n", sb->data);
 	} else {
 		passed = TRUE;
 	}
 	soup_buffer_free(sb);
 
 	if (passed) {
-		g_get_current_time(&t);
-		remmina_pref.periodic_usage_stats_last_sent = t.tv_sec;
+		remmina_pref.periodic_usage_stats_last_sent = unixts;
 		remmina_pref_save();
 	}
 
@@ -195,8 +199,7 @@ static gboolean remmina_stats_collector_done(gpointer data)
 	json_generator_set_root(g, n);
 	json_node_unref(n);
 	unenc_s = json_generator_to_data(g, NULL);	// unenc_s=serialized stats
-	remmina_log_printf("STATS upload: JSON data%s\n", unenc_s);
-	g_debug("STATS upload: JSON data%s\n", unenc_s);
+	remmina_debug("STATS upload: JSON data%s\n", unenc_s);
 	g_object_unref(g);
 
 	/* Now encrypt "s" with remminastats public key */
@@ -253,7 +256,7 @@ static gboolean remmina_stats_collector_done(gpointer data)
 			SOUP_MEMORY_COPY, enc_s, strlen(enc_s));
 		soup_session_queue_message(ss, msg, soup_callback, enc_s);
 
-		remmina_log_printf("STATS upload: Starting upload to url %s\n", PERIODIC_UPLOAD_URL);
+		remmina_debug("STATS upload: Starting upload to url %s\n", PERIODIC_UPLOAD_URL);
 	}
 
 	json_node_unref(n);
@@ -304,17 +307,21 @@ gboolean remmina_stat_sender_can_send()
 static gboolean remmina_stats_sender_periodic_check(gpointer user_data)
 {
 	TRACE_CALL(__func__);
-	GTimeVal t;
+	GDateTime *gdt;
+	gint64 unixts;
 	glong next;
+
+	gdt = g_date_time_new_now_utc();
+	unixts = g_date_time_to_unix(gdt);
+	g_date_time_to_unix(gdt);
 
 	if (!remmina_stat_sender_can_send())
 		return G_SOURCE_REMOVE;
 
 	/* Calculate "next" upload time based on last sent time */
 	next = remmina_pref.periodic_usage_stats_last_sent + PERIODIC_UPLOAD_INTERVAL_SEC;
-	g_get_current_time(&t);
 	/* If current time is after "next" or clock is going back (but > 1/1/2018), then do send stats */
-	if (t.tv_sec > next || (t.tv_sec < remmina_pref.periodic_usage_stats_last_sent && t.tv_sec > 1514764800)) {
+	if (unixts > next || (unixts < remmina_pref.periodic_usage_stats_last_sent && unixts > 1514764800)) {
 		remmina_stats_sender_send(FALSE);
 	}
 

@@ -66,6 +66,8 @@ static RemminaMain *remminamain;
 
 #define RM_GET_OBJECT(object_name) gtk_builder_get_object(remminamain->builder, object_name)
 
+char *fun = "main"; /* just setting the initial value of the calling function name, that is set in the remmina_trace */
+
 enum {
 	PROTOCOL_COLUMN,
 	NAME_COLUMN,
@@ -1048,7 +1050,7 @@ static gboolean remmina_main_quickconnect(void)
 	gchar *qcp;
 
 
-	/* Save quick connect protocol if different from the previuous one */
+	/* Save quick connect protocol if different from the previous one */
 	qcp = gtk_combo_box_text_get_active_text(remminamain->combo_quick_connect_protocol);
 	if (qcp && strcmp(qcp, remmina_pref.last_quickconnect_protocol) != 0) {
 		g_free(remmina_pref.last_quickconnect_protocol);
@@ -1220,6 +1222,7 @@ static void remmina_main_init(void)
 	int i, qcp_idx, qcp_actidx;
 	char *name;
 
+	remmina_debug ("Initializing the Remmina main window");
 	remminamain->priv->expanded_group = remmina_string_array_new_from_string(remmina_pref.expanded_group);
 	if (!kioskmode && kioskmode == FALSE) {
 		gtk_window_set_title(remminamain->window, _("Remmina Remote Desktop Client"));
@@ -1232,7 +1235,7 @@ static void remmina_main_init(void)
 			gtk_window_maximize(remminamain->window);
 		}
 	}
-	/* Honor global peferences Search Bar visibility */
+	/* Honor global preferences Search Bar visibility */
 	if (remmina_pref.hide_searchbar)
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(RM_GET_OBJECT("search_toggle")), FALSE);
 
