@@ -92,6 +92,103 @@ static char remmina_rdp_plugin_default_drive_name[] = "RemminaDisk";
 
 static BOOL gfx_h264_available = FALSE;
 
+/* Compatibility: these functions have been introduced with https://github.com/FreeRDP/FreeRDP/commit/8c5d96784d
+ * and are missing on older FreeRDP, so we add them here.
+ * They should be removed from here after all distributed versions of FreeRDP (libwinpr) will have
+ * CommandLineParseCommaSeparatedValuesEx() onboard.
+ *
+ * (C) Copyright goes to the FreeRDP authors.
+ */
+static char** remmina_rdp_CommandLineParseCommaSeparatedValuesEx(const char* name, const char* list, size_t* count)
+{
+	char** p;
+	char* str;
+	size_t nArgs;
+	size_t index;
+	size_t nCommas;
+	size_t prefix, len;
+	nCommas = 0;
+
+	if (count == NULL)
+		return NULL;
+
+	*count = 0;
+
+	if (!list)
+	{
+		if (name)
+		{
+			size_t len = strlen(name);
+			p = (char**)calloc(2UL + len, sizeof(char*));
+
+			if (p)
+			{
+				char* dst = (char*)&p[1];
+				p[0] = dst;
+				sprintf_s(dst, len + 1, "%s", name);
+				*count = 1;
+				return p;
+			}
+		}
+
+		return NULL;
+	}
+
+	{
+		const char* it = list;
+
+		while ((it = strchr(it, ',')) != NULL)
+		{
+			it++;
+			nCommas++;
+		}
+	}
+
+	nArgs = nCommas + 1;
+
+	if (name)
+		nArgs++;
+
+	prefix = (nArgs + 1UL) * sizeof(char*);
+	len = strlen(list);
+	p = (char**)calloc(len + prefix + 1, sizeof(char*));
+
+	if (!p)
+		return NULL;
+
+	str = &((char*)p)[prefix];
+	memcpy(str, list, len);
+
+	if (name)
+		p[0] = (char*)name;
+
+	for (index = name ? 1 : 0; index < nArgs; index++)
+	{
+		char* comma = strchr(str, ',');
+		p[index] = str;
+
+		if (comma)
+		{
+			str = comma + 1;
+			*comma = '\0';
+		}
+	}
+
+	*count = nArgs;
+	return p;
+}
+
+static char** remmina_rdp_CommandLineParseCommaSeparatedValues(const char* list, size_t* count)
+{
+	return remmina_rdp_CommandLineParseCommaSeparatedValuesEx(NULL, list, count);
+}
+
+/*
+ * End of CommandLineParseCommaSeparatedValuesEx() compatibility and copyright
+ */
+
+
+
 static BOOL rf_process_event_queue(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
@@ -676,6 +773,25 @@ static BOOL remmina_rdp_gw_authenticate(freerdp *instance, char **username, char
 	return True;
 }
 
+static DWORD remmina_rdp_verify_certificate_ex(freerdp* instance, const char* host, UINT16 port,
+                                       const char* common_name, const char* subject,
+                                       const char* issuer, const char* fingerprint, DWORD flags)
+{
+	TRACE_CALL(__func__);
+	gint status;
+	rfContext *rfi;
+	RemminaProtocolWidget *gp;
+
+	rfi = (rfContext *)instance->context;
+	gp = rfi->protocol_widget;
+
+	status = remmina_plugin_service->protocol_plugin_init_certificate(gp, subject, issuer, fingerprint);
+
+	if (status == GTK_RESPONSE_OK)
+		return 1;
+
+	return 0;
+}
 
 static DWORD remmina_rdp_verify_certificate(freerdp *instance, const char *common_name, const char *subject,
 					    const char *issuer, const char *fingerprint, BOOL host_mismatch)
@@ -695,6 +811,29 @@ static DWORD remmina_rdp_verify_certificate(freerdp *instance, const char *commo
 
 	return 0;
 }
+
+static DWORD remmina_rdp_verify_changed_certificate_ex(freerdp* instance, const char* host, UINT16 port,
+                                               const char* common_name, const char* subject,
+                                               const char* issuer, const char* fingerprint,
+                                               const char* old_subject, const char* old_issuer,
+                                               const char* old_fingerprint, DWORD flags)
+{
+	TRACE_CALL(__func__);
+	gint status;
+	rfContext *rfi;
+	RemminaProtocolWidget *gp;
+
+	rfi = (rfContext *)instance->context;
+	gp = rfi->protocol_widget;
+
+	status = remmina_plugin_service->protocol_plugin_changed_certificate(gp, subject, issuer, fingerprint, old_fingerprint);
+
+	if (status == GTK_RESPONSE_OK)
+		return 1;
+
+	return 0;
+}
+
 static DWORD remmina_rdp_verify_changed_certificate(freerdp *instance,
 						    const char *common_name, const char *subject, const char *issuer,
 						    const char *new_fingerprint, const char *old_subject, const char *old_issuer, const char *old_fingerprint)
@@ -910,7 +1049,6 @@ int remmina_rdp_set_printers(void *user_data, unsigned flags, cups_dest_t *dest)
 	 * 		dest->options);
 	 * @endcode
 	 */
-	const char *model = NULL;
 
 	RemminaFile *remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 	const gchar *s = remmina_plugin_service->file_get_string(remminafile, "printer_overrides");
@@ -950,8 +1088,7 @@ int remmina_rdp_set_printers(void *user_data, unsigned flags, cups_dest_t *dest)
 		}
 	} else {
 		/* We set to a default driver*/
-		model = _strdup("MS Publisher Imagesetter");
-		printer->DriverName = _strdup(model);
+		printer->DriverName = _strdup("MS Publisher Imagesetter");
 	}
 
 	REMMINA_PLUGIN_DEBUG("Printer Driver: %s", printer->DriverName);
@@ -1346,7 +1483,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		char **p;
 		size_t count;
 
-		p = CommandLineParseCommaSeparatedValuesEx("audin", g_strdup(cs), &count);
+		p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("audin", g_strdup(cs), &count);
 
 		freerdp_client_add_dynamic_channel(rfi->settings, count, p);
 		rfi->settings->AudioCapture = TRUE;
@@ -1357,7 +1494,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	if (cs != NULL && cs[0] != '\0') {
 		char **p;
 		size_t count;
-		p = CommandLineParseCommaSeparatedValuesEx("urbdrc", g_strdup(cs), &count);
+		p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("urbdrc", g_strdup(cs), &count);
 		freerdp_client_add_dynamic_channel(rfi->settings, count, p);
 		g_free(p);
 	}
@@ -1366,7 +1503,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	if (cs != NULL && cs[0] != '\0') {
 		char **p;
 		size_t count;
-		p = CommandLineParseCommaSeparatedValues(g_strdup(cs), &count);
+		p = remmina_rdp_CommandLineParseCommaSeparatedValues(g_strdup(cs), &count);
 		freerdp_client_add_static_channel(rfi->settings, count, p);
 		g_free(p);
 	}
@@ -1375,7 +1512,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	if (cs != NULL && cs[0] != '\0') {
 		char **p;
 		size_t count;
-		p = CommandLineParseCommaSeparatedValues(g_strdup(cs), &count);
+		p = remmina_rdp_CommandLineParseCommaSeparatedValues(g_strdup(cs), &count);
 		freerdp_client_add_dynamic_channel(rfi->settings, count, p);
 		g_free(p);
 	}
@@ -1766,8 +1903,10 @@ static void remmina_rdp_init(RemminaProtocolWidget *gp)
 	instance->PostDisconnect = remmina_rdp_post_disconnect;
 	instance->Authenticate = remmina_rdp_authenticate;
 	instance->GatewayAuthenticate = remmina_rdp_gw_authenticate;
-	instance->VerifyCertificate = remmina_rdp_verify_certificate;
-	instance->VerifyChangedCertificate = remmina_rdp_verify_changed_certificate;
+	//instance->VerifyCertificate = remmina_rdp_verify_certificate;
+	instance->VerifyCertificateEx = remmina_rdp_verify_certificate_ex;
+	//instance->VerifyChangedCertificate = remmina_rdp_verify_changed_certificate;
+	instance->VerifyChangedCertificateEx = remmina_rdp_verify_changed_certificate_ex;
 
 	instance->ContextSize = sizeof(rfContext);
 	freerdp_context_new(instance);
@@ -2002,7 +2141,7 @@ static gpointer sound_list[] =
 /* Array of key/value pairs for security */
 static gpointer security_list[] =
 {
-	"",    N_("Automatically negotiate"),
+	"",    N_("Automatic negotiation"),
 	"nla", N_("NLA protocol security"),
 	"tls", N_("TLS protocol security"),
 	"rdp", N_("RDP protocol security"),
