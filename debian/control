@@ -6,7 +6,7 @@ Uploaders:
  Matteo F. Vescovi <mfv@debian.org>
 Build-Depends:
  cmake (>= 3.5),
- debhelper-compat (= 12),
+ debhelper-compat (= 13),
  freerdp2-dev (>= 2.0.0~),
  intltool,
  libayatana-appindicator3-dev,
@@ -288,3 +288,23 @@ Description: WWW plugin for Remmina
  Currently RDP, VNC, SPICE, WWW, NX, XDMCP, EXEC and SSH are supported.
  .
  This package contains the WWW plugin for Remmina.
+
+Package: remmina-plugin-kiosk
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ remmina (= ${binary:Version})
+Description: Kiosk plugin for Remmina
+ Remmina is a remote desktop client written in GTK+, aiming to be
+ useful for system administrators and travellers, who need to work
+ with lots of remote computers in front of either large monitors or
+ tiny netbooks.
+ .
+ Remmina supports multiple network protocols in an integrated and
+ consistent user interface.
+ .
+ Currently RDP, VNC, SPICE, WWW, NX, XDMCP, EXEC and SSH are supported.
+ .
+ This package contains the Kiosk plugin for Remmina.

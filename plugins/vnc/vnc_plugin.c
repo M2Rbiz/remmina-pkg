@@ -51,6 +51,7 @@
 #define GET_PLUGIN_DATA(gp) (RemminaPluginVncData *)g_object_get_data(G_OBJECT(gp), "plugin-data")
 
 static RemminaPluginService *remmina_plugin_service = NULL;
+#define REMMINA_PLUGIN_DEBUG(fmt, ...) remmina_plugin_service->_remmina_debug(__func__, fmt, ##__VA_ARGS__)
 
 static int dot_cursor_x_hot = 2;
 static int dot_cursor_y_hot = 2;
@@ -116,6 +117,17 @@ static void onMainThread_schedule_callback_and_wait(struct onMainThread_cb_data 
 	pthread_mutex_destroy(&d->mu);
 }
 
+/**
+   Function check_for_endianness() returns 1, if architecture
+   is little endian, 0 in case of big endian.
+ */
+static gboolean check_for_endianness()
+{
+  unsigned int x = 1;
+  char *c = (char*) &x;
+  return (int)*c;
+}
+
 static void remmina_plugin_vnc_event_push(RemminaProtocolWidget *gp, gint event_type, gpointer p1, gpointer p2, gpointer p3)
 {
 	TRACE_CALL(__func__);
@@ -172,7 +184,7 @@ static void remmina_plugin_vnc_event_free_all(RemminaProtocolWidget *gp)
 	RemminaPluginVncEvent *event;
 
 	/* This is called from main thread after plugin thread has
-	 * been closed, so no queue locking is nessesary here */
+	 * been closed, so no queue locking is necessary here */
 	while ((event = g_queue_pop_head(gpdata->vnc_event_queue)) != NULL)
 		remmina_plugin_vnc_event_free(event);
 }
@@ -369,7 +381,7 @@ static void remmina_plugin_vnc_update_quality(rfbClient *cl, gint quality)
 	switch (quality) {
 	case 9:
 		cl->appData.useBGR233 = 0;
-		cl->appData.encodingsString = "tight copyrect zlib hextile raw";
+		cl->appData.encodingsString = "copyrect zlib hextile raw";
 		cl->appData.compressLevel = 1;
 		cl->appData.qualityLevel = 9;
 		break;
@@ -398,9 +410,12 @@ static void remmina_plugin_vnc_update_quality(rfbClient *cl, gint quality)
 static void remmina_plugin_vnc_update_colordepth(rfbClient *cl, gint colordepth)
 {
 	TRACE_CALL(__func__);
+
 	cl->format.depth = colordepth;
-	cl->format.bigEndian = 0;
 	cl->appData.requestedDepth = colordepth;
+
+	cl->format.trueColour = 1;
+	cl->format.bigEndian = check_for_endianness()?FALSE:TRUE;
 
 	switch (colordepth) {
 	case 8:
@@ -414,14 +429,14 @@ static void remmina_plugin_vnc_update_colordepth(rfbClient *cl, gint colordepth)
 		cl->format.redShift = 0;
 		break;
 	case 16:
-		//cl->format.depth = 16;
+		cl->format.depth = 15;
 		cl->format.bitsPerPixel = 16;
-		cl->format.blueMax = 31;
-		cl->format.blueShift = 0;
-		cl->format.greenMax = 63;
-		cl->format.greenShift = 5;
-		cl->format.redMax = 31;
 		cl->format.redShift = 11;
+		cl->format.greenShift = 6;
+		cl->format.blueShift = 1;
+		cl->format.redMax = 31;
+		cl->format.greenMax = 31;
+		cl->format.blueMax = 31;
 		break;
 	case 32:
 	default:
@@ -435,15 +450,18 @@ static void remmina_plugin_vnc_update_colordepth(rfbClient *cl, gint colordepth)
 		cl->format.greenMax = 0xff;
 		break;
 	}
+
 	rfbClientLog ("colordepth          = %d\n", colordepth);
 	rfbClientLog ("format.depth        = %d\n", cl->format.depth);
 	rfbClientLog ("format.bitsPerPixel = %d\n", cl->format.bitsPerPixel);
 	rfbClientLog ("format.blueShift    = %d\n", cl->format.blueShift);
 	rfbClientLog ("format.redShift     = %d\n", cl->format.redShift);
+	rfbClientLog ("format.trueColour   = %d\n", cl->format.trueColour);
 	rfbClientLog ("format.greenShift   = %d\n", cl->format.greenShift);
 	rfbClientLog ("format.blueMax      = %d\n", cl->format.blueMax);
 	rfbClientLog ("format.redMax       = %d\n", cl->format.redMax);
 	rfbClientLog ("format.greenMax     = %d\n", cl->format.greenMax);
+	rfbClientLog ("format.bigEndian    = %d\n", cl->format.bigEndian);
 }
 
 static rfbBool remmina_plugin_vnc_rfb_allocfb(rfbClient *cl)
@@ -673,24 +691,25 @@ static gboolean remmina_plugin_vnc_queue_cuttext(RemminaPluginVncCuttextParam *p
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = param->gp;
 	RemminaPluginVncData *gpdata = GET_PLUGIN_DATA(gp);
-	GTimeVal t;
+	GDateTime *t;
 	glong diff;
 	const char *cur_charset;
 	gchar *text;
 	gsize br, bw;
 
 	if (GTK_IS_WIDGET(gp) && gpdata->connected) {
-		g_get_current_time(&t);
-		diff = (t.tv_sec - gpdata->clipboard_timer.tv_sec) * 10
-		       + (t.tv_usec - gpdata->clipboard_timer.tv_usec) / 100000;
+		t = g_date_time_new_now_utc();
+		diff = g_date_time_difference(t, gpdata->clipboard_timer) / 100000; // tenth of second
 		if (diff >= 10) {
+			g_date_time_unref(gpdata->clipboard_timer);
 			gpdata->clipboard_timer = t;
 			/* Convert text from VNC latin-1 to current GTK charset (usually UTF-8) */
 			g_get_charset(&cur_charset);
 			text = g_convert_with_fallback(param->text, param->textlen, cur_charset, "ISO-8859-1", "?", &br, &bw, NULL);
 			gtk_clipboard_set_text(gtk_clipboard_get(GDK_SELECTION_CLIPBOARD), text, bw);
 			g_free(text);
-		}
+		} else
+			g_date_time_unref(t);
 	}
 	g_free(param->text);
 	g_free(param);
@@ -922,17 +941,14 @@ static void remmina_plugin_vnc_rfb_output(const char *format, ...)
 					 NULL);
 			g_snprintf(vnc_error, MAX_ERROR_LENGTH, ff, p);
 			g_free(ff);
-		} else {
+		} else
 			g_snprintf(vnc_error, MAX_ERROR_LENGTH, _(f), p);
-		}
-	} else {
+	} else
 		g_vsnprintf(vnc_error, MAX_ERROR_LENGTH, _(f), args);
-	}
 	g_free(f);
 	va_end(args);
 
-	remmina_plugin_service->log_printf("[VNC] %s\n", vnc_error);
-	g_debug("[VNC] %s", vnc_error);
+	REMMINA_PLUGIN_DEBUG("VNC returned: %s", vnc_error);
 }
 
 static void remmina_plugin_vnc_chat_on_send(RemminaProtocolWidget *gp, const gchar *text)
@@ -1121,6 +1137,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 	rfbClientLog = rfbClientErr = remmina_plugin_vnc_rfb_output;
 
 	gint colordepth = remmina_plugin_service->file_get_int(remminafile, "colordepth", 32);
+	gint quality = remmina_plugin_service->file_get_int(remminafile, "quality", 9);
 
 	while (gpdata->connected) {
 		gpdata->auth_called = FALSE;
@@ -1132,6 +1149,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 			break;
 		}
 
+		/* int bitsPerSample,int samplesPerPixel, int bytesPerPixel */
 		switch (colordepth) {
 		case 8:
 			cl = rfbGetClient(2, 3, 1);
@@ -1197,8 +1215,16 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		cl->appData.useRemoteCursor = (
 			remmina_plugin_service->file_get_int(remminafile, "showcursor", FALSE) ? FALSE : TRUE);
 
-		remmina_plugin_vnc_update_quality(cl, remmina_plugin_service->file_get_int(remminafile, "quality", 0));
+		remmina_plugin_vnc_update_quality(cl, quality);
 		remmina_plugin_vnc_update_colordepth(cl, colordepth);
+		if ((cl->format.depth == 8) && (quality == 9))
+			cl->appData.encodingsString = "copyrect zlib hextile raw";
+		else if ((cl->format.depth == 8) && (quality == 2))
+			cl->appData.encodingsString = "zrle ultra copyrect hextile zlib corre rre raw";
+		else if ((cl->format.depth == 8) && (quality == 1))
+			cl->appData.encodingsString = "zrle ultra copyrect hextile zlib corre rre raw";
+		else if ((cl->format.depth == 8) && (quality == 0))
+			cl->appData.encodingsString = "zrle ultra copyrect hextile zlib corre rre raw";
 		SetFormatAndEncodings(cl);
 
 		if (remmina_plugin_service->file_get_int(remminafile, "disableencryption", FALSE)) {
@@ -1486,7 +1512,7 @@ static void remmina_plugin_vnc_on_cuttext_request(GtkClipboard *clipboard, const
 {
 	TRACE_CALL(__func__);
 	RemminaPluginVncData *gpdata = GET_PLUGIN_DATA(gp);
-	GTimeVal t;
+	GDateTime *t;
 	glong diff;
 	gsize br, bw;
 	gchar *latin1_text;
@@ -1494,12 +1520,11 @@ static void remmina_plugin_vnc_on_cuttext_request(GtkClipboard *clipboard, const
 
 	if (text) {
 		/* A timer (1 second) to avoid clipboard "loopback": text cut out from VNC won’t paste back into VNC */
-		g_get_current_time(&t);
-		diff = (t.tv_sec - gpdata->clipboard_timer.tv_sec) * 10
-		       + (t.tv_usec - gpdata->clipboard_timer.tv_usec) / 100000;
+		t = g_date_time_new_now_utc();
+		diff = g_date_time_difference(t, gpdata->clipboard_timer) / 100000; // tenth of second
 		if (diff < 10)
 			return;
-
+		g_date_time_unref(gpdata->clipboard_timer);
 		gpdata->clipboard_timer = t;
 		/* Convert text from current charset to latin-1 before sending to remote server.
 		 * See RFC6143 7.5.6 */
@@ -1624,6 +1649,7 @@ static gboolean remmina_plugin_vnc_close_connection_timeout(RemminaProtocolWidge
 		gpdata->vnc_buffer = NULL;
 	}
 	g_ptr_array_free(gpdata->pressed_keys, TRUE);
+    g_date_time_unref(gpdata->clipboard_timer);
 	remmina_plugin_vnc_event_free_all(gp);
 	g_queue_free(gpdata->vnc_event_queue);
 	pthread_mutex_destroy(&gpdata->vnc_event_queue_mutex);
@@ -1781,7 +1807,7 @@ static void remmina_plugin_vnc_init(RemminaProtocolWidget *gp)
 	g_signal_connect(G_OBJECT(gpdata->drawing_area), "draw", G_CALLBACK(remmina_plugin_vnc_on_draw), gp);
 
 	gpdata->auth_first = TRUE;
-	g_get_current_time(&gpdata->clipboard_timer);
+	gpdata->clipboard_timer = g_date_time_new_now_utc();
 	gpdata->listen_sock = -1;
 	gpdata->pressed_keys = g_ptr_array_new();
 	gpdata->vnc_event_queue = g_queue_new();
@@ -1800,19 +1826,19 @@ static void remmina_plugin_vnc_init(RemminaProtocolWidget *gp)
 /* Array of key/value pairs for color depths */
 static gpointer colordepth_list[] =
 {
-	"8",  N_("256 colors (8 bpp)"),
-	"16", N_("High color (16 bpp)"),
 	"32", N_("True color (32 bpp)"),
+	"16", N_("High color (16 bpp)"),
+	"8",  N_("256 colors (8 bpp)"),
 	NULL
 };
 
 /* Array of key/value pairs for quality selection */
 static gpointer quality_list[] =
 {
-	"0", N_("Poor (fastest)"),
-	"1", N_("Medium"),
-	"2", N_("Good"),
 	"9", N_("Best (slowest)"),
+	"2", N_("Good"),
+	"1", N_("Medium"),
+	"0", N_("Poor (fastest)"),
 	NULL
 };
 
@@ -1873,7 +1899,7 @@ static const RemminaProtocolSetting remmina_plugin_vnc_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableclipboard",	 N_("Disable clipboard sync"),	 TRUE,	NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableencryption",	 N_("Disable encryption"),	 FALSE, NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableserverinput",	 N_("Disable server input"),	 TRUE,	NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring", N_("Disable password storing"), FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring", N_("Forget passwords after use"), FALSE, NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,   NULL,			 NULL,				 FALSE, NULL, NULL }
 };
 

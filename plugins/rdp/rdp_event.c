@@ -717,7 +717,7 @@ gboolean remmina_rdp_event_on_clipboard(GtkClipboard *gtkClipboard, GdkEvent *ev
 	 * after receivina a RDP server format list in remmina_rdp_cliprdr_server_format_list()
 	 * In the latter case, we must ignore owner change */
 
-	g_debug("[RDP] owner-change event received");
+	REMMINA_PLUGIN_DEBUG("owner-change event received");
 
 	rfContext *rfi = GET_PLUGIN_DATA(gp);
 	if (rfi)
@@ -726,7 +726,7 @@ gboolean remmina_rdp_event_on_clipboard(GtkClipboard *gtkClipboard, GdkEvent *ev
 	if (gtk_clipboard_get_owner(gtkClipboard) != (GObject*)gp) {
 		/* To do: avoid this when the new owner is another remmina protocol widget of
 		 * the same remmina application */
-		g_debug("[RDP]     new owner is different than me: new=%p me=%p. Sending local clipboard format list to server.",
+		REMMINA_PLUGIN_DEBUG("     new owner is different than me: new=%p me=%p. Sending local clipboard format list to server.",
 				gtk_clipboard_get_owner(gtkClipboard), (GObject*)gp);
 
 		pFormatList = remmina_rdp_cliprdr_get_client_format_list(gp);
@@ -734,7 +734,7 @@ gboolean remmina_rdp_event_on_clipboard(GtkClipboard *gtkClipboard, GdkEvent *ev
 		rdp_event.clipboard_formatlist.pFormatList = pFormatList;
 		remmina_rdp_event_event_push(gp, &rdp_event);
 	} else {
-		g_debug("[RDP]    ... but I'm the owner!");
+		REMMINA_PLUGIN_DEBUG("    ... but I'm the owner!");
 	}
 	return TRUE;
 }
@@ -951,7 +951,7 @@ void remmina_rdp_event_update_scale(RemminaProtocolWidget* gp)
 		remmina_rdp_event_create_cairo_surface(rfi);
 	}
 
-	/* Send gdi->width and gdi->height obtanied from remote server to gp plugin,
+	/* Send gdi->width and gdi->height obtained from remote server to gp plugin,
 	 * so they will be saved when closing connection */
 	if (width != gdi->width)
 		remmina_plugin_service->protocol_plugin_set_width(gp, gdi->width);
@@ -984,7 +984,7 @@ static void remmina_rdp_event_connected(RemminaProtocolWidget* gp, RemminaPlugin
 	gtk_widget_queue_draw_area(rfi->drawing_area, 0, 0, gdi->width, gdi->height);
 
 	remmina_rdp_event_update_scale(gp);
-    
+
     remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 }
 

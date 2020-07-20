@@ -1,7 +1,68 @@
 # Changelog
 
-## 1.4.3
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.2...1.4.3)
+## v1.4.7
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.6...v1.4.7)
+
+* Allow compilation with libwinpr (freerdp) pre commit 8c5d96784d [!2083](https://gitlab.com/Remmina/Remmina/merge_requests/2083) *@giox069*
+* Bug fixing v1.4.6 [!2082](https://gitlab.com/Remmina/Remmina/merge_requests/2082) *@antenore*
+* Spelling: Automatic negotiation [!2084](https://gitlab.com/Remmina/Remmina/merge_requests/2084) *@kingu*
+* Spelling: GNOME Shell, opt-in desc, comments [!2085](https://gitlab.com/Remmina/Remmina/merge_requests/2085) *@kingu*
+* Memory leaks fixes [!2086](https://gitlab.com/Remmina/Remmina/merge_requests/2086) *@antenore*
+* RDP: Replacing deprecated freerdp function VeryfyCertificate [!2087](https://gitlab.com/Remmina/Remmina/merge_requests/2087) *@antenore*
+
+## v1.4.6
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.5...v1.4.6)
+
+* Hotkey language fixed [!2064](https://gitlab.com/Remmina/Remmina/merge_requests/2064) *@kingu*
+* TRANSLATION file for l10n [!2065](https://gitlab.com/Remmina/Remmina/merge_requests/2065) *@kingu*
+* Fetch news from remmina.org optional [!2066](https://gitlab.com/Remmina/Remmina/merge_requests/2066) *@antenore*
+* allow saving notes in connection profile [!2067](https://gitlab.com/Remmina/Remmina/merge_requests/2067) *@juarez.rudsatz*
+* RDP: Improving hardware option parsing [!2068](https://gitlab.com/Remmina/Remmina/merge_requests/2068) *@antenore*
+* Rearranged widgets in a new Behavior tab [!2069](https://gitlab.com/Remmina/Remmina/merge_requests/2069) *@juarez.rudsatz*
+* Add separator only when there are saved profiles. Fixes #1914 [!2070](https://gitlab.com/Remmina/Remmina/merge_requests/2070) *@antenore*
+* Implementing resume all for FTP file transfer, should fix #2210 [!2072](https://gitlab.com/Remmina/Remmina/merge_requests/2072) *@antenore*
+* Spelling: Overwrite all file transfers [!2073](https://gitlab.com/Remmina/Remmina/merge_requests/2073) *@kingu*
+* Spelling: Options for redirection x2, -: [!2074](https://gitlab.com/Remmina/Remmina/merge_requests/2074) *@kingu*
+* Edit or connect using multiple profile files from the command line [!2075](https://gitlab.com/Remmina/Remmina/merge_requests/2075) *@antenore*
+* Desktop session files for Remmina kiosk are optional [!2076](https://gitlab.com/Remmina/Remmina/merge_requests/2076) *@antenore*
+* Update Ukrainian translation for the desktop file [!2077](https://gitlab.com/Remmina/Remmina/merge_requests/2077) *@yurchor*
+* Remove 'translatable="yes"' from the fake label in remmina_spinner.glade [!2079](https://gitlab.com/Remmina/Remmina/merge_requests/2079) *@yurchor*
+* Remove 'translatable="yes"' from the fake label [!2078](https://gitlab.com/Remmina/Remmina/merge_requests/2078) *@yurchor*
+* Feat/lebowski [!2080](https://gitlab.com/Remmina/Remmina/merge_requests/2080) *@antenore*
+
+## v1.4.5
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.4...v1.4.5)
+
+* SSH plugin - adding font resize - closes #2201 [!2059](https://gitlab.com/Remmina/Remmina/merge_requests/2059) *@antenore*
+* Fixing keyboard grabbing issues with screenshot tool [!2062](https://gitlab.com/Remmina/Remmina/merge_requests/2062) *@giox069*
+* Refactoring remmina_debug to avoid memory leaks and overhead, should fix #2202 [!2061](https://gitlab.com/Remmina/Remmina/merge_requests/2061) *@antenore*
+* Using directory only to expose artifacts [!2060](https://gitlab.com/Remmina/Remmina/merge_requests/2060) *@antenore*
+
+## v1.4.4
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.3...v1.4.4)
+
+* RDP Plugin - Adding UDP support, implements #2153 [!2038](https://gitlab.com/Remmina/Remmina/merge_requests/2038) *@antenore*
+* Adding proxy and local storage support [!2039](https://gitlab.com/Remmina/Remmina/merge_requests/2039) *@antenore*
+* RDP option to prefer IPv6 AAAA record over IPv4 A records [!2040](https://gitlab.com/Remmina/Remmina/merge_requests/2040) *@antenore*
+* Snap: Install icons system-wide and use them [!2042](https://gitlab.com/Remmina/Remmina/merge_requests/2042) *@ed10vi*
+* Allow users to override the app ID [!2044](https://gitlab.com/Remmina/Remmina/merge_requests/2044) *@garymoon*
+* Use icon name instead of localizable string in gtk_image_new_from_icon_name() [!2045](https://gitlab.com/Remmina/Remmina/merge_requests/2045) *@yurchor*
+* Fix minor typos [!2046](https://gitlab.com/Remmina/Remmina/merge_requests/2046) *@yurchor*
+* Don't grab when window has no focus, issue #2165 [!2047](https://gitlab.com/Remmina/Remmina/merge_requests/2047) *@giox069*
+* SSH tunnel and VNC fixes [!2048](https://gitlab.com/Remmina/Remmina/merge_requests/2048) *@antenore*
+* Adding explicitely trueColour in the client format structure. Fixes #2181 and #810 [!2049](https://gitlab.com/Remmina/Remmina/merge_requests/2049) *@antenore*
+* Code refactoring. [!2050](https://gitlab.com/Remmina/Remmina/merge_requests/2050) *@antenore*
+* Extract subtitle for translation [!2051](https://gitlab.com/Remmina/Remmina/merge_requests/2051) *@yurchor*
+* [SSH] Connection pre/post command not replacing SSH tunnel parameters [!2053](https://gitlab.com/Remmina/Remmina/merge_requests/2053) *@antenore*
+* SNAP: Remove libssh, available in distro [!2052](https://gitlab.com/Remmina/Remmina/merge_requests/2052) *@ed10vi*
+*  2189 [!2054](https://gitlab.com/Remmina/Remmina/merge_requests/2054) *@giox069*
+* Adding remmina_debug function to simplify log reporting [!2055](https://gitlab.com/Remmina/Remmina/merge_requests/2055) *@antenore*
+* Removing OnlyShowIn as deprecated in the latest freedesktop spec. Closes #2198 [!2056](https://gitlab.com/Remmina/Remmina/merge_requests/2056) *@antenore*
+* Cleaning up glib deprecations [!2058](https://gitlab.com/Remmina/Remmina/merge_requests/2058) *@antenore*
+
+
+## v1.4.3
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.2...v1.4.3)
 
 * KB grabbing fixes (mostly for Wayland) [!2036](https://gitlab.com/Remmina/Remmina/merge_requests/2036) *@giox069*
 * Adding Freerdp 3 compile option and using FreeRDP tag 2.0.0 as default [!2034](https://gitlab.com/Remmina/Remmina/merge_requests/2034) *@antenore*
@@ -27,8 +88,8 @@
 * Translated using Weblate (German) by Johannes Weberhofer <jweberhofer@weberhofer.at>
 * Translated using Weblate (Czech) by Pavel Borecki <pavel.borecki@gmail.com>
 
-## 1.4.2
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.1...1.4.2)
+## v1.4.2
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.1...v1.4.2)
 
 * Spelling: Doublespace removed [!2011](https://gitlab.com/Remmina/Remmina/merge_requests/2011) *@kingu*
 * Adds ClientBuild settings to RDP plugin to specify client version build number [!2012](https://gitlab.com/Remmina/Remmina/merge_requests/2012) *@mskalski*
@@ -52,14 +113,14 @@
 * THANKS reworked [!2031](https://gitlab.com/Remmina/Remmina/merge_requests/2031) *@kingu*
 * Merge weblate translations in master [!2032](https://gitlab.com/Remmina/Remmina/merge_requests/2032) *@antenore*
 
-## 1.4.1
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.0...1.4.1)
+## v1.4.1
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.0...v1.4.1)
 
 * SSH fixes, should fix #2094 [!2009](https://gitlab.com/Remmina/Remmina/merge_requests/2009) *@giox069*
 * Update remmina_filezilla_sftp.sh [!2010](https://gitlab.com/Remmina/Remmina/merge_requests/2010) *@greenfoxua*
 
-## 1.4.0
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.10...1.4.0)
+## v1.4.0
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.3.10...v1.4.0)
 
 * Rdp clipboard fixes [!2007](https://gitlab.com/Remmina/Remmina/merge_requests/2007) *@giox069*
 * Ssh authentication fixes [!2006](https://gitlab.com/Remmina/Remmina/merge_requests/2006) *@giox069*

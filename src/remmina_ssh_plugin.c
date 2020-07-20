@@ -46,6 +46,7 @@
 #include <vte/vte.h>
 #include <locale.h>
 #include <langinfo.h>
+#include "remmina_log.h"
 #include "remmina_public.h"
 #include "remmina_plugin_manager.h"
 #include "remmina_ssh.h"
@@ -57,11 +58,17 @@
 #define REMMINA_PLUGIN_SSH_FEATURE_TOOL_COPY  1
 #define REMMINA_PLUGIN_SSH_FEATURE_TOOL_PASTE 2
 #define REMMINA_PLUGIN_SSH_FEATURE_TOOL_SELECT_ALL 3
+#define REMMINA_PLUGIN_SSH_FEATURE_TOOL_INCREASE_FONT 4
+#define REMMINA_PLUGIN_SSH_FEATURE_TOOL_DECREASE_FONT 5
 
 #define GET_PLUGIN_DATA(gp) (RemminaPluginSshData *)g_object_get_data(G_OBJECT(gp), "plugin-data");
 
 /** Palette colors taken from sakura */
 #define PALETTE_SIZE 16
+/* Min fontsize and increase */
+#define FONT_SCALE    0.75
+#define SCALE_FACTOR  0.1
+#define FONT_MINIMAL_SIZE (PANGO_SCALE*6)
 
 enum color_schemes { LINUX, TANGO, GRUVBOX, SOLARIZED_DARK, SOLARIZED_LIGHT, XTERM, CUSTOM };
 
@@ -263,7 +270,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
 
 		while (1) {
 			if (!remmina_ssh_init_session(ssh)) {
-				g_debug("[SSH] init session error: %s\n", ssh->error);
+				REMMINA_DEBUG("init session error: %s", ssh->error);
 				remmina_plugin_service->protocol_plugin_set_error(gp, "%s", ssh->error);
 				break;
 			}
@@ -338,7 +345,7 @@ void remmina_plugin_ssh_vte_terminal_set_encoding_and_pty(VteTerminal *terminal,
 	vte_terminal_set_delete_binding(terminal, VTE_ERASE_DELETE_SEQUENCE);
 
 #if VTE_CHECK_VERSION(0, 38, 0)
-	/* vte_pty_new_foreig expect master FD, see https://bugzilla.gnome.org/show_bug.cgi?id=765382 */
+	/* vte_pty_new_foreign expect master FD, see https://bugzilla.gnome.org/show_bug.cgi?id=765382 */
 	vte_terminal_set_pty(terminal, vte_pty_new_foreign_sync(master, NULL, NULL));
 #else
 	vte_terminal_set_pty(terminal, master);
@@ -404,6 +411,20 @@ remmina_plugin_ssh_vte_select_all(GtkMenuItem *menuitem, gpointer vte)
 	TRACE_CALL(__func__);
 	vte_terminal_select_all(VTE_TERMINAL(vte));
 	/** @todo we should add the vte_terminal_unselect_all as well */
+}
+
+void
+remmina_plugin_ssh_vte_decrease_font(GtkMenuItem *menuitem, gpointer vte)
+{
+	TRACE_CALL(__func__);
+	vte_terminal_set_font_scale(VTE_TERMINAL(vte), vte_terminal_get_font_scale(VTE_TERMINAL(vte))-SCALE_FACTOR);
+}
+
+void
+remmina_plugin_ssh_vte_increase_font(GtkMenuItem *menuitem, gpointer vte)
+{
+	TRACE_CALL(__func__);
+	vte_terminal_set_font_scale(VTE_TERMINAL(vte), vte_terminal_get_font_scale(VTE_TERMINAL(vte))+SCALE_FACTOR);
 }
 
 void
@@ -509,15 +530,19 @@ void remmina_plugin_ssh_popup_ui(RemminaProtocolWidget *gp)
 	/* Context menu for slection and clipboard */
 	GtkWidget *menu = gtk_menu_new();
 
-	GtkWidget *select_all = gtk_menu_item_new_with_label(_("Select All (Host + A)"));
-	GtkWidget *copy = gtk_menu_item_new_with_label(_("Copy (host + C)"));
-	GtkWidget *paste = gtk_menu_item_new_with_label(_("Paste (host + V)"));
+	GtkWidget *select_all = gtk_menu_item_new_with_label(_("Select All (host+A)"));
+	GtkWidget *copy = gtk_menu_item_new_with_label(_("Copy (host+C)"));
+	GtkWidget *paste = gtk_menu_item_new_with_label(_("Paste (host+V)"));
 	GtkWidget *save = gtk_menu_item_new_with_label(_("Save session to file"));
+	GtkWidget *font_incr = gtk_menu_item_new_with_label(_("Increase font size (host+Page Up)"));
+	GtkWidget *font_decr = gtk_menu_item_new_with_label(_("Decrease font size (host+Page Down)"));
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), select_all);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), copy);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), paste);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), save);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), font_incr);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), font_decr);
 
 	g_signal_connect(G_OBJECT(gpdata->vte), "button_press_event",
 			 G_CALLBACK(remmina_ssh_plugin_popup_menu), menu);
@@ -530,6 +555,10 @@ void remmina_plugin_ssh_popup_ui(RemminaProtocolWidget *gp)
 			 G_CALLBACK(remmina_plugin_ssh_vte_paste_clipboard), gpdata->vte);
 	g_signal_connect(G_OBJECT(save), "activate",
 			 G_CALLBACK(remmina_plugin_ssh_vte_save_session), gp);
+	g_signal_connect(G_OBJECT(font_incr), "activate",
+			 G_CALLBACK(remmina_plugin_ssh_vte_increase_font), gpdata->vte);
+	g_signal_connect(G_OBJECT(font_decr), "activate",
+			 G_CALLBACK(remmina_plugin_ssh_vte_decrease_font), gpdata->vte);
 
 	gtk_widget_show_all(menu);
 }
@@ -590,7 +619,7 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 	/*
 	 * custom colors reside inside of the 'theme' subdir of the remmina config folder (.config/remmina/theme)
 	 * with the file extension '.colors'. The name of the colorfile came from the menu (see below)
-	 * sideeffect: it is possible to overwrite the standard colors with a dedicated colorfile like
+	 * sideeffect: It is possible to overwrite the standard colours with a dedicated colourfile like
 	 * '0.colors' for GRUVBOX, '1.colors' for TANGO and so on
 	 */
 	const gchar *color_name = remmina_plugin_service->file_get_string(remminafile, "ssh_color_scheme");
@@ -800,7 +829,7 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 }
 
 /**
- * Initialize the the main window properties and the pthread.
+ * Initialize the main window properties and the pthread.
  *
  * The call of this function is a requirement of remmina_protocol_widget_open_connection_real().
  * @return TRUE
@@ -853,7 +882,7 @@ remmina_plugin_ssh_close_connection(RemminaProtocolWidget *gp)
 }
 
 /**
- * Not used by the the plugin.
+ * Not used by the plugin.
  *
  * @return Always TRUE
  */
@@ -910,6 +939,14 @@ remmina_plugin_ssh_call_feature(RemminaProtocolWidget *gp, const RemminaProtocol
 		return;
 	case REMMINA_PLUGIN_SSH_FEATURE_TOOL_SELECT_ALL:
 		vte_terminal_select_all(VTE_TERMINAL(gpdata->vte));
+		return;
+	case REMMINA_PLUGIN_SSH_FEATURE_TOOL_INCREASE_FONT:
+		vte_terminal_set_font_scale(VTE_TERMINAL(gpdata->vte),
+				vte_terminal_get_font_scale(VTE_TERMINAL(gpdata->vte))+SCALE_FACTOR);
+		return;
+	case REMMINA_PLUGIN_SSH_FEATURE_TOOL_DECREASE_FONT:
+		vte_terminal_set_font_scale(VTE_TERMINAL(gpdata->vte),
+				vte_terminal_get_font_scale(VTE_TERMINAL(gpdata->vte))-SCALE_FACTOR);
 		return;
 	}
 }
@@ -999,6 +1036,8 @@ static RemminaProtocolFeature remmina_plugin_ssh_features[] =
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PLUGIN_SSH_FEATURE_TOOL_COPY,	  N_("Copy"),	    N_("_Copy"),       NULL },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PLUGIN_SSH_FEATURE_TOOL_PASTE,	  N_("Paste"),	    N_("_Paste"),      NULL },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PLUGIN_SSH_FEATURE_TOOL_SELECT_ALL, N_("Select all"), N_("_Select all"), NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PLUGIN_SSH_FEATURE_TOOL_INCREASE_FONT, N_("Increase font size"), N_("_Increase font size"), NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PLUGIN_SSH_FEATURE_TOOL_DECREASE_FONT, N_("Decrease font size"), N_("_Decrease font size"), NULL },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_END,  0,					  NULL,		    NULL,	       NULL }
 };
 
@@ -1096,7 +1135,7 @@ static RemminaProtocolPlugin remmina_plugin_ssh =
 /*
  * this function is used for
  * - inserting into the list to became a sorted list [g_list_insert_sorted()]
- * - checking the list to avoid doublicate entries [g_list_find_custom()]
+ * - checking the list to avoid duplicate entries [g_list_find_custom()]
  */
 static gint
 compare(gconstpointer a, gconstpointer b)
@@ -1113,7 +1152,7 @@ remmina_ssh_plugin_load_terminal_palettes(gpointer *ssh_terminal_palette_new)
 	GList *files = NULL;
 	unsigned int rec_size = 0;
 	/*
-	 * count number of (all) files to reserve enought memory
+	 * count number of (all) files to reserve enough memory
 	 */
 	/* /usr/local/share/remmina */
 	const gchar *const *dirs = g_get_system_data_dirs();
@@ -1204,7 +1243,8 @@ remmina_ssh_plugin_register(void)
 	remmina_plugin_ssh_features[0].opt3 = GUINT_TO_POINTER(remmina_pref.vte_shortcutkey_copy);
 	remmina_plugin_ssh_features[1].opt3 = GUINT_TO_POINTER(remmina_pref.vte_shortcutkey_paste);
 	remmina_plugin_ssh_features[2].opt3 = GUINT_TO_POINTER(remmina_pref.vte_shortcutkey_select_all);
-	remmina_plugin_ssh_features[3].opt3 = GUINT_TO_POINTER(remmina_pref.vte_shortcutkey_select_all);
+	remmina_plugin_ssh_features[3].opt3 = GUINT_TO_POINTER(remmina_pref.vte_shortcutkey_increase_font);
+	remmina_plugin_ssh_features[4].opt3 = GUINT_TO_POINTER(remmina_pref.vte_shortcutkey_decrease_font);
 
 	remmina_plugin_service = &remmina_plugin_manager_service;
 

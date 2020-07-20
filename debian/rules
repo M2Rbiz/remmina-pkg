@@ -8,7 +8,9 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		-DWITH_KF5WALLET=ON
+		-DWITH_KF5WALLET=ON \
+		-DWITH_KIOSK_SESSION=ON \
+		-DWITH_NEWS=OFF
 
 override_dh_install:
 	dh_install

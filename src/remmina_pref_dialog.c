@@ -220,6 +220,8 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 
 	b = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_permit_send_stats));
 	remmina_pref.periodic_usage_stats_permitted = b;
+	b = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_permit_news));
+	remmina_pref.periodic_news_permitted = b;
 
 	remmina_pref.default_action = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_options_double_click);
 	remmina_pref.default_mode = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_appearance_view_mode);
@@ -346,6 +348,8 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	remmina_pref.vte_shortcutkey_copy = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_copy));
 	remmina_pref.vte_shortcutkey_paste = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_paste));
 	remmina_pref.vte_shortcutkey_select_all = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_select_all));
+	remmina_pref.vte_shortcutkey_increase_font = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_increase_font));
+	remmina_pref.vte_shortcutkey_decrease_font = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_decrease_font));
 
 	remmina_pref_save();
 	remmina_pref_init();
@@ -453,6 +457,7 @@ static void remmina_pref_dialog_init(void)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_searchbar), remmina_pref.hide_searchbar);
 
 	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_permit_send_stats), remmina_pref.periodic_usage_stats_permitted);
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_permit_news), remmina_pref.periodic_news_permitted);
 
 	g_snprintf(buf, sizeof(buf), "%i", remmina_pref.sshtunnel_port);
 	gtk_entry_set_text(remmina_pref_dialog->entry_options_ssh_port, buf);
@@ -602,6 +607,8 @@ static void remmina_pref_dialog_init(void)
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_copy, remmina_pref.vte_shortcutkey_copy);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_paste, remmina_pref.vte_shortcutkey_paste);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_select_all, remmina_pref.vte_shortcutkey_select_all);
+	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_increase_font, remmina_pref.vte_shortcutkey_increase_font);
+	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_decrease_font, remmina_pref.vte_shortcutkey_decrease_font);
 
 	remmina_plugin_manager_for_each_plugin(REMMINA_PLUGIN_TYPE_PREF, remmina_pref_dialog_add_pref_plugin, remmina_pref_dialog->dialog);
 
@@ -639,6 +646,8 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->checkbutton_appearance_hide_toolbar = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_hide_toolbar"));
 	remmina_pref_dialog->checkbutton_appearance_hide_searchbar = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_hide_searchbar"));
 	remmina_pref_dialog->switch_permit_send_stats = GTK_SWITCH(GET_OBJECT("switch_permit_send_stats"));
+	remmina_pref_dialog->switch_permit_news = GTK_SWITCH(GET_OBJECT("switch_permit_news"));
+	gtk_widget_set_sensitive (GTK_WIDGET(remmina_pref_dialog->switch_permit_news), RMNEWS_ENABLE_NEWS);
 	remmina_pref_dialog->comboboxtext_options_double_click = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_options_double_click"));
 	remmina_pref_dialog->comboboxtext_appearance_view_mode = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_appearance_view_mode"));
 	remmina_pref_dialog->comboboxtext_appearance_tab_interface = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_appearance_tab_interface"));
@@ -682,6 +691,8 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->button_keyboard_copy = GTK_BUTTON(GET_OBJECT("button_keyboard_copy"));
 	remmina_pref_dialog->button_keyboard_paste = GTK_BUTTON(GET_OBJECT("button_keyboard_paste"));
 	remmina_pref_dialog->button_keyboard_select_all = GTK_BUTTON(GET_OBJECT("button_keyboard_select_all"));
+	remmina_pref_dialog->button_keyboard_increase_font = GTK_BUTTON(GET_OBJECT("button_keyboard_increase_font"));
+	remmina_pref_dialog->button_keyboard_decrease_font = GTK_BUTTON(GET_OBJECT("button_keyboard_decrease_font"));
 	remmina_pref_dialog->label_terminal_foreground = GTK_LABEL(GET_OBJECT("label_terminal_foreground"));
 	remmina_pref_dialog->colorbutton_foreground = GTK_COLOR_BUTTON(GET_OBJECT("colorbutton_foreground"));
 	remmina_pref_dialog->label_terminal_background = GTK_LABEL(GET_OBJECT("label_terminal_background"));

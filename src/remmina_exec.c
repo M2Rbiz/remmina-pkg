@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include "remmina.h"
 #include "remmina_main.h"
+#include "remmina_log.h"
 #include "remmina_pref.h"
 #include "remmina_widget_pool.h"
 #include "remmina_unlock.h"
@@ -96,6 +97,9 @@ void remmina_exec_exitremmina()
 
 	/* Remove systray menu */
 	remmina_icon_destroy();
+
+	/* close/destroy main window struct and window */
+	remmina_main_destroy();
 
 	/* Exit from Remmina */
 	g_application_quit(g_application_get_default());
@@ -205,7 +209,7 @@ static void remmina_exec_autostart_cb(RemminaFile *remminafile, gpointer user_da
 	TRACE_CALL(__func__);
 
 	if (remmina_file_get_int(remminafile, "enable-autostart", FALSE)) {
-		g_debug ("Profile %s is set to autostart", remminafile->filename);
+		REMMINA_DEBUG ("Profile %s is set to autostart", remminafile->filename);
 		rcw_open_from_filename(remminafile->filename);
 	}
 

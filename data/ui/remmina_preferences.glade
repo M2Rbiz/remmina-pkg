@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1
+<!-- Generated with glade 3.22.2
 
 Remmina Preferences Dialog -
 Copyright (C) Antenore Gatta & Giovanni Panozzo 2014-2020
@@ -43,7 +43,7 @@ Author: Antenore Gatta
     <property name="type_hint">dialog</property>
     <signal name="close" handler="remmina_pref_dialog_on_close_clicked" swapped="no"/>
     <signal name="destroy" handler="remmina_pref_on_dialog_destroy" swapped="no"/>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -231,7 +231,7 @@ Author: Antenore Gatta
                     <property name="halign">start</property>
                     <property name="margin_left">18</property>
                     <property name="hexpand">False</property>
-                    <property name="label" translatable="yes">Resolutions</property>
+                    <property name="label" translatable="yes">Screen resolutions</property>
                     <property name="justify">right</property>
                   </object>
                   <packing>
@@ -277,7 +277,7 @@ Author: Antenore Gatta
                     <property name="halign">start</property>
                     <property name="margin_left">18</property>
                     <property name="hexpand">False</property>
-                    <property name="label" translatable="yes">Screenshot folder</property>
+                    <property name="label" translatable="yes">Folder for screenshots</property>
                     <property name="justify">right</property>
                   </object>
                   <packing>
@@ -302,7 +302,7 @@ Author: Antenore Gatta
                 </child>
                 <child>
                   <object class="GtkButton" id="button_options_resolutions">
-                    <property name="label" translatable="yes">Screen resolutions</property>
+                    <property name="label" translatable="yes">Set up</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -323,7 +323,7 @@ Author: Antenore Gatta
                     <property name="halign">start</property>
                     <property name="margin_left">18</property>
                     <property name="hexpand">False</property>
-                    <property name="label" translatable="yes">Screenshot filename</property>
+                    <property name="label" translatable="yes">Screenshot filenames</property>
                     <property name="justify">right</property>
                   </object>
                   <packing>
@@ -389,7 +389,7 @@ Author: Antenore Gatta
                     <property name="halign">start</property>
                     <property name="margin_left">18</property>
                     <property name="hexpand">False</property>
-                    <property name="label" translatable="yes">Remember last view mode</property>
+                    <property name="label" translatable="yes" comments="The star (*) is a reference to privacy consent">Remember last view mode</property>
                     <property name="justify">right</property>
                   </object>
                   <packing>
@@ -412,21 +412,6 @@ Author: Antenore Gatta
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label_permit_send_stats">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="tooltip_text" translatable="yes">Send periodic usage statistics to Remmina developers</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="hexpand">False</property>
-                    <property name="label" translatable="yes">Send statistics to remmina.org</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkSwitch" id="switch_permit_send_stats">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -438,38 +423,6 @@ Author: Antenore Gatta
                     <property name="left_attach">1</property>
                     <property name="top_attach">11</property>
                     <property name="width">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSwitch" id="switch_options_deny_screenshot_clipboard">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <property name="margin_right">18</property>
-                    <property name="margin_bottom">18</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">12</property>
-                    <property name="width">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_options_deny_screenshot_clipboard">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="tooltip_text" translatable="yes">Only save generated screenshots, don't copy them to clipboard.</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="margin_bottom">18</property>
-                    <property name="hexpand">False</property>
-                    <property name="label" translatable="yes">Prevent screenshots from entering clipboard</property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">12</property>
                   </packing>
                 </child>
                 <child>
@@ -501,12 +454,103 @@ Author: Antenore Gatta
 </property>
                     <property name="margin_right">18</property>
                     <property name="width_chars">25</property>
-                    <property name="placeholder_text" translatable="yes">%G_%P_%N_%h</property>
+                    <property name="placeholder_text">%G_%P_%N_%h</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="top_attach">1</property>
                     <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_options_deny_screenshot_clipboard">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Only save generated screenshots, don't copy them to clipboard.</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="margin_bottom">18</property>
+                    <property name="hexpand">False</property>
+                    <property name="label" translatable="yes">Prevent screenshots from entering clipboard</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSwitch" id="switch_options_deny_screenshot_clipboard">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="margin_right">18</property>
+                    <property name="margin_bottom">18</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">13</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSwitch" id="switch_permit_news">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="margin_right">18</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="privacy_disclaimer_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">* By enabling statistics and/or news you consent to send and fetch data to/from remmina.org</property>
+                    <property name="justify">fill</property>
+                    <property name="wrap">True</property>
+                    <property name="wrap_mode">word-char</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">14</property>
+                    <property name="width">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="rmnews_allow_stats_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="hexpand">False</property>
+                    <property name="label" translatable="yes" comments="The star (*) is a reference to privacy consent">Send &lt;b&gt;&lt;a href="https://remmina.gitlab.io/remminadoc.gitlab.io/remmina__stats_8c.html#details" title="Remmina usage statistics"&gt;anonymous&lt;/a&gt;&lt;/b&gt; statistics. (*)</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">11</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="rmnews_allow_news_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="hexpand">False</property>
+                    <property name="label" translatable="yes" comments="The star (*) is a reference to privacy consent">Fetch news from &lt;a href="https://remmina.org" title="Remmina news site"&gt;remmina.org&lt;/a&gt; (*)</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">12</property>
                   </packing>
                 </child>
               </object>
@@ -600,7 +644,7 @@ Author: Antenore Gatta
                     <property name="halign">start</property>
                     <property name="margin_left">18</property>
                     <property name="margin_bottom">18</property>
-                    <property name="label" translatable="yes">Tabbed interface</property>
+                    <property name="label" translatable="yes">Tabs</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -615,10 +659,10 @@ Author: Antenore Gatta
                     <property name="margin_bottom">18</property>
                     <property name="hexpand">True</property>
                     <items>
-                      <item id="0" translatable="yes">Tab by groups</item>
-                      <item id="1" translatable="yes">Tab by protocols</item>
-                      <item id="2" translatable="yes">Tab all connections</item>
-                      <item id="3" translatable="yes">No tabs</item>
+                      <item id="0" translatable="yes">By group</item>
+                      <item id="1" translatable="yes">By protocols</item>
+                      <item id="2" translatable="yes">Per connection</item>
+                      <item id="3" translatable="yes">None</item>
                     </items>
                   </object>
                   <packing>
@@ -1254,11 +1298,11 @@ Author: Antenore Gatta
                     <property name="margin_top">18</property>
                     <property name="hexpand">True</property>
                     <items>
-                      <item id="0" translatable="yes">SSH_LOG_NOLOG</item>
-                      <item id="1" translatable="yes">SSH_LOG_RARE</item>
-                      <item id="2" translatable="yes">SSH_LOG_ENTRY</item>
-                      <item id="3" translatable="yes">SSH_LOG_PACKET</item>
-                      <item id="4" translatable="yes">SSH_LOG_FUNCTIONS</item>
+                      <item id="0" translatable="yes">No logging at all</item>
+                      <item id="1" translatable="yes">Rare conditions or warnings</item>
+                      <item id="2" translatable="yes">API-accessible entrypoints</item>
+                      <item id="3" translatable="yes">Lower level protocol info, packet level</item>
+                      <item id="4" translatable="yes">Function entering and leaving</item>
                     </items>
                   </object>
                   <packing>
@@ -1739,7 +1783,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">(Host key +)</property>
+                    <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
                     <property name="margin_right">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
@@ -1757,7 +1801,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">(Host key +)</property>
+                    <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
                     <property name="margin_right">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
@@ -1775,7 +1819,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">(Host key +)</property>
+                    <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
                     <property name="margin_right">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
@@ -1784,340 +1828,6 @@ Author: Antenore Gatta
                     <property name="left_attach">1</property>
                     <property name="top_attach">6</property>
                     <property name="width">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_terminal_foreground">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="label" translatable="yes">Foreground colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_foreground">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="halign">start</property>
-                    <property name="margin_right">18</property>
-                    <property name="title" translatable="yes">Foreground colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">7</property>
-                    <property name="width">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_terminal_background">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="label" translatable="yes">Background colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_terminal_cursor_color">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="label" translatable="yes">Cursor colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_terminal_normal_colors">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="label" translatable="yes">Normal colours</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_terminal_bright_colors">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="label" translatable="yes">Bright colours</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_color_chooser">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin_left">18</property>
-                    <property name="margin_bottom">18</property>
-                    <property name="label" translatable="yes">Load colour theme</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">12</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_background">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="halign">start</property>
-                    <property name="margin_right">18</property>
-                    <property name="title" translatable="yes">Background colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">8</property>
-                    <property name="width">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_cursor">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="halign">start</property>
-                    <property name="margin_right">18</property>
-                    <property name="title" translatable="yes">Cursor colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">9</property>
-                    <property name="width">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFileChooserButton" id="button_term_cs">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="tooltip_text" translatable="yes">Choose a colour scheme file. Usually available in /usr/share/remmina/theme. https://github.com/mbadolato/iTerm2-Color-Schemes has more details.</property>
-                    <property name="margin_right">18</property>
-                    <property name="margin_bottom">18</property>
-                    <property name="title" translatable="yes">Pick a terminal colouring file</property>
-                    <signal name="file-set" handler="remmina_pref_on_color_scheme_selected" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">12</property>
-                    <property name="width">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color0">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a black colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a red colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a green colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a yellow colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">4</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a blue colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">5</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a magenta colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">6</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color6">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a cyan colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">7</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color7">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="margin_right">18</property>
-                    <property name="title" translatable="yes">Pick a white colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">8</property>
-                    <property name="top_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color8">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a light black colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color9">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a light red colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color10">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a bright green colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color11">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a bright yellow colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">4</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color12">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a bright blue colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">5</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color13">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a light magenta colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">6</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color14">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="title" translatable="yes">Pick a light cyan colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">7</property>
-                    <property name="top_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="colorbutton_color15">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="margin_right">18</property>
-                    <property name="title" translatable="yes">Pick a light white colour</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">8</property>
-                    <property name="top_attach">11</property>
                   </packing>
                 </child>
                 <child>
@@ -2169,6 +1879,398 @@ Author: Antenore Gatta
                   <packing>
                     <property name="left_attach">0</property>
                     <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_color_chooser">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="margin_bottom">18</property>
+                    <property name="label" translatable="yes">Colour theme</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">14</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkFileChooserButton" id="button_term_cs">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Choose a colour scheme file. Usually available in /usr/share/remmina/theme. https://github.com/mbadolato/iTerm2-Color-Schemes has more details.</property>
+                    <property name="margin_right">18</property>
+                    <property name="margin_bottom">18</property>
+                    <property name="title" translatable="yes">Pick a terminal colouring file</property>
+                    <signal name="file-set" handler="remmina_pref_on_color_scheme_selected" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">14</property>
+                    <property name="width">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_terminal_bright_colors">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="label" translatable="yes">Bright colours</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color8">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a light black colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color9">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a light red colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color10">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a bright green colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color11">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a bright yellow colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color12">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a bright blue colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color13">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a light magenta colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">6</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color14">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a light cyan colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">7</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color15">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="margin_right">18</property>
+                    <property name="title" translatable="yes">Pick a light white colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">8</property>
+                    <property name="top_attach">13</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color0">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a black colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a red colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a green colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a yellow colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a blue colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a magenta colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">6</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color6">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="title" translatable="yes">Pick a cyan colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">7</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_color7">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="margin_right">18</property>
+                    <property name="title" translatable="yes">Pick a white colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">8</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_terminal_normal_colors">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="label" translatable="yes">Normal colours</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_terminal_cursor_color">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="label" translatable="yes">Cursor colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">11</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_cursor">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="margin_right">18</property>
+                    <property name="title" translatable="yes">Cursor colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_terminal_background">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="label" translatable="yes">Background colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_background">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="margin_right">18</property>
+                    <property name="title" translatable="yes">Background colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">10</property>
+                    <property name="width">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="colorbutton_foreground">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="margin_right">18</property>
+                    <property name="title" translatable="yes">Foreground colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">9</property>
+                    <property name="width">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_terminal_foreground">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="label" translatable="yes">Foreground colour</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_keyboard_select_all2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Increase font size</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_keyboard_select_all3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Decrease font size</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_keyboard_increase_font">
+                    <property name="label">Increase</property>
+                    <property name="width_request">100</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">(Host key+)</property>
+                    <property name="halign">start</property>
+                    <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">7</property>
+                    <property name="width">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_keyboard_decrease_font">
+                    <property name="label">Decrease</property>
+                    <property name="width_request">100</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">(Host key+)</property>
+                    <property name="halign">start</property>
+                    <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">8</property>
+                    <property name="width">8</property>
                   </packing>
                 </child>
               </object>

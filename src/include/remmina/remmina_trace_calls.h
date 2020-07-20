@@ -36,7 +36,6 @@
 #pragma once
 
 #ifdef  WITH_TRACE_CALLS
-
 #include <gtk/gtk.h>
 
 #define TRACE_CALL(text) \
@@ -47,7 +46,6 @@
 		g_free(sfmtdate); \
 		g_date_time_unref(datetime); \
 	}
-
 #else
 #define TRACE_CALL(text)
 #endif  /* _WITH_TRACE_CALLS_ */

@@ -95,6 +95,7 @@ struct _RemminaConnectionWindowPriv {
 	guint						acs_eventsourceid;	// timeout
 	guint						spf_eventsourceid;		// idle
 	guint						grab_retry_eventsourceid;	// timeout
+	guint						delayed_grab_eventsourceid;
 	guint						ftb_hide_eventsource;	// timeout
 	guint						tar_eventsource;	// timeout
 	guint						hidetb_eventsource;	// timeout
@@ -143,6 +144,8 @@ struct _RemminaConnectionWindowPriv {
 	gboolean					pointer_captured;
 	gboolean					hostkey_activated;
 	gboolean					hostkey_used;
+
+	gboolean					pointer_entered;
 
 	RemminaConnectionWindowOnDeleteConfirmMode	on_delete_confirm_mode;
 };
@@ -429,6 +432,10 @@ static void rcw_kp_ungrab(RemminaConnectionWindow *cnnwin)
 		g_source_remove(cnnwin->priv->grab_retry_eventsourceid);
 		cnnwin->priv->grab_retry_eventsourceid = 0;
 	}
+	if (cnnwin->priv->delayed_grab_eventsourceid) {
+		g_source_remove(cnnwin->priv->delayed_grab_eventsourceid);
+		cnnwin->priv->delayed_grab_eventsourceid = 0;
+	}
 
 	display = gtk_widget_get_display(GTK_WIDGET(cnnwin));
 #if GTK_CHECK_VERSION(3, 24, 0)
@@ -470,6 +477,9 @@ static gboolean rcw_keyboard_grab_retry(gpointer user_data)
 	TRACE_CALL(__func__);
 	RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow *)user_data;
 
+#if DEBUG_KB_GRABBING
+	printf("%s retry grab\n", __func__);
+#endif
 	rcw_keyboard_grab(cnnwin);
 	cnnwin->priv->grab_retry_eventsourceid = 0;
 	return G_SOURCE_REMOVE;
@@ -531,8 +541,12 @@ static void rcw_keyboard_grab(RemminaConnectionWindow *cnnwin)
 	GdkGrabStatus ggs;
 	GdkDevice *keyboard = NULL;
 
-	if (cnnwin->priv->kbcaptured)
+	if (cnnwin->priv->kbcaptured) {
+#if DEBUG_KB_GRABBING
+		printf("DEBUG_KB_GRABBING: %s not grabbing because already grabbed.\n", __func__);
+#endif
 		return;
+	}
 
 	display = gtk_widget_get_display(GTK_WIDGET(cnnwin));
 #if GTK_CHECK_VERSION(3, 24, 0)
@@ -557,7 +571,7 @@ static void rcw_keyboard_grab(RemminaConnectionWindow *cnnwin)
 		 * the widget is hidden:
 		 * https://gitlab.gnome.org/GNOME/gtk/commit/726ad5a5ae7c4f167e8dd454cd7c250821c400ab
 		 * The bugfix will be released with GTK 3.24.
-		 * Also pease note that the newer gdk_seat_grab() is still calling gdk_device_grab().
+		 * Also please note that the newer gdk_seat_grab() is still calling gdk_device_grab().
 		 *
 		 * Warning: gdk_seat_grab() will call XGrabKeyboard() or XIGrabDevice()
 		 * which in turn will generate a core X input event FocusOut and FocusIn
@@ -680,6 +694,10 @@ static void rcw_destroy(GtkWidget *widget, gpointer data)
 	if (priv->grab_retry_eventsourceid) {
 		g_source_remove(priv->grab_retry_eventsourceid);
 		priv->grab_retry_eventsourceid = 0;
+	}
+	if (cnnwin->priv->delayed_grab_eventsourceid) {
+		g_source_remove(cnnwin->priv->delayed_grab_eventsourceid);
+		cnnwin->priv->delayed_grab_eventsourceid = 0;
 	}
 	if (priv->ftb_hide_eventsource) {
 		g_source_remove(priv->ftb_hide_eventsource);
@@ -1182,7 +1200,7 @@ static void nb_set_current_page(GtkNotebook *notebook, GtkWidget *page)
 
 static void nb_migrate_page_content(GtkWidget *frompage, GtkWidget *topage)
 {
-	/* Migrate a single connection tab from a nothebook to another one */
+	/* Migrate a single connection tab from a notebook to another one */
 	GList *lst, *l;
 	RemminaConnectionObject *cnnobj;
 
@@ -1276,6 +1294,9 @@ static void rcw_switch_viewmode(RemminaConnectionWindow *cnnwin, int newmode)
 			 * status before self destruction of cnnwin */
 			newwin->priv->fss_view_mode = old_mode;
 	}
+
+	/* Prevent unreleased hostkey from old window to be released here */
+	newwin->priv->hostkey_used = TRUE;
 }
 
 
@@ -1948,12 +1969,15 @@ static void rcw_toolbar_screenshot(GtkWidget *widget, RemminaConnectionWindow *c
 	// We will take a screenshot of the currently displayed RemminaProtocolWidget.
 	gp = REMMINA_PROTOCOL_WIDGET(cnnobj->proto);
 
+	gchar *denyclip = remmina_pref_get_value("deny_screenshot_clipboard");
+	REMMINA_DEBUG ("deny_screenshot_clipboard is set to %s", denyclip);
+
 	GtkClipboard *c = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
 	// Ask the plugin if it can give us a screenshot
 	if (remmina_protocol_widget_plugin_screenshot(gp, &rpsd)) {
 		// Good, we have a screenshot from the plugin !
 
-		remmina_log_printf("Screenshot from plugin: w=%d h=%d bpp=%d bytespp=%d\n",
+		REMMINA_DEBUG("Screenshot from plugin: w=%d h=%d bpp=%d bytespp=%d\n",
 				   rpsd.width, rpsd.height, rpsd.bitsPerPixel, rpsd.bytesPerPixel);
 
 		width = rpsd.width;
@@ -1970,7 +1994,7 @@ static void rcw_toolbar_screenshot(GtkWidget *widget, RemminaConnectionWindow *c
 
 		srcsurface = cairo_image_surface_create_for_data(rpsd.buffer, cairo_format, width, height, stride);
 		// Transfer the PixBuf in the main clipboard selection
-		if (!remmina_pref.deny_screenshot_clipboard)
+		if (denyclip && (g_strcmp0 (denyclip, "true")))
 			gtk_clipboard_set_image(c, gdk_pixbuf_get_from_surface(
 							srcsurface, 0, 0, width, height));
 		surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height);
@@ -2005,9 +2029,9 @@ static void rcw_toolbar_screenshot(GtkWidget *widget, RemminaConnectionWindow *c
 			g_print("gdk_pixbuf_get_from_window failed\n");
 
 		// Transfer the PixBuf in the main clipboard selection
-		if (!remmina_pref.deny_screenshot_clipboard)
+		if (denyclip && (g_strcmp0 (denyclip, "true")))
 			gtk_clipboard_set_image(c, screenshot);
-		// Prepare the destination cairo surface.
+		// Prepare the destination Cairo surface.
 		surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height);
 		cr = cairo_create(surface);
 
@@ -2093,6 +2117,9 @@ static void rcw_toolbar_grab(GtkWidget *widget, RemminaConnectionWindow *cnnwin)
 		printf("DEBUG_KB_GRABBING: Grabbing for button\n");
 #endif
 		rcw_keyboard_grab(cnnobj->cnnwin);
+		if (cnnobj->cnnwin->priv->pointer_entered) {
+			rcw_pointer_grab(cnnobj->cnnwin);
+		}
 	} else {
 		rcw_kp_ungrab(cnnobj->cnnwin);
 	}
@@ -2246,7 +2273,7 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 
 	toolitem = gtk_toggle_tool_button_new();
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-preferences-system-symbolic");
-	gtk_tool_item_set_tooltip_text(toolitem, _("Preferences"));
+	gtk_tool_item_set_tooltip_text(toolitem, _("_Preferences"));
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	gtk_widget_show(GTK_WIDGET(toolitem));
 	g_signal_connect(G_OBJECT(toolitem), "toggled", G_CALLBACK(rcw_toolbar_preferences), cnnwin);
@@ -2254,7 +2281,7 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 
 	toolitem = gtk_toggle_tool_button_new();
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-system-run-symbolic");
-	gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolitem), _("Tools"));
+	gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolitem), _("_Tools"));
 	gtk_tool_item_set_tooltip_text(toolitem, _("Tools"));
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	gtk_widget_show(GTK_WIDGET(toolitem));
@@ -2435,12 +2462,33 @@ static gboolean rcw_floating_toolbar_on_enter(GtkWidget *widget, GdkEventCrossin
 	return TRUE;
 }
 
+static gboolean rcw_on_enter_notify_event(GtkWidget *widget, GdkEventCrossing *event,
+				   gpointer user_data)
+{
+	TRACE_CALL(__func__);
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING: enter-notify-event on rcw received\n");
+#endif
+	return FALSE;
+}
+
 static gboolean rcw_on_leave_notify_event(GtkWidget *widget, GdkEventCrossing *event,
 				   gpointer user_data)
 {
 	TRACE_CALL(__func__);
-	rcw_kp_ungrab((RemminaConnectionWindow*)widget);
-	rcw_pointer_ungrab((RemminaConnectionWindow*)widget);
+	RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow *)widget;
+
+	if (cnnwin->priv->delayed_grab_eventsourceid) {
+		g_source_remove(cnnwin->priv->delayed_grab_eventsourceid);
+		cnnwin->priv->delayed_grab_eventsourceid = 0;
+	}
+
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING: leave-notify-event on rcw received\n");
+#endif
+
+	rcw_kp_ungrab(cnnwin);
+	rcw_pointer_ungrab(cnnwin);
 
 	return FALSE;
 }
@@ -2452,7 +2500,7 @@ static gboolean rco_leave_protocol_widget(GtkWidget *widget, GdkEventCrossing *e
 	TRACE_CALL(__func__);
 
 #if DEBUG_KB_GRABBING
-	printf("DEBUG_KB_GRABBING: leave detail=");
+	printf("DEBUG_KB_GRABBING: received leave event on RCO. detail=");
 	switch (event->detail) {
 	case GDK_NOTIFY_ANCESTOR: printf("GDK_NOTIFY_ANCESTOR"); break;
 	case GDK_NOTIFY_VIRTUAL: printf("GDK_NOTIFY_VIRTUAL"); break;
@@ -2463,9 +2511,7 @@ static gboolean rco_leave_protocol_widget(GtkWidget *widget, GdkEventCrossing *e
 	default: printf("unknown");
 	}
 	printf("\n");
-#endif
-#if DEBUG_KB_GRABBING
-	printf("DEBUG_KB_GRABBING: leave mode=");
+	printf("DEBUG_KB_GRABBING: leave event mode=");
 	switch (event->mode) {
 	case GDK_CROSSING_NORMAL: printf("GDK_CROSSING_NORMAL"); break;
 	case GDK_CROSSING_GRAB: printf("GDK_CROSSING_GRAB"); break;
@@ -2482,8 +2528,15 @@ static gboolean rco_leave_protocol_widget(GtkWidget *widget, GdkEventCrossing *e
 	printf("\n");
 #endif
 
-	/* Ungrab only if the leave is due to normal mouse motion */
-	if (event->mode == GDK_CROSSING_NORMAL)
+	if (cnnobj->cnnwin->priv->delayed_grab_eventsourceid) {
+		g_source_remove(cnnobj->cnnwin->priv->delayed_grab_eventsourceid);
+		cnnobj->cnnwin->priv->delayed_grab_eventsourceid = 0;
+	}
+
+	cnnobj->cnnwin->priv->pointer_entered = FALSE;
+
+	/* Ungrab only if the leave is due to normal mouse motion and not to an inferior */
+	if (event->mode == GDK_CROSSING_NORMAL && event->detail != GDK_NOTIFY_INFERIOR)
 		rcw_kp_ungrab(cnnobj->cnnwin);
 
 	return FALSE;
@@ -2494,18 +2547,83 @@ gboolean rco_enter_protocol_widget(GtkWidget *widget, GdkEventCrossing *event,
 				   RemminaConnectionObject *cnnobj)
 {
 	TRACE_CALL(__func__);
+	gboolean active;
+
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING: %s: enter on protocol widget event received\n", __func__);
+	printf("DEBUG_KB_GRABBING:    enter event detail=");
+	switch (event->detail) {
+	case GDK_NOTIFY_ANCESTOR: printf("GDK_NOTIFY_ANCESTOR"); break;
+	case GDK_NOTIFY_VIRTUAL: printf("GDK_NOTIFY_VIRTUAL"); break;
+	case GDK_NOTIFY_NONLINEAR: printf("GDK_NOTIFY_NONLINEAR"); break;
+	case GDK_NOTIFY_NONLINEAR_VIRTUAL: printf("GDK_NOTIFY_NONLINEAR_VIRTUAL"); break;
+	case GDK_NOTIFY_UNKNOWN: printf("GDK_NOTIFY_UNKNOWN"); break;
+	case GDK_NOTIFY_INFERIOR: printf("GDK_NOTIFY_INFERIOR"); break;
+	default: printf("unknown");
+	}
+	printf("\n");
+	printf("DEBUG_KB_GRABBING:    enter event mode=");
+	switch (event->mode) {
+	case GDK_CROSSING_NORMAL: printf("GDK_CROSSING_NORMAL"); break;
+	case GDK_CROSSING_GRAB: printf("GDK_CROSSING_GRAB"); break;
+	case GDK_CROSSING_UNGRAB: printf("GDK_CROSSING_UNGRAB"); break;
+	case GDK_CROSSING_GTK_GRAB: printf("GDK_CROSSING_GTK_GRAB"); break;
+	case GDK_CROSSING_GTK_UNGRAB: printf("GDK_CROSSING_GTK_UNGRAB"); break;
+	case GDK_CROSSING_STATE_CHANGED: printf("GDK_CROSSING_STATE_CHANGED"); break;
+	case GDK_CROSSING_TOUCH_BEGIN: printf("GDK_CROSSING_TOUCH_BEGIN"); break;
+	case GDK_CROSSING_TOUCH_END: printf("GDK_CROSSING_TOUCH_END"); break;
+	case GDK_CROSSING_DEVICE_SWITCH: printf("GDK_CROSSING_DEVICE_SWITCH"); break;
+
+	default: printf("unknown");
+	}
+	printf("\n");
+#endif
+
 	RemminaConnectionWindowPriv *priv = cnnobj->cnnwin->priv;
 	if (!priv->sticky && event->mode == GDK_CROSSING_NORMAL) {
 		rcw_floating_toolbar_show(cnnobj->cnnwin, FALSE);
 	}
 
-	/* Check if we need pointer grabbing */
-	if (remmina_file_get_int(cnnobj->remmina_file, "keyboard_grab", FALSE)) {
+	priv->pointer_entered = TRUE;
+
+	if (event->mode == GDK_CROSSING_UNGRAB) {
+		// Someone steal our grab, take note and do not attempt to regrab
+		cnnobj->cnnwin->priv->kbcaptured = FALSE;
+		cnnobj->cnnwin->priv->pointer_captured = FALSE;
+		return FALSE;
+	}
+
+	/* Check if we need grabbing */
+	active = gtk_window_is_active(GTK_WINDOW(cnnobj->cnnwin));
+	if (remmina_file_get_int(cnnobj->remmina_file, "keyboard_grab", FALSE) && active) {
 		rcw_keyboard_grab(cnnobj->cnnwin);
 		rcw_pointer_grab(cnnobj->cnnwin);
 	}
 
 	return FALSE;
+}
+
+static gboolean focus_in_delayed_grab(RemminaConnectionWindow *cnnwin)
+{
+	TRACE_CALL(__func__);
+
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING:   %s\n", __func__);
+#endif
+	if (cnnwin->priv->pointer_entered) {
+#if DEBUG_KB_GRABBING
+		printf("DEBUG_KB_GRABBING:   deleayed requesting kb and pointer grab, because of pointer inside\n");
+#endif
+		rcw_keyboard_grab(cnnwin);
+		rcw_pointer_grab(cnnwin);
+	}
+#if DEBUG_KB_GRABBING
+	else {
+		printf("DEBUG_KB_GRABBING:   %s not grabbing because pointer_entered is false\n", __func__);
+	}
+#endif
+	cnnwin->priv->delayed_grab_eventsourceid = 0;
+	return G_SOURCE_REMOVE;
 }
 
 static void rcw_focus_in(RemminaConnectionWindow *cnnwin)
@@ -2515,8 +2633,19 @@ static void rcw_focus_in(RemminaConnectionWindow *cnnwin)
 
 	if (!(cnnobj = rcw_get_visible_cnnobj(cnnwin))) return;
 
-	if (cnnobj && cnnobj->connected && remmina_file_get_int(cnnobj->remmina_file, "keyboard_grab", FALSE))
-		rcw_keyboard_grab(cnnobj->cnnwin);
+	if (cnnobj && cnnobj->connected && remmina_file_get_int(cnnobj->remmina_file, "keyboard_grab", FALSE)) {
+#if DEBUG_KB_GRABBING
+		printf("DEBUG_KB_GRABBING: Received focus in on rcw, grabbing enabled: requesting kb grab, delayed\n");
+#endif
+		if (cnnwin->priv->delayed_grab_eventsourceid == 0)
+			cnnwin->priv->delayed_grab_eventsourceid = g_timeout_add(300, (GSourceFunc)focus_in_delayed_grab, cnnwin);
+	}
+#if DEBUG_KB_GRABBING
+	else {
+		printf("DEBUG_KB_GRABBING: Received focus in on rcw, but a condition will prevent to grab\n");
+	}
+#endif
+
 }
 
 static void rcw_focus_out(RemminaConnectionWindow *cnnwin)
@@ -2650,9 +2779,9 @@ static gboolean rcw_on_configure(GtkWidget *widget, GdkEventConfigure *event,
 		cnnwin->priv->acs_eventsourceid = 0;
 	}
 
-	if (cnnwin && gtk_widget_get_window(GTK_WIDGET(cnnwin))
+	if (gtk_widget_get_window(GTK_WIDGET(cnnwin))
 	    && cnnwin->priv->view_mode == SCROLLED_WINDOW_MODE)
-		/* Under Gnome shell we receive this configure_event BEFORE a window
+		/* Under GNOME Shell we receive this configure_event BEFORE a window
 		 * is really unmaximized, so we must read its new state and dimensions
 		 * later, not now */
 		cnnwin->priv->acs_eventsourceid = g_timeout_add(500, rcw_after_configure_scrolled, cnnobj);
@@ -2776,6 +2905,7 @@ static void rcw_init(RemminaConnectionWindow *cnnwin)
 	priv->floating_toolbar_opacity = 1.0;
 	priv->kbcaptured = FALSE;
 	priv->pointer_captured = FALSE;
+	priv->pointer_entered = FALSE;
 	priv->fss_view_mode = VIEWPORT_FULLSCREEN_MODE;
 	priv->ss_width = 640;
 	priv->ss_height = 480;
@@ -2784,12 +2914,27 @@ static void rcw_init(RemminaConnectionWindow *cnnwin)
 	remmina_widget_pool_register(GTK_WIDGET(cnnwin));
 }
 
+static gboolean rcw_focus_in_event(GtkWidget *widget, GdkEventWindowState *event, gpointer user_data)
+{
+	TRACE_CALL(__func__);
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING: RCW focus-in-event received\n");
+#endif
+	rcw_focus_in((RemminaConnectionWindow *)widget);
+	return FALSE;
+}
+
+
 static gboolean rcw_state_event(GtkWidget *widget, GdkEventWindowState *event, gpointer user_data)
 {
 	TRACE_CALL(__func__);
 
 	if (!REMMINA_IS_CONNECTION_WINDOW(widget))
 		return FALSE;
+
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING: window-state-event received\n");
+#endif
 
 	if (event->changed_mask & GDK_WINDOW_STATE_FOCUSED) {
 		if (event->new_window_state & GDK_WINDOW_STATE_FOCUSED)
@@ -2820,11 +2965,11 @@ static gboolean rcw_map_event_fullscreen(GtkWidget *widget, GdkEvent *event, gpo
 			gtk_window_fullscreen_on_monitor(GTK_WINDOW(widget), gtk_window_get_screen(GTK_WINDOW(widget)),
 							 target_monitor);
 	} else {
-		remmina_log_print("Fullscreen managed by WM or by the user, as per settings");
+		REMMINA_DEBUG("Fullscreen managed by WM or by the user, as per settings");
 		gtk_window_fullscreen(GTK_WINDOW(widget));
 	}
 #else
-	remmina_log_print("Cannot fullscreen on a specific monitor, feature available from GTK 3.18");
+	REMMINA_DEBUG("Cannot fullscreen on a specific monitor, feature available from GTK 3.18");
 	gtk_window_fullscreen(GTK_WINDOW(widget));
 #endif
 
@@ -2850,10 +2995,14 @@ rcw_new(gboolean fullscreen, int full_screen_target_monitor)
 	g_signal_connect(G_OBJECT(cnnwin), "delete-event", G_CALLBACK(rcw_delete_event), NULL);
 	g_signal_connect(G_OBJECT(cnnwin), "destroy", G_CALLBACK(rcw_destroy), NULL);
 
-	/* focus-in-event and focus-out-event don’t work when keyboard is grabbed
+	/* Under Xorg focus-in-event and focus-out-event don’t work when keyboard is grabbed
 	 * via gdk_device_grab. So we listen for window-state-event to detect focus in and focus out */
 	g_signal_connect(G_OBJECT(cnnwin), "window-state-event", G_CALLBACK(rcw_state_event), NULL);
 
+	/* Under wayland window-state-event is not received in some cases */
+	g_signal_connect(G_OBJECT(cnnwin), "focus-in-event", G_CALLBACK(rcw_focus_in_event), NULL);
+
+	g_signal_connect(G_OBJECT(cnnwin), "enter-notify-event", G_CALLBACK(rcw_on_enter_notify_event), NULL);
 	g_signal_connect(G_OBJECT(cnnwin), "leave-notify-event", G_CALLBACK(rcw_on_leave_notify_event), NULL);
 
 
@@ -3156,7 +3305,7 @@ rcw_on_notebook_create_window(GtkNotebook *notebook, GtkWidget *page, gint x, gi
 	cnnobj = (RemminaConnectionObject *)g_object_get_data(G_OBJECT(page), "cnnobj");
 
 	if (!dstcnnwin) {
-		/* Drop is directed to a new rcw: create a new scrolled window to accomodate
+		/* Drop is directed to a new rcw: create a new scrolled window to accommodate
 		 * the dropped connectionand move our cnnobj there. Width and
 		 * height of the new window are cloned from the current window */
 		srctag = (gchar *)g_object_get_data(G_OBJECT(srccnnwin), "tag");
@@ -3342,6 +3491,11 @@ static void rcw_create_overlay_ftb_overlay(RemminaConnectionWindow *cnnwin)
 	gtk_drag_source_set(GTK_WIDGET(priv->overlay_ftb_overlay), GDK_BUTTON1_MASK,
 			    dnd_targets_ftb, sizeof dnd_targets_ftb / sizeof *dnd_targets_ftb, GDK_ACTION_MOVE);
 	g_signal_connect_after(GTK_WIDGET(priv->overlay_ftb_overlay), "drag-begin", G_CALLBACK(rcw_ftb_drag_begin), cnnwin);
+
+	if (remmina_pref.fullscreen_toolbar_visibility == FLOATING_TOOLBAR_VISIBILITY_DISABLE) {
+		/* toolbar in fullscreenmode disbled, hide everityhg */
+		gtk_widget_hide(fr);
+	}
 }
 
 
@@ -3450,14 +3604,12 @@ RemminaConnectionWindow *rcw_create_fullscreen(GtkWindow *old, gint view_mode)
 	cnnwin->priv->fss_view_mode = view_mode;
 
 	/* Create the floating toolbar */
-	if (remmina_pref.fullscreen_toolbar_visibility != FLOATING_TOOLBAR_VISIBILITY_DISABLE) {
-		rcw_create_overlay_ftb_overlay(cnnwin);
-		/* Add drag and drop capabilities to the drop/dest target for floating toolbar */
-		gtk_drag_dest_set(GTK_WIDGET(cnnwin->priv->overlay), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT,
-				  dnd_targets_ftb, sizeof dnd_targets_ftb / sizeof *dnd_targets_ftb, GDK_ACTION_MOVE);
-		gtk_drag_dest_set_track_motion(GTK_WIDGET(cnnwin->priv->notebook), TRUE);
-		g_signal_connect(GTK_WIDGET(cnnwin->priv->overlay), "drag-drop", G_CALLBACK(rcw_ftb_drag_drop), cnnwin);
-	}
+	rcw_create_overlay_ftb_overlay(cnnwin);
+	/* Add drag and drop capabilities to the drop/dest target for floating toolbar */
+	gtk_drag_dest_set(GTK_WIDGET(cnnwin->priv->overlay), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT,
+			  dnd_targets_ftb, sizeof dnd_targets_ftb / sizeof *dnd_targets_ftb, GDK_ACTION_MOVE);
+	gtk_drag_dest_set_track_motion(GTK_WIDGET(cnnwin->priv->notebook), TRUE);
+	g_signal_connect(GTK_WIDGET(cnnwin->priv->overlay), "drag-drop", G_CALLBACK(rcw_ftb_drag_drop), cnnwin);
 
 	gtk_widget_show(GTK_WIDGET(cnnwin));
 	GtkWindowGroup * wingrp = gtk_window_group_new ();
@@ -3640,8 +3792,11 @@ static gboolean rcw_hostkey_func(RemminaProtocolWidget *gp, guint keyval, gboole
 			}
 		}
 	}
-	priv->hostkey_activated = FALSE;
-	/* Trap all key presses when hostkey is pressed */
+	/* If a keypress makes the current cnnobj to move to another window,
+	 * priv is now invalid. So we can no longer use priv here */
+	cnnobj->cnnwin->priv->hostkey_activated = FALSE;
+
+	/* Trap all keypresses when hostkey is pressed */
 	return TRUE;
 }
 
@@ -3685,7 +3840,7 @@ void rco_on_connect(RemminaProtocolWidget *gp, RemminaConnectionObject *cnnobj)
 
 	gchar *last_success;
 
-	g_debug("Connect signal emitted");
+	REMMINA_DEBUG("Connect signal emitted");
 	GDateTime *date = g_date_time_new_now_utc();
 
 	/* This signal handler is called by a plugin when it’s correctly connected
@@ -3707,12 +3862,12 @@ void rco_on_connect(RemminaProtocolWidget *gp, RemminaConnectionObject *cnnobj)
 		remmina_pref_add_recent(remmina_file_get_string(cnnobj->remmina_file, "protocol"),
 					remmina_file_get_string(cnnobj->remmina_file, "server"));
 	if (remmina_pref.periodic_usage_stats_permitted) {
-		g_debug("Stats are allowed, we save the last successful connection date");
+		REMMINA_DEBUG("Stats are allowed, we save the last successful connection date");
 		remmina_file_set_string(cnnobj->remmina_file, "last_success", last_success);
-		g_debug("Last connection was made on %s.", last_success);
+		REMMINA_DEBUG("Last connection made on %s.", last_success);
 	}
 
-	g_debug("Saving credentials");
+	REMMINA_DEBUG("Saving credentials");
 	/* Save credentials */
 	remmina_file_save(cnnobj->remmina_file);
 
@@ -3721,7 +3876,7 @@ void rco_on_connect(RemminaProtocolWidget *gp, RemminaConnectionObject *cnnobj)
 
 	rco_update_toolbar(cnnobj);
 
-	g_debug("Trying to present the window");
+	REMMINA_DEBUG("Trying to present the window");
 	/* Try to present window */
 	cnnobj->cnnwin->priv->dwp_eventsourceid = g_timeout_add(200, rcw_delayed_window_present, (gpointer)cnnobj->cnnwin);
 }
@@ -3739,7 +3894,7 @@ void rco_on_disconnect(RemminaProtocolWidget *gp, gpointer data)
 	RemminaConnectionWindowPriv *priv = cnnobj->cnnwin->priv;
 	GtkWidget *pparent;
 
-	g_debug("Disconnect signal received on RemminaProtocolWidget");
+	REMMINA_DEBUG("Disconnect signal received on RemminaProtocolWidget");
 	/* Detach the protocol widget from the notebook now, or we risk that a
 	 * window delete will destroy cnnobj->proto before we complete disconnection.
 	 */
@@ -3765,7 +3920,7 @@ void rco_on_disconnect(RemminaProtocolWidget *gp, gpointer data)
 	if (remmina_protocol_widget_has_error(gp)) {
 		/* We cannot close window immediately, but we must show a message panel */
 		RemminaMessagePanel *mp;
-		/* Destroy scrolled_contaner (and viewport) and all its children the plugin created
+		/* Destroy scrolled_container (and viewport) and all its children the plugin created
 		 * on it, so they will not receive GUI signals */
 		if (cnnobj->scrolled_container) {
 			gtk_widget_destroy(cnnobj->scrolled_container);
@@ -3775,10 +3930,10 @@ void rco_on_disconnect(RemminaProtocolWidget *gp, gpointer data)
 		mp = remmina_message_panel_new();
 		remmina_message_panel_setup_message(mp, remmina_protocol_widget_get_error_message(gp), cb_lasterror_confirmed, gp);
 		rco_show_message_panel(gp->cnnobj, mp);
-		g_debug("Could not disconnect");
+		REMMINA_DEBUG("Could not disconnect");
 	} else {
 		rco_closewin(gp);
-		g_debug("Disconnected");
+		REMMINA_DEBUG("Disconnected");
 	}
 }
 
@@ -3844,7 +3999,7 @@ static void rpw_size_allocated_on_connection(GtkWidget *w, GdkRectangle *allocat
 	/* Disconnect signal handler to avoid to be called again after a normal resize */
 	g_signal_handler_disconnect(w, gp->cnnobj->deferred_open_size_allocate_handler);
 
-	/* Allow extra 100ms for size allocation (do we really need it?) */
+	/* Allow extra 100 ms for size allocation (do we really need it?) */
 	g_timeout_add(100, open_connection_last_stage, gp);
 
 	return;
@@ -3890,7 +4045,7 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 						GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s", msg);
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);
-		/* We should destroy cnnobj->proto and cnnobj now… ToDo: fix this leak */
+		/* We should destroy cnnobj->proto and cnnobj now… TODO: Fix this leak */
 		return NULL;
 	}
 
@@ -3992,7 +4147,7 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 
 	if (remmina_protocol_widget_has_error((RemminaProtocolWidget *)cnnobj->proto)) {
 		printf("OK, an error occurred in initializing the protocol plugin before connecting. The error is %s.\n"
-		       "ToDo: Put this string as error to show", remmina_protocol_widget_get_error_message((RemminaProtocolWidget *)cnnobj->proto));
+		       "TODO: Put this string as an error to show", remmina_protocol_widget_get_error_message((RemminaProtocolWidget *)cnnobj->proto));
 		return cnnobj->proto;
 	}
 

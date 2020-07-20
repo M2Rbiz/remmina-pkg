@@ -345,7 +345,7 @@ remmina_file_load(const gchar *filename)
 	if (g_file_test(filename, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_EXISTS)) {
 		if (!g_key_file_load_from_file(gkeyfile, filename, G_KEY_FILE_NONE, NULL)) {
 			g_key_file_free(gkeyfile);
-			g_debug("Unable to load remmina profile file %s: g_key_file_load_from_file() returned NULL.\n", filename);
+			REMMINA_DEBUG ("Unable to load remmina profile file %s: g_key_file_load_from_file() returned NULL.\n", filename);
 			return NULL;
 		}
 	}
@@ -410,8 +410,9 @@ remmina_file_load(const gchar *filename)
 			upgrade_sshkeys_202001(remminafile);
 
 		}
+		g_strfreev(keys);
 	} else {
-		g_debug("Unable to load remmina profile file %s: cannot find key name= in section remmina.\n", filename);
+		REMMINA_DEBUG ("Unable to load remmina profile file %s: cannot find key name= in section remmina.\n", filename);
 		remminafile = NULL;
 	}
 
@@ -500,9 +501,9 @@ gchar *remmina_file_format_properties(RemminaFile *remminafile, const gchar *set
 
 	fmt_str = g_string_new(setting);
 	remmina_utils_string_replace_all(fmt_str, "%h", remmina_file_get_string(remminafile, "server"));
-	remmina_utils_string_replace_all(fmt_str, "%t", remmina_file_get_string(remminafile, "ssh_server"));
+	remmina_utils_string_replace_all(fmt_str, "%t", remmina_file_get_string(remminafile, "ssh_tunnel_server"));
 	remmina_utils_string_replace_all(fmt_str, "%u", remmina_file_get_string(remminafile, "username"));
-	remmina_utils_string_replace_all(fmt_str, "%U", remmina_file_get_string(remminafile, "ssh_username"));
+	remmina_utils_string_replace_all(fmt_str, "%U", remmina_file_get_string(remminafile, "ssh_tunnel_username"));
 	remmina_utils_string_replace_all(fmt_str, "%p", remmina_file_get_string(remminafile, "name"));
 	remmina_utils_string_replace_all(fmt_str, "%g", remmina_file_get_string(remminafile, "group"));
 
@@ -578,7 +579,7 @@ void remmina_file_save(RemminaFile *remminafile)
 	if ((gkeyfile = remmina_file_get_keyfile(remminafile)) == NULL)
 		return;
 
-	g_debug("Saving profile");
+	REMMINA_DEBUG ("Saving profile");
 	/* get disablepasswordstoring */
 	nopasswdsave = remmina_file_get_int(remminafile, "disablepasswordstoring", 0);
 	/* Identify the protocol plugin and get pointers to its RemminaProtocolSetting structs */
@@ -598,7 +599,7 @@ void remmina_file_save(RemminaFile *remminafile)
 		if (remmina_plugin_manager_is_encrypted_setting(protocol_plugin, key)) {
 			if (remminafile->filename && g_strcmp0(remminafile->filename, remmina_pref_file)) {
 				if (secret_service_available && nopasswdsave == 0) {
-					g_debug ("We have a secret and disablepasswordstoring=0");
+					REMMINA_DEBUG ("We have a secret and disablepasswordstoring=0");
 					if (value && value[0]) {
 						if (g_strcmp0(value, ".") != 0)
 							secret_plugin->store_password(remminafile, key, value);
@@ -608,7 +609,7 @@ void remmina_file_save(RemminaFile *remminafile)
 						secret_plugin->delete_password(remminafile, key);
 					}
 				} else {
-					g_debug ("We have a password and disablepasswordstoring=0");
+					REMMINA_DEBUG ("We have a password and disablepasswordstoring=0");
 					if (value && value[0] && nopasswdsave == 0) {
 						s = remmina_crypt_encrypt(value);
 						g_key_file_set_string(gkeyfile, KEYFILE_GROUP_REMMINA, key, s);
@@ -620,7 +621,7 @@ void remmina_file_save(RemminaFile *remminafile)
 				if (secret_service_available && nopasswdsave == 1) {
 					if (value && value[0]) {
 						if (g_strcmp0(value, ".") != 0) {
-							g_debug ("Deleting the secret in the keyring as disablepasswordstoring=1");
+							REMMINA_DEBUG ("Deleting the secret in the keyring as disablepasswordstoring=1");
 							secret_plugin->delete_password(remminafile, key);
 							g_key_file_set_string(gkeyfile, KEYFILE_GROUP_REMMINA, key, ".");
 						}
@@ -644,7 +645,7 @@ void remmina_file_save(RemminaFile *remminafile)
 	content = g_key_file_to_data(gkeyfile, &length, NULL);
 
 	if (g_file_set_contents(remminafile->filename, content, length, &err)) {
-		g_debug("Profile saved");
+		REMMINA_DEBUG ("Profile saved");
 	} else {
 		g_warning("Remmina connection profile cannot be saved, with error %d (%s)", err->code, err->message);
 	}
@@ -845,17 +846,17 @@ remmina_file_touch(RemminaFile *remminafile)
 
 	if ((r = stat(remminafile->filename, &st)) < 0) {
 		if (errno != ENOENT)
-			remmina_log_printf("stat %s:", remminafile->filename);
+			REMMINA_DEBUG("stat %s:", remminafile->filename);
 	} else if (!r) {
 		times[0] = st.st_atim;
 		times[1] = st.st_mtim;
 		if (utimensat(AT_FDCWD, remminafile->filename, times, 0) < 0)
-			remmina_log_printf("utimensat %s:", remminafile->filename);
+			REMMINA_DEBUG("utimensat %s:", remminafile->filename);
 		return;
 	}
 
 	if ((fd = open(remminafile->filename, O_CREAT | O_EXCL, 0644)) < 0)
-		remmina_log_printf("open %s:", remminafile->filename);
+		REMMINA_DEBUG("open %s:", remminafile->filename);
 	close(fd);
 
 	remmina_file_touch(remminafile);
