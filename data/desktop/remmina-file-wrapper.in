@@ -34,13 +34,16 @@ export GLADE_HOME="$USRBIN/../share/remmina/ui/"
 
 case "$@" in
     *rdp:*)
-        "$REMMINA" "${@#rdp:\/\/}"
+        "$REMMINA" "${@}"
         ;;
     *spice:*)
-        "$REMMINA" "${@#spice:\/\/}"
+        "$REMMINA" "${@}"
         ;;
     *vnc:*)
-        "$REMMINA" "${@#vnc:\/\/}"
+        "$REMMINA" "${@}"
+        ;;
+    *ssh:*)
+        "$REMMINA" "${@}"
         ;;
     *remmina:*)
         "$REMMINA" "${@#remmina:\/\/}"
