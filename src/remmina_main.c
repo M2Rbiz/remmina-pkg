@@ -35,6 +35,7 @@
  */
 
 #include "config.h"
+#include <ctype.h>
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
 #include <gdk/gdkkeysyms.h>
@@ -291,7 +292,7 @@ static void remmina_main_show_snap_welcome()
 		dsa = GTK_WIDGET(gtk_builder_get_object(dlgbuilder, "dontshowagain"));
 		if (dlgbuilder) {
 			parent = remmina_main_get_window();
-			dlg = GTK_WIDGET(gtk_builder_get_object(dlgbuilder, "snapwarndlg"));
+			dlg = GTK_WIDGET(gtk_builder_get_object(dlgbuilder, "SnapInfoDlg"));
 			if (parent)
 				gtk_window_set_transient_for(GTK_WINDOW(dlg), parent);
 			gtk_builder_connect_signals(dlgbuilder, NULL);
@@ -1043,11 +1044,24 @@ void remmina_main_on_action_application_news(GSimpleAction *action, GVariant *pa
 	remmina_pref_save();
 };
 
+static gboolean is_empty(const gchar *s)
+{
+	if (s == NULL)
+		return TRUE;
+	while (*s != 0) {
+		if (!isspace((unsigned char)*s))
+			return FALSE;
+		s++;
+	}
+	return TRUE;
+}
+
 static gboolean remmina_main_quickconnect(void)
 {
 	TRACE_CALL(__func__);
 	RemminaFile *remminafile;
 	gchar *server;
+	gchar *server_trimmed;
 	gchar *qcp;
 
 
@@ -1061,12 +1075,22 @@ static gboolean remmina_main_quickconnect(void)
 
 	remminafile = remmina_file_new();
 	server = g_strdup(gtk_entry_get_text(remminamain->entry_quick_connect_server));
+	if (is_empty(server))
+		return FALSE;
+
+	/* check if server is an IP address and trim whitespace if so */
+	server_trimmed = g_strdup(server);
+	g_strstrip(server_trimmed);
+
+	if (g_hostname_is_ip_address(server_trimmed))
+		g_stpcpy(server, server_trimmed);
 
 	remmina_file_set_string(remminafile, "sound", "off");
 	remmina_file_set_string(remminafile, "server", server);
 	remmina_file_set_string(remminafile, "name", server);
 	remmina_file_set_string(remminafile, "protocol", qcp);
 	g_free(server);
+	g_free(server_trimmed);
 
 	rcw_open_from_file(remminafile);
 
