@@ -1,7 +1,15 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/vendor.mk
+
 # hardening
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+ifeq ($(DEB_VENDOR),Debian)
+	SETNEWS = OFF
+else
+	SETNEWS = ON
+endif
 
 %:
 	dh $@
@@ -10,7 +18,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		-DWITH_KF5WALLET=ON \
 		-DWITH_KIOSK_SESSION=ON \
-		-DWITH_NEWS=OFF
+		-DWITH_NEWS=$(SETNEWS)
 
 override_dh_install:
 	dh_install
