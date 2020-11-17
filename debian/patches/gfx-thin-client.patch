@@ -1,0 +1,44 @@
+From d7a8d35ef92a658bad3502a0e444d9ea09c8e5ca Mon Sep 17 00:00:00 2001
+From: Fabio Fantoni <fabio.fantoni@m2r.biz>
+Date: Tue, 17 Nov 2020 19:06:08 +0100
+Subject: [PATCH] rdp: add GFX thin client
+
+based on fast look to freerdp code and specification should be correct without
+progressive, with remotefx codec, GfxSmallCache = TRUE
+also GfxThinClient = TRUE is setted in xfreerdp with +gfx-thin-client and also
+used in freerdp/channels/rdpgfx/client/rdpgfx_main.c, so I added also here even
+if I don't know if is good both thin client and small cache
+---
+ plugins/rdp/rdp_plugin.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/plugins/rdp/rdp_plugin.c b/plugins/rdp/rdp_plugin.c
+index 3e139836..63435aa5 100644
+--- a/plugins/rdp/rdp_plugin.c
++++ b/plugins/rdp/rdp_plugin.c
+@@ -1170,7 +1170,16 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
+ 		rfi->settings->RemoteFxCodec = TRUE;
+ 		rfi->settings->SupportGraphicsPipeline = FALSE;
+ 		rfi->settings->ColorDepth = 32;
+-	} else if (rfi->settings->ColorDepth == 63) {
++	} else if (rfi->settings->ColorDepth == 62) {
++		/* /gfx:rfx thin client (Win8) */
++		rfi->settings->ColorDepth = 32;
++		rfi->settings->RemoteFxCodec = TRUE;
++		rfi->settings->SupportGraphicsPipeline = TRUE;
++		rfi->settings->GfxSmallCache = TRUE;
++		rfi->settings->GfxThinClient = TRUE;
++		rfi->settings->GfxH264 = FALSE;
++		rfi->settings->GfxAVC444 = FALSE;
++	}else if (rfi->settings->ColorDepth == 63) {
+ 		/* /gfx (RFX Progressive) (Win8) */
+ 		rfi->settings->ColorDepth = 32;
+ 		rfi->settings->SupportGraphicsPipeline = TRUE;
+@@ -2150,6 +2159,7 @@ static gpointer colordepth_list[] =
+ 	"65", N_("GFX AVC420 (32 bpp)"),
+ 	"64", N_("GFX RFX (32 bpp)"),
+ 	"63", N_("GFX RFX Progressive (32 bpp)"),
++	"62", N_("GFX RFX Thin client (32 bpp)"),
+ 	"0",  N_("RemoteFX (32 bpp)"),
+ 	"32", N_("True colour (32 bpp)"),
+ 	"24", N_("True colour (24 bpp)"),
