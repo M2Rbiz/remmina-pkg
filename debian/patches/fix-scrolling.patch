@@ -1,0 +1,176 @@
+From 6925299dbe2e12d81de06c8350c91add809a39bd Mon Sep 17 00:00:00 2001
+From: Giovanni Panozzo <giovanni@panozzo.it>
+Date: Mon, 31 Aug 2020 21:42:57 +0200
+Subject: [PATCH] RDP and VNC: Fix smooth scrolling when abs(delta) < 1.0, see
+ issue #2273
+
+---
+ plugins/rdp/rdp_event.c  | 33 ++++++++++++++++++++++-----------
+ plugins/vnc/vnc_plugin.c | 37 +++++++++++++++++++++++++++----------
+ plugins/vnc/vnc_plugin.h |  3 +++
+ 3 files changed, 52 insertions(+), 21 deletions(-)
+
+diff --git a/plugins/rdp/rdp_event.c b/plugins/rdp/rdp_event.c
+index 5cea7c512..d5ec8830a 100644
+--- a/plugins/rdp/rdp_event.c
++++ b/plugins/rdp/rdp_event.c
+@@ -532,27 +532,38 @@ static gboolean remmina_rdp_event_on_scroll(GtkWidget* widget, GdkEventScroll* e
+ 	TRACE_CALL(__func__);
+ 	gint flag;
+ 	RemminaPluginRdpEvent rdp_event = { 0 };
++	float windows_delta;
+ 
+ 	flag = 0;
+ 	rdp_event.type = REMMINA_RDP_EVENT_TYPE_MOUSE;
+ 
++	/* See [MS-RDPBCGR] TS_POINTER_EVENT and WM_MOUSEWHEEL message */
++
+ 	switch (event->direction) {
++
+ 	case GDK_SCROLL_UP:
+-		flag = PTR_FLAGS_WHEEL | 0x0078;
++		flag = PTR_FLAGS_WHEEL | 0x0078;  // 120 is one scroll unit defined in WM_MOUSEWHEEL
+ 		break;
+ 
+ 	case GDK_SCROLL_DOWN:
+-		flag = PTR_FLAGS_WHEEL | PTR_FLAGS_WHEEL_NEGATIVE | 0x0088;
++		flag = PTR_FLAGS_WHEEL | 0x0188;  // -120 (one scroll unit) in 9 bits two's complement
+ 		break;
+ 
+ #if GTK_CHECK_VERSION(3, 4, 0)
+ 	case GDK_SCROLL_SMOOTH:
+-		if (event->delta_y < 0)
+-			flag = PTR_FLAGS_WHEEL | 0x0078;
+-		if (event->delta_y > 0)
+-			flag = PTR_FLAGS_WHEEL | PTR_FLAGS_WHEEL_NEGATIVE | 0x0088;
+-		if (!flag)
++
++		if (event->delta_y == 0.0)
+ 			return FALSE;
++
++		windows_delta = event->delta_y * -120;
++
++		if (windows_delta > 255)
++			windows_delta = 255;
++		if (windows_delta < -256)
++			windows_delta = -256;
++
++		flag = PTR_FLAGS_WHEEL | ((short)windows_delta & WheelRotationMask);
++
+ 		break;
+ #endif
+ 
+@@ -755,11 +766,11 @@ void remmina_rdp_event_init(RemminaProtocolWidget* gp)
+ 	gtk_widget_show(rfi->drawing_area);
+ 	gtk_container_add(GTK_CONTAINER(gp), rfi->drawing_area);
+ 
+-	gtk_widget_add_events(rfi->drawing_area, GDK_POINTER_MOTION_MASK 
+-		| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK 
+-		| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK 
++	gtk_widget_add_events(rfi->drawing_area, GDK_POINTER_MOTION_MASK
++		| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
++		| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK
+ #if GTK_CHECK_VERSION(3,4,0)
+-		| GDK_SMOOTH_SCROLL_MASK 
++		| GDK_SMOOTH_SCROLL_MASK
+ #endif
+ 		| GDK_SCROLL_MASK | GDK_FOCUS_CHANGE_MASK);
+ 	gtk_widget_set_can_focus(rfi->drawing_area, TRUE);
+diff --git a/plugins/vnc/vnc_plugin.c b/plugins/vnc/vnc_plugin.c
+index a42118c37..5e647c873 100644
+--- a/plugins/vnc/vnc_plugin.c
++++ b/plugins/vnc/vnc_plugin.c
+@@ -1374,6 +1374,19 @@ static gboolean remmina_plugin_vnc_on_button(GtkWidget *widget, GdkEventButton *
+ 	return TRUE;
+ }
+ 
++static gint delta_to_mask(float delta, float *accum, gint mask_plus, gint mask_minus)
++{
++	*accum += delta;
++	if (*accum >= 1.0) {
++		*accum = 0.0;
++		return mask_plus;
++	} else if (*accum <= -1.0) {
++		*accum = 0.0;
++		return mask_minus;
++	}
++	return 0;
++}
++
+ static gboolean remmina_plugin_vnc_on_scroll(GtkWidget *widget, GdkEventScroll *event, RemminaProtocolWidget *gp)
+ {
+ 	TRACE_CALL(__func__);
+@@ -1391,26 +1404,27 @@ static gboolean remmina_plugin_vnc_on_scroll(GtkWidget *widget, GdkEventScroll *
+ 	switch (event->direction) {
+ 	case GDK_SCROLL_UP:
+ 		mask = (1 << 3);
++		gpdata->scroll_y_accumulator = 0;
+ 		break;
+ 	case GDK_SCROLL_DOWN:
+ 		mask = (1 << 4);
++		gpdata->scroll_y_accumulator = 0;
+ 		break;
+ 	case GDK_SCROLL_LEFT:
+ 		mask = (1 << 5);
++		gpdata->scroll_x_accumulator = 0;
+ 		break;
+ 	case GDK_SCROLL_RIGHT:
+ 		mask = (1 << 6);
++		gpdata->scroll_x_accumulator = 0;
+ 		break;
+ #if GTK_CHECK_VERSION(3, 4, 0)
+ 	case GDK_SCROLL_SMOOTH:
+-		if (event->delta_y < 0)
+-			mask = (1 << 3);
+-		if (event->delta_y > 0)
+-			mask = (1 << 4);
+-		if (event->delta_x < 0)
+-			mask = (1 << 5);
+-		if (event->delta_x > 0)
+-			mask = (1 << 6);
++		/* RFB does not seems to support SMOOTH scroll, so we accumulate GTK delta requested
++		 * up to 1.0 and then send a normal RFB wheel scroll when the accumulator reaches 1.0 */
++		mask = delta_to_mask(event->delta_y, &(gpdata->scroll_y_accumulator), (1 << 4), (1 << 3));
++		mask |= delta_to_mask(event->delta_x, &(gpdata->scroll_x_accumulator), (1 << 6), (1 << 5));
++		printf("delta_y=%f mask=%d y_acc=%f\n", event->delta_y, mask, gpdata->scroll_y_accumulator);
+ 		if (!mask)
+ 			return FALSE;
+ 		break;
+@@ -1476,6 +1490,9 @@ static gboolean remmina_plugin_vnc_on_key(GtkWidget *widget, GdkEventKey *event,
+ 	if (remmina_plugin_service->file_get_int(remminafile, "viewonly", FALSE))
+ 		return FALSE;
+ 
++	gpdata->scroll_x_accumulator = 0;
++	gpdata->scroll_y_accumulator = 0;
++
+ 	/* When sending key release, try first to find out a previously sent keyval
+ 	 * to workaround bugs like https://bugs.freedesktop.org/show_bug.cgi?id=7430 */
+ 
+@@ -1799,9 +1816,9 @@ static void remmina_plugin_vnc_init(RemminaProtocolWidget *gp)
+ 
+ 	gtk_widget_add_events(
+ 		gpdata->drawing_area,
+-		GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK 
++		GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK
+ 		| GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK
+-		| GDK_KEY_RELEASE_MASK 
++		| GDK_KEY_RELEASE_MASK
+ #if GTK_CHECK_VERSION(3, 4, 0)
+ 		| GDK_SMOOTH_SCROLL_MASK
+ #endif
+diff --git a/plugins/vnc/vnc_plugin.h b/plugins/vnc/vnc_plugin.h
+index 771e8ea03..ad2cb6d6f 100644
+--- a/plugins/vnc/vnc_plugin.h
++++ b/plugins/vnc/vnc_plugin.h
+@@ -86,6 +86,9 @@ typedef struct _RemminaPluginVncData {
+ 
+ 	pthread_t		thread;
+ 	pthread_mutex_t		buffer_mutex;
++
++	float		scroll_x_accumulator, scroll_y_accumulator;
++
+ } RemminaPluginVncData;
+ 
+ enum {
+-- 
+GitLab
