@@ -1,0 +1,24 @@
+From 01b85fb6be4bbc56cdb35b1c744c218a2997c37a Mon Sep 17 00:00:00 2001
+From: Antenore Gatta <antenore@simbiosi.org>
+Date: Fri, 20 Nov 2020 16:10:44 +0000
+Subject: [PATCH] Widget was created but not saved as object
+
+---
+ src/remmina_file_editor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/remmina_file_editor.c b/src/remmina_file_editor.c
+index 74a8481b1..005a3ff33 100644
+--- a/src/remmina_file_editor.c
++++ b/src/remmina_file_editor.c
+@@ -901,7 +901,7 @@ static void remmina_file_editor_create_behavior_tab(RemminaFileEditor *gfe)
+ 	remmina_public_create_group(GTK_GRID(grid), _("Startup"), 4, 1, 2);
+ 
+ 	/* Autostart profile option */
+-	remmina_file_editor_create_check(gfe, grid, 6, 1, _("Autostart this profile"),
++	priv->behavior_autostart_check = remmina_file_editor_create_check(gfe, grid, 6, 1, _("Autostart this profile"),
+ 							remmina_file_get_int(priv->remmina_file, "enable-autostart", FALSE));
+ }
+ 
+-- 
+GitLab
