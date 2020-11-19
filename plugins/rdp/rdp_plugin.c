@@ -735,6 +735,10 @@ static BOOL remmina_rdp_gw_authenticate(freerdp *instance, char **username, char
 
 	if (!remmina_plugin_service->file_get_string(remminafile, "gateway_server"))
 		return False;
+
+	if (rfi->settings->GatewayUseSameCredentials)
+		return True;
+
 	disablepasswordstoring = remmina_plugin_service->file_get_int(remminafile, "disablepasswordstoring", FALSE);
 
 	ret = remmina_plugin_service->protocol_plugin_init_auth(gp,
