@@ -1,0 +1,85 @@
+From 1f12c904f2b35b7e694b0dd8063c336efe8d3405 Mon Sep 17 00:00:00 2001
+From: Giovanni Panozzo <giovanni@panozzo.it>
+Date: Sun, 29 Nov 2020 19:13:59 +0100
+Subject: [PATCH] Remove legacy rfx code
+
+---
+ plugins/rdp/rdp_event.c  |  4 ----
+ plugins/rdp/rdp_plugin.c | 13 -------------
+ plugins/rdp/rdp_plugin.h |  2 --
+ 3 files changed, 19 deletions(-)
+
+--- a/plugins/rdp/rdp_event.c
++++ b/plugins/rdp/rdp_event.c
+@@ -849,13 +849,8 @@
+ void remmina_rdp_event_free_event(RemminaProtocolWidget* gp, RemminaPluginRdpUiObject* obj)
+ {
+ 	TRACE_CALL(__func__);
+-	rfContext* rfi = GET_PLUGIN_DATA(gp);
+ 
+ 	switch (obj->type) {
+-	case REMMINA_RDP_UI_RFX:
+-		rfx_message_free(rfi->rfx_context, obj->rfx.message);
+-		break;
+-
+ 	case REMMINA_RDP_UI_NOCODEC:
+ 		free(obj->nocodec.bitmap);
+ 		break;
+--- a/plugins/rdp/rdp_plugin.c
++++ b/plugins/rdp/rdp_plugin.c
+@@ -565,10 +565,8 @@
+ static BOOL remmina_rdp_pre_connect(freerdp *instance)
+ {
+ 	TRACE_CALL(__func__);
+-	rfContext *rfi;
+ 	ALIGN64 rdpSettings *settings;
+ 
+-	rfi = (rfContext *)instance->context;
+ 	settings = instance->settings;
+ 
+ 	settings->OsMajorType = OSMAJORTYPE_UNIX;
+@@ -577,14 +575,6 @@
+ 	settings->BitmapCacheEnabled = True;
+ 	settings->OffscreenSupportLevel = True;
+ 
+-	if (settings->RemoteFxCodec == True) {
+-		settings->FrameAcknowledge = False;
+-		settings->LargePointerFlag = True;
+-		settings->PerformanceFlags = PERF_FLAG_NONE;
+-
+-		rfi->rfx_context = rfx_context_new(FALSE);
+-	}
+-
+ 	PubSub_SubscribeChannelConnected(instance->context->pubSub,
+ 					 (pChannelConnectedEventHandler)remmina_rdp_OnChannelConnectedEventHandler);
+ 	PubSub_SubscribeChannelDisconnected(instance->context->pubSub,
+@@ -1900,11 +1890,6 @@
+ 		}
+ 	}
+ 
+-
+-	if (rfi->rfx_context) {
+-		rfx_context_free(rfi->rfx_context);
+-		rfi->rfx_context = NULL;
+-	}
+ 	if (instance) {
+ 		RDP_CLIENT_ENTRY_POINTS *pEntryPoints = instance->pClientEntryPoints;
+ 		if (pEntryPoints)
+--- a/plugins/rdp/rdp_plugin.h
++++ b/plugins/rdp/rdp_plugin.h
+@@ -173,7 +173,6 @@
+ 	REMMINA_RDP_UI_CONNECTED,
+ 	REMMINA_RDP_UI_RECONNECT_PROGRESS,
+ 	REMMINA_RDP_UI_CURSOR,
+-	REMMINA_RDP_UI_RFX,
+ 	REMMINA_RDP_UI_NOCODEC,
+ 	REMMINA_RDP_UI_CLIPBOARD,
+ 	REMMINA_RDP_UI_EVENT
+@@ -280,7 +279,6 @@
+ 	RDP_PLUGIN_DATA		drdynvc_data[5];
+ 	gchar			rdpsnd_options[20];
+ 
+-	RFX_CONTEXT *		rfx_context;
+ 	gboolean		rdpgfxchan;
+ 
+ 	gboolean		connected;
