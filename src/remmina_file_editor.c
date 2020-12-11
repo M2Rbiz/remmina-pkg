@@ -901,7 +901,7 @@ static void remmina_file_editor_create_behavior_tab(RemminaFileEditor *gfe)
 	remmina_public_create_group(GTK_GRID(grid), _("Startup"), 4, 1, 2);
 
 	/* Autostart profile option */
-	remmina_file_editor_create_check(gfe, grid, 6, 1, _("Autostart this profile"),
+	priv->behavior_autostart_check = remmina_file_editor_create_check(gfe, grid, 6, 1, _("Autostart this profile"),
 							remmina_file_get_int(priv->remmina_file, "enable-autostart", FALSE));
 }
 
@@ -1437,7 +1437,7 @@ static void remmina_file_editor_init(RemminaFileEditor *gfe)
 	gfe->priv = priv;
 
 	/* Create the editor dialog */
-	gtk_window_set_title(GTK_WINDOW(gfe), _("Remote Desktop Preference"));
+	gtk_window_set_title(GTK_WINDOW(gfe), _("Remote Connection Profile"));
 
 	widget = gtk_dialog_add_button(GTK_DIALOG(gfe), (_("_Cancel")), GTK_RESPONSE_CANCEL);
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(remmina_file_editor_on_cancel), gfe);

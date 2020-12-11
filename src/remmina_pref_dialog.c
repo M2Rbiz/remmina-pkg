@@ -116,8 +116,11 @@ void remmina_pref_on_color_scheme_selected(GtkWidget *widget, gpointer user_data
 			NULL,
 			NULL);
 		/* Here we should reinitialize the widget */
+		gtk_file_chooser_set_file (remmina_pref_dialog->button_term_cs, source, NULL);
 	}
 	g_free(sourcepath);
+	g_free(remmina_dir);
+	g_free(destpath);
 	g_object_unref(source);
 }
 
@@ -212,6 +215,7 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	if (gtk_entry_get_text_length(remmina_pref_dialog->unlock_repassword) != 0)
 		remmina_pref.unlock_password = remmina_sodium_pwhash_str(gtk_entry_get_text(remmina_pref_dialog->unlock_password));
 #endif
+	remmina_pref.trust_all = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_security_trust_all));
 	remmina_pref.screenshot_path = gtk_file_chooser_get_filename(remmina_pref_dialog->filechooserbutton_options_screenshots_path);
 	remmina_pref.fullscreen_on_auto = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_fullscreen_on_auto));
 	remmina_pref.always_show_tab = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_show_tabs));
@@ -350,6 +354,7 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	remmina_pref.vte_shortcutkey_select_all = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_select_all));
 	remmina_pref.vte_shortcutkey_increase_font = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_increase_font));
 	remmina_pref.vte_shortcutkey_decrease_font = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_decrease_font));
+	remmina_pref.vte_shortcutkey_search_text = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_search_text));
 
 	remmina_pref_save();
 	remmina_pref_init();
@@ -379,10 +384,10 @@ static gboolean remmina_pref_dialog_add_pref_plugin(gchar *name, RemminaPlugin *
 	return FALSE;
 }
 
-void remmina_pref_dialog_vte_font_on_toggled(GtkWidget *widget, RemminaPrefDialog *dialog)
+void remmina_pref_dialog_vte_font_on_toggled(GtkSwitch *widget, RemminaPrefDialog *dialog)
 {
 	TRACE_CALL(__func__);
-	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->fontbutton_terminal_font), !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
+	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->fontbutton_terminal_font), !gtk_switch_get_active(widget));
 }
 
 void remmina_pref_dialog_disable_tray_icon_on_toggled(GtkWidget *widget, RemminaPrefDialog *dialog)
@@ -449,6 +454,7 @@ static void remmina_pref_dialog_init(void)
 	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_repassword), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(remmina_pref_dialog->unlock_timeout), FALSE);
 #endif
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_security_trust_all), remmina_pref.trust_all);
 
 	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_options_deny_screenshot_clipboard), remmina_pref.deny_screenshot_clipboard);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_fullscreen_on_auto), remmina_pref.fullscreen_on_auto);
@@ -609,6 +615,7 @@ static void remmina_pref_dialog_init(void)
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_select_all, remmina_pref.vte_shortcutkey_select_all);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_increase_font, remmina_pref.vte_shortcutkey_increase_font);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_decrease_font, remmina_pref.vte_shortcutkey_decrease_font);
+	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_search_text, remmina_pref.vte_shortcutkey_search_text);
 
 	remmina_plugin_manager_for_each_plugin(REMMINA_PLUGIN_TYPE_PREF, remmina_pref_dialog_add_pref_plugin, remmina_pref_dialog->dialog);
 
@@ -640,6 +647,7 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->switch_security_use_master_password = GTK_SWITCH(GET_OBJECT("switch_security_use_master_password"));
 	remmina_pref_dialog->unlock_password = GTK_ENTRY(GET_OBJECT("unlock_password"));
 	remmina_pref_dialog->unlock_repassword = GTK_ENTRY(GET_OBJECT("unlock_repassword"));
+	remmina_pref_dialog->switch_security_trust_all = GTK_SWITCH(GET_OBJECT("switch_security_trust_all"));
 	remmina_pref_dialog->checkbutton_options_save_settings = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_options_save_settings"));
 	remmina_pref_dialog->checkbutton_appearance_fullscreen_on_auto = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_fullscreen_on_auto"));
 	remmina_pref_dialog->checkbutton_appearance_show_tabs = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_show_tabs"));
@@ -693,6 +701,7 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->button_keyboard_select_all = GTK_BUTTON(GET_OBJECT("button_keyboard_select_all"));
 	remmina_pref_dialog->button_keyboard_increase_font = GTK_BUTTON(GET_OBJECT("button_keyboard_increase_font"));
 	remmina_pref_dialog->button_keyboard_decrease_font = GTK_BUTTON(GET_OBJECT("button_keyboard_decrease_font"));
+	remmina_pref_dialog->button_keyboard_search_text = GTK_BUTTON(GET_OBJECT("button_keyboard_search_text"));
 	remmina_pref_dialog->label_terminal_foreground = GTK_LABEL(GET_OBJECT("label_terminal_foreground"));
 	remmina_pref_dialog->colorbutton_foreground = GTK_COLOR_BUTTON(GET_OBJECT("colorbutton_foreground"));
 	remmina_pref_dialog->label_terminal_background = GTK_LABEL(GET_OBJECT("label_terminal_background"));
@@ -719,8 +728,20 @@ GtkDialog* remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->colorbutton_color15 = GTK_COLOR_BUTTON(GET_OBJECT("colorbutton_color15"));
 #if defined (HAVE_LIBSSH) && defined (HAVE_LIBVTE)
 #if VTE_CHECK_VERSION(0, 38, 0)
+	const gchar *remmina_dir;
+	gchar *destpath;
+	remmina_dir = g_build_path( "/", g_get_user_config_dir(), "remmina", NULL);
+	destpath = g_strdup_printf("%s/remmina.colors", remmina_dir);
 	remmina_pref_dialog->button_term_cs = GTK_FILE_CHOOSER(GET_OBJECT("button_term_cs"));
+	const gchar *fc_tooltip_text = g_strconcat (_("Picking a terminal colouring file replaces the file: "),
+			"\n",
+			destpath,
+			"\n",
+			_("This file contains the \"Custom\" terminal colour scheme selectable from the \"Advanced\" tab of terminal connections and editable in the \"Terminal\" tab in the settings."),
+			NULL);
+	gtk_widget_set_tooltip_text (GTK_WIDGET(remmina_pref_dialog->button_term_cs), fc_tooltip_text);
 	gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER(remmina_pref_dialog->button_term_cs), REMMINA_RUNTIME_TERM_CS_DIR);
+	g_free(destpath);
 #endif
 #endif
 

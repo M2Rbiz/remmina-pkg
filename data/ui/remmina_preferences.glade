@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2
+<!-- Generated with glade 3.36.0 
 
 Remmina Preferences Dialog -
 Copyright (C) Antenore Gatta & Giovanni Panozzo 2014-2020
@@ -43,9 +43,6 @@ Author: Antenore Gatta
     <property name="type_hint">dialog</property>
     <signal name="close" handler="remmina_pref_dialog_on_close_clicked" swapped="no"/>
     <signal name="destroy" handler="remmina_pref_on_dialog_destroy" swapped="no"/>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="can_focus">False</property>
@@ -562,6 +559,7 @@ Author: Antenore Gatta
                 <property name="label" translatable="yes">Options</property>
               </object>
               <packing>
+                <property name="menu_label">options</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -751,6 +749,7 @@ Author: Antenore Gatta
                 <property name="label" translatable="yes">Appearance</property>
               </object>
               <packing>
+                <property name="menu_label">appearance</property>
                 <property name="position">1</property>
                 <property name="tab_fill">False</property>
               </packing>
@@ -862,6 +861,7 @@ Author: Antenore Gatta
                 <property name="label" translatable="yes">Applet</property>
               </object>
               <packing>
+                <property name="menu_label">applet</property>
                 <property name="position">2</property>
                 <property name="tab_fill">False</property>
               </packing>
@@ -1234,6 +1234,7 @@ Author: Antenore Gatta
                 <property name="label" translatable="yes">Keyboard</property>
               </object>
               <packing>
+                <property name="menu_label">keyboard</property>
                 <property name="position">3</property>
                 <property name="tab_fill">False</property>
               </packing>
@@ -1457,6 +1458,7 @@ Author: Antenore Gatta
                 <property name="label" translatable="yes">SSH options</property>
               </object>
               <packing>
+                <property name="menu_label">ssh option</property>
                 <property name="position">4</property>
                 <property name="tab_fill">False</property>
               </packing>
@@ -1472,7 +1474,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
-                    <property name="margin_left">18</property>
+                    <property name="margin_start">18</property>
                     <property name="margin_top">18</property>
                     <property name="margin_bottom">9</property>
                     <property name="hexpand">False</property>
@@ -1493,6 +1495,7 @@ Author: Antenore Gatta
                     <property name="can_focus">True</property>
                     <property name="tooltip_text" translatable="yes">Use secret key authentication for some widgets</property>
                     <property name="halign">start</property>
+                    <property name="margin_end">18</property>
                     <property name="margin_top">9</property>
                     <property name="margin_bottom">9</property>
                     <property name="hexpand">True</property>
@@ -1510,6 +1513,7 @@ Author: Antenore Gatta
                     <property name="tooltip_text" translatable="yes">Use secret key authentication for some widgets</property>
                     <property name="halign">start</property>
                     <property name="margin_left">36</property>
+                    <property name="margin_start">36</property>
                     <property name="margin_top">9</property>
                     <property name="margin_bottom">9</property>
                     <property name="hexpand">True</property>
@@ -1525,7 +1529,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
-                    <property name="margin_left">36</property>
+                    <property name="margin_start">36</property>
                     <property name="label" translatable="yes">Automatic lock interval</property>
                   </object>
                   <packing>
@@ -1539,7 +1543,9 @@ Author: Antenore Gatta
                     <property name="can_focus">True</property>
                     <property name="tooltip_text" translatable="yes">Master password validity in seconds</property>
                     <property name="halign">start</property>
-                    <property name="width_chars">9</property>
+                    <property name="margin_end">18</property>
+                    <property name="hexpand">True</property>
+                    <property name="width_chars">24</property>
                     <property name="text">300</property>
                     <property name="input_purpose">number</property>
                   </object>
@@ -1554,7 +1560,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
-                    <property name="margin_left">18</property>
+                    <property name="margin_start">18</property>
                     <property name="margin_top">9</property>
                     <property name="hexpand">False</property>
                     <property name="label" translatable="yes">File encryption</property>
@@ -1564,7 +1570,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">7</property>
                     <property name="width">3</property>
                   </packing>
                 </child>
@@ -1574,6 +1580,7 @@ Author: Antenore Gatta
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin_left">36</property>
+                    <property name="margin_start">36</property>
                     <property name="label" translatable="yes">Password</property>
                   </object>
                   <packing>
@@ -1587,6 +1594,7 @@ Author: Antenore Gatta
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin_left">36</property>
+                    <property name="margin_start">36</property>
                     <property name="label" translatable="yes">Repeat the password</property>
                   </object>
                   <packing>
@@ -1599,7 +1607,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="hexpand">True</property>
                     <property name="visibility">False</property>
                     <property name="invisible_char">•</property>
@@ -1617,7 +1625,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="hexpand">True</property>
                     <property name="visibility">False</property>
                     <property name="invisible_char">•</property>
@@ -1634,6 +1642,59 @@ Author: Antenore Gatta
                     <property name="width">2</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_start">18</property>
+                    <property name="margin_top">9</property>
+                    <property name="hexpand">False</property>
+                    <property name="label" translatable="yes">Fingerprints and certificates</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">5</property>
+                    <property name="width">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Automatically accept all fingerprints and certificates</property>
+                    <property name="halign">start</property>
+                    <property name="margin_start">36</property>
+                    <property name="margin_top">9</property>
+                    <property name="margin_bottom">9</property>
+                    <property name="hexpand">True</property>
+                    <property name="label" translatable="yes">Trust all fingerprints and certificates</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSwitch" id="switch_security_trust_all">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes">Use secret key authentication for some widgets</property>
+                    <property name="halign">start</property>
+                    <property name="margin_end">18</property>
+                    <property name="margin_top">9</property>
+                    <property name="margin_bottom">9</property>
+                    <property name="hexpand">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">6</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="position">5</property>
@@ -1646,6 +1707,7 @@ Author: Antenore Gatta
                 <property name="label" translatable="yes">Security</property>
               </object>
               <packing>
+                <property name="menu_label">security</property>
                 <property name="position">5</property>
                 <property name="tab_fill">False</property>
               </packing>
@@ -1686,11 +1748,11 @@ Author: Antenore Gatta
                 </child>
                 <child>
                   <object class="GtkFontButton" id="fontbutton_terminal_font">
+                    <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="margin_top">18</property>
                     <property name="font">Sans 12</property>
                     <property name="preview_text"/>
@@ -1725,10 +1787,11 @@ Author: Antenore Gatta
                 </child>
                 <child>
                   <object class="GtkEntry" id="entry_scrollback_lines">
+                    <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="max_length">5</property>
                   </object>
                   <packing>
@@ -1779,13 +1842,13 @@ Author: Antenore Gatta
                 <child>
                   <object class="GtkButton" id="button_keyboard_copy">
                     <property name="label">Copy</property>
-                    <property name="width_request">100</property>
+                    <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
                   </object>
                   <packing>
@@ -1797,13 +1860,13 @@ Author: Antenore Gatta
                 <child>
                   <object class="GtkButton" id="button_keyboard_paste">
                     <property name="label">Paste</property>
-                    <property name="width_request">100</property>
+                    <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
                   </object>
                   <packing>
@@ -1815,13 +1878,13 @@ Author: Antenore Gatta
                 <child>
                   <object class="GtkButton" id="button_keyboard_select_all">
                     <property name="label">Select_all</property>
-                    <property name="width_request">100</property>
+                    <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
                   </object>
                   <packing>
@@ -1844,7 +1907,7 @@ Author: Antenore Gatta
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch">
+                  <object class="GtkSwitch" id="switch_terminal_font_system">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="halign">start</property>
@@ -1892,7 +1955,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">14</property>
+                    <property name="top_attach">15</property>
                   </packing>
                 </child>
                 <child>
@@ -1900,14 +1963,14 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="tooltip_text" translatable="yes">Choose a colour scheme file. Usually available in /usr/share/remmina/theme. https://github.com/mbadolato/iTerm2-Color-Schemes has more details.</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="margin_bottom">18</property>
                     <property name="title" translatable="yes">Pick a terminal colouring file</property>
                     <signal name="file-set" handler="remmina_pref_on_color_scheme_selected" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">14</property>
+                    <property name="top_attach">15</property>
                     <property name="width">8</property>
                   </packing>
                 </child>
@@ -1921,7 +1984,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -1933,7 +1996,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -1945,7 +2008,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -1957,7 +2020,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -1969,7 +2032,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">4</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -1981,7 +2044,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">5</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -1993,7 +2056,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">6</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -2005,7 +2068,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">7</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -2013,12 +2076,12 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="title" translatable="yes">Pick a light white colour</property>
                   </object>
                   <packing>
                     <property name="left_attach">8</property>
-                    <property name="top_attach">13</property>
+                    <property name="top_attach">14</property>
                   </packing>
                 </child>
                 <child>
@@ -2030,7 +2093,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2042,7 +2105,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2054,7 +2117,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2066,7 +2129,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">4</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2078,7 +2141,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">5</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2090,7 +2153,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">6</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2102,7 +2165,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">7</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2110,12 +2173,12 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="title" translatable="yes">Pick a white colour</property>
                   </object>
                   <packing>
                     <property name="left_attach">8</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2128,7 +2191,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">12</property>
+                    <property name="top_attach">13</property>
                   </packing>
                 </child>
                 <child>
@@ -2141,7 +2204,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">11</property>
+                    <property name="top_attach">12</property>
                   </packing>
                 </child>
                 <child>
@@ -2150,12 +2213,12 @@ Author: Antenore Gatta
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="title" translatable="yes">Cursor colour</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">11</property>
+                    <property name="top_attach">12</property>
                     <property name="width">8</property>
                   </packing>
                 </child>
@@ -2169,7 +2232,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">10</property>
+                    <property name="top_attach">11</property>
                   </packing>
                 </child>
                 <child>
@@ -2178,12 +2241,12 @@ Author: Antenore Gatta
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="title" translatable="yes">Background colour</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">10</property>
+                    <property name="top_attach">11</property>
                     <property name="width">8</property>
                   </packing>
                 </child>
@@ -2193,12 +2256,12 @@ Author: Antenore Gatta
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="halign">start</property>
-                    <property name="margin_right">18</property>
+                    <property name="margin_end">18</property>
                     <property name="title" translatable="yes">Foreground colour</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">9</property>
+                    <property name="top_attach">10</property>
                     <property name="width">8</property>
                   </packing>
                 </child>
@@ -2212,7 +2275,7 @@ Author: Antenore Gatta
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">9</property>
+                    <property name="top_attach">10</property>
                   </packing>
                 </child>
                 <child>
@@ -2220,6 +2283,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
+                    <property name="margin_left">18</property>
                     <property name="label" translatable="yes">Increase font size</property>
                   </object>
                   <packing>
@@ -2232,6 +2296,7 @@ Author: Antenore Gatta
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
+                    <property name="margin_left">18</property>
                     <property name="label" translatable="yes">Decrease font size</property>
                   </object>
                   <packing>
@@ -2242,12 +2307,13 @@ Author: Antenore Gatta
                 <child>
                   <object class="GtkButton" id="button_keyboard_increase_font">
                     <property name="label">Increase</property>
-                    <property name="width_request">100</property>
+                    <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
+                    <property name="margin_end">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
                   </object>
                   <packing>
@@ -2259,17 +2325,48 @@ Author: Antenore Gatta
                 <child>
                   <object class="GtkButton" id="button_keyboard_decrease_font">
                     <property name="label">Decrease</property>
-                    <property name="width_request">100</property>
+                    <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">(Host key+)</property>
                     <property name="halign">start</property>
+                    <property name="margin_end">18</property>
                     <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="top_attach">8</property>
+                    <property name="width">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_keyboard_search_text">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">18</property>
+                    <property name="label" translatable="yes">Search text</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_keyboard_search_text">
+                    <property name="label">Search</property>
+                    <property name="width_request">200</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">(Host key+)</property>
+                    <property name="halign">start</property>
+                    <property name="margin_end">18</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">9</property>
                     <property name="width">8</property>
                   </packing>
                 </child>
@@ -2285,6 +2382,7 @@ Author: Antenore Gatta
                 <property name="label" translatable="yes">Terminal</property>
               </object>
               <packing>
+                <property name="menu_label">terminal</property>
                 <property name="position">6</property>
                 <property name="tab_fill">False</property>
               </packing>
@@ -2297,6 +2395,9 @@ Author: Antenore Gatta
           </packing>
         </child>
       </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
     </child>
   </object>
 </interface>
