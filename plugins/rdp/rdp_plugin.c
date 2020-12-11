@@ -82,7 +82,9 @@
 #define REMMINA_RDP_FEATURE_SCALE                2
 #define REMMINA_RDP_FEATURE_UNFOCUS              3
 #define REMMINA_RDP_FEATURE_TOOL_SENDCTRLALTDEL  4
-#define REMMINA_RDP_FEATURE_DYNRESUPDATE                 5
+#define REMMINA_RDP_FEATURE_DYNRESUPDATE         5
+
+#define REMMINA_CONNECTION_TYPE_NONE		 0
 
 /* Some string settings of FreeRDP are preallocated buffers of N bytes */
 #define FREERDP_CLIENTHOSTNAME_LEN      32
@@ -99,14 +101,15 @@ static BOOL gfx_h264_available = FALSE;
  *
  * (C) Copyright goes to the FreeRDP authors.
  */
-static char** remmina_rdp_CommandLineParseCommaSeparatedValuesEx(const char* name, const char* list, size_t* count)
+static char **remmina_rdp_CommandLineParseCommaSeparatedValuesEx(const char *name, const char *list, size_t *count)
 {
-	char** p;
-	char* str;
+	char **p;
+	char *str;
 	size_t nArgs;
 	size_t index;
 	size_t nCommas;
 	size_t prefix, len;
+
 	nCommas = 0;
 
 	if (count == NULL)
@@ -114,16 +117,13 @@ static char** remmina_rdp_CommandLineParseCommaSeparatedValuesEx(const char* nam
 
 	*count = 0;
 
-	if (!list)
-	{
-		if (name)
-		{
+	if (!list) {
+		if (name) {
 			size_t len = strlen(name);
-			p = (char**)calloc(2UL + len, sizeof(char*));
+			p = (char **)calloc(2UL + len, sizeof(char *));
 
-			if (p)
-			{
-				char* dst = (char*)&p[1];
+			if (p) {
+				char *dst = (char *)&p[1];
 				p[0] = dst;
 				sprintf_s(dst, len + 1, "%s", name);
 				*count = 1;
@@ -135,10 +135,9 @@ static char** remmina_rdp_CommandLineParseCommaSeparatedValuesEx(const char* nam
 	}
 
 	{
-		const char* it = list;
+		const char *it = list;
 
-		while ((it = strchr(it, ',')) != NULL)
-		{
+		while ((it = strchr(it, ',')) != NULL) {
 			it++;
 			nCommas++;
 		}
@@ -149,26 +148,24 @@ static char** remmina_rdp_CommandLineParseCommaSeparatedValuesEx(const char* nam
 	if (name)
 		nArgs++;
 
-	prefix = (nArgs + 1UL) * sizeof(char*);
+	prefix = (nArgs + 1UL) * sizeof(char *);
 	len = strlen(list);
-	p = (char**)calloc(len + prefix + 1, sizeof(char*));
+	p = (char **)calloc(len + prefix + 1, sizeof(char *));
 
 	if (!p)
 		return NULL;
 
-	str = &((char*)p)[prefix];
+	str = &((char *)p)[prefix];
 	memcpy(str, list, len);
 
 	if (name)
-		p[0] = (char*)name;
+		p[0] = (char *)name;
 
-	for (index = name ? 1 : 0; index < nArgs; index++)
-	{
-		char* comma = strchr(str, ',');
+	for (index = name ? 1 : 0; index < nArgs; index++) {
+		char *comma = strchr(str, ',');
 		p[index] = str;
 
-		if (comma)
-		{
+		if (comma) {
 			str = comma + 1;
 			*comma = '\0';
 		}
@@ -178,7 +175,7 @@ static char** remmina_rdp_CommandLineParseCommaSeparatedValuesEx(const char* nam
 	return p;
 }
 
-static char** remmina_rdp_CommandLineParseCommaSeparatedValues(const char* list, size_t* count)
+static char **remmina_rdp_CommandLineParseCommaSeparatedValues(const char *list, size_t *count)
 {
 	return remmina_rdp_CommandLineParseCommaSeparatedValuesEx(NULL, list, count);
 }
@@ -186,9 +183,6 @@ static char** remmina_rdp_CommandLineParseCommaSeparatedValues(const char* list,
 /*
  * End of CommandLineParseCommaSeparatedValuesEx() compatibility and copyright
  */
-
-
-
 static BOOL rf_process_event_queue(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
@@ -565,10 +559,8 @@ BOOL rf_keyboard_set_ime_status(rdpContext *context, UINT16 imeId, UINT32 imeSta
 static BOOL remmina_rdp_pre_connect(freerdp *instance)
 {
 	TRACE_CALL(__func__);
-	rfContext *rfi;
 	ALIGN64 rdpSettings *settings;
 
-	rfi = (rfContext *)instance->context;
 	settings = instance->settings;
 
 	settings->OsMajorType = OSMAJORTYPE_UNIX;
@@ -576,14 +568,6 @@ static BOOL remmina_rdp_pre_connect(freerdp *instance)
 
 	settings->BitmapCacheEnabled = True;
 	settings->OffscreenSupportLevel = True;
-
-	if (settings->RemoteFxCodec == True) {
-		settings->FrameAcknowledge = False;
-		settings->LargePointerFlag = True;
-		settings->PerformanceFlags = PERF_FLAG_NONE;
-
-		rfi->rfx_context = rfx_context_new(FALSE);
-	}
 
 	PubSub_SubscribeChannelConnected(instance->context->pubSub,
 					 (pChannelConnectedEventHandler)remmina_rdp_OnChannelConnectedEventHandler);
@@ -727,6 +711,7 @@ static BOOL remmina_rdp_gw_authenticate(freerdp *instance, char **username, char
 	RemminaProtocolWidget *gp;
 	gboolean save;
 	gboolean disablepasswordstoring;
+	gboolean basecredforgw;
 	RemminaFile *remminafile;
 
 	rfi = (rfContext *)instance->context;
@@ -736,14 +721,26 @@ static BOOL remmina_rdp_gw_authenticate(freerdp *instance, char **username, char
 	if (!remmina_plugin_service->file_get_string(remminafile, "gateway_server"))
 		return False;
 	disablepasswordstoring = remmina_plugin_service->file_get_int(remminafile, "disablepasswordstoring", FALSE);
+	basecredforgw = remmina_plugin_service->file_get_int(remminafile, "base-cred-for-gw", FALSE);
 
-	ret = remmina_plugin_service->protocol_plugin_init_auth(gp,
+	if (basecredforgw) {
+		ret = remmina_plugin_service->protocol_plugin_init_auth(gp,
+								(disablepasswordstoring ? 0 : REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD) | REMMINA_MESSAGE_PANEL_FLAG_USERNAME | REMMINA_MESSAGE_PANEL_FLAG_DOMAIN,
+								_("Enter RDP authentication credentials"),
+								remmina_plugin_service->file_get_string(remminafile, "username"),
+								remmina_plugin_service->file_get_string(remminafile, "password"),
+								remmina_plugin_service->file_get_string(remminafile, "domain"),
+								NULL);
+	} else {
+		ret = remmina_plugin_service->protocol_plugin_init_auth(gp,
 								(disablepasswordstoring ? 0 : REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD) | REMMINA_MESSAGE_PANEL_FLAG_USERNAME | REMMINA_MESSAGE_PANEL_FLAG_DOMAIN,
 								_("Enter RDP gateway authentication credentials"),
 								remmina_plugin_service->file_get_string(remminafile, "gateway_username"),
 								remmina_plugin_service->file_get_string(remminafile, "gateway_password"),
 								remmina_plugin_service->file_get_string(remminafile, "gateway_domain"),
 								NULL);
+	}
+
 
 	if (ret == GTK_RESPONSE_OK) {
 		s_username = remmina_plugin_service->protocol_plugin_init_get_username(gp);
@@ -755,14 +752,23 @@ static BOOL remmina_rdp_gw_authenticate(freerdp *instance, char **username, char
 		s_domain = remmina_plugin_service->protocol_plugin_init_get_domain(gp);
 		if (s_domain) rfi->settings->GatewayDomain = strdup(s_domain);
 
-		remmina_plugin_service->file_set_string(remminafile, "gateway_username", s_username);
-		remmina_plugin_service->file_set_string(remminafile, "gateway_domain", s_domain);
-
 		save = remmina_plugin_service->protocol_plugin_init_get_savepassword(gp);
-		if (save)
-			remmina_plugin_service->file_set_string(remminafile, "gateway_password", s_password);
-		else
-			remmina_plugin_service->file_set_string(remminafile, "gateway_password", NULL);
+
+		if (basecredforgw) {
+			remmina_plugin_service->file_set_string(remminafile, "username", s_username);
+			remmina_plugin_service->file_set_string(remminafile, "domain", s_domain);
+			if (save)
+				remmina_plugin_service->file_set_string(remminafile, "password", s_password);
+			else
+				remmina_plugin_service->file_set_string(remminafile, "password", NULL);
+		} else {
+			remmina_plugin_service->file_set_string(remminafile, "gateway_username", s_username);
+			remmina_plugin_service->file_set_string(remminafile, "gateway_domain", s_domain);
+			if (save)
+				remmina_plugin_service->file_set_string(remminafile, "gateway_password", s_password);
+			else
+				remmina_plugin_service->file_set_string(remminafile, "gateway_password", NULL);
+		}
 
 		if (s_username) g_free(s_username);
 		if (s_password) g_free(s_password);
@@ -776,9 +782,9 @@ static BOOL remmina_rdp_gw_authenticate(freerdp *instance, char **username, char
 	return True;
 }
 
-static DWORD remmina_rdp_verify_certificate_ex(freerdp* instance, const char* host, UINT16 port,
-                                       const char* common_name, const char* subject,
-                                       const char* issuer, const char* fingerprint, DWORD flags)
+static DWORD remmina_rdp_verify_certificate_ex(freerdp *instance, const char *host, UINT16 port,
+					       const char *common_name, const char *subject,
+					       const char *issuer, const char *fingerprint, DWORD flags)
 {
 	TRACE_CALL(__func__);
 	gint status;
@@ -815,11 +821,11 @@ static DWORD remmina_rdp_verify_certificate(freerdp *instance, const char *commo
 	return 0;
 }
 
-static DWORD remmina_rdp_verify_changed_certificate_ex(freerdp* instance, const char* host, UINT16 port,
-                                               const char* common_name, const char* subject,
-                                               const char* issuer, const char* fingerprint,
-                                               const char* old_subject, const char* old_issuer,
-                                               const char* old_fingerprint, DWORD flags)
+static DWORD remmina_rdp_verify_changed_certificate_ex(freerdp *instance, const char *host, UINT16 port,
+						       const char *common_name, const char *subject,
+						       const char *issuer, const char *fingerprint,
+						       const char *old_subject, const char *old_issuer,
+						       const char *old_fingerprint, DWORD flags)
 {
 	TRACE_CALL(__func__);
 	gint status;
@@ -830,26 +836,6 @@ static DWORD remmina_rdp_verify_changed_certificate_ex(freerdp* instance, const 
 	gp = rfi->protocol_widget;
 
 	status = remmina_plugin_service->protocol_plugin_changed_certificate(gp, subject, issuer, fingerprint, old_fingerprint);
-
-	if (status == GTK_RESPONSE_OK)
-		return 1;
-
-	return 0;
-}
-
-static DWORD remmina_rdp_verify_changed_certificate(freerdp *instance,
-						    const char *common_name, const char *subject, const char *issuer,
-						    const char *new_fingerprint, const char *old_subject, const char *old_issuer, const char *old_fingerprint)
-{
-	TRACE_CALL(__func__);
-	gint status;
-	rfContext *rfi;
-	RemminaProtocolWidget *gp;
-
-	rfi = (rfContext *)instance->context;
-	gp = rfi->protocol_widget;
-
-	status = remmina_plugin_service->protocol_plugin_changed_certificate(gp, subject, issuer, new_fingerprint, old_fingerprint);
 
 	if (status == GTK_RESPONSE_OK)
 		return 1;
@@ -1117,6 +1103,76 @@ static void remmina_rdp_send_ctrlaltdel(RemminaProtocolWidget *gp)
 								  keys, G_N_ELEMENTS(keys), GDK_KEY_PRESS | GDK_KEY_RELEASE);
 }
 
+static gboolean remmina_rdp_set_connection_type(rdpSettings *settings, guint32 type)
+{
+	settings->ConnectionType = type;
+
+	if (type == CONNECTION_TYPE_MODEM) {
+		settings->DisableWallpaper = TRUE;
+		settings->AllowFontSmoothing = FALSE;
+		settings->AllowDesktopComposition = FALSE;
+		settings->DisableFullWindowDrag = TRUE;
+		settings->DisableMenuAnims = TRUE;
+		settings->DisableThemes = TRUE;
+	} else if (type == CONNECTION_TYPE_BROADBAND_LOW) {
+		settings->DisableWallpaper = TRUE;
+		settings->AllowFontSmoothing = FALSE;
+		settings->AllowDesktopComposition = FALSE;
+		settings->DisableFullWindowDrag = TRUE;
+		settings->DisableMenuAnims = TRUE;
+		settings->DisableThemes = FALSE;
+	} else if (type == CONNECTION_TYPE_SATELLITE) {
+		settings->DisableWallpaper = TRUE;
+		settings->AllowFontSmoothing = FALSE;
+		settings->AllowDesktopComposition = TRUE;
+		settings->DisableFullWindowDrag = TRUE;
+		settings->DisableMenuAnims = TRUE;
+		settings->DisableThemes = FALSE;
+	} else if (type == CONNECTION_TYPE_BROADBAND_HIGH) {
+		settings->DisableWallpaper = TRUE;
+		settings->AllowFontSmoothing = FALSE;
+		settings->AllowDesktopComposition = TRUE;
+		settings->DisableFullWindowDrag = TRUE;
+		settings->DisableMenuAnims = TRUE;
+		settings->DisableThemes = FALSE;
+	} else if (type == CONNECTION_TYPE_WAN) {
+		settings->DisableWallpaper = FALSE;
+		settings->AllowFontSmoothing = TRUE;
+		settings->AllowDesktopComposition = TRUE;
+		settings->DisableFullWindowDrag = FALSE;
+		settings->DisableMenuAnims = FALSE;
+		settings->DisableThemes = FALSE;
+	} else if (type == CONNECTION_TYPE_LAN) {
+		settings->DisableWallpaper = FALSE;
+		settings->AllowFontSmoothing = TRUE;
+		settings->AllowDesktopComposition = TRUE;
+		settings->DisableFullWindowDrag = FALSE;
+		settings->DisableMenuAnims = FALSE;
+		settings->DisableThemes = FALSE;
+	} else if (type == CONNECTION_TYPE_AUTODETECT) {
+		settings->DisableWallpaper = FALSE;
+		settings->AllowFontSmoothing = TRUE;
+		settings->AllowDesktopComposition = TRUE;
+		settings->DisableFullWindowDrag = FALSE;
+		settings->DisableMenuAnims = FALSE;
+		settings->DisableThemes = FALSE;
+		settings->NetworkAutoDetect = TRUE;
+
+		/* Automatically activate GFX and RFX codec support */
+#ifdef WITH_GFX_H264
+		settings->GfxAVC444 = TRUE;
+		settings->GfxH264 = TRUE;
+#endif
+		settings->RemoteFxCodec = TRUE;
+		settings->SupportGraphicsPipeline = TRUE;
+	} else if (type == REMMINA_CONNECTION_TYPE_NONE) {
+		return FALSE;
+	} else
+		return FALSE;
+
+	return TRUE;
+}
+
 static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
@@ -1270,6 +1326,13 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 			rfi->settings->ProxyPort = proxy_port;
 	}
 
+	if (remmina_plugin_service->file_get_int(remminafile, "base-cred-for-gw", FALSE)){
+		// Reset gateway credentials
+		remmina_plugin_service->file_set_string(remminafile, "gateway_username", NULL);
+		remmina_plugin_service->file_set_string(remminafile, "gateway_domain", NULL);
+		remmina_plugin_service->file_set_string(remminafile, "gateway_password", NULL);
+	}
+
 	/* Remote Desktop Gateway server address */
 	rfi->settings->GatewayEnabled = FALSE;
 	s = remmina_plugin_service->file_get_string(remminafile, "gateway_server");
@@ -1396,6 +1459,32 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	}
 	g_free(value);
 
+	if ((cs = remmina_plugin_service->file_get_string(remminafile, "network"))) {
+		guint32 type = 0;
+
+		if (g_strcmp0(cs, "modem") == 0)
+			type = CONNECTION_TYPE_MODEM;
+		else if (g_strcmp0(cs, "broadband") == 0)
+			type = CONNECTION_TYPE_BROADBAND_HIGH;
+		else if (g_strcmp0(cs, "broadband-low") == 0)
+			type = CONNECTION_TYPE_BROADBAND_LOW;
+		else if (g_strcmp0(cs, "broadband-high") == 0)
+			type = CONNECTION_TYPE_BROADBAND_HIGH;
+		else if (g_strcmp0(cs, "wan") == 0)
+			type = CONNECTION_TYPE_WAN;
+		else if (g_strcmp0(cs, "lan") == 0)
+			type = CONNECTION_TYPE_LAN;
+		else if ((g_strcmp0(cs, "autodetect") == 0))
+			type = CONNECTION_TYPE_AUTODETECT;
+		else if ((g_strcmp0(cs, "none") == 0))
+			type = REMMINA_CONNECTION_TYPE_NONE;
+		else
+			type = REMMINA_CONNECTION_TYPE_NONE;
+
+		if (!remmina_rdp_set_connection_type(rfi->settings, type))
+			REMMINA_PLUGIN_DEBUG("Network settings not set");
+	}
+
 	/* PerformanceFlags bitmask need also to be splitted into BOOL variables
 	 * like rfi->settings->DisableWallpaper, rfi->settings->AllowFontSmoothing…
 	 * or freerdp_get_param_bool() function will return the wrong value
@@ -1497,21 +1586,50 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 	cs = remmina_plugin_service->file_get_string(remminafile, "microphone");
 	if (cs != NULL && cs[0] != '\0') {
+		if (g_strcmp0(cs, "0") == 0) {
+			REMMINA_PLUGIN_DEBUG("\"microphone\" was set to 0, setting to \"\"");
+			remmina_plugin_service->file_set_string(remminafile, "microphone", "");
+		} else {
+			REMMINA_PLUGIN_DEBUG("microphone set to %s", cs);
+			char **p;
+			size_t count;
+
+			p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("audin", g_strdup(cs), &count);
+
+			freerdp_client_add_dynamic_channel(rfi->settings, count, p);
+			rfi->settings->AudioCapture = TRUE;
+			g_free(p);
+		}
+	}
+
+	cs = remmina_plugin_service->file_get_string(remminafile, "audio-output");
+	if (cs != NULL && cs[0] != '\0') {
+		REMMINA_PLUGIN_DEBUG("audio output set to %s", cs);
 		char **p;
 		size_t count;
 
-		p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("audin", g_strdup(cs), &count);
-
-		freerdp_client_add_dynamic_channel(rfi->settings, count, p);
-		rfi->settings->AudioCapture = TRUE;
+		p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("rdpsnd", g_strdup(cs), &count);
+		gboolean status = freerdp_client_add_static_channel(rfi->settings, count, p);
+		if (status == 0)
+			status = freerdp_client_add_dynamic_channel(rfi->settings, count, p);
 		g_free(p);
 	}
 
+
 	cs = remmina_plugin_service->file_get_string(remminafile, "freerdp_log_level");
 	if (cs != NULL && cs[0] != '\0') {
-		wLog* root = WLog_GetRoot();
-		WLog_SetStringLogLevel(root, cs);
-	}
+		REMMINA_PLUGIN_DEBUG ("Log level set to to %s", cs);
+	} else
+		cs = g_strdup ("INFO");
+	wLog *root = WLog_GetRoot();
+	WLog_SetStringLogLevel(root, cs);
+
+	cs = remmina_plugin_service->file_get_string(remminafile, "freerdp_log_filters");
+	if (cs != NULL && cs[0] != '\0') {
+		REMMINA_PLUGIN_DEBUG ("Log filters set to to %s", cs);
+		WLog_AddStringLogFilters(cs);
+	} else
+		WLog_AddStringLogFilters(NULL);
 
 
 	cs = remmina_plugin_service->file_get_string(remminafile, "usb");
@@ -1548,7 +1666,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	cs = remmina_plugin_service->file_get_string(remminafile, "timeout");
 	if (cs != NULL && cs[0] != '\0') {
 		const gchar *endptr = NULL;
-		guint64 val = g_ascii_strtoull (cs, (gchar **) &endptr, 10);
+		guint64 val = g_ascii_strtoull(cs, (gchar **)&endptr, 10);
 		if (val > 600000 || val <= 0)
 			val = 600000;
 		rfi->settings->TcpAckTimeout = (UINT32)val;
@@ -1857,11 +1975,6 @@ static void rfi_uninit(rfContext *rfi)
 		}
 	}
 
-
-	if (rfi->rfx_context) {
-		rfx_context_free(rfi->rfx_context);
-		rfi->rfx_context = NULL;
-	}
 	if (instance) {
 		RDP_CLIENT_ENTRY_POINTS *pEntryPoints = instance->pClientEntryPoints;
 		if (pEntryPoints)
@@ -1970,7 +2083,7 @@ static gboolean remmina_rdp_open_connection(RemminaProtocolWidget *gp)
 	RemminaFile *remminafile;
 	const gchar *profile_name, *p;
 	gchar thname[16], c;
-	gint nthname;
+	gint nthname = 0;
 
 	rfi->scale = remmina_plugin_service->remmina_protocol_widget_get_current_scale_mode(gp);
 
@@ -1990,7 +2103,7 @@ static gboolean remmina_rdp_open_connection(RemminaProtocolWidget *gp)
 	profile_name = remmina_plugin_service->file_get_string(remminafile, "name");
 	p = profile_name;
 	strcpy(thname, "RemmRDP:");
-	if (p != NULL) {
+	if (!p) {
 		nthname = strlen(thname);
 		while ((c = *p) != 0 && nthname < sizeof(thname) - 1) {
 			if (isalnum(c))
@@ -2162,13 +2275,13 @@ static gpointer colordepth_list[] =
 /* Array of key/value pairs for the FreeRDP logging level */
 static gpointer log_level[] =
 {
-	"INFO",  "INFO",
+	"INFO",	 "INFO",
 	"FATAL", "FATAL",
 	"ERROR", "ERROR",
-	"WARN",  "WARN",
+	"WARN",	 "WARN",
 	"DEBUG", "DEBUG",
 	"TRACE", "TRACE",
-	"OFF",   "OFF",
+	"OFF",	 "OFF",
 	NULL
 };
 
@@ -2180,6 +2293,20 @@ static gpointer quality_list[] =
 	"1", N_("Medium"),
 	"2", N_("Good"),
 	"9", N_("Best (slowest)"),
+	NULL
+};
+
+/* Array of key/value pairs for quality selection */
+static gpointer network_list[] =
+{
+	"none",		  N_("None"),
+	"autodetect",	  N_("Autodetect"),
+	"modem",	  N_("Modem"),
+	"broadband-low",  N_("Low performance broadband"),
+	"satellite",	  N_("Satellite"),
+	"broadband-high", N_("High performance broadband"),
+	"wan",		  N_("WAN"),
+	"lan",		  N_("LAN"),
 	NULL
 };
 
@@ -2218,19 +2345,31 @@ static gchar clientbuild_list[] =
 	N_("2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)");
 
 static gchar clientbuild_tooltip[] =
-	N_("Used i.a. by terminal services in smart card channel to distinguish client capabilities:\n"
+	N_("Used i.a. by terminal services in a smart card channel to distinguish client capabilities:\n"
 	   "  • < 4034: Windows XP base smart card functions\n"
 	   "  • 4034-7064: Windows Vista/7: SCardReadCache(),\n"
 	   "    SCardWriteCache(), SCardGetTransmitCount()\n"
 	   "  • >= 7065: Windows 8 and newer: SCardGetReaderIcon(),\n"
 	   "    SCardGetDeviceTypeId()");
+
 static gchar microphone_tooltip[] =
 	N_("Options for redirection of audio input:\n"
 	   "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
 	   "    [channel:<channel>] Audio input (microphone)\n"
+	   "  • sys:pulse\n"
 	   "  • format:1\n"
 	   "  • sys:oss,dev:1,format:1\n"
 	   "  • sys:alsa");
+
+static gchar audio_tooltip[] =
+	N_("Options for redirection of audio ouput:\n"
+	   "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
+	   "    [channel:<channel>] Audio output\n"
+	   "  • sys:pulse\n"
+	   "  • format:1\n"
+	   "  • sys:oss,dev:1,format:1\n"
+	   "  • sys:alsa");
+
 
 static gchar usb_tooltip[] =
 	N_("Options for redirection of USB device:\n"
@@ -2240,8 +2379,13 @@ static gchar usb_tooltip[] =
 
 static gchar timeout_tooltip[] =
 	N_("Advanced setting for high latency links:\n"
-	   "Adjust connection timeout, use if you encounter timeout failures with your connection.\n"
-	   "The highest possible value is 600000 ms (10 minutes)\n");
+	   "Adjusts the connection timeout. Use if your connection times out.\n"
+	   "The highest possible value is 600000 ms (10 minutes).\n");
+
+static gchar network_tooltip[] =
+	N_("Performance optimisations based on the network connection type:\n"
+	   "Using autodetection is advised.\n"
+	   "If \"Autodetect\" fails, choose the most appropriate option in the list.\n");
 
 
 /* Array of RemminaProtocolSetting for basic settings.
@@ -2255,14 +2399,15 @@ static gchar timeout_tooltip[] =
  */
 static const RemminaProtocolSetting remmina_rdp_basic_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	    "server",	   NULL,	       FALSE, NULL,	       NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",	   N_("Username"),     FALSE, NULL,	       NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "password",	   N_("Password"),     FALSE, NULL,	       NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "domain",	   N_("Domain"),       FALSE, NULL,	       NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION, "resolution",  NULL,	       FALSE, NULL,	       NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "colordepth",  N_("Colour depth"), FALSE, colordepth_list, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_FOLDER,	    "sharefolder", N_("Share folder"), FALSE, NULL,	       NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,	   NULL,	       FALSE, NULL,	       NULL }
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	    "server",	   NULL,			  FALSE, NULL,		  NULL		  },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",	   N_("Username"),		  FALSE, NULL,		  NULL		  },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "password",	   N_("Password"),		  FALSE, NULL,		  NULL		  },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "domain",	   N_("Domain"),		  FALSE, NULL,		  NULL		  },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION, "resolution",  NULL,			  FALSE, NULL,		  NULL		  },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "colordepth",  N_("Colour depth"),		  FALSE, colordepth_list, NULL		  },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "network",	   N_("Network connection type"), FALSE, network_list,	  network_tooltip },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FOLDER,	    "sharefolder", N_("Share folder"),		  FALSE, NULL,		  NULL		  },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,	   NULL,			  FALSE, NULL,		  NULL		  }
 };
 
 /* Array of RemminaProtocolSetting for advanced settings.
@@ -2279,8 +2424,10 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",		    N_("Quality"),					 FALSE, quality_list,	  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "security",		    N_("Security protocol negotiation"),		 FALSE, security_list,	  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "gwtransp",		    N_("Gateway transport type"),			 FALSE, gwtransp_list,	  NULL														 },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "freerdp_log_level",	    N_("FreeRDP log level"),			 	FALSE, log_level,	  NULL														 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "freerdp_log_level",	    N_("FreeRDP log level"),				 FALSE, log_level,	  NULL														 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "freerdp_log_filters",    N_("FreeRDP log filters"),				 FALSE, NULL,		  N_("tag:level[,tag:level[,…]]")										 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "sound",		    N_("Sound"),					 FALSE, sound_list,	  NULL														 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "audio-output",	    N_("Redirect local audio output"),			 TRUE,	NULL,		  audio_tooltip												 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "microphone",		    N_("Redirect local microphone"),			 TRUE,	NULL,		  microphone_tooltip												 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "timeout",		    N_("Connection timeout in ms"),			 TRUE,	NULL,		  timeout_tooltip												 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "gateway_server",	    N_("Remote Desktop Gateway server"),		 FALSE, NULL,		  NULL														 },
@@ -2322,6 +2469,7 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "relax-order-checks",	    N_("Relax order checks"),				 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "glyph-cache",	    N_("Glyph cache"),					 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "multitransport",	    N_("Enable multitransport protocol (UDP)"),		 TRUE,	NULL,		  N_("Using the UDP protocol may improve performance")								 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "base-cred-for-gw",	    N_("Use base credentials for gateway too"),					 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,			    NULL,						 FALSE, NULL,		  NULL														 }
 };
 

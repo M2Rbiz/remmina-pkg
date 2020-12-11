@@ -3,21 +3,22 @@
 # This file is distributed under the same license as the Remmina package.
 # Allan Nordhøy <epost@anotheragency.no>, 2020.
 # Jwtiyar Nariman <jwtiyar@gmail.com>, 2020.
+# Kurd As <kurd68587@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Remmina v1.4.6\n"
 "Report-Msgid-Bugs-To: l10n@lists.remmina.org\n"
-"POT-Creation-Date: 2020-08-14 12:31+0000\n"
-"PO-Revision-Date: 2020-07-26 09:41+0000\n"
-"Last-Translator: Jwtiyar Nariman <jwtiyar@gmail.com>\n"
-"Language-Team: Central Kurdish <https://hosted.weblate.org/projects/remmina/"
-"remmina/ckb/>\n"
+"POT-Creation-Date: 2020-12-09 23:47+0000\n"
+"PO-Revision-Date: 2020-11-19 15:32+0000\n"
+"Last-Translator: Kurd As <kurd68587@gmail.com>\n"
+"Language-Team: Kurdish (Central) <https://hosted.weblate.org/projects/"
+"remmina/remmina/ckb/>\n"
 "Language: ckb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 
 #: src/remmina_protocol_widget.c:275
 msgid "Connect via SSH from a new terminal"
@@ -68,11 +69,11 @@ msgid "Connecting to %s via SSH…"
 msgstr "پەیوەندی گرتن بە %s لەڕێگەی SSH…"
 
 #: src/remmina_protocol_widget.c:1426 src/remmina_protocol_widget.c:1445
-#: src/remmina_ssh_plugin.c:967 src/remmina_sftp_plugin.c:309
+#: src/remmina_ssh_plugin.c:1202 src/remmina_sftp_plugin.c:309
 #: src/remmina_sftp_plugin.c:344 src/remmina_file_editor.c:1012
-#: plugins/www/www_plugin.c:872 plugins/rdp/rdp_plugin.c:2260
+#: plugins/www/www_plugin.c:872 plugins/rdp/rdp_plugin.c:2404
 #: data/ui/remmina_unlock.glade:116 data/ui/remmina_mpc.glade:236
-#: data/ui/remmina_preferences.glade:1577
+#: data/ui/remmina_preferences.glade:1584
 msgid "Password"
 msgstr "تێپەڕەوشە"
 
@@ -80,57 +81,61 @@ msgstr "تێپەڕەوشە"
 msgid "Type in SSH username and password."
 msgstr "وشەی تێپەڕبوون و ناوی بەکارهێنەری SSH بنووسە."
 
-#: src/remmina_protocol_widget.c:1500
+#: src/remmina_protocol_widget.c:1499 src/remmina_protocol_widget.c:1526
+msgid "Fingerprint automatically accepted"
+msgstr ""
+
+#: src/remmina_protocol_widget.c:1506
 msgid "Certificate details:"
 msgstr "وردەکاری بڕوانامە:"
 
-#: src/remmina_protocol_widget.c:1501 src/remmina_protocol_widget.c:1522
+#: src/remmina_protocol_widget.c:1507 src/remmina_protocol_widget.c:1534
 msgid "Subject:"
 msgstr "ناوی سەردێڕ:"
 
-#: src/remmina_protocol_widget.c:1502 src/remmina_protocol_widget.c:1523
+#: src/remmina_protocol_widget.c:1508 src/remmina_protocol_widget.c:1535
 msgid "Issuer:"
 msgstr "بڵاوکەر:"
 
-#: src/remmina_protocol_widget.c:1503
+#: src/remmina_protocol_widget.c:1509
 msgid "Fingerprint:"
 msgstr "پەنجەمۆر:"
 
-#: src/remmina_protocol_widget.c:1504
+#: src/remmina_protocol_widget.c:1510
 msgid "Accept certificate?"
 msgstr "بڕوانامەی پەسەند دەکەیت؟"
 
-#: src/remmina_protocol_widget.c:1521
+#: src/remmina_protocol_widget.c:1533
 msgid "The certificate changed! Details:"
 msgstr "بڕونامە گۆڕا! وردەکاری:"
 
-#: src/remmina_protocol_widget.c:1524
+#: src/remmina_protocol_widget.c:1536
 msgid "Old fingerprint:"
 msgstr "پەنجەمۆری کۆن:"
 
-#: src/remmina_protocol_widget.c:1525
+#: src/remmina_protocol_widget.c:1537
 msgid "New fingerprint:"
 msgstr "پەنجەمۆری نوێ:"
 
-#: src/remmina_protocol_widget.c:1526
+#: src/remmina_protocol_widget.c:1538
 msgid "Accept changed certificate?"
 msgstr "بڕوانامەی گۆڕاو پەسەند دەکەیت؟"
 
-#: src/remmina_protocol_widget.c:1668
+#: src/remmina_protocol_widget.c:1680
 #, c-format
 msgid "Listening on port %i for an incoming %s connection…"
-msgstr ""
+msgstr "گوێگرتن لە پۆرتی %i بۆ پەیوەندی هاتوو لە %s…"
 
-#: src/remmina_protocol_widget.c:1693
+#: src/remmina_protocol_widget.c:1705
 msgid "Could not authenticate, attempting reconnection…"
 msgstr "ڕێگەپێدان نەدرا، هەوڵی پەیوەندی دەدرێتەوە…"
 
-#: src/remmina_protocol_widget.c:1755 src/remmina_file_editor.c:410
-#: src/remmina_file_editor.c:968 data/ui/remmina_main.glade:574
+#: src/remmina_protocol_widget.c:1767 src/remmina_file_editor.c:410
+#: src/remmina_file_editor.c:968 data/ui/remmina_main.glade:485
 msgid "Server"
 msgstr "ڕاژە"
 
-#: src/remmina_protocol_widget.c:1772
+#: src/remmina_protocol_widget.c:1784
 #, c-format
 msgid "Install the %s protocol plugin first."
 msgstr "پێوەکراوی پرۆتۆکۆڵی %s دامەزرێنە یەکەمجار."
@@ -148,149 +153,174 @@ msgstr "پیشاندانی وردی"
 msgid "Configure the available resolutions"
 msgstr "پیشاندانی وردی بەردەست ڕێکخبە"
 
-#: src/remmina_pref_dialog.c:132
+#: src/remmina_pref_dialog.c:135
 msgid "Recent lists cleared."
 msgstr "لیستی کۆتایی پاککرایەوە."
 
-#: src/remmina_pref_dialog.c:143 src/rcw.c:1896
-#: data/ui/remmina_preferences.glade:249 data/ui/remmina_preferences.glade:259
+#: src/remmina_pref_dialog.c:146 src/rcw.c:1896
+#: data/ui/remmina_preferences.glade:246 data/ui/remmina_preferences.glade:256
 msgid "Keystrokes"
 msgstr "کرتەکلیل"
 
-#: src/remmina_pref_dialog.c:143
+#: src/remmina_pref_dialog.c:146
 msgid "Configure the keystrokes"
 msgstr "پەنجەپیانانەکان ڕێکبخە"
 
 #. TRANSLATORS: Do not translate libsodium, is the name of a library
-#: src/remmina_pref_dialog.c:447
+#: src/remmina_pref_dialog.c:452
 msgid "libsodium >= 1.9.0 is required to use master password"
 msgstr "‫libsodium >= 1.9.0 پێویستە وشەی تێپەڕبوونی پێویستە"
 
-#: src/remmina_ssh_plugin.c:472
+#: src/remmina_pref_dialog.c:736
+#, fuzzy
+#| msgid "Pick a terminal colouring file"
+msgid "Picking a terminal colouring file replaces the file: "
+msgstr "پەڕگەی ڕەنگکردنی تێرمیناڵ هەڵبژێرە"
+
+#: src/remmina_pref_dialog.c:740
+msgid ""
+"This file contains the \"Custom\" terminal colour scheme selectable from the "
+"\"Advanced\" tab of terminal connections and editable in the \"Terminal\" "
+"tab in the settings."
+msgstr ""
+
+#: src/remmina_ssh_plugin.c:500
 #, c-format
 msgid "Error: %s"
 msgstr "هەڵە: %s"
 
-#: src/remmina_ssh_plugin.c:489
+#: src/remmina_ssh_plugin.c:517
 msgid "Terminal content saved in"
 msgstr "ناوەڕۆکی تێرمیناڵ پاشەکەوتکرا لە"
 
-#: src/remmina_ssh_plugin.c:543
+#: src/remmina_ssh_plugin.c:771
 msgid "Select All (host+A)"
 msgstr "هەمووی دیاریبکە (host+A)"
 
-#: src/remmina_ssh_plugin.c:544
+#: src/remmina_ssh_plugin.c:772
 msgid "Copy (host+C)"
 msgstr "لەبەرگرتنەوە (host+C)"
 
-#: src/remmina_ssh_plugin.c:545
+#: src/remmina_ssh_plugin.c:773
 msgid "Paste (host+V)"
 msgstr "لکاندن (host+V)"
 
-#: src/remmina_ssh_plugin.c:546
+#: src/remmina_ssh_plugin.c:774
 msgid "Save session to file"
 msgstr "دانیشتن پاشەکەوت بکە ناو پەڕگە"
 
-#: src/remmina_ssh_plugin.c:547
+#: src/remmina_ssh_plugin.c:775
 msgid "Increase font size (host+Page Up)"
 msgstr "قەبارەی جۆرەپیت گەورەبکە (host+Page Up)"
 
-#: src/remmina_ssh_plugin.c:548
+#: src/remmina_ssh_plugin.c:776
 msgid "Decrease font size (host+Page Down)"
 msgstr "قەبارەی جۆرەپیت گەورەبکە (host+Page Down)"
 
-#: src/remmina_ssh_plugin.c:968 src/remmina_sftp_plugin.c:310
+#: src/remmina_ssh_plugin.c:777
+msgid "Find text (host+G)"
+msgstr "دۆزینەوەی دەق (host+V)"
+
+#: src/remmina_ssh_plugin.c:1203 src/remmina_sftp_plugin.c:310
 #: src/remmina_file_editor.c:364 src/remmina_file_editor.c:371
 msgid "SSH identity file"
 msgstr "پەڕگەی ناسینەوەی SSH"
 
-#: src/remmina_ssh_plugin.c:969 src/remmina_sftp_plugin.c:311
+#: src/remmina_ssh_plugin.c:1204 src/remmina_sftp_plugin.c:311
 msgid "SSH agent"
 msgstr "بریکاری SSH"
 
-#: src/remmina_ssh_plugin.c:970 src/remmina_sftp_plugin.c:312
+#: src/remmina_ssh_plugin.c:1205 src/remmina_sftp_plugin.c:312
 #: src/remmina_file_editor.c:1025
 msgid "Public key (automatic)"
 msgstr "کلیلی گشتی (خۆکار)"
 
-#: src/remmina_ssh_plugin.c:971 src/remmina_sftp_plugin.c:313
+#: src/remmina_ssh_plugin.c:1206 src/remmina_sftp_plugin.c:313
 msgid "Kerberos (GSSAPI)"
 msgstr "‫Kerberos (GSSAPI)"
 
-#: src/remmina_ssh_plugin.c:1046 data/ui/remmina_main.glade:273
+#: src/remmina_ssh_plugin.c:1281 data/ui/remmina_main.glade:183
 msgid "Copy"
 msgstr "لەبەرگرتنەوە"
 
-#: src/remmina_ssh_plugin.c:1046
+#: src/remmina_ssh_plugin.c:1281
 msgid "_Copy"
 msgstr "_لەبەرگرتنەوە"
 
-#: src/remmina_ssh_plugin.c:1047
+#: src/remmina_ssh_plugin.c:1282
 msgid "Paste"
 msgstr "لکاندن"
 
-#: src/remmina_ssh_plugin.c:1047
+#: src/remmina_ssh_plugin.c:1282
 msgid "_Paste"
 msgstr "_لكاندن"
 
-#: src/remmina_ssh_plugin.c:1048
+#: src/remmina_ssh_plugin.c:1283
 msgid "Select all"
 msgstr "هەمووی دیاریبکە"
 
-#: src/remmina_ssh_plugin.c:1048
+#: src/remmina_ssh_plugin.c:1283
 msgid "_Select all"
 msgstr "_هەموو دیاریبکە"
 
-#: src/remmina_ssh_plugin.c:1049 data/ui/remmina_preferences.glade:2223
+#: src/remmina_ssh_plugin.c:1284 data/ui/remmina_preferences.glade:2287
 msgid "Increase font size"
 msgstr "قەبارەی جۆرەپیت زیادبکە"
 
-#: src/remmina_ssh_plugin.c:1049
+#: src/remmina_ssh_plugin.c:1284
 msgid "_Increase font size"
 msgstr "_قەبارەی جۆرەپیت زیادبکە"
 
-#: src/remmina_ssh_plugin.c:1050 data/ui/remmina_preferences.glade:2235
+#: src/remmina_ssh_plugin.c:1285 data/ui/remmina_preferences.glade:2300
 msgid "Decrease font size"
 msgstr "قەبارەی جۆرە پیت کەمبکەرەوە"
 
-#: src/remmina_ssh_plugin.c:1050
+#: src/remmina_ssh_plugin.c:1285
 msgid "_Decrease font size"
 msgstr "_قەبارەی جۆرە پیت کەمبکەرەوە"
 
-#: src/remmina_ssh_plugin.c:1068 src/remmina_message_panel.c:330
+#: src/remmina_ssh_plugin.c:1286
+msgid "Find text"
+msgstr "دۆزینەوەی دەق"
+
+#: src/remmina_ssh_plugin.c:1286
+msgid "_Find text"
+msgstr "_دۆزینەوەی دەق"
+
+#: src/remmina_ssh_plugin.c:1304 src/remmina_message_panel.c:330
 #: src/remmina_sftp_plugin.c:343 src/remmina_file_editor.c:1003
-#: plugins/www/www_plugin.c:871 plugins/vnc/vnc_plugin.c:1863
-#: plugins/vnc/vnc_plugin.c:1883 plugins/rdp/rdp_plugin.c:2259
+#: plugins/www/www_plugin.c:871 plugins/vnc/vnc_plugin.c:1879
+#: plugins/vnc/vnc_plugin.c:1899 plugins/rdp/rdp_plugin.c:2403
 #: plugins/nx/nx_plugin.c:730 data/ui/remmina_mpc.glade:144
 msgid "Username"
 msgstr "ناوی بەکارهێنەر"
 
-#: src/remmina_ssh_plugin.c:1069 plugins/vnc/vnc_plugin.c:1864
-#: plugins/vnc/vnc_plugin.c:1884 plugins/spice/spice_plugin.c:437
+#: src/remmina_ssh_plugin.c:1305 plugins/vnc/vnc_plugin.c:1880
+#: plugins/vnc/vnc_plugin.c:1900 plugins/spice/spice_plugin.c:437
 #: plugins/nx/nx_plugin.c:731
 msgid "User password"
 msgstr "وشەی تێپەڕبوونی بەکارهێنەر"
 
-#: src/remmina_ssh_plugin.c:1070 src/remmina_sftp_plugin.c:345
+#: src/remmina_ssh_plugin.c:1306 src/remmina_sftp_plugin.c:345
 msgid "Authentication type"
 msgstr "جۆری ڕێگەپێدان"
 
-#: src/remmina_ssh_plugin.c:1071 src/remmina_sftp_plugin.c:346
+#: src/remmina_ssh_plugin.c:1307 src/remmina_sftp_plugin.c:346
 #: plugins/nx/nx_plugin.c:729
 msgid "Identity file"
 msgstr "ناسینەوەی پەڕگە"
 
-#: src/remmina_ssh_plugin.c:1072 src/remmina_sftp_plugin.c:347
+#: src/remmina_ssh_plugin.c:1308 src/remmina_sftp_plugin.c:347
 #: src/remmina_file_editor.c:1034
 msgid "Password to unlock private key"
 msgstr "وشەی تێپەڕبوون بنووسە بۆ کردنەوەی کیلی تایبەت"
 
-#: src/remmina_ssh_plugin.c:1073 plugins/xdmcp/xdmcp_plugin.c:370
-#: plugins/rdp/rdp_plugin.c:2292 plugins/nx/nx_plugin.c:734
+#: src/remmina_ssh_plugin.c:1309 plugins/xdmcp/xdmcp_plugin.c:370
+#: plugins/rdp/rdp_plugin.c:2439 plugins/nx/nx_plugin.c:734
 msgid "Startup program"
 msgstr "بەرنامەی دەستپێکەری سەرەتا"
 
-#: src/remmina_ssh_plugin.c:1078
+#: src/remmina_ssh_plugin.c:1314
 msgid ""
 "The filename can use the following placeholders:\n"
 "\n"
@@ -302,61 +332,69 @@ msgid ""
 "  • %g is substituted with Remmina profile group name\n"
 "  • %d is substituted with local datetime in iso8601 format\n"
 msgstr ""
+"ناوی فایلەکە دەتوانێت ئەم جێراگرانەی خوارەوە بەکار بێنیت:\n"
+"\n"
+"• %h جێگرەوە کراوە لەگەڵ ناوی سێرڤەرەکە\n"
+"  • %t جێگرەوە کراوە لەگەڵ ناوی سێرڤەری SSH\n"
+"  • %u جێگرەوەکراوە لەگەڵ ناوی بەکارهێنەر\n"
+"  • %U جێگرەوەکراوە لەگەڵ ناوی بەکارهێنەری SSH\n"
+"  • %p جێگرەوەکراوە لەگەڵ ناوی پرۆفایلی ڕێمینا\n"
+"  • %g جێگرەوە کراوە لەگەڵ ناوی گروپی پرۆفایلی ڕێمینا\n"
+"  • %d جێگرەوە کراوە لەگەڵ کاتی بەروار بە فۆرماتی iso8601\n"
 
-#: src/remmina_ssh_plugin.c:1100
+#: src/remmina_ssh_plugin.c:1336
 msgid "Terminal color scheme"
 msgstr "ڕەنگی تێرمیناڵ"
 
-#: src/remmina_ssh_plugin.c:1101
+#: src/remmina_ssh_plugin.c:1337
 msgid "Character set"
 msgstr "سێتی نووسەکان"
 
-#: src/remmina_ssh_plugin.c:1102 src/remmina_sftp_plugin.c:348
+#: src/remmina_ssh_plugin.c:1338 src/remmina_sftp_plugin.c:348
 msgid "SSH Proxy Command"
 msgstr "فرمانی پرۆکسی SSH"
 
-#: src/remmina_ssh_plugin.c:1103
+#: src/remmina_ssh_plugin.c:1339
 msgid "KEX (Key Exchange) algorithms"
 msgstr "ئەلگۆریتمی KEX (Key Exchange)"
 
-#: src/remmina_ssh_plugin.c:1104
+#: src/remmina_ssh_plugin.c:1340
 msgid "Symmetric cipher client to server"
-msgstr ""
+msgstr "کڕیاری سیفەری سیفەری هاوسێ بۆ سێرڤەر"
 
-#: src/remmina_ssh_plugin.c:1105
+#: src/remmina_ssh_plugin.c:1341
 msgid "Preferred server host key types"
 msgstr "جۆرەکانی کلیلی ڕاژەی خوازراو"
 
-#: src/remmina_ssh_plugin.c:1106
+#: src/remmina_ssh_plugin.c:1342
 msgid "Folder for SSH session log"
 msgstr "بوخچە بۆ تۆماری دانیشتنی SSH"
 
-#: src/remmina_ssh_plugin.c:1107
+#: src/remmina_ssh_plugin.c:1343
 msgid "Filename for SSH session log"
 msgstr "ناوی پەڕگەی بۆ تۆماری دانیشتنی SSH"
 
-#: src/remmina_ssh_plugin.c:1108
+#: src/remmina_ssh_plugin.c:1344
 msgid "Log SSH session when exiting Remmina"
 msgstr "تۆماری دانیشتنی SSH کاتێک ڕیمینا دادەخرێت"
 
-#: src/remmina_ssh_plugin.c:1109
+#: src/remmina_ssh_plugin.c:1345
 msgid "Audible terminal bell"
 msgstr "زەنگی دەنگی تێرمیناڵ"
 
-#: src/remmina_ssh_plugin.c:1110
+#: src/remmina_ssh_plugin.c:1346
 msgid "SSH compression"
 msgstr "پەستاوتنی SSH"
 
-#: src/remmina_ssh_plugin.c:1111
+#: src/remmina_ssh_plugin.c:1347
 msgid "Don't remember passwords"
 msgstr "وشەی تێپەبوون لەبیربکە"
 
-#: src/remmina_ssh_plugin.c:1112
-#, fuzzy
+#: src/remmina_ssh_plugin.c:1348
 msgid "Strict host key checking"
 msgstr "چێکردنی کلیلی قەدبڕ پتەوبکە"
 
-#: src/remmina_ssh_plugin.c:1126
+#: src/remmina_ssh_plugin.c:1362
 msgid "SSH - Secure Shell"
 msgstr "‫SSH - شێڵی پارێزراو"
 
@@ -394,6 +432,12 @@ msgstr[1] "‏‫%d وشەی تێپەڕبوون گۆڕا."
 #: src/remmina_public.c:639
 msgid "Please enter format 'widthxheight'."
 msgstr "تکایە شێپێدان بنووسە ‘widthxheight’."
+
+#: src/remmina_public.c:661
+#, fuzzy
+#| msgid "Quality settings"
+msgid "Change security settings"
+msgstr "ڕێکخستنەکانی جۆرایەتی"
 
 #. TRANSLATORS: translator-credits should be replaced with a formatted list of translators in your own language
 #: src/remmina_about.c:54
@@ -446,8 +490,8 @@ msgstr "سەرەوە"
 msgid "Go to parent folder"
 msgstr "بڕۆ بۆ بوخچەی سەرتا"
 
-#: src/remmina_ftp_client.c:764 plugins/vnc/vnc_plugin.c:1920
-#: plugins/rdp/rdp_plugin.c:2332
+#: src/remmina_ftp_client.c:764 plugins/vnc/vnc_plugin.c:1936
+#: plugins/rdp/rdp_plugin.c:2480
 msgid "Refresh"
 msgstr "نوێکردنەوە"
 
@@ -463,7 +507,7 @@ msgstr "داگرتن لە ڕاژەوە"
 msgid "Upload to server"
 msgstr "بارکردنی بۆ ڕاژە"
 
-#: src/remmina_ftp_client.c:791 data/ui/remmina_main.glade:293
+#: src/remmina_ftp_client.c:791 data/ui/remmina_main.glade:203
 msgid "Delete"
 msgstr "سڕینەوە"
 
@@ -484,7 +528,7 @@ msgid "User"
 msgstr "بەکارهێنەر"
 
 #: src/remmina_ftp_client.c:948 src/remmina_file_editor.c:1592
-#: data/ui/remmina_main.glade:560 data/ui/remmina_mpc.glade:115
+#: data/ui/remmina_main.glade:471 data/ui/remmina_mpc.glade:115
 msgid "Group"
 msgstr "گرووپ"
 
@@ -492,11 +536,11 @@ msgstr "گرووپ"
 msgid "Permission"
 msgstr "ڕێپێدانەکان"
 
-#: src/remmina_ftp_client.c:1006 plugins/rdp/rdp_plugin.c:2194
+#: src/remmina_ftp_client.c:1006 plugins/rdp/rdp_plugin.c:2321
 msgid "Remote"
 msgstr "دوورەدەست"
 
-#: src/remmina_ftp_client.c:1013 plugins/rdp/rdp_plugin.c:2190
+#: src/remmina_ftp_client.c:1013 plugins/rdp/rdp_plugin.c:2317
 msgid "Local"
 msgstr "ناوخۆیی"
 
@@ -610,13 +654,13 @@ msgstr ""
 
 #: src/remmina.c:119
 msgid "Encrypt a password"
-msgstr ""
+msgstr "وشەی نهێنی بڕەمزێنە"
 
 #: src/remmina_icon.c:139
 msgid "Open Main Window"
 msgstr "پەنجەرەی سەرەکی بکەرەوە"
 
-#: src/remmina_icon.c:144 src/rcw.c:2276 data/ui/remmina_main.glade:349
+#: src/remmina_icon.c:144 data/ui/remmina_main.glade:260
 msgid "_Preferences"
 msgstr "_هەڵبژاردەکان"
 
@@ -628,7 +672,7 @@ msgstr "_دەربارە"
 msgid "Enable Service Discovery"
 msgstr "خزمەتگوزاری دۆزینەوە چالاک بکە"
 
-#: src/remmina_icon.c:171 data/ui/remmina_main.glade:500
+#: src/remmina_icon.c:171 data/ui/remmina_main.glade:411
 msgid "_Quit"
 msgstr "_دەرچوون"
 
@@ -640,7 +684,7 @@ msgstr "ئەپلیتی ڕێمینا"
 msgid "Connect to remote desktops through the applet menu"
 msgstr "پەیوەندیگرتن بە ڕوومێزی دوور بە هۆی پێڕستی ئەپلێت"
 
-#: src/remmina_icon.c:473 src/remmina_icon.c:474 src/remmina_main.c:1250
+#: src/remmina_icon.c:473 src/remmina_icon.c:474 src/remmina_main.c:1265
 msgid "Remmina Remote Desktop Client"
 msgstr "ڕاژەخوازی کۆنتڕۆڵی دووری ڕوومێزی ڕێمینا"
 
@@ -654,7 +698,7 @@ msgstr "تۆ دڵنیایت کە دەتەوێت پەیوەندی چالاکی %i
 msgid "Viewport fullscreen mode"
 msgstr "دۆخی پڕاوپڕی ڕوونما چێوەی پیشاندان"
 
-#: src/rcw.c:1380 data/ui/remmina_preferences.glade:630
+#: src/rcw.c:1380 data/ui/remmina_preferences.glade:628
 msgid "Scrolled fullscreen"
 msgstr "پڕاوپڕی ڕووپەڕ"
 
@@ -698,11 +742,17 @@ msgstr "دۆخی پێوانکراو دابنێ"
 msgid "Grab all keyboard events"
 msgstr "هەموو ڕووداوەکانی تەختەکلیل بهێنە"
 
+#: src/rcw.c:2276
+#, fuzzy
+#| msgid "_Preferences"
+msgid "Preferences"
+msgstr "_هەڵبژاردەکان"
+
 #: src/rcw.c:2284
 msgid "_Tools"
 msgstr "_ئامرازەکان"
 
-#: src/rcw.c:2285 data/ui/remmina_main.glade:303
+#: src/rcw.c:2285 data/ui/remmina_main.glade:213
 msgid "Tools"
 msgstr "ئامرازەکان"
 
@@ -732,69 +782,69 @@ msgstr "پەڕگەی “%s” تێکشکاوە، ناخوێندرێتەوە، ی
 msgid "Warning: This plugin requires GtkSocket, but it’s not available."
 msgstr "وریابە: ئەم پێوەکراوە پێویستی بە GtkSocket هەیە، بەڵام بەردەست نیە."
 
-#: src/remmina_plugin_manager.c:70 src/remmina_file_editor.c:1610
+#: src/remmina_plugin_manager.c:69 src/remmina_file_editor.c:1610
 msgid "Protocol"
 msgstr "پرۆتۆکۆڵ"
 
-#: src/remmina_plugin_manager.c:70
+#: src/remmina_plugin_manager.c:69
 msgid "Entry"
 msgstr "تێخستن"
 
-#: src/remmina_plugin_manager.c:70
+#: src/remmina_plugin_manager.c:69
 msgid "File"
 msgstr "پەڕگە"
 
-#: src/remmina_plugin_manager.c:70
+#: src/remmina_plugin_manager.c:69
 msgid "Tool"
 msgstr "ئامراز"
 
-#: src/remmina_plugin_manager.c:70
+#: src/remmina_plugin_manager.c:69
 msgid "Preference"
 msgstr "هەڵبژاردەکان"
 
-#: src/remmina_plugin_manager.c:70
+#: src/remmina_plugin_manager.c:69
 msgid "Secret"
 msgstr "نهێنی"
 
-#: src/remmina_plugin_manager.c:447 data/ui/remmina_main.glade:420
+#: src/remmina_plugin_manager.c:446 data/ui/remmina_main.glade:331
 msgid "Plugins"
 msgstr "پێوەکراوەکان"
 
-#: src/remmina_plugin_manager.c:447 src/remmina_message_panel.c:452
+#: src/remmina_plugin_manager.c:446 src/remmina_message_panel.c:452
 #: src/remmina_message_panel.c:621 src/remmina_file_editor.c:164
 msgid "_OK"
 msgstr "_باشە"
 
-#: src/remmina_plugin_manager.c:465 src/remmina_file_editor.c:1567
-#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:538
+#: src/remmina_plugin_manager.c:464 src/remmina_file_editor.c:1567
+#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:449
 msgid "Name"
 msgstr "ناو"
 
-#: src/remmina_plugin_manager.c:471 plugins/nx/nx_session_manager.c:183
+#: src/remmina_plugin_manager.c:470 plugins/nx/nx_session_manager.c:183
 msgid "Type"
 msgstr "جۆر"
 
-#: src/remmina_plugin_manager.c:477
+#: src/remmina_plugin_manager.c:476
 msgid "Description"
 msgstr "كورتەیەک"
 
-#: src/remmina_plugin_manager.c:483
+#: src/remmina_plugin_manager.c:482
 msgid "Version"
 msgstr "وەشان"
 
-#: src/remmina_main.c:657
+#: src/remmina_main.c:660
 #, c-format
 msgid "Total %i item."
 msgid_plural "Total %i items."
 msgstr[0] "کۆس گشتی %i بڕگە."
 msgstr[1] "‫کۆس گشتی %i بڕگە."
 
-#: src/remmina_main.c:835
+#: src/remmina_main.c:838
 #, c-format
 msgid "Are you sure you want to delete \"%s\"?"
 msgstr "ئایا تۆ دڵنیایت کە دەتەوێت “%s” بسڕیتەوە؟"
 
-#: src/remmina_main.c:935
+#: src/remmina_main.c:948
 #, c-format
 msgid ""
 "Unable to import:\n"
@@ -803,19 +853,19 @@ msgstr ""
 "نەتوانرا هاوردەبکرێت: \n"
 "‏‫%s"
 
-#: src/remmina_main.c:961 data/ui/remmina_main.glade:380
+#: src/remmina_main.c:974 data/ui/remmina_main.glade:291
 msgid "Import"
 msgstr "هێنان"
 
-#: src/remmina_main.c:984 src/remmina_file_editor.c:1450
+#: src/remmina_main.c:997 src/remmina_file_editor.c:1450
 msgid "_Save"
 msgstr "_پاشەکەوتکردن"
 
-#: src/remmina_main.c:990
+#: src/remmina_main.c:1003
 msgid "This protocol does not support exporting."
 msgstr "ئەم پرۆتۆکۆڵە پشتگیری هەناردەکردن ناکات."
 
-#: src/remmina_main.c:1252
+#: src/remmina_main.c:1267
 msgid "Remmina Kiosk"
 msgstr "کۆشکی ڕێمینا"
 
@@ -943,7 +993,7 @@ msgstr "هه‌ڵوه‌شاندنه‌وه‌"
 
 #: src/remmina_message_panel.c:199 data/ui/remmina_snap_info_dialog.glade:28
 #: data/ui/remmina_news.glade:33 data/ui/remmina_preferences.glade:33
-#: data/ui/remmina_preferences.glade:34 data/ui/remmina_preferences.glade:60
+#: data/ui/remmina_preferences.glade:34 data/ui/remmina_preferences.glade:57
 #: data/ui/remmina_string_list.glade:8 data/ui/remmina_string_list.glade:9
 #: data/ui/remmina_string_list.glade:63
 msgid "Close"
@@ -957,7 +1007,7 @@ msgstr "بەڵێ"
 msgid "No"
 msgstr "نەخێر"
 
-#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2261
+#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2405
 #: data/ui/remmina_mpc.glade:172
 msgid "Domain"
 msgstr "دۆمەین"
@@ -1068,7 +1118,7 @@ msgstr "نەتوانرا کلیلی گشتی بەدەستبهێنرێت. %s"
 #: src/remmina_ssh.c:525
 #, c-format
 msgid "Could not fetch checksum for public SSH key. %s"
-msgstr ""
+msgstr "نەیتوانی چێکسوم بۆ کلیلی گشتی SSH بهاێت. %s"
 
 #: src/remmina_ssh.c:538
 msgid "The server is unknown. The public key fingerprint is:"
@@ -1084,6 +1134,9 @@ msgid ""
 "under attack,\n"
 "or the administrator has changed the key. The new public key fingerprint is:"
 msgstr ""
+"ئاگاداری: ڕاژەکارەکە کلیلی گشتی گۆڕیوە. ئەمە مانای ئەوەیە یان تۆ لەژێر "
+"هێرشدایت\n"
+"یان بەڕێوەبەر کلیلەکەی گۆڕیوە. پەنجەمۆری کلیلی گشتی نوێ ئەوەیە:"
 
 #. TRANSLATORS: The placeholder %s is an error message
 #: src/remmina_ssh.c:568
@@ -1256,6 +1309,17 @@ msgid ""
 "connecting.\n"
 "</big></tt>"
 msgstr ""
+"<tt><big>• فەرمان لە PATH %h\n"
+"• /path/to/foo-options %h %u\n"
+"• %h جێگرەوە کراوە لەگەڵ ناوی سێرڤەرەکە\n"
+"• %t جێگرەوە کراوە لەگەڵ ناوی سێرڤەری SSH\n"
+"• %u جێگرەوەکراوە لەگەڵ ناوی بەکارهێنەر\n"
+"• %U جێگرەوەکراوە لەگەڵ ناوی بەکارهێنەری SSH\n"
+"• %p جێگرەوەکراوە لەگەڵ ناوی پرۆفایلی ڕێمینا\n"
+"• %g جێگرەوە کراوە لەگەڵ ناوی گروپی پرۆفایلی ڕێمینا\n"
+"• %d جێگرەوە کراوە لەگەڵ کاتی بەروار بە فۆرماتی iso8601\n"
+"ڕامەدە لە پاشبنەما ئەگەر دەتەوێت فەرمانەکە جێبەجێ بکرێت پێش پەیوەندیکردن.\n"
+"</big></tt>"
 
 #: src/remmina_file_editor.c:95
 msgid ""
@@ -1355,7 +1419,7 @@ msgstr "تونێلکردن لە ڕێگەی ناونیشانی گەڕانەوە"
 msgid "Same server at port %i"
 msgstr "هەمان ڕاژە لەسەر پۆرت %i"
 
-#: src/remmina_file_editor.c:987 plugins/rdp/rdp_plugin.c:2293
+#: src/remmina_file_editor.c:987 plugins/rdp/rdp_plugin.c:2440
 msgid "Startup path"
 msgstr "ڕێڕەوی دەستپێکردن"
 
@@ -1384,8 +1448,10 @@ msgid "Default settings saved."
 msgstr "ڕێکخستنی بنەڕەتی پاشەکەوت کرا."
 
 #: src/remmina_file_editor.c:1440
-msgid "Remote Desktop Preference"
-msgstr "هەڵبژردەکانی بۆدووری ڕوومێز"
+#, fuzzy
+#| msgid "New connection profile"
+msgid "Remote Connection Profile"
+msgstr "پرۆفایلێکی نوێی پەیوەندی"
 
 #: src/remmina_file_editor.c:1446
 msgid "Save as Default"
@@ -1395,7 +1461,7 @@ msgstr "پاشەکەوتکردن وەکو بنەڕەت"
 msgid "Use the current settings as the default for all new connection profiles"
 msgstr "ڕێکخستنی ئێستا بەکاربینە بۆ هەموو پرۆفایلی پەیوەندییە نوێییەکان"
 
-#: src/remmina_file_editor.c:1455 data/ui/remmina_main.glade:256
+#: src/remmina_file_editor.c:1455 data/ui/remmina_main.glade:166
 msgid "Connect"
 msgstr "پەیوەندی ببەستە"
 
@@ -1511,8 +1577,8 @@ msgstr "پشتگیری دەنگی HTML بکە کار"
 msgid "Ignore TLS errors"
 msgstr "هەڵەکانی TLS پشتگوێبخە"
 
-#: plugins/www/www_plugin.c:896 plugins/vnc/vnc_plugin.c:1907
-#: plugins/spice/spice_plugin.c:456 plugins/rdp/rdp_plugin.c:2314
+#: plugins/www/www_plugin.c:896 plugins/vnc/vnc_plugin.c:1923
+#: plugins/spice/spice_plugin.c:456 plugins/rdp/rdp_plugin.c:2461
 #: plugins/nx/nx_plugin.c:752
 msgid "Forget passwords after use"
 msgstr "وشەی تێپەڕبوون لەبیربکە دووای بەکارهێنان"
@@ -1569,84 +1635,83 @@ msgid "Please retry after turning on encryption for this profile."
 msgstr ""
 "تکایە دووبارە هەوڵ بدەرەوە دووای چالاک کردنی نهێنیکردن بۆ ئەم پرۆفایلە."
 
-#: plugins/vnc/vnc_plugin.c:1834
+#: plugins/vnc/vnc_plugin.c:1850
 msgid "True color (32 bpp)"
 msgstr "ڕەنگی ڕاستەقینە (32 bpp)"
 
-#: plugins/vnc/vnc_plugin.c:1835
+#: plugins/vnc/vnc_plugin.c:1851
 msgid "High color (16 bpp)"
 msgstr "ڕەنگی بەرز (16 bpp)"
 
-#: plugins/vnc/vnc_plugin.c:1836
+#: plugins/vnc/vnc_plugin.c:1852
 msgid "256 colors (8 bpp)"
 msgstr "٢٥٦ ڕەنگ (8 bpp)"
 
-#: plugins/vnc/vnc_plugin.c:1843 plugins/rdp/rdp_plugin.c:2182
+#: plugins/vnc/vnc_plugin.c:1859 plugins/rdp/rdp_plugin.c:2295
 #: plugins/rdp/rdp_settings.c:275 plugins/nx/nx_plugin.c:713
 msgid "Best (slowest)"
 msgstr "باشترین (خاوترین)"
 
-#: plugins/vnc/vnc_plugin.c:1844 plugins/rdp/rdp_plugin.c:2181
+#: plugins/vnc/vnc_plugin.c:1860 plugins/rdp/rdp_plugin.c:2294
 #: plugins/rdp/rdp_settings.c:273 plugins/nx/nx_plugin.c:712
 msgid "Good"
 msgstr "باش"
 
-#: plugins/vnc/vnc_plugin.c:1845 plugins/rdp/rdp_plugin.c:2180
+#: plugins/vnc/vnc_plugin.c:1861 plugins/rdp/rdp_plugin.c:2293
 #: plugins/rdp/rdp_settings.c:271 plugins/nx/nx_plugin.c:711
 msgid "Medium"
 msgstr "ناوەند"
 
-#: plugins/vnc/vnc_plugin.c:1846 plugins/rdp/rdp_plugin.c:2179
+#: plugins/vnc/vnc_plugin.c:1862 plugins/rdp/rdp_plugin.c:2292
 #: plugins/rdp/rdp_settings.c:269 plugins/nx/nx_plugin.c:710
 msgid "Poor (fastest)"
 msgstr "لاواز (خێراترین)"
 
-#: plugins/vnc/vnc_plugin.c:1862
+#: plugins/vnc/vnc_plugin.c:1878
 msgid "Repeater"
 msgstr "دووبارەکەرەوە"
 
-#: plugins/vnc/vnc_plugin.c:1865 plugins/vnc/vnc_plugin.c:1885
+#: plugins/vnc/vnc_plugin.c:1881 plugins/vnc/vnc_plugin.c:1901
 msgid "Color depth"
 msgstr "قوڵی ڕنگ"
 
-#: plugins/vnc/vnc_plugin.c:1866 plugins/vnc/vnc_plugin.c:1886
-#: plugins/rdp/rdp_plugin.c:2279 plugins/nx/nx_plugin.c:733
+#: plugins/vnc/vnc_plugin.c:1882 plugins/vnc/vnc_plugin.c:1902
+#: plugins/rdp/rdp_plugin.c:2424 plugins/nx/nx_plugin.c:733
 msgid "Quality"
 msgstr "جۆرایه‌تی"
 
-#: plugins/vnc/vnc_plugin.c:1882
+#: plugins/vnc/vnc_plugin.c:1898
 msgid "Listen on port"
 msgstr "گوێگرتن لە پۆرت"
 
-#: plugins/vnc/vnc_plugin.c:1902
-#, fuzzy
+#: plugins/vnc/vnc_plugin.c:1918
 msgid "Show remote cursor"
 msgstr "دیارکەری لەدوور پیشان بدە"
 
-#: plugins/vnc/vnc_plugin.c:1903 plugins/vnc/vnc_plugin.c:1918
+#: plugins/vnc/vnc_plugin.c:1919 plugins/vnc/vnc_plugin.c:1934
 #: plugins/spice/spice_plugin.c:460 plugins/spice/spice_plugin.c:469
 msgid "View only"
 msgstr "تەنها پیشاندان"
 
-#: plugins/vnc/vnc_plugin.c:1904 plugins/spice/spice_plugin.c:455
+#: plugins/vnc/vnc_plugin.c:1920 plugins/spice/spice_plugin.c:455
 #: plugins/spice/spice_plugin.c:471 plugins/nx/nx_plugin.c:749
 msgid "Disable clipboard sync"
 msgstr "هاوکەتگەری لەبەرگرتنەوە ناچالاک بکە"
 
-#: plugins/vnc/vnc_plugin.c:1905 plugins/nx/nx_plugin.c:750
+#: plugins/vnc/vnc_plugin.c:1921 plugins/nx/nx_plugin.c:750
 msgid "Disable encryption"
 msgstr "بەنهێنیکردن ناچالاک بکە"
 
-#: plugins/vnc/vnc_plugin.c:1906 plugins/vnc/vnc_plugin.c:1919
+#: plugins/vnc/vnc_plugin.c:1922 plugins/vnc/vnc_plugin.c:1935
 msgid "Disable server input"
 msgstr "تێخستنی ڕاژە ناچالاک بکە"
 
-#: plugins/vnc/vnc_plugin.c:1921
+#: plugins/vnc/vnc_plugin.c:1937
 msgid "Open Chat…"
 msgstr "چات بکەرەوە…"
 
-#: plugins/vnc/vnc_plugin.c:1922 plugins/spice/spice_plugin.c:472
-#: plugins/xdmcp/xdmcp_plugin.c:381 plugins/rdp/rdp_plugin.c:2335
+#: plugins/vnc/vnc_plugin.c:1938 plugins/spice/spice_plugin.c:472
+#: plugins/xdmcp/xdmcp_plugin.c:381 plugins/rdp/rdp_plugin.c:2483
 msgid "Send Ctrl+Alt+Delete"
 msgstr "ناردن Ctrl+Alt+Del"
 
@@ -1695,7 +1760,7 @@ msgstr "نهێنیکردنی TLS بەکاربێنە"
 msgid "Server CA certificate"
 msgstr "ڕاژەی بڕوانامەی CA"
 
-#: plugins/spice/spice_plugin.c:440 plugins/rdp/rdp_plugin.c:2264
+#: plugins/spice/spice_plugin.c:440 plugins/rdp/rdp_plugin.c:2409
 msgid "Share folder"
 msgstr "بڵاوکردنەوەی بوخچە"
 
@@ -1767,7 +1832,7 @@ msgstr "ڕەنگی بەرز (16 بت)"
 msgid "True colour (24 bit)"
 msgstr "ڕەنگی ڕاستەقینە (24 بت)"
 
-#: plugins/xdmcp/xdmcp_plugin.c:369 plugins/rdp/rdp_plugin.c:2263
+#: plugins/xdmcp/xdmcp_plugin.c:369 plugins/rdp/rdp_plugin.c:2407
 msgid "Colour depth"
 msgstr "قوڵی ڕەنگ"
 
@@ -1803,22 +1868,24 @@ msgstr "پەنجەرەی سەربەخۆ"
 msgid "Remmina simple terminal"
 msgstr "تێڕمیناڵی سانای ڕێمینا"
 
-#: plugins/rdp/rdp_plugin.c:680
+#: plugins/rdp/rdp_plugin.c:664 plugins/rdp/rdp_plugin.c:729
 msgid "Enter RDP authentication credentials"
 msgstr "ڕێپێدانەکانی RDP بنووسە"
 
-#: plugins/rdp/rdp_plugin.c:742
+#: plugins/rdp/rdp_plugin.c:737
 msgid "Enter RDP gateway authentication credentials"
-msgstr ""
+msgstr "بڕواپێدانەکانی ڕەسەنایەتی سەلماندنی دەروازە (RDP) تێبنووسە"
 
-#: plugins/rdp/rdp_plugin.c:1730
+#: plugins/rdp/rdp_plugin.c:1848
 #, c-format
 msgid ""
 "Could not access the RDP server \"%s\".\n"
 "Account locked out."
 msgstr ""
+"نەیتوانی دەستگەیشتن بە سێرڤەری RDP \"%s\".\n"
+"ئەژمێرەکە داخراوە"
 
-#: plugins/rdp/rdp_plugin.c:1737
+#: plugins/rdp/rdp_plugin.c:1855
 #, c-format
 msgid ""
 "Could not access the RDP server \"%s\".\n"
@@ -1827,7 +1894,7 @@ msgstr ""
 "نەتوانرا بچێتە ڕاژەی RDP “%s”.\n"
 "‫‬هەژمار بەسەرچووە."
 
-#: plugins/rdp/rdp_plugin.c:1744
+#: plugins/rdp/rdp_plugin.c:1862
 #, c-format
 msgid ""
 "Could not access the RDP server \"%s\".\n"
@@ -1836,7 +1903,7 @@ msgstr ""
 "نەتوانرا بچێتە ڕاژەی RDP “%s”.\n"
 "‫وشەی تێپەڕبەسەرچووە."
 
-#: plugins/rdp/rdp_plugin.c:1751
+#: plugins/rdp/rdp_plugin.c:1869
 #, c-format
 msgid ""
 "Could not access the RDP server \"%s\".\n"
@@ -1845,7 +1912,7 @@ msgstr ""
 "نەتوانرا بچێتە ڕاژەی RDP “%s”.\n"
 "‫هەژمار ناچالاکە."
 
-#: plugins/rdp/rdp_plugin.c:1757
+#: plugins/rdp/rdp_plugin.c:1875
 #, c-format
 msgid ""
 "Could not access the RDP server \"%s\".\n"
@@ -1854,7 +1921,7 @@ msgstr ""
 "نەتوانرا بچێتە ناو ڕاژەی RDP “%s”.\n"
 "‫دەسەڵاتی پێویست نیە."
 
-#: plugins/rdp/rdp_plugin.c:1765
+#: plugins/rdp/rdp_plugin.c:1883
 #, c-format
 msgid ""
 "Could not access the RDP server \"%s\".\n"
@@ -1863,7 +1930,7 @@ msgstr ""
 "نەتوانرا بچێتە ڕاژەی RDP “%s”.\n"
 "‫‫هەژمار ڕێگەپێنەدراوە."
 
-#: plugins/rdp/rdp_plugin.c:1773
+#: plugins/rdp/rdp_plugin.c:1891
 #, c-format
 msgid ""
 "Could not access the RDP server \"%s\".\n"
@@ -1872,25 +1939,27 @@ msgstr ""
 "نەتوانرا بچێتە ناو ڕاژەی RDP “%s”.\n"
 "‫وشەی تێپەڕبوونی بەکارهێنەر بگۆڕە پێش پەیوەندی کردن."
 
-#: plugins/rdp/rdp_plugin.c:1778
+#: plugins/rdp/rdp_plugin.c:1896
 #, c-format
 msgid "Lost connection to the RDP server \"%s\"."
 msgstr "پەیوەندی بچڕا لەگەڵ ڕاژەی RDP “%s”."
 
-#: plugins/rdp/rdp_plugin.c:1781
+#: plugins/rdp/rdp_plugin.c:1899
 #, c-format
 msgid "Could not find the address for the RDP server \"%s\"."
 msgstr "نەتوانرا ناونیشانی راژەی RDP بدۆزرێتەوە “%s”."
 
-#: plugins/rdp/rdp_plugin.c:1785
+#: plugins/rdp/rdp_plugin.c:1903
 #, c-format
 msgid ""
 "Could not connect to the RDP server \"%s\" via TLS. Check that client and "
 "server support a common TLS version."
 msgstr ""
+"نەیتوانی پەیوەندی بکات بە سێرڤەری RDP \"%s\" لە ڕێگەی TLS. پشکنینی ئەو کڕیار "
+"و سێرڤەرە پشتگیری ڤێرژنی TLS ی هاوبەش دەکات."
 
 #. TRANSLATORS: the placeholder may be either an IP/FQDN or a server hostname
-#: plugins/rdp/rdp_plugin.c:1789
+#: plugins/rdp/rdp_plugin.c:1907
 #, c-format
 msgid ""
 "Unable to establish a connection to the RDP server. Check \"Security "
@@ -1899,16 +1968,16 @@ msgstr ""
 "نەتوانرا پەیوەندی بگیرێت لەگەڵ ڕاژەی RDP. چێکی “دانوستانی پرۆتۆکۆڵی پاراستن” "
 "بکە “%s”."
 
-#: plugins/rdp/rdp_plugin.c:1797
+#: plugins/rdp/rdp_plugin.c:1915
 #, c-format
 msgid "Cannot connect to the RDP server \"%s\"."
 msgstr "ناتوانرێت پەیوەندی بکرێت بە ڕاژەی RDP “%s\"."
 
-#: plugins/rdp/rdp_plugin.c:1800
+#: plugins/rdp/rdp_plugin.c:1918
 msgid "Could not start libfreerdp-gdi."
 msgstr "ناتوانرێت libfreerdp-gdi بکرێتە کار."
 
-#: plugins/rdp/rdp_plugin.c:1803
+#: plugins/rdp/rdp_plugin.c:1921
 #, c-format
 msgid ""
 "You requested a H.264 GFX mode for the server \"%s\", but your libfreerdp "
@@ -1917,112 +1986,155 @@ msgstr ""
 "تۆ داوای دۆخی H.264 GFX بۆ ڕاژەی “%s” بەڵام libfreerdp پشتگیری H.264 ناکات. "
 "تکایە ڕێکخستنی تێری ڕەنگی non-AVC بەکاربێنە."
 
-#: plugins/rdp/rdp_plugin.c:1810
+#: plugins/rdp/rdp_plugin.c:1928
 #, c-format
 msgid "The \"%s\" server refused the connection."
 msgstr "ڕاژەی “%s” پەیوەندی ڕەتکردەوە."
 
-#: plugins/rdp/rdp_plugin.c:1815
+#: plugins/rdp/rdp_plugin.c:1933
 #, c-format
 msgid ""
 "The Remote Desktop Gateway \"%s\" denied the user \"%s\\%s\" access due to "
 "policy."
 msgstr ""
+"دەروازەی دێسکتۆپی دوور \"%s\" بەکارهێنەرەکەی ڕەت کردەوە \"%s\\%s\" بەهۆی "
+"سیاسەتەوە."
 
-#: plugins/rdp/rdp_plugin.c:1825
+#: plugins/rdp/rdp_plugin.c:1943
 #, c-format
 msgid "Cannot connect to the \"%s\" RDP server."
 msgstr "ناتوانرێت پەیوەندی بکرێت بە RDP ڕاژەی “%s\"."
 
-#: plugins/rdp/rdp_plugin.c:2148
+#: plugins/rdp/rdp_plugin.c:2261
 msgid "Automatic (32 bpp) (Server chooses its best format)"
-msgstr ""
+msgstr "خۆکار (32 bpp) (سێرڤەر باشترین فۆرماتی خۆی هەڵدەبژێرێت)"
 
-#: plugins/rdp/rdp_plugin.c:2149
+#: plugins/rdp/rdp_plugin.c:2262
 msgid "GFX AVC444 (32 bpp)"
 msgstr "‫GFX AVC444 (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2150
+#: plugins/rdp/rdp_plugin.c:2263
 msgid "GFX AVC420 (32 bpp)"
 msgstr "‫GFX AVC420 (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2151
+#: plugins/rdp/rdp_plugin.c:2264
 msgid "GFX RFX (32 bpp)"
 msgstr "‫GFX RFX (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2152
-#, fuzzy
-#| msgid "GFX RFX (32 bpp)"
+#: plugins/rdp/rdp_plugin.c:2265
 msgid "GFX RFX Progressive (32 bpp)"
-msgstr "‫GFX RFX (32 bpp)"
+msgstr "GFX RFX پێشکەوتنخواز (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2153
+#: plugins/rdp/rdp_plugin.c:2266
 msgid "RemoteFX (32 bpp)"
 msgstr "‫RemoteFX (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2154
+#: plugins/rdp/rdp_plugin.c:2267
 msgid "True colour (32 bpp)"
 msgstr "ڕەنگی ڕاستەقینە (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2155
+#: plugins/rdp/rdp_plugin.c:2268
 msgid "True colour (24 bpp)"
 msgstr "ڕەنگی ڕاستەقینە (24 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2156
+#: plugins/rdp/rdp_plugin.c:2269
 msgid "High colour (16 bpp)"
 msgstr "ڕەنگی بەرز (16 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2157
+#: plugins/rdp/rdp_plugin.c:2270
 msgid "High colour (15 bpp)"
 msgstr "ڕەنگی بەرز (15 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2158
+#: plugins/rdp/rdp_plugin.c:2271
 msgid "256 colours (8 bpp)"
 msgstr "٢٥٦ ڕەنگ (8 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2189 data/ui/remmina_preferences.glade:702
+#: plugins/rdp/rdp_plugin.c:2302 data/ui/remmina_preferences.glade:663
+msgid "None"
+msgstr "هیچ"
+
+#: plugins/rdp/rdp_plugin.c:2303
+#, fuzzy
+#| msgid "<Auto detect>"
+msgid "Autodetect"
+msgstr "<دۆزینەوەی خۆکار>"
+
+#: plugins/rdp/rdp_plugin.c:2304
+msgid "Modem"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2305
+msgid "Low performance broadband"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2306
+msgid "Satellite"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2307
+msgid "High performance broadband"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2308
+msgid "WAN"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2309
+msgid "LAN"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2316 data/ui/remmina_preferences.glade:700
 msgid "Off"
 msgstr "کوژاوەتەوە"
 
-#: plugins/rdp/rdp_plugin.c:2191
+#: plugins/rdp/rdp_plugin.c:2318
 msgid "Local - low quality"
 msgstr "ناوخۆیی - جۆریی نزم"
 
-#: plugins/rdp/rdp_plugin.c:2192
+#: plugins/rdp/rdp_plugin.c:2319
 msgid "Local - medium quality"
 msgstr "ناوخۆیی - جۆریی مامناوەند"
 
-#: plugins/rdp/rdp_plugin.c:2193
+#: plugins/rdp/rdp_plugin.c:2320
 msgid "Local - high quality"
 msgstr "ناوخۆیی - جۆریی بەرز"
 
-#: plugins/rdp/rdp_plugin.c:2201
+#: plugins/rdp/rdp_plugin.c:2328
 msgid "Automatic negotiation"
 msgstr "دانوستانی خۆکار"
 
-#: plugins/rdp/rdp_plugin.c:2202
+#: plugins/rdp/rdp_plugin.c:2329
 msgid "NLA protocol security"
 msgstr "پرۆتۆکۆڵی پاراستنی NLA"
 
-#: plugins/rdp/rdp_plugin.c:2203
+#: plugins/rdp/rdp_plugin.c:2330
 msgid "TLS protocol security"
 msgstr "پرۆتۆکۆڵی پاراستنی TLS"
 
-#: plugins/rdp/rdp_plugin.c:2204
+#: plugins/rdp/rdp_plugin.c:2331
 msgid "RDP protocol security"
 msgstr "پرۆتۆکۆڵی پاراستنی RDP"
 
-#: plugins/rdp/rdp_plugin.c:2205
+#: plugins/rdp/rdp_plugin.c:2332
 msgid "NLA extended protocol security"
 msgstr "پرۆتۆکۆڵی درێژکراوەی پاراستنی NLA"
 
-#: plugins/rdp/rdp_plugin.c:2218
+#: plugins/rdp/rdp_plugin.c:2345
 msgid "2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)"
 msgstr "‫2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)"
 
-#: plugins/rdp/rdp_plugin.c:2221
+#: plugins/rdp/rdp_plugin.c:2348
+#, fuzzy
+#| msgid ""
+#| "Used i.a. by terminal services in smart card channel to distinguish "
+#| "client capabilities:\n"
+#| "  • < 4034: Windows XP base smart card functions\n"
+#| "  • 4034-7064: Windows Vista/7: SCardReadCache(),\n"
+#| "    SCardWriteCache(), SCardGetTransmitCount()\n"
+#| "  • >= 7065: Windows 8 and newer: SCardGetReaderIcon(),\n"
+#| "    SCardGetDeviceTypeId()"
 msgid ""
-"Used i.a. by terminal services in smart card channel to distinguish client "
+"Used i.a. by terminal services in a smart card channel to distinguish client "
 "capabilities:\n"
 "  • < 4034: Windows XP base smart card functions\n"
 "  • 4034-7064: Windows Vista/7: SCardReadCache(),\n"
@@ -2030,94 +2142,178 @@ msgid ""
 "  • >= 7065: Windows 8 and newer: SCardGetReaderIcon(),\n"
 "    SCardGetDeviceTypeId()"
 msgstr ""
+"i.a. بەکارهاتووە لەلایەن خزمەتگوزاریەکانی تێرمیناڵ لە کەناڵی سمارت کارد بۆ "
+"جیاکردنەوەی تواناکانی کڕیار:\n"
+"  • < 4034: Windows XP base smart card functions • 4034-7064: Windows "
+"Vista/7: SCardReadCache(), SCardWriteCache(), SCardGetTransmitCount() • > = "
+"7065: Windows 8 and newer: SCardGetReaderIcon(),\n"
+"    SCardGetDeviceTypeId()"
 
-#: plugins/rdp/rdp_plugin.c:2228
+#: plugins/rdp/rdp_plugin.c:2356
+#, fuzzy
+#| msgid ""
+#| "Options for redirection of audio input:\n"
+#| "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
+#| "    [channel:<channel>] Audio input (microphone)\n"
+#| "  • format:1\n"
+#| "  • sys:oss,dev:1,format:1\n"
+#| "  • sys:alsa"
 msgid ""
 "Options for redirection of audio input:\n"
 "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
 "    [channel:<channel>] Audio input (microphone)\n"
+"  • sys:pulse\n"
 "  • format:1\n"
 "  • sys:oss,dev:1,format:1\n"
 "  • sys:alsa"
 msgstr ""
+"هەڵبژاردنەکان بۆ ئاراستەکردنەوەی تێکردنی دەنگ:\n"
+"  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
+"    [کەناڵ:<channel>] تێکردنی دەنگی (مایکرۆفۆن)\n"
+"  • فۆرمات:1\n"
+"  • sys:oss,dev:1,format:1\n"
+"  • sys:alsa"
 
-#: plugins/rdp/rdp_plugin.c:2236
+#: plugins/rdp/rdp_plugin.c:2365
+#, fuzzy
+#| msgid ""
+#| "Options for redirection of audio input:\n"
+#| "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
+#| "    [channel:<channel>] Audio input (microphone)\n"
+#| "  • format:1\n"
+#| "  • sys:oss,dev:1,format:1\n"
+#| "  • sys:alsa"
+msgid ""
+"Options for redirection of audio ouput:\n"
+"  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
+"    [channel:<channel>] Audio output\n"
+"  • sys:pulse\n"
+"  • format:1\n"
+"  • sys:oss,dev:1,format:1\n"
+"  • sys:alsa"
+msgstr ""
+"هەڵبژاردنەکان بۆ ئاراستەکردنەوەی تێکردنی دەنگ:\n"
+"  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
+"    [کەناڵ:<channel>] تێکردنی دەنگی (مایکرۆفۆن)\n"
+"  • فۆرمات:1\n"
+"  • sys:oss,dev:1,format:1\n"
+"  • sys:alsa"
+
+#: plugins/rdp/rdp_plugin.c:2375
 msgid ""
 "Options for redirection of USB device:\n"
 "  • [dbg,][id:<vid>:<pid>#…,][addr:<bus>:<addr>#…,][auto]\n"
 "  • auto\n"
 "  • id:054c:0268#4669:6e6b,addr:04:0c"
 msgstr ""
+"هەڵبژاردنەکان بۆ ئاراستەکردنەوەی ئامێری USB:\n"
+"  • [dbg,][id:<vid>:<pid>#...][addr:<bus>:<addr>#...][auto]\n"
+"  • خۆکار\n"
+"  • ناسنامە:054c:0268#4669:6e6b,addr:04:0c"
 
-#: plugins/rdp/rdp_plugin.c:2242
+#: plugins/rdp/rdp_plugin.c:2381
+#, fuzzy
+#| msgid ""
+#| "Advanced setting for high latency links:\n"
+#| "Adjust connection timeout, use if you encounter timeout failures with "
+#| "your connection.\n"
+#| "The highest possible value is 600000 ms (10 minutes)\n"
 msgid ""
 "Advanced setting for high latency links:\n"
-"Adjust connection timeout, use if you encounter timeout failures with your "
-"connection.\n"
-"The highest possible value is 600000 ms (10 minutes)\n"
+"Adjusts the connection timeout. Use if your connection times out.\n"
+"The highest possible value is 600000 ms (10 minutes).\n"
+msgstr ""
+"ڕێکبەندەکانی پێشکەوتوو بۆ لینکی شاردنەوی بەرز:\n"
+"ڕێککردنی کاتی پەیوەندیکردن، بەکاربێنە ئەگەر تووشی شکستی کاتی دەرچوون بووی "
+"لەگەڵ گرێدانەکەت.\n"
+"بەرزترین بەهای گونجاو 600000 ms (10 خولەک)\n"
+
+#: plugins/rdp/rdp_plugin.c:2386
+msgid ""
+"Performance optimisations based on the network connection type:\n"
+"Using autodetection is advised.\n"
+"If \"Autodetect\" fails, choose the most appropriate option in the list.\n"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2280
+#: plugins/rdp/rdp_plugin.c:2408
+#, fuzzy
+#| msgid "New connection profile"
+msgid "Network connection type"
+msgstr "پرۆفایلێکی نوێی پەیوەندی"
+
+#: plugins/rdp/rdp_plugin.c:2425
 msgid "Security protocol negotiation"
 msgstr "دانوستانی پرۆتۆکۆڵی پاراستن"
 
-#: plugins/rdp/rdp_plugin.c:2281
+#: plugins/rdp/rdp_plugin.c:2426
 msgid "Gateway transport type"
 msgstr "جۆری دەرەڕێی گواستنەوە"
 
-#: plugins/rdp/rdp_plugin.c:2282
-#, fuzzy
-#| msgid "SSH log level"
+#: plugins/rdp/rdp_plugin.c:2427
 msgid "FreeRDP log level"
-msgstr "ئاستی تۆمار SSH"
+msgstr "ئاستی تۆمار FreeRDP"
 
-#: plugins/rdp/rdp_plugin.c:2283
+#: plugins/rdp/rdp_plugin.c:2428
+#, fuzzy
+#| msgid "FreeRDP log level"
+msgid "FreeRDP log filters"
+msgstr "ئاستی تۆمار FreeRDP"
+
+#: plugins/rdp/rdp_plugin.c:2428
+msgid "tag:level[,tag:level[,…]]"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2429
 msgid "Sound"
 msgstr "دەنگ"
 
-#: plugins/rdp/rdp_plugin.c:2284
+#: plugins/rdp/rdp_plugin.c:2430
+#, fuzzy
+#| msgid "Redirect local microphone"
+msgid "Redirect local audio output"
+msgstr "ناردنەوەی مایکرۆفۆنی ناوخۆیی"
+
+#: plugins/rdp/rdp_plugin.c:2431
 msgid "Redirect local microphone"
 msgstr "ناردنەوەی مایکرۆفۆنی ناوخۆیی"
 
-#: plugins/rdp/rdp_plugin.c:2285
+#: plugins/rdp/rdp_plugin.c:2432
 msgid "Connection timeout in ms"
 msgstr "بەسەرچوونی پەیوەندی بە ملچ"
 
-#: plugins/rdp/rdp_plugin.c:2286
+#: plugins/rdp/rdp_plugin.c:2433
 msgid "Remote Desktop Gateway server"
 msgstr "ڕاژەی ڕوومێزی لەدوور"
 
-#: plugins/rdp/rdp_plugin.c:2287
+#: plugins/rdp/rdp_plugin.c:2434
 msgid "Remote Desktop Gateway username"
 msgstr "ناوی بەکارهێنەری دەرەڕێی لەدووری ڕوومێز"
 
-#: plugins/rdp/rdp_plugin.c:2288
+#: plugins/rdp/rdp_plugin.c:2435
 msgid "Remote Desktop Gateway password"
 msgstr "وشەی تێپەڕبوونی دەرەڕێی لەدووری ڕوومێز"
 
-#: plugins/rdp/rdp_plugin.c:2289
-#, fuzzy
+#: plugins/rdp/rdp_plugin.c:2436
 msgid "Remote Desktop Gateway domain"
-msgstr "دۆمەینی دەرەڕێی ڕوومێزی لەدوور"
+msgstr "دۆمەینی دەروازەی دێسکتۆپ لە دوورەوە"
 
-#: plugins/rdp/rdp_plugin.c:2290
+#: plugins/rdp/rdp_plugin.c:2437
 msgid "Client name"
 msgstr "ناوی کڕیار"
 
-#: plugins/rdp/rdp_plugin.c:2291
-#, fuzzy
+#: plugins/rdp/rdp_plugin.c:2438
 msgid "Client build"
 msgstr "درووستکردنی کڕیار"
 
-#: plugins/rdp/rdp_plugin.c:2294
+#: plugins/rdp/rdp_plugin.c:2441
 msgid "Load balance info"
 msgstr "زانیاری هاوسەنگی باربکە"
 
-#: plugins/rdp/rdp_plugin.c:2295
+#: plugins/rdp/rdp_plugin.c:2442
 msgid "Override printer drivers"
 msgstr "بیکەجێگەی وەگەڕخەراکانی چاپکەر"
 
-#: plugins/rdp/rdp_plugin.c:2295
+#: plugins/rdp/rdp_plugin.c:2442
 msgid ""
 "\"Samsung_CLX-3300_Series\":\"Samsung CLX-3300 Series PS\";\"Canon MF410\":"
 "\"Canon MF410 Series UFR II\""
@@ -2125,149 +2321,151 @@ msgstr ""
 "‫“Samsung_CLX-3300_Series”:”Samsung CLX-3300 Series PS”;”Canon MF410”:”Canon "
 "MF410 Series UFR II”"
 
-#: plugins/rdp/rdp_plugin.c:2296
+#: plugins/rdp/rdp_plugin.c:2443
 msgid "USB device redirection"
 msgstr "ناردنەوەی USB"
 
-#: plugins/rdp/rdp_plugin.c:2297
+#: plugins/rdp/rdp_plugin.c:2444
 msgid "Local serial name"
 msgstr "ناوی زنجیرەی ناوخۆیی"
 
-#: plugins/rdp/rdp_plugin.c:2297
+#: plugins/rdp/rdp_plugin.c:2444
 msgid "COM1, COM2, etc."
 msgstr "‫COM1, COM2, هیتر."
 
-#: plugins/rdp/rdp_plugin.c:2298
+#: plugins/rdp/rdp_plugin.c:2445
 msgid "Local serial driver"
 msgstr "وەگەڕخەری ناوخۆیی زنجیرە"
 
-#: plugins/rdp/rdp_plugin.c:2298
+#: plugins/rdp/rdp_plugin.c:2445
 msgid "Serial"
 msgstr "زنجیرە"
 
-#: plugins/rdp/rdp_plugin.c:2299
+#: plugins/rdp/rdp_plugin.c:2446
 msgid "Local serial path"
 msgstr "ڕێڕەوی زنجیرەی ناوخۆیی"
 
-#: plugins/rdp/rdp_plugin.c:2299
+#: plugins/rdp/rdp_plugin.c:2446
 msgid "/dev/ttyS0, /dev/ttyS1, etc."
 msgstr "‫/dev/ttyS0, /dev/ttyS1, هیتر."
 
-#: plugins/rdp/rdp_plugin.c:2300
+#: plugins/rdp/rdp_plugin.c:2447
 msgid "Local parallel name"
 msgstr "ناوی هاوڕێکی ناوخۆیی"
 
-#: plugins/rdp/rdp_plugin.c:2301
+#: plugins/rdp/rdp_plugin.c:2448
 msgid "Local parallel device"
 msgstr "ئامێری هاوڕێکی ناوخۆیی"
 
-#: plugins/rdp/rdp_plugin.c:2302
+#: plugins/rdp/rdp_plugin.c:2449
 msgid "Name of smart card"
 msgstr "ناوی کارتی زیرەک"
 
-#: plugins/rdp/rdp_plugin.c:2303
+#: plugins/rdp/rdp_plugin.c:2450
 msgid "Dynamic virtual channel"
 msgstr "‫Dynamic virtual channel"
 
-#: plugins/rdp/rdp_plugin.c:2303 plugins/rdp/rdp_plugin.c:2304
+#: plugins/rdp/rdp_plugin.c:2450 plugins/rdp/rdp_plugin.c:2451
 msgid "<channel>[,<options>]"
 msgstr "‫<channel>[,<options>]"
 
-#: plugins/rdp/rdp_plugin.c:2304
+#: plugins/rdp/rdp_plugin.c:2451
 msgid "Static virtual channel"
 msgstr "کەنالێ گریمانەیی جیگیر"
 
-#: plugins/rdp/rdp_plugin.c:2305
+#: plugins/rdp/rdp_plugin.c:2452
 msgid "Prefer IPv6 AAAA record over IPv4 A record"
 msgstr "هەڵبژاردنی تۆماری IPv6 AAAA لەجیاتی تۆماری IPv4 A"
 
-#: plugins/rdp/rdp_plugin.c:2306
+#: plugins/rdp/rdp_plugin.c:2453
 msgid "Share printers"
 msgstr "بڵاوەپێکردنی چاپکەر"
 
-#: plugins/rdp/rdp_plugin.c:2307
+#: plugins/rdp/rdp_plugin.c:2454
 msgid "Share serial ports"
 msgstr "زنجیرەی پۆرت بڵاوەپێبکە‬"
 
-#: plugins/rdp/rdp_plugin.c:2308
-#, fuzzy
+#: plugins/rdp/rdp_plugin.c:2455
 msgid "(SELinux) permissive mode for serial ports"
-msgstr "دۆخی (SELinux) permissive بۆ زنجیرەی پۆرتەکان"
+msgstr "دۆخی (SELinux) ڕێگەپێدراوە بۆ بەندەری زنجیرەییەکان"
 
-#: plugins/rdp/rdp_plugin.c:2309
+#: plugins/rdp/rdp_plugin.c:2456
 msgid "Share parallel ports"
 msgstr "پۆرتە هاوڕێکەکان بڵاوەپێبکە"
 
-#: plugins/rdp/rdp_plugin.c:2310
+#: plugins/rdp/rdp_plugin.c:2457
 msgid "Share a smart card"
 msgstr "کارتی زیرەک بڵاوەپێبکە"
 
-#: plugins/rdp/rdp_plugin.c:2311
+#: plugins/rdp/rdp_plugin.c:2458
 msgid "Turn off clipboard sync"
 msgstr "کوژاندنەوەی هاوکاتگەری شوێنی لەبەرگیراوەکان"
 
-#: plugins/rdp/rdp_plugin.c:2312
+#: plugins/rdp/rdp_plugin.c:2459
 msgid "Ignore certificate"
 msgstr "بڕوانامە فەرامۆش بکە"
 
-#: plugins/rdp/rdp_plugin.c:2313
+#: plugins/rdp/rdp_plugin.c:2460
 msgid "Use the old license workflow"
 msgstr "ریگەی مۆڵەتی کۆن بەکاربێنە"
 
-#: plugins/rdp/rdp_plugin.c:2313
+#: plugins/rdp/rdp_plugin.c:2460
 msgid "It disables CAL and hwId is set to 0"
 msgstr "‫CAL ناچالاک دەکات و hwId کراوە بە ٠"
 
-#: plugins/rdp/rdp_plugin.c:2315
+#: plugins/rdp/rdp_plugin.c:2462
 msgid "Attach to console (2003/2003 R2)"
 msgstr "ناردن بۆ کونسوڵ (2003/2003 R2)"
 
-#: plugins/rdp/rdp_plugin.c:2316
+#: plugins/rdp/rdp_plugin.c:2463
 msgid "Turn off fast-path"
 msgstr "ڕێڕەوی خێرا بکوژێنەوە"
 
-#: plugins/rdp/rdp_plugin.c:2317
+#: plugins/rdp/rdp_plugin.c:2464
 msgid "Server detection using Remote Desktop Gateway"
-msgstr ""
+msgstr "دۆزینەوەی سێرڤەر بە بەکارهێنانی دەروازەی دێسکتۆپ لە دوورەوە"
 
-#: plugins/rdp/rdp_plugin.c:2319
+#: plugins/rdp/rdp_plugin.c:2466
 msgid "Use system proxy settings"
 msgstr "ڕێکخستنەکانی پرۆکسی سیستم بەکاربێنە"
 
-#: plugins/rdp/rdp_plugin.c:2321
+#: plugins/rdp/rdp_plugin.c:2468
 msgid "Turn off automatic reconnection"
 msgstr "دووبارە پەیوەندیکردنەوە ناچالاک بکە"
 
-#: plugins/rdp/rdp_plugin.c:2322
+#: plugins/rdp/rdp_plugin.c:2469
 msgid "Relax order checks"
-msgstr ""
+msgstr "پشکنینی داواکاری پشوو"
 
-#: plugins/rdp/rdp_plugin.c:2323
-#, fuzzy
+#: plugins/rdp/rdp_plugin.c:2470
 msgid "Glyph cache"
-msgstr "کاشێ گلیف"
+msgstr "کاشی گلیف"
 
-#: plugins/rdp/rdp_plugin.c:2324
+#: plugins/rdp/rdp_plugin.c:2471
 msgid "Enable multitransport protocol (UDP)"
 msgstr "چالاک کردنی پرۆتۆکۆڵی گواستەنەوەی دووانەیی (UDP)"
 
-#: plugins/rdp/rdp_plugin.c:2324
+#: plugins/rdp/rdp_plugin.c:2471
 msgid "Using the UDP protocol may improve performance"
 msgstr "بەکارهێنانی پرۆتۆکۆلی UDP لەوانەیە توانای کارکردنی باشتربکات"
 
-#: plugins/rdp/rdp_plugin.c:2348
+#: plugins/rdp/rdp_plugin.c:2472
+msgid "Use base credentials for gateway too"
+msgstr ""
+
+#: plugins/rdp/rdp_plugin.c:2496
 msgid "RDP - Remote Desktop Protocol"
 msgstr "‫RDP - کۆنتڕۆڵی دووری ڕوومێزی"
 
-#: plugins/rdp/rdp_plugin.c:2371
+#: plugins/rdp/rdp_plugin.c:2519
 msgid "RDP - RDP File Handler"
 msgstr "‫RDP - گرتنی پەڕگەی RDP"
 
-#: plugins/rdp/rdp_plugin.c:2386
+#: plugins/rdp/rdp_plugin.c:2534
 msgid "RDP - Preferences"
 msgstr "‫RDP - هەڵبژاردەکان"
 
-#: plugins/rdp/rdp_plugin.c:2439
+#: plugins/rdp/rdp_plugin.c:2587
 msgid "Export connection in Windows .rdp file format"
 msgstr "هاوردەکردنی پەیوەندی لە پەنجەرەی پەڕگە جۆری .rdp"
 
@@ -2328,9 +2526,8 @@ msgid "Composition"
 msgstr "پێکهاتن"
 
 #: plugins/rdp/rdp_settings.c:532
-#, fuzzy
 msgid "Remote scale factor"
-msgstr "یەکەی پێوانەکردنی لەدوور"
+msgstr "پێوەری فاکتەر لەدوورەوە"
 
 #: plugins/rdp/rdp_settings.c:545
 msgid "Desktop scale factor %"
@@ -2419,15 +2616,54 @@ msgstr "بانگهێشتنامەی بڵاوکردنەوەی ڕوومێز"
 msgid "Telepathy - Desktop Sharing"
 msgstr "‫Telepathy - بڵاوکردنەوەت ڕوومێز"
 
+#: data/ui/remmina_search.glade:61 data/ui/remmina_search_popover.glade:56
+msgid "Search"
+msgstr "گەڕان"
+
+#: data/ui/remmina_search.glade:75 data/ui/remmina_search_popover.glade:70
+msgid "Search for previous occurrence"
+msgstr "گەڕان بۆ ڕوودانی پێشوو"
+
+#: data/ui/remmina_search.glade:98 data/ui/remmina_search_popover.glade:93
+msgid "Search for next occurrence"
+msgstr "گەڕان بۆ ڕوودانی داهاتوو"
+
+#: data/ui/remmina_search.glade:130 data/ui/remmina_search_popover.glade:125
+msgid "Toggle search options"
+msgstr "گۆڕینی هەڵبژاردنەکانی گەڕان"
+
+#: data/ui/remmina_search.glade:191 data/ui/remmina_search_popover.glade:186
+msgid "_Match case"
+msgstr "_حاڵەتی هاوتا"
+
+#: data/ui/remmina_search.glade:208 data/ui/remmina_search_popover.glade:203
+msgid "Match _entire word only"
+msgstr "هاوتای_تەنها هەموو وشەکە"
+
+#: data/ui/remmina_search.glade:225 data/ui/remmina_search_popover.glade:220
+msgid "Match as _regular expression"
+msgstr "هاوتا وەک_ دەربڕینی ئاسایی"
+
+#: data/ui/remmina_search.glade:242 data/ui/remmina_search_popover.glade:237
+msgid "_Wrap around"
+msgstr "_داپۆشینی دەورووبەر"
+
 #: data/ui/remmina_snap_info_dialog.glade:71
 msgid ""
 "<big><b>Remmina Snap package</b></big>\n"
 "\n"
 "<span>\n"
-"It seems that Remmina is running on your system as a Snap package.\n"
-"Some Remmina functionalities need your intervention to work properly\n"
+"Remmina is running on your system as a Snap package.\n"
+"Some Remmina functions need to be set up to work properly.\n"
 "</span>\n"
 msgstr ""
+"<big><b> گورزەی سناپ </b></big>\n"
+"\n"
+"<span>\n"
+"Remmina کاردەکات لەسەر سیستەمەکەت وەک گورزەی سناپ.\n"
+"هەندێک لە کارەکانی ڕێمینا پێویستە بۆ کارکردن بە شێوەیەکی دروست ئامادە "
+"بکرێت.\n"
+"</span>\n"
 
 #: data/ui/remmina_snap_info_dialog.glade:120
 msgid ""
@@ -2436,35 +2672,38 @@ msgid ""
 "the appropriate permissions to Remmina. As an alternative you can enter the "
 "following commands in a terminal window:"
 msgstr ""
+"بۆ بەتواناکردنی دەستگەیشتن بە هەندێک تایبەتمەندی گرنگ، وەک پاشەکەوتکردنی "
+"نهێنوشە لە کلیلی و هاوبەشیکردنی چاپکەر RDP، تکایە ناوەندی سۆفتوێرەکەت بکەوە "
+"و ڕێپێدانی گونجاو بە ڕێممینا بدە. وەک جێگرەوەیەک دەتوانیت ئەم داواکاریانە "
+"داخڵ بکەیت لە پەنجەرەی تێرمیناڵ:"
 
-#: data/ui/remmina_snap_info_dialog.glade:166
-#, fuzzy
-#| msgid "Permission"
+#: data/ui/remmina_snap_info_dialog.glade:167
 msgid "<big>Permissions</big>"
-msgstr "ڕێپێدانەکان"
+msgstr "<big>ڕێپێدانەکان</big>"
 
-#: data/ui/remmina_snap_info_dialog.glade:201
+#: data/ui/remmina_snap_info_dialog.glade:202
 msgid ""
-"Snap packages runs confined from the rest of the system, therefore by "
-"default, Remmina profiles will be saved inside the Snap file system, but you "
-"can still set an alternative PATH in the general preferences."
+"Since Snap packages run confined from the rest of the system, Remmina "
+"profiles are saved inside the Snap file system by default. You can change "
+"the location in the Remmina preferences."
 msgstr ""
+"لە کاتی بەڕێوەبردنی گورزەکانی Snap کە لە باقی سیستەمەکە سنووردارن، "
+"پرۆفایلەکانی Remmina لە ناو سیستەمی فایلی Snap بە شێوەی بنەڕەت هەڵدەگیرێت. "
+"دەتوانی شوێنەکە بگۆڕیت لە پەسەندکراوەکانی ڕێمینا."
 
-#: data/ui/remmina_snap_info_dialog.glade:221
-msgid "Change the Remmina profiles PATH"
-msgstr ""
+#: data/ui/remmina_snap_info_dialog.glade:222
+msgid "Change where Remmina profiles are stored"
+msgstr "گۆڕینی ئەو شوێنەی پرۆفایلەکانی ڕێمینا خەزن کراون"
 
-#: data/ui/remmina_snap_info_dialog.glade:260
-#, fuzzy
-#| msgid "<big>Take part</big>"
+#: data/ui/remmina_snap_info_dialog.glade:261
 msgid "<big>Snap settings</big>"
-msgstr "‫<big>پارچە کردن</big>"
+msgstr "‫<big>ڕێکخستنی سناپ</big>"
 
-#: data/ui/remmina_snap_info_dialog.glade:273
+#: data/ui/remmina_snap_info_dialog.glade:274
 msgid "Do not show this message again"
 msgstr "ئەم پەیامە چیتر پیشان مەدەرەوە"
 
-#: data/ui/remmina_about.glade:30 data/ui/remmina_main.glade:491
+#: data/ui/remmina_about.glade:30 data/ui/remmina_main.glade:402
 msgid "About"
 msgstr "دەربارە"
 
@@ -2502,103 +2741,103 @@ msgstr "هەموو گۆڕانکارییەکانی ڕێمینا پیشان بدە
 msgid "Switch from grouped to list view"
 msgstr "گۆڕین لە گرووپەوە بۆ جۆری لیستەیی"
 
-#: data/ui/remmina_main.glade:70
-msgid "Remote Desktop Client"
-msgstr "ڕاژەخوازی کۆنتڕۆڵی دووری ڕوومێزی ڕێمینا"
-
-#: data/ui/remmina_main.glade:78
-msgid "New connection profile"
-msgstr "پرۆفایلێکی نوێی پەیوەندی"
-
-#: data/ui/remmina_main.glade:90
-msgid "Show search bar"
-msgstr "توڵی گەڕان پیشان بدە"
-
-#: data/ui/remmina_main.glade:123
-msgid "Remmina main menu"
-msgstr "لیستەی سەرەکی ڕێمینا"
-
-#: data/ui/remmina_main.glade:130
-msgid "Actions"
-msgstr "کردارەکان"
-
-#: data/ui/remmina_main.glade:144
-msgid "Toggle view"
-msgstr "پیشاندانی بەهێز"
-
-#: data/ui/remmina_main.glade:175
+#: data/ui/remmina_main.glade:85
 msgid "Select the protocol to use with the quick connect bar."
 msgstr "پرۆتۆکۆل هەڵبژێرە بۆ ئەوەی بەکاربێت بۆ پەیوەندی خێرا."
 
-#: data/ui/remmina_main.glade:193
+#: data/ui/remmina_main.glade:103
 msgid "Search string or server name/IP address for “Quick Connect”"
-msgstr ""
+msgstr "بگەڕێ لە زنجیرە یان ناوی سێرڤەر/ناونیشانی IP بۆ \"پەیوەندی خێرا\""
 
-#: data/ui/remmina_main.glade:197 data/ui/remmina_main.glade:199
+#: data/ui/remmina_main.glade:107 data/ui/remmina_main.glade:109
 msgid "Server name or IP address"
 msgstr "ناوی ڕاژە یان ناونیشانی ئای پی"
 
-#: data/ui/remmina_main.glade:198 data/ui/remmina_main.glade:200
-#: data/ui/remmina_preferences.glade:214
+#: data/ui/remmina_main.glade:108 data/ui/remmina_main.glade:110
+#: data/ui/remmina_preferences.glade:211
 msgid "Clear"
 msgstr "پاککردنەوە"
 
-#: data/ui/remmina_main.glade:283
+#: data/ui/remmina_main.glade:193
 msgid "Edit"
 msgstr "دەستکاریکردن"
 
-#: data/ui/remmina_main.glade:313
+#: data/ui/remmina_main.glade:223
 msgid "Collapse all"
 msgstr "هەمووی کۆبکەرەوە"
 
-#: data/ui/remmina_main.glade:323
+#: data/ui/remmina_main.glade:233
 msgid "Expand all"
 msgstr "هەمووی بکەرەوە"
 
-#: data/ui/remmina_main.glade:360
+#: data/ui/remmina_main.glade:271
 msgid "Multi password changer"
 msgstr "گۆڕەڕی وشەی تێپەڕبوونی دووانی"
 
-#: data/ui/remmina_main.glade:370
+#: data/ui/remmina_main.glade:281
 msgid "Debugging"
 msgstr "هەڵەدۆزی"
 
-#: data/ui/remmina_main.glade:390
+#: data/ui/remmina_main.glade:301
 msgid "Export"
 msgstr "هه‌ناردن"
 
-#: data/ui/remmina_main.glade:400
+#: data/ui/remmina_main.glade:311
 msgid "News"
 msgstr "هەواڵەکان"
 
-#: data/ui/remmina_main.glade:410
+#: data/ui/remmina_main.glade:321
 msgid "Make Remmina your default remote desktop client"
 msgstr "ڕێمینا بکە ڕاژەخوازی ڕوومێزی بنەڕەتی"
 
-#: data/ui/remmina_main.glade:437
+#: data/ui/remmina_main.glade:348
 msgid "Homepage"
 msgstr "ماڵپەڕی سەرەکی"
 
-#: data/ui/remmina_main.glade:447
+#: data/ui/remmina_main.glade:358
 msgid "Donations"
 msgstr "بەخشینەکان"
 
-#: data/ui/remmina_main.glade:457
+#: data/ui/remmina_main.glade:368
 msgid "Wiki"
 msgstr "ویکی"
 
 #. Remmina community website
-#: data/ui/remmina_main.glade:467
+#: data/ui/remmina_main.glade:378
 msgid "Community"
 msgstr "کۆمەڵگە"
 
-#: data/ui/remmina_main.glade:588
+#: data/ui/remmina_main.glade:499
 msgid "Plugin"
 msgstr "پێوەکراو"
 
-#: data/ui/remmina_main.glade:602
+#: data/ui/remmina_main.glade:513
 msgid "Last used"
 msgstr "دواین بەکارهێنان"
+
+#: data/ui/remmina_main.glade:555
+msgid "Remote Desktop Client"
+msgstr "ڕاژەخوازی کۆنتڕۆڵی دووری ڕوومێزی ڕێمینا"
+
+#: data/ui/remmina_main.glade:563
+msgid "New connection profile"
+msgstr "پرۆفایلێکی نوێی پەیوەندی"
+
+#: data/ui/remmina_main.glade:581
+msgid "Remmina main menu"
+msgstr "لیستەی سەرەکی ڕێمینا"
+
+#: data/ui/remmina_main.glade:588
+msgid "Actions"
+msgstr "کردارەکان"
+
+#: data/ui/remmina_main.glade:602
+msgid "Show search bar"
+msgstr "توڵی گەڕان پیشان بدە"
+
+#: data/ui/remmina_main.glade:616
+msgid "Toggle view"
+msgstr "پیشاندانی بەهێز"
 
 #: data/ui/remmina_unlock.glade:60
 msgid "Unlock"
@@ -2608,7 +2847,7 @@ msgstr "کردنەوە"
 msgid "Unlock Remmina"
 msgstr "ڕێمینا بکەرەوە"
 
-#: data/ui/remmina_unlock.glade:128 data/ui/remmina_preferences.glade:1479
+#: data/ui/remmina_unlock.glade:128 data/ui/remmina_preferences.glade:1481
 msgid "Master password"
 msgstr "وشەی تێپەڕبوونی سەرەکی"
 
@@ -2650,7 +2889,7 @@ msgstr ""
 "‏‫<span/>"
 
 #. The star (*) is a reference to privacy consent
-#: data/ui/remmina_news.glade:130 data/ui/remmina_preferences.glade:533
+#: data/ui/remmina_news.glade:130 data/ui/remmina_preferences.glade:530
 msgid ""
 "Send <b><a href=\"https://remmina.gitlab.io/remminadoc.gitlab.io/"
 "remmina__stats_8c.html#details\" title=\"Remmina usage statistics"
@@ -2677,7 +2916,7 @@ msgid "Allow Remmina to automatically open .rdp and .remmina files."
 msgstr "ڕێگەبدە ڕێمینا پەڕگەی جۆری .rdp و .remmina خۆکارانە بکاتەوە."
 
 #. The star (*) is a reference to privacy consent
-#: data/ui/remmina_news.glade:183 data/ui/remmina_preferences.glade:548
+#: data/ui/remmina_news.glade:183 data/ui/remmina_preferences.glade:545
 msgid ""
 "Fetch news from <a href=\"https://remmina.org\" title=\"Remmina news site"
 "\">remmina.org</a> (*)"
@@ -2685,7 +2924,7 @@ msgstr ""
 "هێنانی هەواڵ لە <a href=“https://remmina.org” title=“ماڵپەڕی هەواڵی "
 "ڕێمینا”>remmina.org</a> (*)"
 
-#: data/ui/remmina_news.glade:208 data/ui/remmina_preferences.glade:515
+#: data/ui/remmina_news.glade:208 data/ui/remmina_preferences.glade:512
 msgid ""
 "* By enabling statistics and/or news you consent to send and fetch data to/"
 "from remmina.org"
@@ -2762,71 +3001,71 @@ msgstr "دۆمەین/بەکارهێنەر"
 msgid "Remmina Preferences"
 msgstr "هەڵبژاردەکانی ڕێمینا"
 
-#: data/ui/remmina_preferences.glade:99
+#: data/ui/remmina_preferences.glade:96
 msgid "Double-click action"
 msgstr "کاری دوو-کرتە"
 
-#: data/ui/remmina_preferences.glade:113
+#: data/ui/remmina_preferences.glade:110
 msgid "Open connection"
 msgstr "پەیوەندی بکەرەوە"
 
-#: data/ui/remmina_preferences.glade:114
+#: data/ui/remmina_preferences.glade:111
 msgid "Edit settings"
 msgstr "دەستکاریکردنی ڕێکخستن"
 
-#: data/ui/remmina_preferences.glade:130
+#: data/ui/remmina_preferences.glade:127
 msgid "Scaling quality"
 msgstr "جۆرایەتی پێوانەکردن"
 
-#: data/ui/remmina_preferences.glade:144
+#: data/ui/remmina_preferences.glade:141
 msgid "Nearest"
 msgstr "نزیکترین"
 
-#: data/ui/remmina_preferences.glade:145
+#: data/ui/remmina_preferences.glade:142
 msgid "Tiles"
 msgstr "شێوە کاشی"
 
-#: data/ui/remmina_preferences.glade:146
+#: data/ui/remmina_preferences.glade:143
 msgid "Bilinear"
 msgstr "دوو ھێڵی"
 
-#: data/ui/remmina_preferences.glade:147
+#: data/ui/remmina_preferences.glade:144
 msgid "Hyper"
 msgstr "زیادەڕۆیی"
 
-#: data/ui/remmina_preferences.glade:163
+#: data/ui/remmina_preferences.glade:160
 msgid "Step size for auto scroll"
 msgstr "قەبارەی هەنگاوی جوڵاندنی خۆکار"
 
-#: data/ui/remmina_preferences.glade:191
+#: data/ui/remmina_preferences.glade:188
 msgid "Maximal amount of recent items"
 msgstr "زۆرترین بڕگەی نوێ"
 
-#: data/ui/remmina_preferences.glade:234
+#: data/ui/remmina_preferences.glade:231
 msgid "Screen resolutions"
 msgstr "پیشاندانی وردی"
 
-#: data/ui/remmina_preferences.glade:280
+#: data/ui/remmina_preferences.glade:277
 msgid "Folder for screenshots"
 msgstr "بوخچەی وێنەی ڕوونما"
 
-#: data/ui/remmina_preferences.glade:292
+#: data/ui/remmina_preferences.glade:289
 msgid "Choose a folder to save screenshots from Remmina in."
 msgstr "بوخچە هەڵبژێرە کە وێنەی ڕوونمای تێدا پاشەکەوت بکرێت لە ڕێمیناوە."
 
-#: data/ui/remmina_preferences.glade:295
+#: data/ui/remmina_preferences.glade:292
 msgid "Select a folder"
 msgstr "بوخچە دیاریبکە"
 
-#: data/ui/remmina_preferences.glade:305
+#: data/ui/remmina_preferences.glade:302
 msgid "Set up"
 msgstr "ڕێکخستن"
 
-#: data/ui/remmina_preferences.glade:326
+#: data/ui/remmina_preferences.glade:323
 msgid "Screenshot filenames"
 msgstr "ناوی پەڕگەی وێنەی ڕوونما"
 
-#: data/ui/remmina_preferences.glade:338
+#: data/ui/remmina_preferences.glade:335
 msgid ""
 "%p Profile name\n"
 "%h Server name/IP\n"
@@ -2836,7 +3075,7 @@ msgstr ""
 "‏‫%h ناوی ڕاژە/IP\n"
 "‏‫%Y ساڵ, %m مانگ, %d ڕۆژ, %H کاژێر, %M خولەک, %S چرکە (کاتی یو تی سی)\n"
 
-#: data/ui/remmina_preferences.glade:356
+#: data/ui/remmina_preferences.glade:353
 msgid ""
 "The folder where connection profiles are saved, it defaults to the "
 "XDG_USER_DATA"
@@ -2845,20 +3084,20 @@ msgstr ""
 "دەچێتە XDG_USER_DATA"
 
 #. The folder where profiles are saved
-#: data/ui/remmina_preferences.glade:361
+#: data/ui/remmina_preferences.glade:358
 msgid "Remmina data folder"
 msgstr "بوخچەی زانیاری ڕێمینا"
 
-#: data/ui/remmina_preferences.glade:388
+#: data/ui/remmina_preferences.glade:385
 msgid "Remember last view mode for each connection"
 msgstr "دۆخی پیشاندانی کۆتاجار لەبیرمەکە بۆ هەر پەیوەندییەک"
 
 #. The star (*) is a reference to privacy consent
-#: data/ui/remmina_preferences.glade:392
+#: data/ui/remmina_preferences.glade:389
 msgid "Remember last view mode"
 msgstr "دۆخی پیشاندانی لیستەیی لەبیرمەکە"
 
-#: data/ui/remmina_preferences.glade:432
+#: data/ui/remmina_preferences.glade:429
 msgid ""
 "Set a custom filename for your Remmina connection profiles, using a "
 "formatting string."
@@ -2866,11 +3105,11 @@ msgstr ""
 "ناوێکی خوازراوی خۆت دابنێ بۆ پرۆفایلی پەیوەندییەکانی ڕێمینا، بە بەکارهێنانی "
 "شێوازی ڕستەیی نووسین."
 
-#: data/ui/remmina_preferences.glade:436
+#: data/ui/remmina_preferences.glade:433
 msgid "Profile filename template"
 msgstr "داڕێژەی ناوی پەڕگەی پرۆفایلی"
 
-#: data/ui/remmina_preferences.glade:448
+#: data/ui/remmina_preferences.glade:445
 msgid ""
 "%G Group name (slash will be converted to - automatically)\n"
 "%P Protocol name\n"
@@ -2879,114 +3118,114 @@ msgid ""
 "\n"
 "\n"
 msgstr ""
+"%G ناوی گروپ (بە شێوەیەکی خۆکار دەگۆڕدرێت بۆ -\n"
+"%P ناوی پرۆتۆکۆل\n"
+"%N ناوی پەیوەندی\n"
+"%h ناوی خانەخوێ/IP\n"
+"\n"
+"\n"
 
-#: data/ui/remmina_preferences.glade:469
+#: data/ui/remmina_preferences.glade:466
 msgid "Only save generated screenshots, don't copy them to clipboard."
 msgstr "تەنها وێنەی ڕوونمای بەرهەمهێنراو پاشەکەوتبکە، لەبەریان مەگرەوە."
 
-#: data/ui/remmina_preferences.glade:474
+#: data/ui/remmina_preferences.glade:471
 msgid "Prevent screenshots from entering clipboard"
 msgstr "ڕێگە مەدە وێنەی شاشە لەبەربگیرێتەوە"
 
-#: data/ui/remmina_preferences.glade:562
+#: data/ui/remmina_preferences.glade:559
 msgid "Options"
 msgstr "هەڵبژاردەکان"
 
-#: data/ui/remmina_preferences.glade:576
+#: data/ui/remmina_preferences.glade:574
 msgid "Always show tabs"
 msgstr "هەموو کات بازدەرەکان پیشان بدە"
 
-#: data/ui/remmina_preferences.glade:593
+#: data/ui/remmina_preferences.glade:591
 msgid "Hide the toolbar shown in the tabbed interface"
 msgstr "توڵامراز بشارەوە کە دەردەکەوێت لە ڕووکارەکە"
 
-#: data/ui/remmina_preferences.glade:614
+#: data/ui/remmina_preferences.glade:612
 msgid "Default view mode"
 msgstr "دۆخی پیشاندانی بنەڕەتی"
 
-#: data/ui/remmina_preferences.glade:628
+#: data/ui/remmina_preferences.glade:626
 msgid "Automatic"
 msgstr "خۆکار"
 
-#: data/ui/remmina_preferences.glade:629
-#, fuzzy
+#: data/ui/remmina_preferences.glade:627
 msgid "Scrolled window"
 msgstr "پەنجەرەی جوڵاو"
 
-#: data/ui/remmina_preferences.glade:631
+#: data/ui/remmina_preferences.glade:629
 msgid "Viewport fullscreen"
 msgstr "پڕاوپڕی ڕوونما چێوەی پیشاندان"
 
-#: data/ui/remmina_preferences.glade:647
+#: data/ui/remmina_preferences.glade:645
 msgid "Tabs"
 msgstr "بازدەرەکان"
 
-#: data/ui/remmina_preferences.glade:662
+#: data/ui/remmina_preferences.glade:660
 msgid "By group"
 msgstr "بە پێی گرووپ"
 
-#: data/ui/remmina_preferences.glade:663
+#: data/ui/remmina_preferences.glade:661
 msgid "By protocols"
 msgstr "بە پرۆتۆکۆڵەوە"
 
-#: data/ui/remmina_preferences.glade:664
+#: data/ui/remmina_preferences.glade:662
 msgid "Per connection"
 msgstr "بۆ هەر پەیوەندییەک"
 
-#: data/ui/remmina_preferences.glade:665
-msgid "None"
-msgstr "هیچ"
-
-#: data/ui/remmina_preferences.glade:676
+#: data/ui/remmina_preferences.glade:674
 msgid "Fullscreen on the same screen as the connection window"
 msgstr "پڕاوپڕی ڕوونما لە هەمان ڕوونمای پەنجەرەی پەیوەندی"
 
-#: data/ui/remmina_preferences.glade:700
-#, fuzzy
+#: data/ui/remmina_preferences.glade:698
 msgid "Peeking"
-msgstr "لارکردنەوە"
+msgstr "تێڕوانین"
 
-#: data/ui/remmina_preferences.glade:701
+#: data/ui/remmina_preferences.glade:699
 msgid "Hidden"
 msgstr "شاراوە"
 
-#: data/ui/remmina_preferences.glade:717
+#: data/ui/remmina_preferences.glade:715
 msgid "Fullscreen toolbar visibility"
 msgstr "دەرکەوتنی توڵامرازی بە پڕی ڕوونما"
 
-#: data/ui/remmina_preferences.glade:727
+#: data/ui/remmina_preferences.glade:725
 msgid "Hide the search bar shown in the main window"
 msgstr "شریتی گەڕان بشارەوە لە پەنجەرەی سەرەکی"
 
-#: data/ui/remmina_preferences.glade:751
+#: data/ui/remmina_preferences.glade:749
 msgid "Appearance"
 msgstr "دەرکەوتن"
 
-#: data/ui/remmina_preferences.glade:766
+#: data/ui/remmina_preferences.glade:765
 msgid "Show new connection on top of the menu"
 msgstr "پەیوەندی نوێ لە بەشی سەرەوەی مینیۆ پیشان بدە"
 
-#: data/ui/remmina_preferences.glade:784
+#: data/ui/remmina_preferences.glade:783
 msgid "Hide total count shown in the group menu"
 msgstr "شاردنەوە ژمارەی گشتی لە کۆمەڵەی مینیۆ"
 
-#: data/ui/remmina_preferences.glade:801
+#: data/ui/remmina_preferences.glade:800
 msgid "No tray icon"
 msgstr "وێنۆچکەی سینی نیە"
 
-#: data/ui/remmina_preferences.glade:819
+#: data/ui/remmina_preferences.glade:818
 msgid "Start in tray upon user login"
 msgstr "لە پەنجەرەیەک بیکەرەوە کاتێک بەکارهێنەر دەچێتە ژوورەوە"
 
-#: data/ui/remmina_preferences.glade:837
+#: data/ui/remmina_preferences.glade:836
 msgid "Dark tray icon"
 msgstr "وێنۆچکەی تاریکی سینی"
 
-#: data/ui/remmina_preferences.glade:841
+#: data/ui/remmina_preferences.glade:840
 msgid "Improves contrast if you have a light panel."
 msgstr "کۆنتراست باشتر دەکات ئەگەر پانێڵێکی ڕوونت هەبێت."
 
-#: data/ui/remmina_preferences.glade:862
+#: data/ui/remmina_preferences.glade:861
 msgid "Applet"
 msgstr "ئەپلێت"
 
@@ -3023,56 +3262,58 @@ msgstr "دۆخی تەنها پیشاندان"
 msgid "Keyboard"
 msgstr "تەختەکلیل"
 
-#: data/ui/remmina_preferences.glade:1253
+#: data/ui/remmina_preferences.glade:1254
 msgid "Local SSH port"
 msgstr "پۆرتی SSH ناوخۆیی"
 
-#: data/ui/remmina_preferences.glade:1277
+#: data/ui/remmina_preferences.glade:1278
 msgid "Parse ~/.ssh/config"
 msgstr "‫Parse ~/.ssh/config"
 
-#: data/ui/remmina_preferences.glade:1301
+#: data/ui/remmina_preferences.glade:1302
 msgid "No logging at all"
 msgstr "نەچووەتە ناو بەهیچ شێوەیەک"
 
-#: data/ui/remmina_preferences.glade:1302
+#: data/ui/remmina_preferences.glade:1303
 msgid "Rare conditions or warnings"
 msgstr "مەرجی دەگمەن یان ئاگادارکردنەوە"
 
-#: data/ui/remmina_preferences.glade:1303
-msgid "API-accessible entrypoints"
-msgstr ""
-
 #: data/ui/remmina_preferences.glade:1304
+msgid "API-accessible entrypoints"
+msgstr "API-چوونەژوورەوەی بەردەستە"
+
+#: data/ui/remmina_preferences.glade:1305
 msgid "Lower level protocol info, packet level"
 msgstr "ئاستی نزمترین زانیاری پرۆتۆکۆڵ، ئاستی پاکێت"
 
-#: data/ui/remmina_preferences.glade:1305
+#: data/ui/remmina_preferences.glade:1306
 msgid "Function entering and leaving"
 msgstr "کردار بۆ چوونەناو و دەرچوون"
 
-#: data/ui/remmina_preferences.glade:1321
+#: data/ui/remmina_preferences.glade:1322
 msgid "SSH log level"
 msgstr "ئاستی تۆمار SSH"
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1388
+#: data/ui/remmina_preferences.glade:1389
 msgid "Seconds of connection idleness before TCP keepalive probes are sent."
 msgstr "کاتی خەوتن بە چرکە پێش ئەوەی پشکنینی کارای TCP دەنێردرێت."
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1404
+#: data/ui/remmina_preferences.glade:1405
 msgid "Seconds between each keepalive probe."
 msgstr "چرکەی نێوان هەر پشکنینێکی زیندوو(کارا)."
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1420
+#: data/ui/remmina_preferences.glade:1421
 msgid ""
 "Number of keepalive probes sent via TCP connection before it is dropped."
 msgstr ""
+"ژمارەی پشکنەری زیندوو کە لە ڕێگەی پەیوەندی TCP ەوە دەنێردرێن پێش ئەوەی "
+"دابەزێتەوە."
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1436
+#: data/ui/remmina_preferences.glade:1437
 msgid ""
 "Amount of milliseconds to attempt acknowledging data before closing the "
 "corresponding TCP connection forcibly."
@@ -3080,80 +3321,100 @@ msgstr ""
 "بڕی ملیچرکەی داواکراو بۆ هەوڵدان بۆ زانینی زانیاری پێش داخستنی پەیوەندی TCP "
 "بەزۆر."
 
-#: data/ui/remmina_preferences.glade:1457
+#: data/ui/remmina_preferences.glade:1458
 msgid "SSH options"
 msgstr "هەڵبژاردەکانی SSH"
 
-#: data/ui/remmina_preferences.glade:1494
-#: data/ui/remmina_preferences.glade:1510
+#: data/ui/remmina_preferences.glade:1496
+#: data/ui/remmina_preferences.glade:1513
+#: data/ui/remmina_preferences.glade:1685
 msgid "Use secret key authentication for some widgets"
-msgstr ""
+msgstr "سەلماندنی کلیلە نهێنیەکان بەکاربهێنە بۆ هەندێک ویجیت"
 
-#: data/ui/remmina_preferences.glade:1516
+#: data/ui/remmina_preferences.glade:1520
 msgid "Use master password"
 msgstr "وشەی تێپەڕبوونی سەرەکی دابنێ"
 
-#: data/ui/remmina_preferences.glade:1529
+#: data/ui/remmina_preferences.glade:1533
 msgid "Automatic lock interval"
 msgstr "ماوەی داخستنی خۆکار"
 
-#: data/ui/remmina_preferences.glade:1540
+#: data/ui/remmina_preferences.glade:1544
 msgid "Master password validity in seconds"
 msgstr "گونجاوی وشەی تێپەڕبوونی سەرەکی بە چرکە"
 
-#: data/ui/remmina_preferences.glade:1560
+#: data/ui/remmina_preferences.glade:1566
 msgid "File encryption"
 msgstr "نهێنیکردنی پەڕگە"
 
-#: data/ui/remmina_preferences.glade:1590
+#: data/ui/remmina_preferences.glade:1598
 msgid "Repeat the password"
 msgstr "وشەی تێپەڕبوون دووبارە بکەرەوە"
 
-#: data/ui/remmina_preferences.glade:1646
+#: data/ui/remmina_preferences.glade:1653
+#, fuzzy
+#| msgid "Accept changed certificate?"
+msgid "Fingerprints and certificates"
+msgstr "بڕوانامەی گۆڕاو پەسەند دەکەیت؟"
+
+#: data/ui/remmina_preferences.glade:1668
+#, fuzzy
+#| msgid "Accept changed certificate?"
+msgid "Automatically accept all fingerprints and certificates"
+msgstr "بڕوانامەی گۆڕاو پەسەند دەکەیت؟"
+
+#: data/ui/remmina_preferences.glade:1674
+#, fuzzy
+#| msgid "Accept changed certificate?"
+msgid "Trust all fingerprints and certificates"
+msgstr "بڕوانامەی گۆڕاو پەسەند دەکەیت؟"
+
+#: data/ui/remmina_preferences.glade:1707
 msgid "Security"
 msgstr "ئاسایش"
 
-#: data/ui/remmina_preferences.glade:1667
+#: data/ui/remmina_preferences.glade:1729
 msgid "Terminal font"
 msgstr "جۆرەپیتی تێڕمیناڵ"
 
-#: data/ui/remmina_preferences.glade:1680
+#: data/ui/remmina_preferences.glade:1742
 msgid "Scrollback lines"
-msgstr ""
+msgstr "هێڵەکانی سکرۆڵباک"
 
-#: data/ui/remmina_preferences.glade:1746
+#: data/ui/remmina_preferences.glade:1809
 msgid "Shortcut for copying to clipboard"
 msgstr "قەدبڕ بۆ لەبەرگرتنەوە"
 
-#: data/ui/remmina_preferences.glade:1759
+#: data/ui/remmina_preferences.glade:1822
 msgid "Shortcut for pasting from clipboard"
 msgstr "قەدبڕ بۆ لکاندن"
 
-#: data/ui/remmina_preferences.glade:1772
+#: data/ui/remmina_preferences.glade:1835
 msgid "Select all shortcuts"
 msgstr "هەموو قەدبڕەکان دیاریبکە"
 
-#: data/ui/remmina_preferences.glade:1786
-#: data/ui/remmina_preferences.glade:1804
-#: data/ui/remmina_preferences.glade:1822
-#: data/ui/remmina_preferences.glade:2249
-#: data/ui/remmina_preferences.glade:2266
+#: data/ui/remmina_preferences.glade:1849
+#: data/ui/remmina_preferences.glade:1867
+#: data/ui/remmina_preferences.glade:1885
+#: data/ui/remmina_preferences.glade:2314
+#: data/ui/remmina_preferences.glade:2332
+#: data/ui/remmina_preferences.glade:2363
 msgid "(Host key+)"
 msgstr "‫(Host key+)"
 
-#: data/ui/remmina_preferences.glade:1839
+#: data/ui/remmina_preferences.glade:1902
 msgid "Use default system font"
 msgstr "جۆرەپیتی بنەڕەتی سیستم بەکاربێنە"
 
-#: data/ui/remmina_preferences.glade:1877
+#: data/ui/remmina_preferences.glade:1940
 msgid "Allow bold text"
 msgstr "ڕێگەدان بە دەقی قەڵەو"
 
-#: data/ui/remmina_preferences.glade:1891
+#: data/ui/remmina_preferences.glade:1954
 msgid "Colour theme"
 msgstr "ڕەنگی ڕووکار"
 
-#: data/ui/remmina_preferences.glade:1902
+#: data/ui/remmina_preferences.glade:1965
 msgid ""
 "Choose a colour scheme file. Usually available in /usr/share/remmina/theme. "
 "https://github.com/mbadolato/iTerm2-Color-Schemes has more details."
@@ -3161,98 +3422,102 @@ msgstr ""
 "پەڕگەی شێوەی ڕەنگ هەڵبژێرە. کە بەردەستن لە /usr/share/remmina/theme. https://"
 "github.com/mbadolato/iTerm2-Color-Schemes ڕووکاری زیاتری تێدایە."
 
-#: data/ui/remmina_preferences.glade:1905
+#: data/ui/remmina_preferences.glade:1968
 msgid "Pick a terminal colouring file"
 msgstr "پەڕگەی ڕەنگکردنی تێرمیناڵ هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:1920
+#: data/ui/remmina_preferences.glade:1983
 msgid "Bright colours"
 msgstr "ڕەنگی ڕوون"
 
-#: data/ui/remmina_preferences.glade:1932
+#: data/ui/remmina_preferences.glade:1995
 msgid "Pick a light black colour"
 msgstr "ڕەنگی کاڵی ڕەش هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:1944
+#: data/ui/remmina_preferences.glade:2007
 msgid "Pick a light red colour"
 msgstr "ڕەنگی سوری کاڵ هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:1956
+#: data/ui/remmina_preferences.glade:2019
 msgid "Pick a bright green colour"
 msgstr "ڕەنگی سەوزی کاڵ هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:1968
+#: data/ui/remmina_preferences.glade:2031
 msgid "Pick a bright yellow colour"
 msgstr "ڕەنگێکی زەردی کاڵ هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:1980
+#: data/ui/remmina_preferences.glade:2043
 msgid "Pick a bright blue colour"
 msgstr "ڕەنگی شینی تۆخ هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:1992
+#: data/ui/remmina_preferences.glade:2055
 msgid "Pick a light magenta colour"
 msgstr "ڕەنگی ئەرخەوانی کاڵ هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2004
+#: data/ui/remmina_preferences.glade:2067
 msgid "Pick a light cyan colour"
 msgstr "ڕەنگی شینی ئاسمانی هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2017
+#: data/ui/remmina_preferences.glade:2080
 msgid "Pick a light white colour"
 msgstr "ڕەنگی کاڵی سپی هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2029
+#: data/ui/remmina_preferences.glade:2092
 msgid "Pick a black colour"
 msgstr "ڕەنگی ڕەش هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2041
+#: data/ui/remmina_preferences.glade:2104
 msgid "Pick a red colour"
 msgstr "ڕەنگی سور هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2053
+#: data/ui/remmina_preferences.glade:2116
 msgid "Pick a green colour"
 msgstr "ڕەنگی سەوز هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2065
+#: data/ui/remmina_preferences.glade:2128
 msgid "Pick a yellow colour"
 msgstr "ڕەنگی زەرد هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2077
+#: data/ui/remmina_preferences.glade:2140
 msgid "Pick a blue colour"
 msgstr "ڕەنگی شین هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2089
+#: data/ui/remmina_preferences.glade:2152
 msgid "Pick a magenta colour"
 msgstr "ڕەنگی سوری ئەرخەوانی هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2101
+#: data/ui/remmina_preferences.glade:2164
 msgid "Pick a cyan colour"
 msgstr "ڕەنگی خۆڵەمێشی هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2114
+#: data/ui/remmina_preferences.glade:2177
 msgid "Pick a white colour"
 msgstr "ڕەنگی سپی هەڵبژێرە"
 
-#: data/ui/remmina_preferences.glade:2127
+#: data/ui/remmina_preferences.glade:2190
 msgid "Normal colours"
 msgstr "ڕەنگی ئاسایی"
 
-#: data/ui/remmina_preferences.glade:2140
-#: data/ui/remmina_preferences.glade:2154
+#: data/ui/remmina_preferences.glade:2203
+#: data/ui/remmina_preferences.glade:2217
 msgid "Cursor colour"
 msgstr "ڕەنگی دیارکەر"
 
-#: data/ui/remmina_preferences.glade:2168
-#: data/ui/remmina_preferences.glade:2182
+#: data/ui/remmina_preferences.glade:2231
+#: data/ui/remmina_preferences.glade:2245
 msgid "Background colour"
 msgstr "ڕەنگی پاشبنەما"
 
-#: data/ui/remmina_preferences.glade:2197
-#: data/ui/remmina_preferences.glade:2211
+#: data/ui/remmina_preferences.glade:2260
+#: data/ui/remmina_preferences.glade:2274
 msgid "Foreground colour"
 msgstr "ڕەنگی پێشەکی"
 
-#: data/ui/remmina_preferences.glade:2285
+#: data/ui/remmina_preferences.glade:2349
+msgid "Search text"
+msgstr "گەڕانی دەق"
+
+#: data/ui/remmina_preferences.glade:2382
 msgid "Terminal"
 msgstr "تێڕمیناڵ"
 
@@ -3280,3 +3545,6 @@ msgstr "کلیلێکی نوێ هەڵبژێرە"
 #: data/ui/remmina_key_chooser.glade:82
 msgid "Please press the new key…"
 msgstr "تکایە پەنجە بنی بە دوگمەیەکی تر…"
+
+#~ msgid "Remote Desktop Preference"
+#~ msgstr "هەڵبژردەکانی بۆدووری ڕوومێز"
