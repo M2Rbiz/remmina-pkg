@@ -1,7 +1,54 @@
 # Changelog
 
+## v1.4.10
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.9...v1.4.10)
+
+* Resolve "RDP Black Screen on connection" [!2123](https://gitlab.com/Remmina/Remmina/merge_requests/2123) *@antenore*
+* Correctly importing and exporting audiocapturemode, closes #2349 [!2124](https://gitlab.com/Remmina/Remmina/merge_requests/2124) *@antenore*
+* [RFC] rdp: add Use base credential for RD gateway authentication [!2125](https://gitlab.com/Remmina/Remmina/merge_requests/2125) *@Fantu*
+* Resolve "Auto accept changes to fingerprints and auto accept certificates" [!2126](https://gitlab.com/Remmina/Remmina/merge_requests/2126) *@antenore*
+* "Fingerprinters" corrected to "fingerprints". [!2127](https://gitlab.com/Remmina/Remmina/merge_requests/2127) *@kingu*
+* Implementing network type option [!2128](https://gitlab.com/Remmina/Remmina/merge_requests/2128) *@antenore*
+* Improving the terminal colour file picker [!2129](https://gitlab.com/Remmina/Remmina/merge_requests/2129) *@antenore*
+* Resolve "[RDP] Since v1.4.9 Audio is no longer working" [!2130](https://gitlab.com/Remmina/Remmina/merge_requests/2130) *@antenore*
+* New connection strings corrected [!2131](https://gitlab.com/Remmina/Remmina/merge_requests/2131) *@kingu*
+* Correct location of Terminal colour scheme setting [!2132](https://gitlab.com/Remmina/Remmina/merge_requests/2132) *@kingu*
+* Set .gitlab-ci.yml to enable or configure SAST [!2134](https://gitlab.com/Remmina/Remmina/merge_requests/2134) *@antenore*
+* Adding missing components in the snap [!2133](https://gitlab.com/Remmina/Remmina/merge_requests/2133) *@antenore*
+* Fixing pulseaudio LD_LIBRARY_PATH and staging PA libraries [!2136](https://gitlab.com/Remmina/Remmina/merge_requests/2136) *@antenore*
+* [RFC][v2] RDP: Add Use base credential for RD gateway authentication [!2135](https://gitlab.com/Remmina/Remmina/merge_requests/2135) *@Fantu*
+* fix incorrect name date log sessions ssh [!2137](https://gitlab.com/Remmina/Remmina/merge_requests/2137) *@acendrou*
+* Resolve "Strange padding in main window" [!2138](https://gitlab.com/Remmina/Remmina/merge_requests/2138) *@antenore*
+* Remove legacy rfx code [!2139](https://gitlab.com/Remmina/Remmina/merge_requests/2139) *@antenore*
+* Resolve "RDP export features does not properly include gatewayhostname" [!2140](https://gitlab.com/Remmina/Remmina/merge_requests/2140) *@antenore*
+* Fixing snap's pulseaudio and wayland issues [!2142](https://gitlab.com/Remmina/Remmina/merge_requests/2142) *@antenore*
+* RDP log filters keep previous value across connections [!2143](https://gitlab.com/Remmina/Remmina/merge_requests/2143) *@antenore*
+* [RFC][v2] RDP: Add Use base credential for RD gateway authentication [!2135](https://gitlab.com/Remmina/Remmina/merge_requests/2135) *@Fantu*
+* Emit warning if libkf5wallet missing but required by -DWITH_KF5WALLET=ON [!2144](https://gitlab.com/Remmina/Remmina/merge_requests/2144) *@giox069*
+* Do not activate performance optimisations based on network type unless explicitly requested. [!2145](https://gitlab.com/Remmina/Remmina/merge_requests/2145) *@antenore*
+
+## v1.4.9
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.8...v1.4.9)
+
+* Snap Pulseaudio integration [!2106](https://gitlab.com/Remmina/Remmina/merge_requests/2106) *@antenore*
+* Updated color schemes from iTerm2-Color-Schemes [!2107](https://gitlab.com/Remmina/Remmina/merge_requests/2107) *@antenore*
+* Use previously defined DATADIR to install Kiosk files [!2108](https://gitlab.com/Remmina/Remmina/merge_requests/2108) *@kapsh*
+* Snap language simplified [!2110](https://gitlab.com/Remmina/Remmina/merge_requests/2110) *@kingu*
+* RDP and VNC: Fix smooth scrolling when abs(delta) < 1.0, see issue #2273 [!2111](https://gitlab.com/Remmina/Remmina/merge_requests/2111) *@giox069*
+* Alexander Kapshuna added to remmina_about.glade [!2109](https://gitlab.com/Remmina/Remmina/merge_requests/2109) *@kingu*
+* remmina_main_quickconnect: recognize ip when textbox has ip:port in it, and strip whitespaces [!2112](https://gitlab.com/Remmina/Remmina/merge_requests/2112) *@bwack*
+* Implementing text search in the SSH plugin [!2113](https://gitlab.com/Remmina/Remmina/merge_requests/2113) *@antenore*
+* Spelling: Plugin manager language reworked [!2114](https://gitlab.com/Remmina/Remmina/merge_requests/2114) *@kingu*
+* Save screenshot_name and use correct seconds format [!2115](https://gitlab.com/Remmina/Remmina/merge_requests/2115) *@antenore*
+* Resolve "Autostart checkbox setting not saved" [!2116](https://gitlab.com/Remmina/Remmina/merge_requests/2116) *@antenore*
+* rdp: document freerdp Performance Flags setted by quality setting [!2117](https://gitlab.com/Remmina/Remmina/merge_requests/2117) *@Fantu*
+* Resolve "Terminal general preferences are not saved" [!2119](https://gitlab.com/Remmina/Remmina/merge_requests/2119) *@antenore*
+* Resolve "Type in FindFREERDP3.cmake" [!2120](https://gitlab.com/Remmina/Remmina/merge_requests/2120) *@antenore*
+* rdp: add freerdp log filters setting [!2118](https://gitlab.com/Remmina/Remmina/merge_requests/2118) *@Fantu*
+* Resolve "Extra underline character in "_Preferences" tooptip text" [!2121](https://gitlab.com/Remmina/Remmina/merge_requests/2121) *@antenore*
+
 ## v1.4.8
-[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.8...HEAD)
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.7...v1.4.8)
 
 * Adding timout option for RDP connections. [!2091](https://gitlab.com/Remmina/Remmina/merge_requests/2091) *@antenore*
 * Avoid quickconnect to empty hostnames. Fixes #2240. [!2092](https://gitlab.com/Remmina/Remmina/merge_requests/2092) *@giox069*
