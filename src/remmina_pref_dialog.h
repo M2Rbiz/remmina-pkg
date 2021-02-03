@@ -1,7 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
- * Copyright (C) 2017-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2017-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,9 +117,11 @@ typedef struct _RemminaPrefDialog {
 	GtkButton *		button_keyboard_decrease_font;
 	GtkButton *		button_keyboard_search_text;
 	GtkLabel *		label_terminal_cursor_color;
+	GtkLabel *		label_terminal_bold_color;
 	GtkLabel *		label_terminal_normal_colors;
 	GtkLabel *		label_terminal_bright_colors;
 	GtkColorButton *	colorbutton_cursor;
+	GtkColorButton *	colorbutton_bold;
 	GtkColorButton *	colorbutton_color0;
 	GtkColorButton *	colorbutton_color1;
 	GtkColorButton *	colorbutton_color2;

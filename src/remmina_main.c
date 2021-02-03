@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,6 +114,7 @@ static GActionEntry main_actions[] = {
 	{ "import",	 remmina_main_on_action_tools_import,		   NULL, NULL, NULL },
 	{ "expand",	 remmina_main_on_action_expand,			   NULL, NULL, NULL },
 	{ "collapse",	 remmina_main_on_action_collapse,		   NULL, NULL, NULL },
+	{ "search",	 remmina_main_on_action_search_toggle,		   NULL, NULL, NULL },
 };
 
 static GtkTargetEntry remmina_drop_types[] =
@@ -752,12 +753,15 @@ void remmina_main_on_action_connection_new(GSimpleAction *action, GVariant *para
 	remmina_main_load_files();
 }
 
-void remmina_main_on_search_toggle()
+static gboolean remmina_main_search_key_event (GtkWidget *search_entry, GdkEventKey *event, gpointer user_data)
 {
-	if (gtk_toggle_button_get_active(remminamain->search_toggle))
-		gtk_search_bar_set_search_mode(remminamain->search_bar, TRUE);
-	else
+	TRACE_CALL(__func__);
+	if (event->keyval == GDK_KEY_Escape) {
+		gtk_entry_set_text(remminamain->entry_quick_connect_server, "");
 		gtk_search_bar_set_search_mode(remminamain->search_bar, FALSE);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 void remmina_main_on_view_toggle()
@@ -835,7 +839,7 @@ void remmina_main_on_action_connection_delete(GSimpleAction *action, GVariant *p
 		return;
 
 	dialog = gtk_message_dialog_new(remminamain->window, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
-					_("Are you sure you want to delete \"%s\"?"), remminamain->priv->selected_name);
+					_("Are you sure you want to delete “%s”?"), remminamain->priv->selected_name);
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_YES) {
 		delfilename = g_strdup(remminamain->priv->selected_filename);
 		remmina_file_delete(delfilename);
@@ -845,6 +849,13 @@ void remmina_main_on_action_connection_delete(GSimpleAction *action, GVariant *p
 	}
 	gtk_widget_destroy(dialog);
 	remmina_main_clear_selection_data();
+}
+
+void remmina_main_on_accel_application_preferences(GSimpleAction *action, GVariant *param, gpointer data)
+{
+	TRACE_CALL(__func__);
+	GVariant *v = g_variant_new ("i", 0);
+	remmina_main_on_action_application_preferences(NULL, v, NULL);
 }
 
 void remmina_main_on_action_application_preferences(GSimpleAction *action, GVariant *param, gpointer data)
@@ -1133,6 +1144,17 @@ void remmina_main_on_action_collapse(GSimpleAction *action, GVariant *param, gpo
 	gtk_tree_view_collapse_all(remminamain->tree_files_list);
 }
 
+void remmina_main_on_action_search_toggle(GSimpleAction *action, GVariant *param, gpointer data)
+{
+	TRACE_CALL(__func__);
+	if (gtk_toggle_button_get_active(remminamain->search_toggle)) {
+		gtk_search_bar_set_search_mode(remminamain->search_bar, TRUE);
+		gtk_widget_grab_focus (GTK_WIDGET(remminamain->entry_quick_connect_server));
+	} else
+		gtk_search_bar_set_search_mode(remminamain->search_bar, FALSE);
+}
+
+
 void remmina_main_on_action_expand(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
@@ -1373,6 +1395,8 @@ GtkWidget *remmina_main_new(void)
 	remminamain->tree_files_list = GTK_TREE_VIEW(RM_GET_OBJECT("tree_files_list"));
 	remminamain->column_files_list_group = GTK_TREE_VIEW_COLUMN(RM_GET_OBJECT("column_files_list_group"));
 	remminamain->statusbar_main = GTK_STATUSBAR(RM_GET_OBJECT("statusbar_main"));
+	/* signals */
+	g_signal_connect (remminamain->entry_quick_connect_server, "key-release-event", G_CALLBACK (remmina_main_search_key_event), NULL);
 	/* Non widget objects */
 	actions = g_simple_action_group_new();
 	g_action_map_add_action_entries(G_ACTION_MAP(actions), app_actions, G_N_ELEMENTS(app_actions), remminamain->window);
@@ -1386,7 +1410,9 @@ GtkWidget *remmina_main_new(void)
 	gtk_accel_group_connect(accel_group, GDK_KEY_Q, GDK_CONTROL_MASK, 0,
 				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_action_application_quit), NULL, NULL));
 	gtk_accel_group_connect(accel_group, GDK_KEY_P, GDK_CONTROL_MASK, 0,
-				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_action_application_preferences), NULL, NULL));
+				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_accel_application_preferences), NULL, NULL));
+	gtk_accel_group_connect(accel_group, GDK_KEY_F, GDK_CONTROL_MASK, 0,
+				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_action_search_toggle), NULL, NULL));
 
 	/* Connect signals */
 	gtk_builder_connect_signals(remminamain->builder, NULL);

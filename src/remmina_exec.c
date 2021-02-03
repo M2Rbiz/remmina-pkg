@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,6 +235,7 @@ static void remmina_exec_connect(const gchar *data)
 	gchar **querystringpartkv;
 	gchar *value;
 	gchar *temp;
+	GError *error = NULL;
 
 	protocol = NULL;
 	if (strncmp("rdp://", data, 6) == 0 || strncmp("RDP://", data, 6) == 0)
@@ -245,6 +246,16 @@ static void remmina_exec_connect(const gchar *data)
 		protocol = "SSH";
 	else if (strncmp("spice://", data, 8) == 0 || strncmp("SPICE://", data, 8) == 0)
 		protocol = "SPICE";
+
+	if (strncmp("file://", data, 6) == 0) {
+		gchar *filename = g_filename_from_uri (data, NULL, &error);
+		if (filename != NULL) {
+			rcw_open_from_filename(filename);
+		} else
+			REMMINA_DEBUG ("Opening URI %s failed with error %s", data, error->message);
+		g_error_free(error);
+		return;
+	}
 
 	if (protocol == NULL) {
 		rcw_open_from_filename(data);

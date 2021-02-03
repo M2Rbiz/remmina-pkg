@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +53,10 @@
 #include "remmina_widget_pool.h"
 #include "rcw.h"
 #include "remmina_plugin_manager.h"
+#include "remmina_plugin_native.h"
+#ifdef WITH_PYTHONLIBS
+#include "remmina_plugin_python.h"
+#endif
 #include "remmina_public.h"
 #include "remmina_masterthread_exec.h"
 #include "remmina/remmina_trace_calls.h"
@@ -166,8 +170,6 @@ gboolean remmina_gtksocket_available()
 	return available;
 }
 
-
-
 RemminaPluginService remmina_plugin_manager_service =
 {
 	remmina_plugin_manager_register_plugin,
@@ -191,6 +193,7 @@ RemminaPluginService remmina_plugin_manager_service =
 	remmina_protocol_widget_signal_connection_closed,
 	remmina_protocol_widget_signal_connection_opened,
 	remmina_protocol_widget_update_align,
+	remmina_protocol_widget_lock_dynres,
 	remmina_protocol_widget_unlock_dynres,
 	remmina_protocol_widget_desktop_resize,
 	remmina_protocol_widget_panel_auth,
@@ -247,34 +250,30 @@ RemminaPluginService remmina_plugin_manager_service =
 	remmina_gtksocket_available,
 	remmina_protocol_widget_get_profile_remote_width,
 	remmina_protocol_widget_get_profile_remote_height
-
 };
+
+const char *get_filename_ext(const char *filename) {
+	const char* last = strrchr(filename, '/');
+    const char *dot = strrchr(last, '.');
+    if(!dot || dot == filename) return "";
+    return dot + 1;
+}
 
 static void remmina_plugin_manager_load_plugin(const gchar *name)
 {
-	TRACE_CALL(__func__);
-	GModule *module;
-	RemminaPluginEntryFunc entry;
+	const char* ext = get_filename_ext(name);
 
-	module = g_module_open(name, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL);
-
-	if (!module) {
-		g_print("Could not load plugin: %s.\n", name);
-		g_print("Error: %s\n", g_module_error());
-		return;
+	if (g_str_equal(G_MODULE_SUFFIX, ext)) {
+		remmina_plugin_native_load(&remmina_plugin_manager_service, name);
+	} else if (g_str_equal("py", ext)) {
+#ifdef WITH_PYTHONLIBS
+		remmina_plugin_python_load(&remmina_plugin_manager_service, name);
+#else
+		REMMINA_DEBUG("Python support not compiled, cannot load Python plugins");
+#endif
+	} else {
+		g_print("%s: Skip unsupported file type '%s'\n", name, ext);
 	}
-
-	if (!g_module_symbol(module, "remmina_plugin_entry", (gpointer*)&entry)) {
-		g_print("Could not locate plugin entry: %s.\n", name);
-		return;
-	}
-
-	if (!entry(&remmina_plugin_manager_service)) {
-		g_print("Plugin entry returned false: %s.\n", name);
-		return;
-	}
-
-	/* We don’t close the module because we will need it throughout the process lifetime */
 }
 
 static gint compare_secret_plugin_init_order(gconstpointer a, gconstpointer b)
@@ -291,7 +290,7 @@ static gint compare_secret_plugin_init_order(gconstpointer a, gconstpointer b)
 	return 0;
 }
 
-void remmina_plugin_manager_init(void)
+void remmina_plugin_manager_init()
 {
 	TRACE_CALL(__func__);
 	GDir *dir;
@@ -304,20 +303,25 @@ void remmina_plugin_manager_init(void)
 	GSList *sple;
 
 	remmina_plugin_table = g_ptr_array_new();
+#ifdef WITH_PYTHONLIBS
+	remmina_plugin_python_init();
+#endif
 
 	if (!g_module_supported()) {
 		g_print("Dynamic loading of plugins is not supported on this platform!\n");
 		return;
 	}
 
+	g_print("Load modules from %s\n", REMMINA_RUNTIME_PLUGINDIR);
 	dir = g_dir_open(REMMINA_RUNTIME_PLUGINDIR, 0, NULL);
+
 	if (dir == NULL)
 		return;
 	while ((name = g_dir_read_name(dir)) != NULL) {
 		if ((ptr = strrchr(name, '.')) == NULL)
 			continue;
 		ptr++;
-		if (g_strcmp0(ptr, G_MODULE_SUFFIX) != 0)
+		if (!remmina_plugin_manager_loader_supported(ptr))
 			continue;
 		fullpath = g_strdup_printf(REMMINA_RUNTIME_PLUGINDIR "/%s", name);
 		remmina_plugin_manager_load_plugin(fullpath);
@@ -353,6 +357,11 @@ void remmina_plugin_manager_init(void)
 	}
 
 	g_slist_free(secret_plugins);
+}
+
+gboolean remmina_plugin_manager_loader_supported(const char *filetype) {
+	TRACE_CALL(__func__);
+	return g_str_equal("py", filetype) || g_str_equal(G_MODULE_SUFFIX, filetype);
 }
 
 RemminaPlugin* remmina_plugin_manager_get_plugin(RemminaPluginType type, const gchar *name)

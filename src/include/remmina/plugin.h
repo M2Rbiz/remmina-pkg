@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 
 #pragma once
 
+#include <stdarg.h>
 #include <remmina/types.h>
 #include "remmina/remmina_trace_calls.h"
 
@@ -58,6 +59,7 @@ typedef struct _RemminaPlugin {
 	const gchar *		version;
 } RemminaPlugin;
 
+typedef struct _RemminaProtocolPlugin _RemminaProtocolPlugin;
 typedef struct _RemminaProtocolPlugin {
 	RemminaPluginType		type;
 	const gchar *			name;
@@ -167,6 +169,7 @@ typedef struct _RemminaPluginService {
 	void (*protocol_plugin_signal_connection_closed)(RemminaProtocolWidget *gp);
 	void (*protocol_plugin_signal_connection_opened)(RemminaProtocolWidget *gp);
 	void (*protocol_plugin_update_align)(RemminaProtocolWidget *gp);
+	void (*protocol_plugin_lock_dynres)(RemminaProtocolWidget *gp);
 	void (*protocol_plugin_unlock_dynres)(RemminaProtocolWidget *gp);
 	void (*protocol_plugin_desktop_resize)(RemminaProtocolWidget *gp);
 	gint (*protocol_plugin_init_auth)(RemminaProtocolWidget *gp, RemminaMessagePanelFlags pflags, const gchar *title, const gchar *default_username, const gchar *default_password, const gchar *default_domain, const gchar *password_prompt);

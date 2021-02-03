@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009 - Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,10 +77,14 @@ void rcw_open_from_file(RemminaFile *remminafile);
 gboolean rcw_delete(RemminaConnectionWindow *cnnwin);
 void rcw_set_delete_confirm_mode(RemminaConnectionWindow *cnnwin, RemminaConnectionWindowOnDeleteConfirmMode mode);
 GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnect_cb, gpointer data, guint *handler);
+GtkWindow* rcw_get_gtkwindow(RemminaConnectionObject *cnnobj);
+GtkWidget* rcw_get_gtkviewport(RemminaConnectionObject *cnnobj);
 
 void rco_destroy_message_panel(RemminaConnectionObject *cnnobj, RemminaMessagePanel *mp);
 void rco_show_message_panel(RemminaConnectionObject *cnnobj, RemminaMessagePanel *mp);
 void rco_get_monitor_geometry(RemminaConnectionObject *cnnobj, GdkRectangle *sz);
+
+
 
 #define MESSAGE_PANEL_SPINNER 0x00000001
 #define MESSAGE_PANEL_OKBUTTON 0x00000002

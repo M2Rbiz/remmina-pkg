@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,11 +53,13 @@ G_BEGIN_DECLS
 #define REMMINA_PROTOCOL_WIDGET_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS((obj), REMMINA_TYPE_PROTOCOL_WIDGET, RemminaProtocolWidgetClass))
 
 typedef struct _RemminaProtocolWidgetPriv RemminaProtocolWidgetPriv;
+typedef struct _RemminaProtocolPlugin RemminaProtocolPlugin;
 
 struct _RemminaProtocolWidget {
 	GtkEventBox			event_box;
 	RemminaConnectionObject *	cnnobj;
 	RemminaProtocolWidgetPriv *	priv;
+	RemminaProtocolPlugin * plugin;
 };
 
 struct _RemminaProtocolWidgetClass {
@@ -67,11 +69,15 @@ struct _RemminaProtocolWidgetClass {
 	void			(*disconnect)(RemminaProtocolWidget *gp);
 	void			(*desktop_resize)(RemminaProtocolWidget *gp);
 	void			(*update_align)(RemminaProtocolWidget *gp);
+	void			(*lock_dynres)(RemminaProtocolWidget *gp);
 	void			(*unlock_dynres)(RemminaProtocolWidget *gp);
 };
 
 GType remmina_protocol_widget_get_type(void)
 G_GNUC_CONST;
+
+GtkWindow* remmina_protocol_widget_get_gtkwindow(RemminaProtocolWidget *gp);
+GtkWidget* remmina_protocol_widget_gtkviewport(RemminaProtocolWidget *gp);
 
 GtkWidget *remmina_protocol_widget_new(void);
 void remmina_protocol_widget_setup(RemminaProtocolWidget *gp, RemminaFile *remminafile, RemminaConnectionObject *cnnobj);
@@ -98,6 +104,7 @@ void remmina_protocol_widget_close_connection(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_signal_connection_closed(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_signal_connection_opened(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_update_align(RemminaProtocolWidget *gp);
+void remmina_protocol_widget_lock_dynres(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_unlock_dynres(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_desktop_resize(RemminaProtocolWidget *gp);
 void remmina_protocol_widget_grab_focus(RemminaProtocolWidget *gp);

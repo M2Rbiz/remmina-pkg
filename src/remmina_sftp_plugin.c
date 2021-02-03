@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -343,7 +343,7 @@ static const RemminaProtocolSetting remmina_sftp_basic_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	      N_("Username"),			    FALSE, NULL,	     NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	      N_("Password"),			    FALSE, NULL,	     NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "ssh_auth",	      N_("Authentication type"),	    FALSE, ssh_auth,	     NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	  "ssh_privatekey",   N_("Identity file"),		    FALSE, NULL,	     NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	  "ssh_privatekey",   N_("SSH identity file"),		    FALSE, NULL,	     NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "ssh_passphrase",   N_("Password to unlock private key"), FALSE, NULL,	     NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "ssh_proxycommand", N_("SSH Proxy Command"),		    FALSE, NULL,	     NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		      NULL,				    FALSE, NULL,	     NULL }

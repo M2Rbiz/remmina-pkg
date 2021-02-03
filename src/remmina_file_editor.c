@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,20 +57,6 @@
 
 G_DEFINE_TYPE(RemminaFileEditor, remmina_file_editor, GTK_TYPE_DIALOG)
 
-#ifdef HAVE_LIBSSH
-static const gchar *charset_list = "ASCII,BIG5,"
-				   "CP437,CP720,CP737,CP775,CP850,CP852,CP855,"
-				   "CP857,CP858,CP862,CP866,CP874,CP1125,CP1250,"
-				   "CP1251,CP1252,CP1253,CP1254,CP1255,CP1256,"
-				   "CP1257,CP1258,"
-				   "EUC-JP,EUC-KR,GBK,"
-				   "ISO-8859-1,ISO-8859-2,ISO-8859-3,ISO-8859-4,"
-				   "ISO-8859-5,ISO-8859-6,ISO-8859-7,ISO-8859-8,"
-				   "ISO-8859-9,ISO-8859-10,ISO-8859-11,ISO-8859-12,"
-				   "ISO-8859-13,ISO-8859-14,ISO-8859-15,ISO-8859-16,"
-				   "KOI8-R,SJIS,UTF-8";
-#endif
-
 static const gchar *server_tips = N_("<tt><big>"
 				     "Supported formats\n"
 				     "• server\n"
@@ -87,7 +73,7 @@ static const gchar *cmd_tips = N_("<tt><big>"
 				  "• %U is substituted with the SSH username\n"
 				  "• %p is substituted with Remmina profile name\n"
 				  "• %g is substituted with Remmina profile group name\n"
-				  "• %d is substituted with local datetime in iso8601 format\n"
+				  "• %d is substituted with local date and time in ISO 8601 format\n"
 				  "Do not run in background if you want the command to be executed before connecting.\n"
 				  "</big></tt>");
 
@@ -898,10 +884,10 @@ static void remmina_file_editor_create_behavior_tab(RemminaFileEditor *gfe)
 	gtk_widget_set_tooltip_markup(widget, _(cmd_tips));
 
 	/* Startup frame */
-	remmina_public_create_group(GTK_GRID(grid), _("Startup"), 4, 1, 2);
+	remmina_public_create_group(GTK_GRID(grid), _("Start-up"), 4, 1, 2);
 
 	/* Autostart profile option */
-	priv->behavior_autostart_check = remmina_file_editor_create_check(gfe, grid, 6, 1, _("Autostart this profile"),
+	priv->behavior_autostart_check = remmina_file_editor_create_check(gfe, grid, 6, 1, _("Auto-start this profile"),
 							remmina_file_get_int(priv->remmina_file, "enable-autostart", FALSE));
 }
 
@@ -984,7 +970,7 @@ static void remmina_file_editor_create_ssh_tunnel_tab(RemminaFileEditor *gfe, Re
 	p = remmina_public_combo_get_active_text(GTK_COMBO_BOX(priv->protocol_combo));
 	if (ssh_setting == REMMINA_PROTOCOL_SSH_SETTING_SFTP) {
 		widget = remmina_file_editor_create_text(gfe, grid, row + 8, 1,
-							 _("Startup path"), NULL);
+							 _("Start-up path"), NULL);
 		cs = remmina_file_get_string(priv->remmina_file, "execpath");
 		gtk_entry_set_text(GTK_ENTRY(widget), cs ? cs : "");
 		g_hash_table_insert(priv->setting_widgets, "execpath", widget);
@@ -1668,7 +1654,7 @@ GtkWidget *remmina_file_editor_new_copy(const gchar *filename)
 		return remmina_file_editor_new_from_file(remminafile);
 	} else {
 		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-						_("Could not find the file \"%s\"."), filename);
+						_("Could not find the file “%s”."), filename);
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);
 		return NULL;
@@ -1686,7 +1672,7 @@ GtkWidget *remmina_file_editor_new_from_filename(const gchar *filename)
 		return remmina_file_editor_new_from_file(remminafile);
 	} else {
 		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-						_("Could not find the file \"%s\"."), filename);
+						_("Could not find the file “%s”."), filename);
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);
 		return NULL;

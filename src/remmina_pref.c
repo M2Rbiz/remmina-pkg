@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,17 +73,12 @@ static void remmina_pref_gen_secret(void)
 	TRACE_CALL(__func__);
 	guchar s[32];
 	gint i;
-	GDateTime *gtime;
 	GKeyFile *gkeyfile;
 	g_autofree gchar *content = NULL;
 	gsize length;
 
-	gtime = g_date_time_new_now_utc();
-	srand(g_date_time_to_unix(gtime));
-	g_date_time_unref(gtime);
-
 	for (i = 0; i < 32; i++)
-		s[i] = (guchar)(rand() % 256);
+		s[i] = (guchar)(randombytes_uniform(257));
 	remmina_pref.secret = g_base64_encode(s, 32);
 
 	gkeyfile = g_key_file_new();
@@ -186,6 +181,7 @@ void remmina_pref_file_load_colors(GKeyFile *gkeyfile, RemminaColorPref *color_p
 	} colors[] = {
 		{ "background", &color_pref->background, "#d5ccba" },
 		{ "cursor",	&color_pref->cursor,	 "#45373c" },
+		{ "bold",	&color_pref->bold,	 "#45373c" },
 		{ "foreground", &color_pref->foreground, "#45373c" },
 		{ "color0",	&color_pref->color0,	 "#20111b" },
 		{ "color1",	&color_pref->color1,	 "#be100e" },
@@ -652,7 +648,7 @@ void remmina_pref_init(void)
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "vte_shortcutkey_search_text", NULL))
 		remmina_pref.vte_shortcutkey_search_text = g_key_file_get_integer(gkeyfile, "remmina_pref", "vte_shortcutkey_search_text",
-										    NULL);
+										  NULL);
 	else
 		remmina_pref.vte_shortcutkey_search_text = GDK_KEY_g;
 
@@ -823,6 +819,7 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "vte_lines", remmina_pref.vte_lines);
 	g_key_file_set_string(gkeyfile, "ssh_colors", "background", remmina_pref.color_pref.background ? remmina_pref.color_pref.background : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "cursor", remmina_pref.color_pref.cursor ? remmina_pref.color_pref.cursor : "");
+	g_key_file_set_string(gkeyfile, "ssh_colors", "bold", remmina_pref.color_pref.bold ? remmina_pref.color_pref.bold : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "foreground", remmina_pref.color_pref.foreground ? remmina_pref.color_pref.foreground : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color0", remmina_pref.color_pref.color0 ? remmina_pref.color_pref.color0 : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color1", remmina_pref.color_pref.color1 ? remmina_pref.color_pref.color1 : "");

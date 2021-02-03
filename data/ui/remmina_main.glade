@@ -2,7 +2,7 @@
 <!-- Generated with glade 3.36.0 
 
 Remmina - The GTK+ Remmina Remote Desktop Client
-Copyright (C) Antenore Gatta & Giovanni Panozzo 2014-2020
+Copyright © 2014-2021 Antenore Gatta, Giovanni Panozzo
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Remmina -->
   <!-- interface-description The GTK+ Remmina Remote Desktop Client -->
-  <!-- interface-copyright Antenore Gatta & Giovanni Panozzo 2014-2020 -->
+  <!-- interface-copyright Antenore Gatta, Giovanni Panozzo 2014-2020 -->
   <object class="GtkEntryCompletion" id="entrycompletion">
     <property name="inline_completion">True</property>
     <property name="inline_selection">True</property>
@@ -530,7 +530,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="padding">0</property>
             <property name="position">2</property>
           </packing>
         </child>
@@ -588,6 +587,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <property name="AtkObject::accessible-name" translatable="yes">Actions</property>
               </object>
             </child>
+            <accelerator key="F10" signal="activate"/>
           </object>
           <packing>
             <property name="pack_type">end</property>
@@ -600,9 +600,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
             <property name="tooltip_text" translatable="yes">Show search bar</property>
+            <property name="action_name">main.search</property>
             <property name="image">find_toggle_image</property>
             <property name="active">True</property>
-            <signal name="toggled" handler="remmina_main_on_search_toggle" swapped="no"/>
           </object>
           <packing>
             <property name="position">1</property>
