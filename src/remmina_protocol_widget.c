@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,6 +114,7 @@ enum {
 	DISCONNECT_SIGNAL,
 	DESKTOP_RESIZE_SIGNAL,
 	UPDATE_ALIGN_SIGNAL,
+	LOCK_DYNRES_SIGNAL,
 	UNLOCK_DYNRES_SIGNAL,
 	LAST_SIGNAL
 };
@@ -141,6 +142,9 @@ static void remmina_protocol_widget_class_init(RemminaProtocolWidgetClass *klass
 	remmina_protocol_widget_signals[UPDATE_ALIGN_SIGNAL] = g_signal_new("update-align", G_TYPE_FROM_CLASS(klass),
 									    G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION, G_STRUCT_OFFSET(RemminaProtocolWidgetClass, update_align), NULL, NULL,
 									    g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
+	remmina_protocol_widget_signals[LOCK_DYNRES_SIGNAL] = g_signal_new("lock-dynres", G_TYPE_FROM_CLASS(klass),
+									     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION, G_STRUCT_OFFSET(RemminaProtocolWidgetClass, lock_dynres), NULL, NULL,
+									     g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
 	remmina_protocol_widget_signals[UNLOCK_DYNRES_SIGNAL] = g_signal_new("unlock-dynres", G_TYPE_FROM_CLASS(klass),
 									     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION, G_STRUCT_OFFSET(RemminaProtocolWidgetClass, unlock_dynres), NULL, NULL,
 									     g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
@@ -157,7 +161,7 @@ static void remmina_protocol_widget_close_all_tunnels(RemminaProtocolWidget *gp)
 #ifdef HAVE_LIBSSH
 			remmina_ssh_tunnel_free((RemminaSSHTunnel *)gp->priv->ssh_tunnels->pdata[i]);
 #else
-			g_debug ("LibSSH support turned off, no need to free SSH tunnel data");
+			REMMINA_DEBUG ("LibSSH support turned off, no need to free SSH tunnel data");
 #endif
 		}
 	}
@@ -313,7 +317,7 @@ void remmina_protocol_widget_open_connection(RemminaProtocolWidget *gp)
 	rco_destroy_message_panel(gp->cnnobj, mp);
 
 	name = remmina_file_get_string(gp->priv->remmina_file, "name");
-	s = g_strdup_printf(_("Connecting to \"%s\"…"), (name ? name : "*"));
+	s = g_strdup_printf(_("Connecting to “%s”…"), (name ? name : "*"));
 
 	mp = remmina_message_panel_new();
 	remmina_message_panel_setup_progress(mp, s, cancel_open_connection_cb, gp);
@@ -398,12 +402,27 @@ void remmina_protocol_widget_update_align(RemminaProtocolWidget *gp)
 	g_idle_add(update_align, (gpointer)gp);
 }
 
+static gboolean lock_dynres(gpointer data)
+{
+	TRACE_CALL(__func__);
+	RemminaProtocolWidget *gp = (RemminaProtocolWidget *)data;
+	g_signal_emit_by_name(G_OBJECT(gp), "lock-dynres");
+	return G_SOURCE_REMOVE;
+}
+
 static gboolean unlock_dynres(gpointer data)
 {
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = (RemminaProtocolWidget *)data;
 	g_signal_emit_by_name(G_OBJECT(gp), "unlock-dynres");
 	return G_SOURCE_REMOVE;
+}
+
+void remmina_protocol_widget_lock_dynres(RemminaProtocolWidget *gp)
+{
+	/* Called by the plugin to do updates on rcw */
+	TRACE_CALL(__func__);
+	g_idle_add(lock_dynres, (gpointer)gp);
 }
 
 void remmina_protocol_widget_unlock_dynres(RemminaProtocolWidget *gp)
@@ -743,14 +762,14 @@ static RemminaSSHTunnel* remmina_protocol_widget_init_tunnel(RemminaProtocolWidg
 
 	tunnel = remmina_ssh_tunnel_new_from_file(gp->priv->remmina_file);
 
-	g_debug ("[RPW] %s creating SSH tunnel to \"%s\" via SSH…", __func__, REMMINA_SSH(tunnel)->server);
-	msg = g_strdup_printf(_("Connecting to \"%s\" via SSH…"), REMMINA_SSH(tunnel)->server);
+	REMMINA_DEBUG ("Creating SSH tunnel to “%s” via SSH…", REMMINA_SSH(tunnel)->server);
+	msg = g_strdup_printf(_("Connecting to “%s” via SSH…"), REMMINA_SSH(tunnel)->server);
 
 	mp = remmina_protocol_widget_mpprogress(gp->cnnobj, msg, cancel_init_tunnel_cb, NULL);
 	g_free(msg);
 
 	if (!remmina_ssh_init_session(REMMINA_SSH(tunnel))) {
-		REMMINA_DEBUG ("%s Cannot init SSH session with tunnel struct", __func__);
+		REMMINA_DEBUG ("Cannot init SSH session with tunnel struct");
 		remmina_protocol_widget_set_error(gp, REMMINA_SSH(tunnel)->error);
 		remmina_ssh_tunnel_free(tunnel);
 		return NULL;
@@ -803,7 +822,7 @@ static gboolean remmina_protocol_widget_tunnel_destroy(RemminaSSHTunnel *tunnel,
 
 	if (found) {
 #ifdef HAVE_LIBSSH
-		g_debug("[RPW] tunnel with idx %u has been disconnected", idx);
+		REMMINA_DEBUG("[Tunnel with idx %u has been disconnected", idx);
 		remmina_ssh_tunnel_free(tunnel);
 #endif
 		g_ptr_array_remove(gp->priv->ssh_tunnels, tunnel);
@@ -820,12 +839,10 @@ gchar *remmina_protocol_widget_start_direct_tunnel(RemminaProtocolWidget *gp, gi
 	TRACE_CALL(__func__);
 	const gchar *server;
 	const gchar *ssh_tunnel_server;
-	//const gchar *proto;
 	gchar *ssh_tunnel_host, *srv_host, *dest;
 	gint srv_port, ssh_tunnel_port;
 
-	g_debug ("SSH tunnel initialization…");
-	//proto = remmina_file_get_string(gp->priv->remmina_file, "protocol");
+	REMMINA_DEBUG ("SSH tunnel initialization…");
 
 	server = remmina_file_get_string(gp->priv->remmina_file, "server");
 	ssh_tunnel_server = remmina_file_get_string(gp->priv->remmina_file, "ssh_tunnel_server");
@@ -833,9 +850,11 @@ gchar *remmina_protocol_widget_start_direct_tunnel(RemminaProtocolWidget *gp, gi
 	if (!server)
 		return g_strdup("");
 
+	REMMINA_DEBUG ("Calling remmina_public_get_server_port");
 	remmina_public_get_server_port(server, default_port, &srv_host, &srv_port);
+	REMMINA_DEBUG ("Calling remmina_public_get_server_port (tunnel)");
 	remmina_public_get_server_port(ssh_tunnel_server, 22, &ssh_tunnel_host, &ssh_tunnel_port);
-	g_debug ("server: %s, port: %d", srv_host, srv_port);
+	REMMINA_DEBUG ("server: %s, port: %d", srv_host, srv_port);
 
 	if (port_plus && srv_port < 100)
 		/* Protocols like VNC supports using instance number :0, :1, etc. as port number. */
@@ -857,12 +876,12 @@ gchar *remmina_protocol_widget_start_direct_tunnel(RemminaProtocolWidget *gp, gi
 	if (!tunnel) {
 		g_free(srv_host);
 		g_free(ssh_tunnel_host);
-		REMMINA_DEBUG ("%s remmina_protocol_widget_init_tunnel failed with error is %s",
-				 __func__, remmina_protocol_widget_get_error_message(gp));
+		REMMINA_DEBUG ("remmina_protocol_widget_init_tunnel failed with error is %s",
+				remmina_protocol_widget_get_error_message(gp));
 		return NULL;
 	}
 
-	msg = g_strdup_printf(_("Connecting to \"%s\" via SSH…"), server);
+	msg = g_strdup_printf(_("Connecting to “%s” via SSH…"), server);
 	mp = remmina_protocol_widget_mpprogress(gp->cnnobj, msg, cancel_start_direct_tunnel_cb, NULL);
 	g_free(msg);
 
@@ -873,7 +892,7 @@ gchar *remmina_protocol_widget_start_direct_tunnel(RemminaProtocolWidget *gp, gi
 		srv_host = g_strdup("127.0.0.1");
 	}
 
-	g_debug ("%s: starting tunnel to: %s, port: %d", __func__, ssh_tunnel_host, ssh_tunnel_port);
+	REMMINA_DEBUG ("Starting tunnel to: %s, port: %d", ssh_tunnel_host, ssh_tunnel_port);
 	if (!remmina_ssh_tunnel_open(tunnel, srv_host, srv_port, remmina_pref.sshtunnel_port)) {
 		g_free(srv_host);
 		g_free(ssh_tunnel_host);
@@ -977,11 +996,11 @@ gboolean remmina_protocol_widget_ssh_exec(RemminaProtocolWidget *gp, gboolean wa
 				break;
 			case 127:
 				remmina_ssh_set_application_error(REMMINA_SSH(tunnel),
-								  _("The \"%s\" command is not available on the SSH server."), cmd);
+								  _("The “%s” command is not available on the SSH server."), cmd);
 				break;
 			default:
 				remmina_ssh_set_application_error(REMMINA_SSH(tunnel),
-								  _("Could not run the \"%s\" command on the SSH server (status = %i)."), cmd, status);
+								  _("Could not run the “%s” command on the SSH server (status = %i)."), cmd, status);
 				break;
 			}
 		} else {
@@ -1013,6 +1032,7 @@ static gboolean remmina_protocol_widget_xport_tunnel_init_callback(RemminaSSHTun
 	gint port;
 	gboolean ret;
 
+	REMMINA_DEBUG ("Calling remmina_public_get_server_port");
 	remmina_public_get_server_port(remmina_file_get_string(gp->priv->remmina_file, "server"), 177, &server, &port);
 	ret = ((RemminaXPortTunnelInitFunc)gp->priv->init_func)(gp,
 								tunnel->remotedisplay, (tunnel->bindlocalhost ? "localhost" : server), port);
@@ -1067,6 +1087,7 @@ gboolean remmina_protocol_widget_start_xport_tunnel(RemminaProtocolWidget *gp, R
 	tunnel->disconnect_func = remmina_protocol_widget_xport_tunnel_disconnect_callback;
 	tunnel->callback_data = gp;
 
+	REMMINA_DEBUG ("Calling remmina_public_get_server_port");
 	remmina_public_get_server_port(remmina_file_get_string(gp->priv->remmina_file, "server"), 0, &server, NULL);
 	bindlocalhost = (g_strcmp0(REMMINA_SSH(tunnel)->server, server) == 0);
 	g_free(server);
@@ -1787,9 +1808,18 @@ void remmina_protocol_widget_setup(RemminaProtocolWidget *gp, RemminaFile *remmi
 		return;
 	}
 	gp->priv->plugin = plugin;
+	gp->plugin = plugin;
 
 	gp->priv->scalemode = remmina_file_get_int(gp->priv->remmina_file, "scale", FALSE);
 	gp->priv->scaler_expand = remmina_file_get_int(gp->priv->remmina_file, "scaler_expand", FALSE);
+}
+
+GtkWindow* remmina_protocol_widget_get_gtkwindow(RemminaProtocolWidget *gp) {
+	return rcw_get_gtkwindow(gp->cnnobj);
+}
+
+GtkWidget *remmina_protocol_widget_gtkviewport(RemminaProtocolWidget *gp) {
+	return rcw_get_gtkviewport(gp->cnnobj);
 }
 
 GtkWidget *remmina_protocol_widget_new(void)

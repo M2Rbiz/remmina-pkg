@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -415,7 +415,7 @@ static gboolean remmina_plugin_nx_start_session(RemminaProtocolWidget *gp)
 		app = NULL;
 	}else
 	if (g_strcmp0(cs, "Xfce") == 0) {
-		/* NX does not know Xfce. So we simply launch the Xfce startup program. */
+		/* NX does not know Xfce. So we simply launch the Xfce start-up program. */
 		type = "unix-application";
 		app = "startxfce4";
 	}else
@@ -614,7 +614,7 @@ static gboolean remmina_plugin_nx_open_connection(RemminaProtocolWidget *gp)
 
 	if (!remmina_plugin_nx_service->gtksocket_available()) {
 		remmina_plugin_nx_service->protocol_plugin_set_error(gp,
-			_("The protocol \"%s\" is unavailable because GtkSocket only works under X.Org."),
+			_("The protocol “%s” is unavailable because GtkSocket only works under X.Org."),
 			remmina_plugin_nx.name);
 		return FALSE;
 	}
@@ -726,12 +726,12 @@ static gpointer quality_list[] =
 static const RemminaProtocolSetting remmina_plugin_nx_basic_settings[] =
 {
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	    "server",	     NULL,		    FALSE, NULL,		    NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	    "nx_privatekey", N_("Identity file"),   FALSE, NULL,		    NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	    "nx_privatekey", N_("SSH identity file"),   FALSE, NULL,		    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",	     N_("Username"),	    FALSE, NULL,		    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "password",	     N_("User password"),   FALSE, NULL,		    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION, "resolution",    NULL,		    FALSE, GINT_TO_POINTER(1),	    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "quality",	     N_("Quality"),	    FALSE, quality_list,	    NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_COMBO,	    "exec",	     N_("Startup program"), FALSE, "GNOME,KDE,Xfce,Shadow", NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_COMBO,	    "exec",	     N_("Start-up program"), FALSE, "GNOME,KDE,Xfce,Shadow", NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,	     NULL,		    FALSE, NULL,		    NULL }
 };
 
@@ -812,7 +812,7 @@ remmina_plugin_entry(RemminaPluginService *service)
 			s = strchr(remmina_kbtype, ',');
 			if (s)
 				*s = '\0';
-			/* g_print("NX: Detected \"%s\" keyboard type\n", remmina_kbtype); */
+			/* g_print("NX: Detected “%s” keyboard type\n", remmina_kbtype); */
 		}
 		XCloseDisplay(dpy);
 	}

@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2012-2012 Jean-Louis Dupond
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -619,7 +619,8 @@ CLIPRDR_FORMAT_LIST *remmina_rdp_cliprdr_get_client_format_list(RemminaProtocolW
 	if (result)
 		g_free(targets);
 
-	retp->pFormatList.msgFlags = CB_RESPONSE_OK;
+	retp->pFormatList.msgType = CB_FORMAT_LIST;
+	retp->pFormatList.msgFlags = 0;
 
 	return (CLIPRDR_FORMAT_LIST *)retp;
 }

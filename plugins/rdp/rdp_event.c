@@ -4,7 +4,7 @@
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2011 Marc-Andre Moreau <marcandre.moreau@gmail.com>
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,40 @@
 #include <gdk/gdkkeysyms.h>
 #include <cairo/cairo-xlib.h>
 #include <freerdp/locale/keyboard.h>
+
+static gboolean remmina_rdp_event_on_map (GtkWindow *window, GdkEvent  *event, RemminaProtocolWidget* gp)
+{
+	TRACE_CALL(__func__);
+	rfContext* rfi = GET_PLUGIN_DATA(gp);
+	rdpGdi* gdi;
+
+	if (rfi == NULL)
+		return false;
+
+	gdi = ((rdpContext *)rfi)->gdi;
+
+	REMMINA_PLUGIN_DEBUG("Map event received, disabling TS_SUPPRESS_OUTPUT_PDU ");
+	gdi_send_suppress_output(gdi, FALSE);
+
+	return FALSE;
+}
+
+static gboolean remmina_rdp_event_on_unmap (GtkWindow *window, GdkEvent  *event, RemminaProtocolWidget* gp)
+{
+	TRACE_CALL(__func__);
+	rfContext* rfi = GET_PLUGIN_DATA(gp);
+	rdpGdi* gdi;
+
+	if (rfi == NULL)
+		return false;
+
+	gdi = ((rdpContext *)rfi)->gdi;
+
+	REMMINA_PLUGIN_DEBUG("Unmap event received, enabling TS_SUPPRESS_OUTPUT_PDU ");
+	gdi_send_suppress_output(gdi, TRUE);
+
+	return FALSE;
+}
 
 static gboolean remmina_rdp_event_on_focus_in(GtkWidget* widget, GdkEventKey* event, RemminaProtocolWidget* gp)
 {
@@ -546,7 +580,7 @@ static gboolean remmina_rdp_event_on_scroll(GtkWidget* widget, GdkEventScroll* e
 		break;
 
 	case GDK_SCROLL_DOWN:
-		flag = PTR_FLAGS_WHEEL | 0x0188;  // -120 (one scroll unit) in 9 bits two's complement
+		flag = PTR_FLAGS_WHEEL | PTR_FLAGS_WHEEL_NEGATIVE | 0x0078;  // -120 (one scroll unit)
 		break;
 
 #if GTK_CHECK_VERSION(3, 4, 0)
@@ -559,10 +593,16 @@ static gboolean remmina_rdp_event_on_scroll(GtkWidget* widget, GdkEventScroll* e
 
 		if (windows_delta > 255)
 			windows_delta = 255;
-		if (windows_delta < -256)
-			windows_delta = -256;
+		if (windows_delta < -255)
+			windows_delta = -255;
 
-		flag = PTR_FLAGS_WHEEL | ((short)windows_delta & WheelRotationMask);
+		flag = PTR_FLAGS_WHEEL;
+
+		if (windows_delta < 0) {
+			windows_delta = -windows_delta;
+			flag |= PTR_FLAGS_WHEEL_NEGATIVE;
+		}
+		flag |= (short)windows_delta & 0xFF;
 
 		break;
 #endif
@@ -806,6 +846,10 @@ void remmina_rdp_event_init(RemminaProtocolWidget* gp)
 		G_CALLBACK(remmina_rdp_event_on_key), gp);
 	g_signal_connect(G_OBJECT(rfi->drawing_area), "focus-in-event",
 		G_CALLBACK(remmina_rdp_event_on_focus_in), gp);
+	g_signal_connect(G_OBJECT(gtk_widget_get_toplevel(rfi->drawing_area)), "map-event",
+		G_CALLBACK(remmina_rdp_event_on_map), gp);
+	g_signal_connect(G_OBJECT(gtk_widget_get_toplevel(rfi->drawing_area)), "unmap-event",
+		G_CALLBACK(remmina_rdp_event_on_unmap), gp);
 
 	if (!remmina_plugin_service->file_get_int(remminafile, "disableclipboard", FALSE)) {
 		clipboard = gtk_widget_get_clipboard(rfi->drawing_area, GDK_SELECTION_CLIPBOARD);
@@ -844,8 +888,6 @@ void remmina_rdp_event_init(RemminaProtocolWidget* gp)
 #endif
 }
 
-
-
 void remmina_rdp_event_free_event(RemminaProtocolWidget* gp, RemminaPluginRdpUiObject* obj)
 {
 	TRACE_CALL(__func__);
@@ -861,7 +903,6 @@ void remmina_rdp_event_free_event(RemminaProtocolWidget* gp, RemminaPluginRdpUiO
 
 	g_free(obj);
 }
-
 
 void remmina_rdp_event_uninit(RemminaProtocolWidget* gp)
 {

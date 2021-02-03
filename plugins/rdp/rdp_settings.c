@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -197,7 +197,7 @@ static void remmina_rdp_settings_grid_load_layout(RemminaPluginRdpsetGrid* grid)
 	RDP_KEYBOARD_LAYOUT* layouts;
 
 	gtk_list_store_append(grid->keyboard_layout_store, &iter);
-	gtk_list_store_set(grid->keyboard_layout_store, &iter, 0, 0, 1, _("<Auto detect>"), -1);
+	gtk_list_store_set(grid->keyboard_layout_store, &iter, 0, 0, 1, _("<Auto-detect>"), -1);
 
 	if (rdp_keyboard_layout == 0)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(grid->keyboard_layout_combo), 0);

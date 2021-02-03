@@ -3,7 +3,7 @@
  *
  * @copyright Copyright (C) 2010-2011 Vic Lee.
  * @copyright Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo.
- * @copyright Copyright (C) 2016-2020 Antenore Gatta, Giovanni Panozzo.
+ * @copyright Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -267,6 +267,7 @@ remmina_plugin_ssh_main_thread(gpointer data)
 	RemminaSSH *ssh;
 	RemminaSSHShell *shell = NULL;
 	gboolean cont = FALSE;
+	gboolean partial = FALSE;
 	gchar *hostport;
 	gint ret;
 
@@ -277,18 +278,21 @@ remmina_plugin_ssh_main_thread(gpointer data)
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	/* we may need to open a new tunnel */
+	REMMINA_DEBUG ("Tentatively create an SSH tunnel");
 	hostport = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, 22, FALSE);
 	if (hostport == NULL) {
 		remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 		return NULL;
 	}
+	REMMINA_DEBUG ("protocol_plugin_start_direct_tunnel returned hostport: %s", hostport);
 
 	ssh = g_object_get_data(G_OBJECT(gp), "user-data");
 	if (ssh) {
-		/* Create SSH shell connection based on existing SSH session */
-
+		REMMINA_DEBUG ("Creating SSH shell based on existing SSH session");
 		shell = remmina_ssh_shell_new_from_ssh(ssh);
+		REMMINA_DEBUG ("Calling remmina_public_get_server_port");
 		remmina_plugin_service->get_server_port(hostport, 22, &ssh->tunnel_entrance_host, &ssh->tunnel_entrance_port);
+		REMMINA_DEBUG ("tunnel_entrance_host: %s, tunnel_entrance_port: %d", ssh->tunnel_entrance_host, ssh->tunnel_entrance_port);
 
 		if (remmina_ssh_init_session(REMMINA_SSH(shell)) &&
 		    remmina_ssh_auth(REMMINA_SSH(shell), NULL, gp, remminafile) == REMMINA_SSH_AUTH_SUCCESS &&
@@ -298,44 +302,69 @@ remmina_plugin_ssh_main_thread(gpointer data)
 	} else {
 
 		/* New SSH Shell connection */
+		REMMINA_DEBUG ("Creating SSH shell based on a new SSH session");
 		shell = remmina_ssh_shell_new_from_file(remminafile);
 		ssh = REMMINA_SSH(shell);
+		REMMINA_DEBUG ("Calling remmina_public_get_server_port");
 		remmina_plugin_service->get_server_port(hostport, 22, &ssh->tunnel_entrance_host, &ssh->tunnel_entrance_port);
+		REMMINA_DEBUG ("tunnel_entrance_host: %s, tunnel_entrance_port: %d", ssh->tunnel_entrance_host, ssh->tunnel_entrance_port);
 
 		while (1) {
-			if (!remmina_ssh_init_session(ssh)) {
-				REMMINA_DEBUG("init session error: %s", ssh->error);
-				remmina_plugin_service->protocol_plugin_set_error(gp, "%s", ssh->error);
-				break;
+			if (!partial) {
+				if (!remmina_ssh_init_session(ssh)) {
+					REMMINA_DEBUG("init session error: %s", ssh->error);
+					remmina_plugin_service->protocol_plugin_set_error(gp, "%s", ssh->error);
+					// exit the loop here: OK
+					break;
+				}
 			}
 
 			ret = remmina_ssh_auth_gui(ssh, gp, remminafile);
-			if (ret != REMMINA_SSH_AUTH_SUCCESS) {
-				if(ret == REMMINA_SSH_AUTH_RECONNECT) {
+			switch (ret) {
+				case REMMINA_SSH_AUTH_SUCCESS:
+					REMMINA_DEBUG ("Authentication success");
+					if (!remmina_ssh_shell_open(shell, (RemminaSSHExitFunc)
+								remmina_plugin_service->protocol_plugin_signal_connection_closed, gp)) {
+						remmina_plugin_service->protocol_plugin_set_error(gp, "%s", ssh->error);
+						break;
+					}
+					break;
+				case REMMINA_SSH_AUTH_PARTIAL:
+					REMMINA_DEBUG ("Continue with the next auth method");
+					partial = TRUE;
+					// Continue the loop: OK
+					continue;
+					break;
+				case REMMINA_SSH_AUTH_RECONNECT:
+					REMMINA_DEBUG ("Reconnecting...");
 					if (ssh->session) {
 						ssh_disconnect(ssh->session);
 						ssh_free(ssh->session);
 						ssh->session = NULL;
 					}
 					g_free(ssh->callback);
+					// Continue the loop: OK
 					continue;
-				}
-
-				if (ret != REMMINA_SSH_AUTH_USERCANCEL)
+					break;
+				case REMMINA_SSH_AUTH_USERCANCEL:
+					REMMINA_DEBUG ("Interrupted by the user");
+					// TODO: exit the loop here: OK
+					goto BREAK;
+					break;
+				default:
+					REMMINA_DEBUG ("Error during the authentication: %s", ssh->error);
 					remmina_plugin_service->protocol_plugin_set_error(gp, "%s", ssh->error);
-				break;
+					// TODO: exit the loop here: OK
+					goto BREAK;
 			}
 
-			if (!remmina_ssh_shell_open(shell, (RemminaSSHExitFunc)
-						    remmina_plugin_service->protocol_plugin_signal_connection_closed, gp)) {
-				remmina_plugin_service->protocol_plugin_set_error(gp, "%s", ssh->error);
-				break;
-			}
 
 			cont = TRUE;
 			break;
 		}
 	}
+
+BREAK:REMMINA_DEBUG("Authentication terminted with exit status %d", ret);
 
 	g_free(hostport);
 
@@ -438,7 +467,13 @@ remmina_plugin_ssh_set_vte_pref(RemminaProtocolWidget *gp)
 				      pango_font_description_from_string(remmina_pref.vte_font));
 #endif
 	}
+
+#if VTE_CHECK_VERSION (0, 51, 3)
+	REMMINA_DEBUG ("Using vte_terminal_set_bold_is_bright instead of vte_terminal_set_allow_bold as deprecated");
+	vte_terminal_set_bold_is_bright(VTE_TERMINAL(gpdata->vte), remmina_pref.vte_allow_bold_text);
+#else
 	vte_terminal_set_allow_bold(VTE_TERMINAL(gpdata->vte), remmina_pref.vte_allow_bold_text);
+#endif
 	if (remmina_pref.vte_lines > 0)
 		vte_terminal_set_scrollback_lines(VTE_TERMINAL(gpdata->vte), remmina_pref.vte_lines);
 }
@@ -496,8 +531,7 @@ remmina_plugin_ssh_vte_save_session(GtkMenuItem *menuitem, RemminaProtocolWidget
 
 	if (err != NULL) {
 		// TRANSLATORS: %s is a placeholder for an error message
-		widget = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-						_("Error: %s"), err->message);
+		widget = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("Error: %s"), err->message);
 		g_signal_connect(G_OBJECT(widget), "response", G_CALLBACK(gtk_widget_destroy), NULL);
 		gtk_widget_show(widget);
 		return;
@@ -542,7 +576,7 @@ static void jit_regex(VteRegex* regex, char const* pattern)
         if (!vte_regex_jit(regex, PCRE2_JIT_COMPLETE, &error) ||
             !vte_regex_jit(regex, PCRE2_JIT_PARTIAL_SOFT, &error)) {
                 if (!g_error_matches(error, VTE_REGEX_ERROR, -45 /* PCRE2_ERROR_JIT_BADOPTION: JIT not supported */))
-                        REMMINA_DEBUG("JITing regex \"%s\" failed: %s\n", pattern, error->message);
+                        REMMINA_DEBUG("JITing regex “%s” failed: %s\n", pattern, error->message);
         }
 }
 
@@ -857,6 +891,7 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 #if VTE_CHECK_VERSION(0, 38, 0)
 	GdkRGBA cp[PALETTE_SIZE];
 	GdkRGBA cursor_color;
+	GdkRGBA bold_color;
 
 	/*
 	 * custom colors reside inside of the 'theme' subdir of the remmina config folder (.config/remmina/theme)
@@ -909,6 +944,7 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 		gdk_rgba_parse(&foreground_color, color_pref.foreground);
 		gdk_rgba_parse(&background_color, color_pref.background);
 		gdk_rgba_parse(&cursor_color, color_pref.cursor);
+		gdk_rgba_parse(&bold_color, color_pref.bold);
 
 		gdk_rgba_parse(&cp[0], color_pref.color0);
 		gdk_rgba_parse(&cp[1], color_pref.color1);
@@ -942,42 +978,49 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 			gdk_rgba_parse(&foreground_color, "#ffffff");
 			gdk_rgba_parse(&background_color, "#000000");
 			gdk_rgba_parse(&cursor_color, "#ffffff");
+			gdk_rgba_parse(&bold_color, "#ffffff");
 			remminavte.palette = linux_palette;
 			break;
 		case TANGO:
 			gdk_rgba_parse(&foreground_color, "#eeeeec");
 			gdk_rgba_parse(&background_color, "#2e3436");
 			gdk_rgba_parse(&cursor_color, "#8ae234");
+			gdk_rgba_parse(&bold_color, "#eeeeec");
 			remminavte.palette = tango_palette;
 			break;
 		case GRUVBOX:
 			gdk_rgba_parse(&foreground_color, "#ebdbb2");
 			gdk_rgba_parse(&background_color, "#282828");
 			gdk_rgba_parse(&cursor_color, "#d3869b");
+			gdk_rgba_parse(&bold_color, "#ffffff");
 			remminavte.palette = gruvbox_palette;
 			break;
 		case SOLARIZED_DARK:
 			gdk_rgba_parse(&foreground_color, "#839496");
 			gdk_rgba_parse(&background_color, "#002b36");
 			gdk_rgba_parse(&cursor_color, "#93a1a1");
+			gdk_rgba_parse(&bold_color, "#819090");
 			remminavte.palette = solarized_dark_palette;
 			break;
 		case SOLARIZED_LIGHT:
 			gdk_rgba_parse(&foreground_color, "#657b83");
 			gdk_rgba_parse(&background_color, "#fdf6e3");
 			gdk_rgba_parse(&cursor_color, "#586e75");
+			gdk_rgba_parse(&bold_color, "#475b62");
 			remminavte.palette = solarized_light_palette;
 			break;
 		case XTERM:
 			gdk_rgba_parse(&foreground_color, "#000000");
 			gdk_rgba_parse(&background_color, "#ffffff");
 			gdk_rgba_parse(&cursor_color, "#000000");
+			gdk_rgba_parse(&bold_color, "#000000");
 			remminavte.palette = xterm_palette;
 			break;
 		case CUSTOM:
 			gdk_rgba_parse(&foreground_color, remmina_pref.color_pref.foreground);
 			gdk_rgba_parse(&background_color, remmina_pref.color_pref.background);
 			gdk_rgba_parse(&cursor_color, remmina_pref.color_pref.cursor);
+			gdk_rgba_parse(&bold_color, remmina_pref.color_pref.bold);
 
 			gdk_rgba_parse(&cp[0], remmina_pref.color_pref.color0);
 			gdk_rgba_parse(&cp[1], remmina_pref.color_pref.color1);
@@ -1015,6 +1058,8 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 	vte_terminal_set_color_foreground(VTE_TERMINAL(vte), &foreground_color);
 	vte_terminal_set_color_background(VTE_TERMINAL(vte), &background_color);
 	vte_terminal_set_color_cursor(VTE_TERMINAL(vte), &cursor_color);
+	vte_terminal_set_color_bold(VTE_TERMINAL(vte), &bold_color);
+
 #else
 	/* VTE <= 2.90 doesn’t support GdkRGBA so we must convert GdkRGBA to GdkColor */
 	foreground_gdkcolor.red = (guint16)(foreground_color.red * 0xFFFF);
@@ -1196,7 +1241,17 @@ remmina_plugin_ssh_call_feature(RemminaProtocolWidget *gp, const RemminaProtocol
 	}
 }
 
-/** Array of key/value pairs for SSH auth type*/
+/** Array of key/value pairs for SSH auth type
+ * libssh methods:
+ *
+ * #define SSH_AUTH_METHOD_UNKNOWN     0x0000u
+ * #define SSH_AUTH_METHOD_NONE        0x0001u
+ * #define SSH_AUTH_METHOD_PASSWORD    0x0002u
+ * #define SSH_AUTH_METHOD_PUBLICKEY   0x0004u
+ * #define SSH_AUTH_METHOD_HOSTBASED   0x0008u
+ * #define SSH_AUTH_METHOD_INTERACTIVE 0x0010u
+ * #define SSH_AUTH_METHOD_GSSAPI_MIC  0x0020u
+ */
 static gpointer ssh_auth[] =
 {
 	"0", N_("Password"),
@@ -1238,22 +1293,22 @@ static gpointer ssh_charset_list[] =
 	"", "EUC-JP",
 	"", "EUC-KR",
 	"", "GBK",
-	"", "ISO-8859-1",
-	"", "ISO-8859-2",
-	"", "ISO-8859-3",
-	"", "ISO-8859-4",
-	"", "ISO-8859-5",
-	"", "ISO-8859-6",
-	"", "ISO-8859-7",
-	"", "ISO-8859-8",
-	"", "ISO-8859-9",
-	"", "ISO-8859-10",
-	"", "ISO-8859-11",
-	"", "ISO-8859-12",
-	"", "ISO-8859-13",
-	"", "ISO-8859-14",
-	"", "ISO-8859-15",
-	"", "ISO-8859-16",
+	"", "ISO 8859-1",
+	"", "ISO 8859-2",
+	"", "ISO 8859-3",
+	"", "ISO 8859-4",
+	"", "ISO 8859-5",
+	"", "ISO 8859-6",
+	"", "ISO 8859-7",
+	"", "ISO 8859-8",
+	"", "ISO 8859-9",
+	"", "ISO 8859-10",
+	"", "ISO 8859-11",
+	"", "ISO 8859-12",
+	"", "ISO 8859-13",
+	"", "ISO 8859-14",
+	"", "ISO 8859-15",
+	"", "ISO 8859-16",
 	"", "KOI8-R",
 	"", "SJIS",
 	"", "UTF-8",
@@ -1304,9 +1359,9 @@ static const RemminaProtocolSetting remmina_ssh_basic_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	    N_("Username"),			  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	    N_("User password"),		  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "ssh_auth",	    N_("Authentication type"),		  FALSE, ssh_auth,    NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	  "ssh_privatekey", N_("Identity file"),		  FALSE, NULL,	      NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	  "ssh_privatekey", N_("SSH identity file"),		  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "ssh_passphrase", N_("Password to unlock private key"), FALSE, NULL,	      NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "exec",	    N_("Startup program"),		  FALSE, NULL,	      NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "exec",	    N_("Start-up program"),		  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		    NULL,				  FALSE, NULL,	      NULL }
 };
 
@@ -1318,7 +1373,7 @@ static gchar log_tips[] =
         "  • %U is substituted with the SSH username\n"
         "  • %p is substituted with Remmina profile name\n"
         "  • %g is substituted with Remmina profile group name\n"
-        "  • %d is substituted with local datetime in iso8601 format\n");
+        "  • %d is substituted with local date and time in ISO 8601 format\n");
 
 /**
  * Array of RemminaProtocolSetting for advanced settings.

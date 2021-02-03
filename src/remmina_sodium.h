@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2017-2020 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2017-2021 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@
 G_BEGIN_DECLS
 
 #include <sodium.h>
+#include <glib.h>
+
 #define SODIUM_VERSION_INT (SODIUM_LIBRARY_VERSION_MAJOR * 10000 + SODIUM_LIBRARY_VERSION_MINOR * 100)
 #if SODIUM_VERSION_INT >= 90200
 void remmina_sodium_init(void);
