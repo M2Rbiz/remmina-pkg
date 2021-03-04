@@ -67,8 +67,8 @@ remmina_public_create_combo_entry(const gchar *text, const gchar *def, gboolean 
 	gchar *buf, *ptr1, *ptr2;
 	gint i;
 
-	g_print("text: %s\n", text);
-	g_print("def: %s\n", def);
+	//g_debug("text: %s\n", text);
+	//g_debug("def: %s\n", def);
 
 	combo = gtk_combo_box_text_new_with_entry();
 	found = FALSE;
@@ -470,7 +470,7 @@ guint remmina_public_get_current_workspace(GdkScreen *screen)
 	return ret;
 #endif
 #else
-	/* FIXME: on mac etc proably there are native APIs
+	/* FIXME: on mac etc probably there are native APIs
 	 * to get the current workspace etc */
 	return 0;
 #endif
@@ -524,7 +524,7 @@ guint remmina_public_get_window_workspace(GtkWindow *gtkwindow)
 	return ret;
 #endif
 #else
-	/* FIXME: on mac etc proably there are native APIs
+	/* FIXME: on mac etc probably there are native APIs
 	 * to get the current workspace etc */
 	return 0;
 #endif
@@ -572,6 +572,22 @@ GtkBuilder* remmina_public_gtk_builder_new_from_file(gchar *filename)
 	g_free(ui_path);
 	return builder;
 }
+
+/* Load a GtkBuilder object from a resource */
+GtkBuilder* remmina_public_gtk_builder_new_from_resource(gchar *resource)
+{
+	TRACE_CALL(__func__);
+	GError *err = NULL;
+	GtkBuilder *builder = gtk_builder_new();
+	gtk_builder_add_from_resource (builder, resource, &err);
+	//GtkBuilder *builder = gtk_builder_new_from_resource (resource);
+	if (err != NULL) {
+		g_print("Error adding build from resource. Error: %s", err->message);
+		g_error_free(err);
+	}
+	return builder;
+}
+
 
 /* Change parent container for a widget
  * If possible use this function instead of the deprecated gtk_widget_reparent */

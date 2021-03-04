@@ -35,6 +35,7 @@
  */
 
 #pragma once
+#include <gtk/gtk.h>
 
 /*
  * Remmina Preference Loader
@@ -89,7 +90,10 @@ typedef struct _RemminaColorPref {
 	/* Color palette for VTE terminal */
 	gchar * background;
 	gchar * cursor;
-	gchar * bold;
+	gchar * cursor_foreground;
+	gchar * highlight;
+	gchar * highlight_foreground;
+	gchar * colorBD;
 	gchar * foreground;
 	gchar * color0;
 	gchar * color1;
@@ -124,6 +128,7 @@ typedef struct _RemminaPref {
 	gchar *			resolutions;
 	gchar *			keystrokes;
 	/* In RemminaPrefDialog appearance tab */
+	gboolean		dark_theme;
 	gboolean		fullscreen_on_auto;
 	gboolean		always_show_tab;
 	gboolean		hide_connection_toolbar;
@@ -131,11 +136,12 @@ typedef struct _RemminaPref {
 	gint			default_mode;
 	gint			tab_mode;
 	gint			fullscreen_toolbar_visibility;
+	const gchar *		grab_color;
+	gboolean		grab_color_switch;
 	/* In RemminaPrefDialog applet tab */
 	gboolean		applet_new_ontop;
 	gboolean		applet_hide_count;
 	gboolean		disable_tray_icon;
-	gboolean		dark_tray_icon;
 	/* In RemminaPrefDialog SSH Option tab */
 	gint			ssh_loglevel;
 	gboolean		ssh_parseconfig;
@@ -152,6 +158,7 @@ typedef struct _RemminaPref {
 	guint			shortcutkey_nexttab;
 	guint			shortcutkey_dynres;
 	guint			shortcutkey_scale;
+	guint			shortcutkey_multimon;
 	guint			shortcutkey_grab;
 	guint			shortcutkey_viewonly;
 	guint			shortcutkey_screenshot;

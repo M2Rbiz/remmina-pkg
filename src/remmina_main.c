@@ -94,13 +94,14 @@ static GActionEntry app_actions[] = {
 	{ "default",	 remmina_main_on_action_application_default,	   NULL, NULL, NULL },
 	{ "mpchange",	 remmina_main_on_action_application_mpchange,	   NULL, NULL, NULL },
 	{ "plugins",	 remmina_main_on_action_application_plugins,	   NULL, NULL, NULL },
-	{ "preferences", remmina_main_on_action_application_preferences,   "i", NULL, NULL },
-	{ "quit",	 remmina_main_on_action_application_quit,	   NULL, NULL, NULL },
+	{ "preferences", remmina_main_on_action_application_preferences,    "i", NULL, NULL },
+	{ "dark",	 remmina_main_on_action_application_dark_theme,	   NULL, NULL, NULL },
 	{ "debug",	 remmina_main_on_action_help_debug,		   NULL, NULL, NULL },
 	{ "community",	 remmina_main_on_action_help_community,		   NULL, NULL, NULL },
 	{ "donations",	 remmina_main_on_action_help_donations,		   NULL, NULL, NULL },
 	{ "homepage",	 remmina_main_on_action_help_homepage,		   NULL, NULL, NULL },
 	{ "wiki",	 remmina_main_on_action_help_wiki,		   NULL, NULL, NULL },
+	{ "quit",	 remmina_main_on_action_application_quit,	   NULL, NULL, NULL },
 };
 
 static GActionEntry main_actions[] = {
@@ -168,7 +169,7 @@ static void remmina_main_save_expanded_group(void)
 }
 
 /**
- * Save the Remmina Main Window size and the exapnded group before to close Remmina.
+ * Save the Remmina Main Window size and the expanded group before to close Remmina.
  * This function uses remmina_main_save_size and remmina_main_save_expanded_group.
  */
 void remmina_main_save_before_destroy()
@@ -292,7 +293,7 @@ static void remmina_main_show_snap_welcome()
 	}
 
 	if (need_snap_interface_connections && !remmina_pref.prevent_snap_welcome_message) {
-		dlgbuilder = remmina_public_gtk_builder_new_from_file("remmina_snap_info_dialog.glade");
+		dlgbuilder = remmina_public_gtk_builder_new_from_resource ("/org/remmina/Remmina/src/../data/ui/remmina_snap_info_dialog.glade");
 		dsa = GTK_WIDGET(gtk_builder_get_object(dlgbuilder, "dontshowagain"));
 		if (dlgbuilder) {
 			parent = remmina_main_get_window();
@@ -861,6 +862,7 @@ void remmina_main_on_accel_application_preferences(GSimpleAction *action, GVaria
 void remmina_main_on_action_application_preferences(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
+	GtkSettings *settings;
 
 	REMMINA_DEBUG ("Opening the preferences");
 	gint32 tab_num;
@@ -876,6 +878,11 @@ void remmina_main_on_action_application_preferences(GSimpleAction *action, GVari
 	GtkDialog *dialog = remmina_pref_dialog_new(tab_num, remminamain->window);
 	gtk_dialog_run(dialog);
 	gtk_widget_destroy(GTK_WIDGET(dialog));
+	/* Switch to a dark theme if the user enabled it */
+	settings = gtk_settings_get_default ();
+	g_object_set (settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
+	gtk_switch_set_active (remminamain->switch_dark_mode, remmina_pref.dark_theme);
+
 }
 
 void remmina_main_on_action_application_default(GSimpleAction *action, GVariant *param, gpointer data)
@@ -1024,6 +1031,22 @@ void remmina_main_on_action_application_plugins(GSimpleAction *action, GVariant 
 	remmina_plugin_manager_show(remminamain->window);
 }
 
+void remmina_main_on_action_application_dark_theme(GSimpleAction *action, GVariant *param, gpointer data)
+{
+	TRACE_CALL(__func__);
+	GtkSettings *settings;
+
+	settings = gtk_settings_get_default ();
+
+	if (gtk_switch_get_active(remminamain->switch_dark_mode))
+		remmina_pref.dark_theme = 1;
+	else
+		remmina_pref.dark_theme = 0;
+	remmina_pref_save();
+
+	g_object_set (settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
+}
+
 void remmina_main_on_action_help_homepage(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
@@ -1063,8 +1086,10 @@ void remmina_main_on_action_application_about(GSimpleAction *action, GVariant *p
 void remmina_main_on_action_application_news(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
+	REMMINA_DEBUG ("Setting news counters to 0");
 	remmina_pref.periodic_rmnews_last_get = 0;
 	remmina_pref.periodic_rmnews_get_count = 0;
+	REMMINA_DEBUG ("Saving preferences");
 	remmina_pref_save();
 };
 
@@ -1280,8 +1305,14 @@ static void remmina_main_init(void)
 	TRACE_CALL(__func__);
 	int i, qcp_idx, qcp_actidx;
 	char *name;
+	GtkSettings *settings;
 
 	REMMINA_DEBUG("Initializing the Remmina main window");
+	/* Switch to a dark theme if the user enabled it */
+	settings = gtk_settings_get_default ();
+	g_object_set (settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
+	gtk_switch_set_active (remminamain->switch_dark_mode, remmina_pref.dark_theme);
+
 	remminamain->priv->expanded_group = remmina_string_array_new_from_string(remmina_pref.expanded_group);
 	if (!kioskmode && kioskmode == FALSE)
 		gtk_window_set_title(remminamain->window, _("Remmina Remote Desktop Client"));
@@ -1355,7 +1386,7 @@ GtkWidget *remmina_main_new(void)
 	remminamain = g_new0(RemminaMain, 1);
 	remminamain->priv = g_new0(RemminaMainPriv, 1);
 	/* Assign UI widgets to the private members */
-	remminamain->builder = remmina_public_gtk_builder_new_from_file("remmina_main.glade");
+	remminamain->builder = remmina_public_gtk_builder_new_from_resource ("/org/remmina/Remmina/src/../data/ui/remmina_main.glade");
 	remminamain->window = GTK_WINDOW(RM_GET_OBJECT("RemminaMain"));
 	if (kioskmode && kioskmode == TRUE) {
 		gtk_window_set_position(remminamain->window, GTK_WIN_POS_CENTER_ALWAYS);
@@ -1368,6 +1399,7 @@ GtkWidget *remmina_main_new(void)
 		gtk_widget_set_sensitive(GTK_WIDGET(remminamain->button_new), FALSE);
 	/* Search bar */
 	remminamain->search_toggle = GTK_TOGGLE_BUTTON(RM_GET_OBJECT("search_toggle"));
+	remminamain->switch_dark_mode = GTK_SWITCH(RM_GET_OBJECT("switch_dark_mode"));
 	remminamain->search_bar = GTK_SEARCH_BAR(RM_GET_OBJECT("search_bar"));
 	/* view mode list/tree */
 	remminamain->view_toggle_button = GTK_TOGGLE_BUTTON(RM_GET_OBJECT("view_toggle_button"));
@@ -1409,6 +1441,7 @@ GtkWidget *remmina_main_new(void)
 	gtk_window_add_accel_group(remminamain->window, accel_group);
 	gtk_accel_group_connect(accel_group, GDK_KEY_Q, GDK_CONTROL_MASK, 0,
 				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_action_application_quit), NULL, NULL));
+	// TODO: This crash remmina because the function doesn't receive the parameter we expect
 	gtk_accel_group_connect(accel_group, GDK_KEY_P, GDK_CONTROL_MASK, 0,
 				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_accel_application_preferences), NULL, NULL));
 	gtk_accel_group_connect(accel_group, GDK_KEY_F, GDK_CONTROL_MASK, 0,

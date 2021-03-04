@@ -20,7 +20,7 @@ editable on [the wiki](https://gitlab.com/Remmina/Remmina/wikis/home).
 
 ### Configuration
 
-Set up everything from the graphical interface, or from $HOME/.remmina or $HOME/.config/remmina
+Set up everything from the graphical interface, or from $HOME/.config/remmina
 
 ### Contributing
 
@@ -45,7 +45,7 @@ Add yourself in [AUTHORS](AUTHORS) if you have contributed.
 ### Resources
 
  * [Website](https://www.remmina.org/)
- * IRC room on freenode.net, in the #remmina channel, you can also use a [web client](https://kiwiirc.com/client/irc.freenode.net/?nick=remminer|?#remmina/).
+ * IRC room on freenode.net, in the #remmina channel, you can also use a [web client](https://kiwiirc.com/client/irc.freenode.net/?nick=remminer|?#remmina).
 
 ### License
 

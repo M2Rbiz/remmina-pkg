@@ -34,6 +34,7 @@
  */
 
 #pragma once
+#include <gtk/gtk.h>
 
 /*
  * Remmina Preferences Dialog
@@ -52,6 +53,7 @@ typedef struct _RemminaPrefDialog {
 	GtkEntry *		entry_options_file_name;
 	GtkFileChooser *	filechooserbutton_options_screenshots_path;
 	GtkEntry *		entry_options_screenshot_name;
+	GtkSwitch *		switch_appearance_grab_color;
 	GtkSwitch *		switch_options_deny_screenshot_clipboard;
 	GtkSwitch *		switch_options_remember_last_view_mode;
 	GtkSwitch *		switch_security_use_master_password;
@@ -80,13 +82,14 @@ typedef struct _RemminaPrefDialog {
 	GtkEntry *		entry_options_ssh_tcp_usrtimeout;
 	GtkEntry *		entry_options_scroll;
 	GtkEntry *		entry_options_recent_items;
+	GtkEntry *		entry_grab_color;
 	GtkButton *		button_options_recent_items_clear;
 	GtkButton *		button_options_resolutions;
 
 	GtkCheckButton *	checkbutton_applet_new_connection_on_top;
 	GtkCheckButton *	checkbutton_applet_hide_totals;
 	GtkCheckButton *	checkbutton_applet_disable_tray;
-	GtkCheckButton *	checkbutton_applet_light_tray;
+	GtkCheckButton *	checkbutton_dark_theme;
 	GtkCheckButton *	checkbutton_applet_start_in_tray;
 
 	GtkButton *		button_keyboard_host_key;
@@ -95,6 +98,7 @@ typedef struct _RemminaPrefDialog {
 	GtkButton *		button_keyboard_switch_tab_left;
 	GtkButton *		button_keyboard_switch_tab_right;
 	GtkButton *		button_keyboard_scaled;
+	GtkButton *		button_keyboard_multimon;
 	GtkButton *		button_keyboard_grab_keyboard;
 	GtkButton *		button_keyboard_screenshot;
 	GtkButton *		button_keyboard_viewonly;
@@ -121,7 +125,10 @@ typedef struct _RemminaPrefDialog {
 	GtkLabel *		label_terminal_normal_colors;
 	GtkLabel *		label_terminal_bright_colors;
 	GtkColorButton *	colorbutton_cursor;
-	GtkColorButton *	colorbutton_bold;
+	GtkColorButton *	colorbutton_cursor_foreground;
+	GtkColorButton *	colorbutton_highlight;
+	GtkColorButton *	colorbutton_highlight_foreground;
+	GtkColorButton *	colorbutton_colorBD;
 	GtkColorButton *	colorbutton_color0;
 	GtkColorButton *	colorbutton_color1;
 	GtkColorButton *	colorbutton_color2;
@@ -156,5 +163,6 @@ GtkDialog *remmina_pref_dialog_new(gint default_tab, GtkWindow *parent);
 /* Get the current PrefDialog or NULL if not initialized */
 GtkDialog *remmina_pref_dialog_get_dialog(void);
 void remmina_prefdiag_unlock_repwd_on_changed(GtkEditable *editable, RemminaPrefDialog *dialog);
+void remmina_pref_dialog_on_action_close(GSimpleAction *action, GVariant *param, gpointer data);
 
 G_END_DECLS

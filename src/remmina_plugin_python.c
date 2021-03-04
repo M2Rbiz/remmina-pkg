@@ -39,7 +39,7 @@
  * @date 14.10.2020
  *
  * When Remmina discovers Python scripts in the plugin root folder the plugin manager
- * passes the path to the Python plugin loader. There it gets exexuted and the plugin
+ * passes the path to the Python plugin loader. There it gets executed and the plugin
  * classes get mapped to "real" Remmina plugin instances.
  *
  * For the communication between Remmina and Python the python module called 'remmina'
@@ -54,18 +54,17 @@
 #include <Python.h>
 #include <structmember.h>
 
-#include "pygobject.h"
-
 #include "config.h"
 #include "remmina/remmina_trace_calls.h"
 #include "remmina_plugin_python.h"
 #include "remmina_plugin_python_module.h"
+#include "remmina_plugin_python_protocol_widget.h"
 
 /**
- * @brief Extracts the filename without extention from a path.
+ * @brief Extracts the filename without extension from a path.
  *
  * @param   in  The string to extract the filename from
- * @param   out The resulting filename without extention (must point to allocated memory).
+ * @param   out The resulting filename without extension (must point to allocated memory).
  *
  * @return  The length of the filename extracted.
  */
@@ -85,7 +84,7 @@ void remmina_plugin_python_init(void) {
     PyRun_SimpleString("import sys");
     PyRun_SimpleString("sys.path.append('" REMMINA_RUNTIME_PLUGINDIR "')");
 
-    pygobject_init(-1, -1, -1);
+    remmina_plugin_python_protocol_widget_init();
 }
 
 gboolean remmina_plugin_python_load(RemminaPluginService* service, const gchar* name) {

@@ -305,45 +305,95 @@ remmina_ssh_auth_pubkey(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile 
 	TRACE_CALL(__func__);
 
 	ssh_key key = NULL;
+	ssh_key cert = NULL;
 	gchar pubkey[132] = { 0 }; // +".pub"
 	gint ret;
 
 	if (ssh->authenticated) return REMMINA_SSH_AUTH_SUCCESS;
 
-	if (ssh->privkeyfile == NULL) {
-		// TRANSLATORS: The placeholder %s is an error message
-		ssh->error = g_strdup_printf(_("Could not authenticate with public SSH key. %s"),
-					     _("SSH identity file not selected."));
-		return REMMINA_SSH_AUTH_FATAL_ERROR;
-	}
+	REMMINA_DEBUG("SSH certificate file: %s", ssh->certfile);
+	REMMINA_DEBUG("SSH private key file: %s", ssh->privkeyfile);
+	if (ssh->certfile != NULL) {
+		/* First we import the certificate */
+		if (ssh_pki_import_privkey_file(ssh->privkeyfile, (ssh->passphrase ? ssh->passphrase : ""),
+						NULL, NULL, &key) != SSH_OK) {
+			if (ssh->passphrase == NULL || ssh->passphrase[0] == '\0') {
+				remmina_ssh_set_error(ssh, _("No saved SSH passphrase supplied. Asking user to enter it."));
+				return REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT;
+			}
 
-	g_snprintf(pubkey, sizeof(pubkey), "%s.pub", ssh->privkeyfile);
-
-	/*G_FILE_TEST_EXISTS*/
-	if (g_file_test(pubkey, G_FILE_TEST_EXISTS)) {
-		ret = ssh_pki_import_pubkey_file(pubkey, &key);
-		if (ret != SSH_OK) {
 			// TRANSLATORS: The placeholder %s is an error message
-			remmina_ssh_set_error(ssh, _("Public SSH key cannot be imported. %s"));
-			return REMMINA_SSH_AUTH_FATAL_ERROR;
-		}
-		ssh_key_free(key);
-	}
-
-	if (ssh_pki_import_privkey_file(ssh->privkeyfile, (ssh->passphrase ? ssh->passphrase : ""),
-					NULL, NULL, &key) != SSH_OK) {
-		if (ssh->passphrase == NULL || ssh->passphrase[0] == '\0') {
-			remmina_ssh_set_error(ssh, _("No saved SSH passphrase supplied. Asking user to enter it."));
+			remmina_ssh_set_error(ssh, _("Could not authenticate with public SSH key. %s"));
 			return REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT;
 		}
+		REMMINA_DEBUG ("Imported private SSH key file");
+		ret = ssh_pki_import_cert_file 	(ssh->certfile, &cert ) 	;
+		if (ret != SSH_OK) {
+			REMMINA_DEBUG ("Certificate import returned: %d", ret);
+			// TRANSLATORS: The placeholder %s is an error message
+			remmina_ssh_set_error(ssh, _("SSH certificate cannot be imported. %s"));
+			return REMMINA_SSH_AUTH_FATAL_ERROR;
+		}
+		REMMINA_DEBUG ("certificate imported correctly");
+		/* We copy th certificate in the private key */
+		ret = ssh_pki_copy_cert_to_privkey(cert, key);
+		if (ret != SSH_OK) {
+			REMMINA_DEBUG ("Copy certificate into a key returned: %d", ret);
+			// TRANSLATORS: The placeholder %s is an error message
+			remmina_ssh_set_error(ssh, _("SSH certificate cannot be copied into the private SSH key. %s"));
+			ssh_key_free(cert);
+			return REMMINA_SSH_AUTH_FATAL_ERROR;
+		}
+		REMMINA_DEBUG ("%s certificate copied into the private SSH key", ssh->certfile);
+		/* We try to authenticate */
+		ret = ssh_userauth_try_publickey(ssh->session, NULL, cert);
+		if (ret != SSH_AUTH_SUCCESS && ret != SSH_AUTH_AGAIN ) {
+			REMMINA_DEBUG ("Trying to authenticate with the new key returned: %d", ret);
+			// TRANSLATORS: The placeholder %s is an error message
+			remmina_ssh_set_error(ssh, _("Could not authenticate using SSH certificate. %s"));
+			ssh_key_free(key);
+			ssh_key_free(cert);
+			return REMMINA_SSH_AUTH_FATAL_ERROR;
+		}
+		REMMINA_DEBUG ("Authentication with a certificate file works, we can authenticate");
+		/* if it goes well we authenticate (later on) with the key, not the cert*/
+	} else {
+		if (ssh->privkeyfile == NULL) {
+			// TRANSLATORS: The placeholder %s is an error message
+			ssh->error = g_strdup_printf(_("Could not authenticate with public SSH key. %s"),
+						     _("SSH identity file not selected."));
+			return REMMINA_SSH_AUTH_FATAL_ERROR;
+		}
 
-		// TRANSLATORS: The placeholder %s is an error message
-		remmina_ssh_set_error(ssh, _("Could not authenticate with public SSH key. %s"));
-		return REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT;
+		g_snprintf(pubkey, sizeof(pubkey), "%s.pub", ssh->privkeyfile);
+
+		/*G_FILE_TEST_EXISTS*/
+		if (g_file_test(pubkey, G_FILE_TEST_EXISTS)) {
+			ret = ssh_pki_import_pubkey_file(pubkey, &key);
+			if (ret != SSH_OK) {
+				// TRANSLATORS: The placeholder %s is an error message
+				remmina_ssh_set_error(ssh, _("Public SSH key cannot be imported. %s"));
+				ssh_key_free(key);
+				return REMMINA_SSH_AUTH_FATAL_ERROR;
+			}
+		}
+
+		if (ssh_pki_import_privkey_file(ssh->privkeyfile, (ssh->passphrase ? ssh->passphrase : ""),
+						NULL, NULL, &key) != SSH_OK) {
+			if (ssh->passphrase == NULL || ssh->passphrase[0] == '\0') {
+				remmina_ssh_set_error(ssh, _("No saved SSH passphrase supplied. Asking user to enter it."));
+				return REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT;
+			}
+
+			// TRANSLATORS: The placeholder %s is an error message
+			remmina_ssh_set_error(ssh, _("Could not authenticate with public SSH key. %s"));
+			return REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT;
+		}
 	}
 
 	ret = ssh_userauth_publickey(ssh->session, NULL, key);
 	ssh_key_free(key);
+	ssh_key_free(cert);
 	REMMINA_DEBUG("Authentication with public SSH key returned: %d", ret);
 
 	switch (ret) {
@@ -611,7 +661,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 					break;
 				case SSH_AUTH_METHOD_INTERACTIVE:
 					ssh->auth = SSH_AUTH_KBDINTERACTIVE;
-					//REMMINA_DEBUG("Interactve auth method not implemented: %d", ssh->auth);
+					//REMMINA_DEBUG("Interactive auth method not implemented: %d", ssh->auth);
 					break;
 				case SSH_AUTH_METHOD_UNKNOWN:
 				default:
@@ -644,7 +694,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 					break;
 				case SSH_AUTH_METHOD_INTERACTIVE:
 					ssh->auth = SSH_AUTH_KBDINTERACTIVE;
-					//REMMINA_DEBUG("Interactve auth method not implemented: %d", ssh->auth);
+					//REMMINA_DEBUG("Interactive auth method not implemented: %d", ssh->auth);
 					break;
 				case SSH_AUTH_METHOD_UNKNOWN:
 				default:
@@ -678,7 +728,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 					break;
 				case SSH_AUTH_METHOD_INTERACTIVE:
 					ssh->auth = SSH_AUTH_KBDINTERACTIVE;
-					//REMMINA_DEBUG("Interactve auth method not implemented: %d", ssh->auth);
+					//REMMINA_DEBUG("Interactive auth method not implemented: %d", ssh->auth);
 					break;
 				case SSH_AUTH_METHOD_UNKNOWN:
 				default:
@@ -712,7 +762,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 					break;
 				case SSH_AUTH_METHOD_INTERACTIVE:
 					ssh->auth = SSH_AUTH_KBDINTERACTIVE;
-					//REMMINA_DEBUG("Interactve auth method not implemented: %d", ssh->auth);
+					//REMMINA_DEBUG("Interactive auth method not implemented: %d", ssh->auth);
 					break;
 				case SSH_AUTH_METHOD_UNKNOWN:
 				default:
@@ -745,7 +795,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 						break;
 					case SSH_AUTH_METHOD_INTERACTIVE:
 						ssh->auth = SSH_AUTH_KBDINTERACTIVE;
-						//REMMINA_DEBUG("Interactve auth method not implemented: %d", ssh->auth);
+						//REMMINA_DEBUG("Interactive auth method not implemented: %d", ssh->auth);
 						break;
 					case SSH_AUTH_METHOD_UNKNOWN:
 					default:
@@ -788,7 +838,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 					break;
 				case SSH_AUTH_METHOD_INTERACTIVE:
 					ssh->auth = SSH_AUTH_KBDINTERACTIVE;
-					//REMMINA_DEBUG("Interactve auth method not implemented: %d", ssh->auth);
+					//REMMINA_DEBUG("Interactive auth method not implemented: %d", ssh->auth);
 					break;
 				case SSH_AUTH_METHOD_UNKNOWN:
 				default:
@@ -962,7 +1012,8 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 
 	/* Try existing password/passphrase first */
 	ret = remmina_ssh_auth(ssh, current_pwd, gp, remminafile);
-	REMMINA_DEBUG("Returned %d at 1st attempt", ret);
+	REMMINA_DEBUG("Returned %d at 1st attempt with the following message:", ret);
+	REMMINA_DEBUG("%s", ssh->error);
 
 	/* It seems that functions like ssh_userauth_password() can only be called 3 times
 	 * on a ssh connection. And the 3rd failed attempt will block the calling thread forever.
@@ -1075,7 +1126,8 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 		}
 		REMMINA_DEBUG("Retrying authentication");
 		ret = remmina_ssh_auth(ssh, current_pwd, gp, remminafile);
-		REMMINA_DEBUG("Authentication attempt n° %d returned %d", attempt + 2, ret);
+		REMMINA_DEBUG("Authentication attempt n° %d returned %d with the following message:", attempt + 2, ret);
+		REMMINA_DEBUG("%s", ssh->error);
 	}
 
 	g_free(current_pwd); current_pwd = NULL;
@@ -1352,6 +1404,7 @@ remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile, gboolean i
 
 	username = remmina_file_get_string(remminafile, is_tunnel ? "ssh_tunnel_username" : "username");
 	privatekey = remmina_file_get_string(remminafile, is_tunnel ? "ssh_tunnel_privatekey" : "ssh_privatekey");
+	ssh->certfile = g_strdup(remmina_file_get_string(remminafile, is_tunnel ? "ssh_tunnel_certfile" : "ssh_certfile"));
 
 	/* The ssh->server and ssh->port values */
 	if (is_tunnel) {
@@ -1409,14 +1462,14 @@ remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile, gboolean i
 	REMMINA_DEBUG("ssh->ciphers: %s", ssh->ciphers);
 	REMMINA_DEBUG("ssh->hostkeytypes: %s", ssh->hostkeytypes);
 	REMMINA_DEBUG("ssh->proxycommand: %s", ssh->proxycommand);
-	REMMINA_DEBUG("ssh->stricthostkeycheck: %s", ssh->stricthostkeycheck);
+	REMMINA_DEBUG("ssh->stricthostkeycheck: %d", ssh->stricthostkeycheck);
 	REMMINA_DEBUG("ssh->compression: %s", ssh->compression);
 
 	/* Public/Private keys */
 	s = (privatekey ? g_strdup(privatekey) : remmina_ssh_find_identity());
 	if (s) {
 		ssh->privkeyfile = remmina_ssh_identity_path(s);
-		REMMINA_DEBUG("ssh->privkeyfile: %s", ssh->compression);
+		REMMINA_DEBUG("ssh->privkeyfile: %s", ssh->privkeyfile);
 		g_free(s);
 	} else {
 		ssh->privkeyfile = NULL;
@@ -1442,6 +1495,7 @@ remmina_ssh_init_from_ssh(RemminaSSH *ssh, const RemminaSSH *ssh_src)
 	ssh->password = g_strdup(ssh_src->password);
 	ssh->passphrase = g_strdup(ssh_src->passphrase);
 	ssh->privkeyfile = g_strdup(ssh_src->privkeyfile);
+	ssh->certfile = g_strdup(ssh_src->certfile);
 	ssh->charset = g_strdup(ssh_src->charset);
 	ssh->proxycommand = g_strdup(ssh_src->proxycommand);
 	ssh->kex_algorithms = g_strdup(ssh_src->kex_algorithms);
@@ -1493,6 +1547,7 @@ remmina_ssh_free(RemminaSSH *ssh)
 	g_free(ssh->user);
 	g_free(ssh->password);
 	g_free(ssh->privkeyfile);
+	g_free(ssh->certfile);
 	g_free(ssh->charset);
 	g_free(ssh->error);
 	pthread_mutex_destroy(&ssh->ssh_mutex);

@@ -220,9 +220,8 @@ static void remmina_rdp_settings_grid_load_layout(RemminaPluginRdpsetGrid* grid)
 		g_free(s);
 	}
 
-	free(layouts);
+	freerdp_keyboard_layouts_free(layouts);
 }
-
 
 static void remmina_rdp_settings_grid_load_devicescalefactor_combo(RemminaPluginRdpsetGrid* grid)
 {
@@ -255,7 +254,6 @@ static void remmina_rdp_settings_grid_load_desktoporientation_combo(RemminaPlugi
 	gtk_list_store_set(grid->desktop_orientation_store, &iter, 0, 270, 1, "270°", -1);
 
 }
-
 
 static void remmina_rdp_settings_grid_load_quality(RemminaPluginRdpsetGrid* grid)
 {
