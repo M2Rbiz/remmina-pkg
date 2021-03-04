@@ -79,9 +79,9 @@
 
 enum color_schemes { LINUX, TANGO, GRUVBOX, SOLARIZED_DARK, SOLARIZED_LIGHT, XTERM, CUSTOM };
 
-/** 16 color palettes in GdkRGBA format (red, green, blue, alpha).
- * Text displayed in the first 8 colors (0-7) is meek (uses thin strokes).
- * Text displayed in the second 8 colors (8-15) is bold (uses thick strokes).
+/** 16 colour palettes in GdkRGBA format (red, green, blue, alpha).
+ * Text displayed in the first 8 colours (0-7) is meek (uses thin strokes).
+ * Text displayed in the second 8 colours (8-15) is bold (uses thick strokes).
  **/
 const GdkRGBA linux_palette[PALETTE_SIZE] = {
 	{ 0,	    0,	      0,	1 },
@@ -701,7 +701,7 @@ GtkWidget * remmina_plugin_pop_search_new (GtkWidget *relative_to, RemminaProtoc
         search_widget->has_regex = FALSE;
         search_widget->regex_pattern = NULL;
 
-	search_widget->builder = remmina_public_gtk_builder_new_from_file("remmina_search.glade");
+	search_widget->builder = remmina_public_gtk_builder_new_from_resource("/org/remmina/Remmina/src/../data/ui/remmina_search.glade");
 	search_widget->window = GTK_WIDGET(GET_OBJECT("RemminaSearchWidget"));
         search_widget->search_entry = GTK_WIDGET(GET_OBJECT("search_entry"));
         search_widget->search_prev_button = GTK_WIDGET(GET_OBJECT("search_prev_button"));
@@ -891,7 +891,10 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 #if VTE_CHECK_VERSION(0, 38, 0)
 	GdkRGBA cp[PALETTE_SIZE];
 	GdkRGBA cursor_color;
-	GdkRGBA bold_color;
+	GdkRGBA cursor_foreground;
+	GdkRGBA highlight;
+	GdkRGBA highlight_foreground;
+	GdkRGBA colorBD;
 
 	/*
 	 * custom colors reside inside of the 'theme' subdir of the remmina config folder (.config/remmina/theme)
@@ -944,7 +947,10 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 		gdk_rgba_parse(&foreground_color, color_pref.foreground);
 		gdk_rgba_parse(&background_color, color_pref.background);
 		gdk_rgba_parse(&cursor_color, color_pref.cursor);
-		gdk_rgba_parse(&bold_color, color_pref.bold);
+		gdk_rgba_parse(&cursor_foreground, color_pref.cursor_foreground);
+		gdk_rgba_parse(&highlight, color_pref.highlight);
+		gdk_rgba_parse(&highlight_foreground, color_pref.highlight_foreground);
+		gdk_rgba_parse(&colorBD, color_pref.colorBD);
 
 		gdk_rgba_parse(&cp[0], color_pref.color0);
 		gdk_rgba_parse(&cp[1], color_pref.color1);
@@ -978,49 +984,70 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 			gdk_rgba_parse(&foreground_color, "#ffffff");
 			gdk_rgba_parse(&background_color, "#000000");
 			gdk_rgba_parse(&cursor_color, "#ffffff");
-			gdk_rgba_parse(&bold_color, "#ffffff");
+			gdk_rgba_parse(&cursor_foreground, "#00000");
+			gdk_rgba_parse(&highlight, "#ffffff");
+			gdk_rgba_parse(&highlight_foreground, "#00000");
+			gdk_rgba_parse(&colorBD, "#ffffff");
 			remminavte.palette = linux_palette;
 			break;
 		case TANGO:
-			gdk_rgba_parse(&foreground_color, "#eeeeec");
-			gdk_rgba_parse(&background_color, "#2e3436");
-			gdk_rgba_parse(&cursor_color, "#8ae234");
-			gdk_rgba_parse(&bold_color, "#eeeeec");
+			gdk_rgba_parse(&foreground_color, "#ffffff");
+			gdk_rgba_parse(&background_color, "#000000");
+			gdk_rgba_parse(&cursor_color, "#000000");
+			gdk_rgba_parse(&cursor_foreground, "#ffffff");
+			gdk_rgba_parse(&highlight, "#ffffff");
+			gdk_rgba_parse(&highlight_foreground, "#00000");
+			gdk_rgba_parse(&colorBD, "#000000");
 			remminavte.palette = tango_palette;
 			break;
 		case GRUVBOX:
-			gdk_rgba_parse(&foreground_color, "#ebdbb2");
-			gdk_rgba_parse(&background_color, "#282828");
-			gdk_rgba_parse(&cursor_color, "#d3869b");
-			gdk_rgba_parse(&bold_color, "#ffffff");
+			gdk_rgba_parse(&foreground_color, "#e6d4a3");
+			gdk_rgba_parse(&background_color, "#1e1e1e");
+			gdk_rgba_parse(&cursor_color, "#e6d4a3");
+			gdk_rgba_parse(&cursor_foreground, "#e6d4a3");
+			gdk_rgba_parse(&highlight, "#e6d4a3");
+			gdk_rgba_parse(&highlight_foreground, "#1e1e1e");
+			gdk_rgba_parse(&colorBD, "#ffffff");
 			remminavte.palette = gruvbox_palette;
 			break;
 		case SOLARIZED_DARK:
 			gdk_rgba_parse(&foreground_color, "#839496");
 			gdk_rgba_parse(&background_color, "#002b36");
 			gdk_rgba_parse(&cursor_color, "#93a1a1");
-			gdk_rgba_parse(&bold_color, "#819090");
+			gdk_rgba_parse(&cursor_foreground, "#839496");
+			gdk_rgba_parse(&highlight, "#839496");
+			gdk_rgba_parse(&highlight_foreground, "#002b36");
+			gdk_rgba_parse(&colorBD, "#819090");
 			remminavte.palette = solarized_dark_palette;
 			break;
 		case SOLARIZED_LIGHT:
 			gdk_rgba_parse(&foreground_color, "#657b83");
 			gdk_rgba_parse(&background_color, "#fdf6e3");
 			gdk_rgba_parse(&cursor_color, "#586e75");
-			gdk_rgba_parse(&bold_color, "#475b62");
+			gdk_rgba_parse(&cursor_foreground, "#657b83");
+			gdk_rgba_parse(&highlight, "#657b83");
+			gdk_rgba_parse(&highlight_foreground, "#fdf6e3");
+			gdk_rgba_parse(&colorBD, "#475b62");
 			remminavte.palette = solarized_light_palette;
 			break;
 		case XTERM:
 			gdk_rgba_parse(&foreground_color, "#000000");
 			gdk_rgba_parse(&background_color, "#ffffff");
 			gdk_rgba_parse(&cursor_color, "#000000");
-			gdk_rgba_parse(&bold_color, "#000000");
+			gdk_rgba_parse(&cursor_foreground, "#ffffff");
+			gdk_rgba_parse(&highlight, "#000000");
+			gdk_rgba_parse(&highlight_foreground, "#ffffff");
+			gdk_rgba_parse(&colorBD, "#000000");
 			remminavte.palette = xterm_palette;
 			break;
 		case CUSTOM:
 			gdk_rgba_parse(&foreground_color, remmina_pref.color_pref.foreground);
 			gdk_rgba_parse(&background_color, remmina_pref.color_pref.background);
 			gdk_rgba_parse(&cursor_color, remmina_pref.color_pref.cursor);
-			gdk_rgba_parse(&bold_color, remmina_pref.color_pref.bold);
+			gdk_rgba_parse(&cursor_foreground, remmina_pref.color_pref.cursor_foreground);
+			gdk_rgba_parse(&highlight, remmina_pref.color_pref.highlight);
+			gdk_rgba_parse(&highlight_foreground, remmina_pref.color_pref.highlight_foreground);
+			gdk_rgba_parse(&colorBD, remmina_pref.color_pref.colorBD);
 
 			gdk_rgba_parse(&cp[0], remmina_pref.color_pref.color0);
 			gdk_rgba_parse(&cp[1], remmina_pref.color_pref.color1);
@@ -1058,7 +1085,10 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 	vte_terminal_set_color_foreground(VTE_TERMINAL(vte), &foreground_color);
 	vte_terminal_set_color_background(VTE_TERMINAL(vte), &background_color);
 	vte_terminal_set_color_cursor(VTE_TERMINAL(vte), &cursor_color);
-	vte_terminal_set_color_bold(VTE_TERMINAL(vte), &bold_color);
+	vte_terminal_set_color_cursor_foreground(VTE_TERMINAL(vte), &cursor_foreground);
+	vte_terminal_set_color_highlight(VTE_TERMINAL(vte), &highlight);
+	vte_terminal_set_color_highlight_foreground(VTE_TERMINAL(vte), &highlight_foreground);
+	vte_terminal_set_color_bold(VTE_TERMINAL(vte), &colorBD);
 
 #else
 	/* VTE <= 2.90 doesn’t support GdkRGBA so we must convert GdkRGBA to GdkColor */
@@ -1356,10 +1386,11 @@ static RemminaProtocolFeature remmina_plugin_ssh_features[] =
 static const RemminaProtocolSetting remmina_ssh_basic_settings[] =
 {
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	  "server",	    NULL,				  FALSE, "_ssh._tcp", NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "ssh_auth",	    N_("Authentication type"),		  FALSE, ssh_auth,    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	    N_("Username"),			  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	    N_("User password"),		  FALSE, NULL,	      NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "ssh_auth",	    N_("Authentication type"),		  FALSE, ssh_auth,    NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	  "ssh_privatekey", N_("SSH identity file"),		  FALSE, NULL,	      NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FILE,	  "ssh_certfile",   N_("SSH certificate file"),		  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "ssh_passphrase", N_("Password to unlock private key"), FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "exec",	    N_("Start-up program"),		  FALSE, NULL,	      NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		    NULL,				  FALSE, NULL,	      NULL }
@@ -1388,7 +1419,7 @@ static gchar log_tips[] =
  */
 static const RemminaProtocolSetting remmina_ssh_advanced_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT, "ssh_color_scheme",	  N_("Terminal color scheme"),		      FALSE, ssh_terminal_palette, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT, "ssh_color_scheme",	  N_("Terminal colour scheme"),		      FALSE, ssh_terminal_palette, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT, "ssh_charset",		  N_("Character set"),			      FALSE, ssh_charset_list,	   NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	"ssh_proxycommand",	  N_("SSH Proxy Command"),		      FALSE, NULL,		   NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	"ssh_kex_algorithms",	  N_("KEX (Key Exchange) algorithms"),	      FALSE, NULL,		   NULL },

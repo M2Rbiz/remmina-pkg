@@ -76,8 +76,8 @@ G_DEFINE_TYPE(RemminaConnectionWindow, rcw, GTK_TYPE_WINDOW)
 
 #define MOTION_TIME 100
 
-/* default timeout used to hide the floating toolbar wen switching profile */
-#define TB_HIDE_TIME_TIME 1000
+/* default timeout used to hide the floating toolbar when switching profile */
+#define TB_HIDE_TIME_TIME 1500
 
 #define FULL_SCREEN_TARGET_MONITOR_UNDEFINED -1
 
@@ -111,6 +111,7 @@ struct _RemminaConnectionWindowPriv {
 	GtkToolItem *					toolitem_dynres;
 	GtkToolItem *					toolitem_scale;
 	GtkToolItem *					toolitem_grab;
+	GtkToolItem *					toolitem_multimon;
 	GtkToolItem *					toolitem_preferences;
 	GtkToolItem *					toolitem_tools;
 	GtkToolItem *					toolitem_duplicate;
@@ -580,7 +581,7 @@ static void rcw_keyboard_grab(RemminaConnectionWindow *cnnwin)
 		 * events (ie: i3wm+Plasma with GDK_CORE_DEVICE_EVENTS=1 because detail=NotifyNonlinear
 		 * instead of detail=NotifyAncestor/detail=NotifyInferior)
 		 * Receiving a FocusOut event for Remmina at this time will cause an infinite loop.
-		 * Therefore is important for GTK to use Xinput2 insetead of core X events
+		 * Therefore is important for GTK to use Xinput2 instead of core X events
 		 * by unsetting GDK_CORE_DEVICE_EVENTS
 		 */
 #if GTK_CHECK_VERSION(3, 24, 0)
@@ -1311,10 +1312,26 @@ static void rcw_toolbar_fullscreen(GtkToolItem *toggle, RemminaConnectionWindow 
 
 	if (!(cnnobj = rcw_get_visible_cnnobj(cnnwin))) return;
 
-	if (gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggle)))
-		rcw_switch_viewmode(cnnwin, cnnwin->priv->fss_view_mode);
+	RemminaProtocolWidget *gp = REMMINA_PROTOCOL_WIDGET(cnnobj->proto);
+
+	if (remmina_protocol_widget_get_multimon (gp) >= 1) {
+		REMMINA_DEBUG("Fullscreen on all monitor");
+		gdk_window_set_fullscreen_mode (gtk_widget_get_window(GTK_WIDGET(toggle)), GDK_FULLSCREEN_ON_ALL_MONITORS);
+	} else
+		REMMINA_DEBUG("Fullscreen on one monitor");
+
+	if ((toggle != NULL && toggle == cnnwin->priv->toolitem_fullscreen))
+		if (gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggle))) {
+			if (remmina_protocol_widget_get_multimon (gp) >= 1)
+				gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(cnnwin->priv->toolitem_multimon), TRUE);
+			rcw_switch_viewmode(cnnwin, cnnwin->priv->fss_view_mode);
+		} else
+			rcw_switch_viewmode(cnnwin, SCROLLED_WINDOW_MODE);
 	else
-		rcw_switch_viewmode(cnnwin, SCROLLED_WINDOW_MODE);
+		if (gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(cnnwin->priv->toolitem_multimon)))
+			rcw_switch_viewmode(cnnwin, cnnwin->priv->fss_view_mode);
+		else
+			rcw_switch_viewmode(cnnwin, SCROLLED_WINDOW_MODE);
 }
 
 static void rco_viewport_fullscreen_mode(GtkWidget *widget, RemminaConnectionObject *cnnobj)
@@ -1646,6 +1663,32 @@ static void rcw_toolbar_scaled_mode(GtkToolItem *toggle, RemminaConnectionWindow
 	}
 
 	rco_change_scalemode(cnnobj, bdyn, bscale);
+}
+
+static void rcw_toolbar_multi_monitor_mode(GtkToolItem *toggle, RemminaConnectionWindow *cnnwin)
+{
+	TRACE_CALL(__func__);
+	RemminaConnectionObject *cnnobj;
+
+	if (cnnwin->priv->toolbar_is_reconfiguring)
+		return;
+
+	if (!(cnnobj = rcw_get_visible_cnnobj(cnnwin))) return;
+
+	if (gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggle))) {
+		REMMINA_DEBUG("Saving multimon as 1");
+		remmina_file_set_int(cnnobj->remmina_file, "multimon", 1);
+		remmina_file_save(cnnobj->remmina_file);
+		remmina_protocol_widget_call_feature_by_type(REMMINA_PROTOCOL_WIDGET(cnnobj->proto),
+				REMMINA_PROTOCOL_FEATURE_TYPE_MULTIMON, 0);
+		if (!gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(cnnwin->priv->toolitem_fullscreen)))
+			gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(cnnwin->priv->toolitem_fullscreen), TRUE);
+	} else {
+		REMMINA_DEBUG("Saving multimon as 0");
+		remmina_file_set_int(cnnobj->remmina_file, "multimon", 0);
+		remmina_file_save(cnnobj->remmina_file);
+		rcw_toolbar_fullscreen(NULL, cnnwin);
+	}
 }
 
 static void rcw_toolbar_preferences_popdown(GtkToolItem *toggle, RemminaConnectionWindow *cnnwin)
@@ -2131,6 +2174,12 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	GtkWidget *widget;
 	GtkWidget *arrow;
 
+	GdkDisplay *display;
+	gint n_monitors;
+
+	display = gdk_display_get_default ();
+	n_monitors = gdk_display_get_n_monitors(display);
+
 	cnnobj = rcw_get_visible_cnnobj(cnnwin);
 
 	priv->toolbar_is_reconfiguring = TRUE;
@@ -2138,8 +2187,6 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	toolbar = gtk_toolbar_new();
 	gtk_widget_show(toolbar);
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
-	gtk_toolbar_set_icon_size(GTK_TOOLBAR(toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
-	gtk_toolbar_set_show_arrow(GTK_TOOLBAR(toolbar), FALSE);
 
 	/* Auto-Fit */
 	toolitem = gtk_tool_button_new(NULL, NULL);
@@ -2197,19 +2244,22 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	if (mode == SCROLLED_WINDOW_MODE)
 		gtk_widget_set_sensitive(GTK_WIDGET(widget), FALSE);
 
-	/* Switch tabs */
-	toolitem = gtk_toggle_tool_button_new();
-	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-switch-page-symbolic");
-	rcw_set_tooltip(GTK_WIDGET(toolitem), _("Switch tab pages"), remmina_pref.shortcutkey_prevtab,
-			remmina_pref.shortcutkey_nexttab);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
-	gtk_widget_show(GTK_WIDGET(toolitem));
-	g_signal_connect(G_OBJECT(toolitem), "toggled", G_CALLBACK(rcw_toolbar_switch_page), cnnwin);
-	priv->toolitem_switch_page = toolitem;
-
-	toolitem = gtk_separator_tool_item_new();
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
-	gtk_widget_show(GTK_WIDGET(toolitem));
+	/* Multi monitor */
+	if (n_monitors > 1) {
+		toolitem = gtk_toggle_tool_button_new();
+		gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-multi-monitor-symbolic");
+		rcw_set_tooltip(GTK_WIDGET(toolitem), _("Multi monitor"),
+				remmina_pref.shortcutkey_multimon, 0);
+		gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
+		gtk_widget_show(GTK_WIDGET(toolitem));
+		g_signal_connect(G_OBJECT(toolitem), "toggled", G_CALLBACK(rcw_toolbar_multi_monitor_mode), cnnwin);
+		priv->toolitem_multimon = toolitem;
+		if (!cnnobj)
+			gtk_widget_set_sensitive(GTK_WIDGET(toolitem), FALSE);
+		else
+			gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(toolitem),
+					remmina_file_get_int(cnnobj->remmina_file, "multimon", FALSE));
+	}
 
 	/* Dynamic Resolution Update */
 	toolitem = gtk_toggle_tool_button_new();
@@ -2256,6 +2306,21 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(rcw_toolbar_scaler_option), cnnwin);
 	priv->scaler_option_button = widget;
 
+	/* Separator */
+	toolitem = gtk_separator_tool_item_new ();
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
+	gtk_widget_show(GTK_WIDGET(toolitem));
+
+	/* Switch tabs */
+	toolitem = gtk_toggle_tool_button_new();
+	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-switch-page-symbolic");
+	rcw_set_tooltip(GTK_WIDGET(toolitem), _("Switch tab pages"), remmina_pref.shortcutkey_prevtab,
+			remmina_pref.shortcutkey_nexttab);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
+	gtk_widget_show(GTK_WIDGET(toolitem));
+	g_signal_connect(G_OBJECT(toolitem), "toggled", G_CALLBACK(rcw_toolbar_switch_page), cnnwin);
+	priv->toolitem_switch_page = toolitem;
+
 	/* Grab keyboard button */
 	toolitem = gtk_toggle_tool_button_new();
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-keyboard-symbolic");
@@ -2266,6 +2331,7 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	g_signal_connect(G_OBJECT(toolitem), "toggled", G_CALLBACK(rcw_toolbar_grab), cnnwin);
 	priv->toolitem_grab = toolitem;
 
+	/* Preferences */
 	toolitem = gtk_toggle_tool_button_new();
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-preferences-system-symbolic");
 	gtk_tool_item_set_tooltip_text(toolitem, _("Preferences"));
@@ -2274,6 +2340,7 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	g_signal_connect(G_OBJECT(toolitem), "toggled", G_CALLBACK(rcw_toolbar_preferences), cnnwin);
 	priv->toolitem_preferences = toolitem;
 
+	/* Tools */
 	toolitem = gtk_toggle_tool_button_new();
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-system-run-symbolic");
 	gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolitem), _("_Tools"));
@@ -2283,6 +2350,7 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	g_signal_connect(G_OBJECT(toolitem), "toggled", G_CALLBACK(rcw_toolbar_tools), cnnwin);
 	priv->toolitem_tools = toolitem;
 
+	/* Separator */
 	toolitem = gtk_separator_tool_item_new();
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	gtk_widget_show(GTK_WIDGET(toolitem));
@@ -2306,6 +2374,12 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	g_signal_connect(G_OBJECT(toolitem), "clicked", G_CALLBACK(rcw_toolbar_screenshot), cnnwin);
 	priv->toolitem_screenshot = toolitem;
 
+	/* Separator */
+	toolitem = gtk_separator_tool_item_new();
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
+	gtk_widget_show(GTK_WIDGET(toolitem));
+
+	/* Minimize */
 	toolitem = gtk_tool_button_new(NULL, "_Bottom");
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-go-bottom-symbolic");
 	rcw_set_tooltip(GTK_WIDGET(toolitem), _("Minimize window"), remmina_pref.shortcutkey_minimize, 0);
@@ -2315,6 +2389,7 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	if (kioskmode)
 		gtk_widget_set_sensitive(GTK_WIDGET(toolitem), FALSE);
 
+	/* Disconnect */
 	toolitem = gtk_tool_button_new(NULL, "_Disconnect");
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "remmina-disconnect-symbolic");
 	rcw_set_tooltip(GTK_WIDGET(toolitem), _("Disconnect"), remmina_pref.shortcutkey_disconnect, 0);
@@ -2373,7 +2448,6 @@ static void rco_update_toolbar(RemminaConnectionObject *cnnobj)
 
 	rco_update_toolbar_autofit_button(cnnobj);
 
-
 	toolitem = priv->toolitem_switch_page;
 	if (kioskmode)
 		bval = FALSE;
@@ -2408,6 +2482,15 @@ static void rco_update_toolbar(RemminaConnectionObject *cnnobj)
 		break;
 	}
 
+	/* REMMINA_PROTOCOL_FEATURE_TYPE_MULTIMON */
+	toolitem = priv->toolitem_multimon;
+	gint hasmultimon = remmina_protocol_widget_query_feature_by_type(REMMINA_PROTOCOL_WIDGET(cnnobj->proto),
+							     REMMINA_PROTOCOL_FEATURE_TYPE_MULTIMON);
+	gtk_widget_set_sensitive(GTK_WIDGET(toolitem), cnnobj->connected);
+	gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(toolitem),
+			remmina_file_get_int(cnnobj->remmina_file, "multimon", FALSE));
+	gtk_widget_set_sensitive(GTK_WIDGET(toolitem), hasmultimon);
+
 	toolitem = priv->toolitem_grab;
 	gtk_widget_set_sensitive(GTK_WIDGET(toolitem), cnnobj->connected);
 	gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(toolitem),
@@ -2429,9 +2512,34 @@ static void rco_update_toolbar(RemminaConnectionObject *cnnobj)
 	gtk_window_set_title(GTK_WINDOW(cnnobj->cnnwin), remmina_file_get_string(cnnobj->remmina_file, "name"));
 
 	test_floating_toolbar = (priv->floating_toolbar_widget != NULL);
-	if (test_floating_toolbar)
-		gtk_label_set_text(GTK_LABEL(priv->floating_toolbar_label),
-				   remmina_file_get_string(cnnobj->remmina_file, "name"));
+
+	if (test_floating_toolbar) {
+		const gchar *str = remmina_file_get_string(cnnobj->remmina_file, "name");
+		const gchar *format;
+		GdkRGBA rgba;
+		gchar *bg;
+
+		bg = g_strdup(remmina_pref.grab_color);
+		if (!gdk_rgba_parse(&rgba, bg)) {
+			REMMINA_DEBUG ("%s cannot be parsed as a color", bg);
+			bg = g_strdup("#00FF00");
+		} else
+			REMMINA_DEBUG ("Using %s as background color", bg);
+
+		if (remmina_file_get_int(cnnobj->remmina_file, "keyboard_grab", FALSE))
+			if (remmina_pref_get_boolean("grab_color_switch"))
+				format = g_strconcat("<span bgcolor=\"", bg, "\" size=\"large\"><b>(G:ON) - \%s</b></span>", NULL);
+			else
+				format = "<big><b>(G:ON) - \%s</b></big>";
+		else
+			format = "<big><b>(G:OFF) - \%s</b></big>";
+		gchar *markup;
+
+		markup = g_markup_printf_escaped (format, str);
+		gtk_label_set_markup (GTK_LABEL (priv->floating_toolbar_label), markup);
+		g_free (markup);
+		g_free (bg);
+	}
 
 	priv->toolbar_is_reconfiguring = FALSE;
 }
@@ -2607,7 +2715,7 @@ static gboolean focus_in_delayed_grab(RemminaConnectionWindow *cnnwin)
 #endif
 	if (cnnwin->priv->pointer_entered) {
 #if DEBUG_KB_GRABBING
-		printf("DEBUG_KB_GRABBING:   deleayed requesting kb and pointer grab, because of pointer inside\n");
+		printf("DEBUG_KB_GRABBING:   delayed requesting kb and pointer grab, because of pointer inside\n");
 #endif
 		rcw_keyboard_grab(cnnwin);
 		rcw_pointer_grab(cnnwin);
@@ -2943,12 +3051,37 @@ static gboolean rcw_state_event(GtkWidget *widget, GdkEventWindowState *event, g
 
 static gboolean rcw_map_event_fullscreen(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+	TRACE_CALL(__func__);
+	RemminaConnectionObject *cnnobj;
 	gint target_monitor;
 
-	TRACE_CALL(__func__);
+	REMMINA_DEBUG ("Mapping Remmina connection window");
 
-	if (!REMMINA_IS_CONNECTION_WINDOW(widget))
+	if (!REMMINA_IS_CONNECTION_WINDOW(widget)) {
+		REMMINA_DEBUG ("Remmina Connection Window undefined, cannot go fullscreen");
 		return FALSE;
+	}
+
+	//RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow *)data;
+	cnnobj = rcw_get_visible_cnnobj((RemminaConnectionWindow*)widget);
+	//cnnobj = g_object_get_data(G_OBJECT(widget), "cnnobj");
+	if (!cnnobj) {
+		REMMINA_DEBUG ("Remmina Connection Object undefined, cannot go fullscreen");
+		return FALSE;
+	}
+
+	RemminaProtocolWidget *gp = REMMINA_PROTOCOL_WIDGET(cnnobj->proto);
+	if (!gp) {
+		REMMINA_DEBUG ("Remmina Protocol Widget undefined, cannot go fullscreen");
+	}
+
+	if (remmina_protocol_widget_get_multimon (gp) >= 1) {
+		REMMINA_DEBUG("Fullscreen on all monitor");
+		gdk_window_set_fullscreen_mode (gtk_widget_get_window(widget), GDK_FULLSCREEN_ON_ALL_MONITORS);
+		gdk_window_fullscreen(gtk_widget_get_window(widget));
+		return TRUE;
+	} else
+		REMMINA_DEBUG("Fullscreen on one monitor");
 
 	target_monitor = GPOINTER_TO_INT(data);
 
@@ -3494,7 +3627,7 @@ static void rcw_create_overlay_ftb_overlay(RemminaConnectionWindow *cnnwin)
 	g_signal_connect_after(GTK_WIDGET(priv->overlay_ftb_overlay), "drag-begin", G_CALLBACK(rcw_ftb_drag_begin), cnnwin);
 
 	if (remmina_pref.fullscreen_toolbar_visibility == FLOATING_TOOLBAR_VISIBILITY_DISABLE) {
-		/* toolbar in fullscreenmode disbled, hide everityhg */
+		/* toolbar in fullscreenmode disabled, hide everything */
 		gtk_widget_hide(fr);
 	}
 }
@@ -4071,6 +4204,9 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 
 	view_mode = remmina_file_get_int(cnnobj->remmina_file, "viewmode", 0);
 	if (kioskmode)
+		view_mode = VIEWPORT_FULLSCREEN_MODE;
+	gint ismultimon = remmina_file_get_int(cnnobj->remmina_file, "multimon", 0);
+	if (ismultimon)
 		view_mode = VIEWPORT_FULLSCREEN_MODE;
 
 	/* Create the viewport to make the RemminaProtocolWidget scrollable */
