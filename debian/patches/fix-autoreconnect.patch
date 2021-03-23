@@ -1,0 +1,39 @@
+From 104d52155418f3627b03fd6d4c27909aa174c9a0 Mon Sep 17 00:00:00 2001
+From: Fabio Fantoni <fabio.fantoni@m2r.biz>
+Date: Tue, 23 Mar 2021 16:13:40 +0100
+Subject: [PATCH] Allow autoreconnect for ERRINFO_GRAPHICS_SUBSYSTEM_FAILED
+
+Allow autoreconnect to succeed if that specific error code was returned
+as disconnection reason.
+Same done on freerdp:
+https://github.com/FreeRDP/FreeRDP/commit/9b8d16b33205f71a8376b60dabcf57e4514be4b7
+This is useful as workaround for some disconnect issues server-side on
+w2012r2 and w2016.
+
+Closes #2452
+---
+ plugins/rdp/rdp_plugin.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+--- a/plugins/rdp/rdp_plugin.c
++++ b/plugins/rdp/rdp_plugin.c
+@@ -337,9 +337,16 @@
+ 	rfi->reconnect_nattempt = 0;
+ 
+ 	/* Only auto reconnect on network disconnects. */
+-	if (freerdp_error_info(rfi->instance) != 0) {
+-		rfi->is_reconnecting = FALSE;
+-		return FALSE;
++	switch (freerdp_error_info(rfi->instance)) {
++		case ERRINFO_GRAPHICS_SUBSYSTEM_FAILED:
++			/* Disconnected by server hitting a bug or resource limit */
++			break;
++		case ERRINFO_SUCCESS:
++			/* A network disconnect was detected */
++			break;
++		default:
++			rfi->is_reconnecting = FALSE;
++			return FALSE;
+ 	}
+ 
+ 	if (!settings->AutoReconnectionEnabled) {
