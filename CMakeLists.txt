@@ -237,6 +237,17 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
   endif()
 endif()
 
+# Figure out no-undefined flag
+if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+    set(NO_UNDEFINED_FLAG "-Wl,-undefined,error")
+elseif((${CMAKE_SYSTEM_NAME} STREQUAL Linux) OR MINGW)
+    set(NO_UNDEFINED_FLAG "-Wl,--no-undefined")
+else()
+    # On OpenBSD this seems to cause problems, so we unset it
+    set(NO_UNDEFINED_FLAG "")
+endif()
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_UNDEFINED_FLAG}")
+
 check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
@@ -265,7 +276,7 @@ endif()
 set(WITH_LIBRARY_VERSIONING "ON")
 set(REMMINA_VERSION_MAJOR "1")
 set(REMMINA_VERSION_MINOR "4")
-set(REMMINA_VERSION_REVISION "12")
+set(REMMINA_VERSION_REVISION "13")
 # set(REMMINA_VERSION_SUFFIX "1") set(REMMINA_VERSION
 # "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}.${REMMINA_VERSION_SUFFIX}")
 set(REMMINA_VERSION
@@ -364,7 +375,27 @@ if(NOT GTK3_FOUND)
     message(FATAL_ERROR "GTK3 library not found")
 endif(NOT GTK3_FOUND)
 include_directories(${GTK3_INCLUDE_DIRS})
-set(GTK_LIBRARIES ${GTK3_LIBRARY} ${GDK3_LIBRARY} ${GDKPixbuf_LIBRARY} ${Pango_LIBRARY} ${Cairo_LIBRARY} ${GObject_LIBRARY} ${GLib_LIBRARY} ${GIO_LIBRARY} ${Gmodule_LIBRARIES} ${GMODULE_LIBRARY})
+
+pkg_check_modules(wayland-client REQUIRED wayland-client)
+if(NOT wayland-client_FOUND)
+    message(FATAL_ERROR "Wayland library not found")
+endif(NOT wayland-client_FOUND)
+
+include_directories(${wayland-client_INCLUDE_DIRS})
+
+set(GTK_LIBRARIES
+    ${GTK3_LIBRARY}
+    ${GDK3_LIBRARY}
+    ${GDKPixbuf_LIBRARY}
+    ${Pango_LIBRARY}
+    ${Cairo_LIBRARY}
+    ${GObject_LIBRARY}
+    ${GLib_LIBRARY}
+    ${GIO_LIBRARY}
+    ${Gmodule_LIBRARIES}
+    ${GMODULE_LIBRARY}
+    ${wayland-client_LIBRARIES}
+)
 
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -466,6 +497,30 @@ else()
   message(STATUS "Desktop MIME types cache database won't be generated")
 endif()
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+			   ${CMAKE_CURRENT_BINARY_DIR}/generated/config.h)
+
+set(REMMINA_BUILD_CONFIG_LIST "")
+get_cmake_property(res VARIABLES)
+foreach(var ${res})
+  if(var MATCHES "^WITH_*|^HAVE_*")
+    list(APPEND REMMINA_BUILD_CONFIG_LIST "${var}=${${var}}")
+  endif()
+endforeach()
+string(REPLACE ";" " " REMMINA_BUILD_CONFIG "${REMMINA_BUILD_CONFIG_LIST}")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/buildflags.h.in
+			   ${CMAKE_CURRENT_BINARY_DIR}/generated/buildflags.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
+
+# Configure RPATH
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+if (NOT FREEBSD)
+	set(CMAKE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}:\$ORIGIN/..")
+endif()
+
 if(GTK3_FOUND)
     #pkg_check_modules(gio REQUIRED gio-2.0)
     #pkg_check_modules(gio-unix REQUIRED gio-unix-2.0)
@@ -479,16 +534,3 @@ if(WITH_TRANSLATIONS)
   add_subdirectory(po)
 endif()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
-
-set(REMMINA_BUILD_CONFIG_LIST "")
-get_cmake_property(res VARIABLES)
-foreach(var ${res})
-  if(var MATCHES "^WITH_*|^HAVE_*")
-    list(APPEND REMMINA_BUILD_CONFIG_LIST "${var}=${${var}}")
-  endif()
-endforeach()
-string(REPLACE ";" " " REMMINA_BUILD_CONFIG "${REMMINA_BUILD_CONFIG_LIST}")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/buildflags.h.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/buildflags.h)

@@ -17,9 +17,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: l10n@lists.remmina.org\n"
-"POT-Creation-Date: 2021-03-02 13:19+0000\n"
-"PO-Revision-Date: 2021-02-15 09:57+0000\n"
-"Last-Translator: Francisco Javier <xiscodroid@gmail.com>\n"
+"POT-Creation-Date: 2021-03-30 08:38+0000\n"
+"PO-Revision-Date: 2021-03-11 06:02+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/remmina/remmina/"
 "es/>\n"
 "Language: es\n"
@@ -27,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.5.2-dev\n"
 "X-Launchpad-Export-Date: 2014-04-10 15:03+0000\n"
 
 #: src/remmina_protocol_widget.c:280
@@ -82,7 +82,7 @@ msgstr "Conectando con «%s» mediante SSH…"
 #: src/remmina_ssh_plugin.c:1287 src/remmina_sftp_plugin.c:309
 #: src/remmina_sftp_plugin.c:344 src/remmina_file_editor.c:845
 #: src/remmina_file_editor.c:966 plugins/www/www_plugin.c:872
-#: plugins/rdp/rdp_plugin.c:2529 data/ui/remmina_unlock.glade:116
+#: plugins/rdp/rdp_plugin.c:2533 data/ui/remmina_unlock.glade:116
 #: data/ui/remmina_mpc.glade:236 data/ui/remmina_preferences.glade:1682
 msgid "Password"
 msgstr "Contraseña"
@@ -167,7 +167,7 @@ msgstr "Configurar las resoluciones disponibles"
 msgid "Recent lists cleared."
 msgstr "Se han vaciado las listas de elementos recientes."
 
-#: src/remmina_pref_dialog.c:153 src/rcw.c:1938
+#: src/remmina_pref_dialog.c:153 src/rcw.c:1949
 #: data/ui/remmina_preferences.glade:251 data/ui/remmina_preferences.glade:261
 msgid "Keystrokes"
 msgstr "Pulsaciones de teclas"
@@ -310,7 +310,7 @@ msgstr "Tipo de autenticación"
 #: src/remmina_ssh_plugin.c:1390 src/remmina_message_panel.c:330
 #: src/remmina_sftp_plugin.c:343 src/remmina_file_editor.c:960
 #: plugins/www/www_plugin.c:871 plugins/vnc/vnc_plugin.c:1879
-#: plugins/vnc/vnc_plugin.c:1899 plugins/rdp/rdp_plugin.c:2528
+#: plugins/vnc/vnc_plugin.c:1899 plugins/rdp/rdp_plugin.c:2532
 #: plugins/nx/nx_plugin.c:730 data/ui/remmina_mpc.glade:144
 msgid "Username"
 msgstr "Nombre de usuario"
@@ -321,23 +321,21 @@ msgstr "Nombre de usuario"
 msgid "User password"
 msgstr "Contraseña de usuario"
 
-#: src/remmina_ssh_plugin.c:1393 src/remmina_file_editor.c:978
-#, fuzzy
-#| msgid "CA Certificate File"
+#: src/remmina_ssh_plugin.c:1394 src/remmina_file_editor.c:978
 msgid "SSH certificate file"
-msgstr "Archivo de certificado CA"
+msgstr "Archivo de certificado SSH"
 
-#: src/remmina_ssh_plugin.c:1394 src/remmina_sftp_plugin.c:347
+#: src/remmina_ssh_plugin.c:1396 src/remmina_sftp_plugin.c:347
 #: src/remmina_file_editor.c:983
 msgid "Password to unlock private key"
 msgstr "Contraseña para desbloquear la clave privada"
 
-#: src/remmina_ssh_plugin.c:1395 plugins/xdmcp/xdmcp_plugin.c:370
-#: plugins/rdp/rdp_plugin.c:2568 plugins/nx/nx_plugin.c:734
+#: src/remmina_ssh_plugin.c:1397 plugins/xdmcp/xdmcp_plugin.c:370
+#: plugins/rdp/rdp_plugin.c:2572 plugins/nx/nx_plugin.c:734
 msgid "Start-up program"
 msgstr "Programa de inicio"
 
-#: src/remmina_ssh_plugin.c:1400
+#: src/remmina_ssh_plugin.c:1402
 msgid ""
 "The filename can use the following placeholders:\n"
 "\n"
@@ -359,61 +357,59 @@ msgstr ""
 "• %g se sustituye por el nombre de grupo de perfiles de Remmina\n"
 "• %d se sustituye por la fecha local en formato iso8601\n"
 
-#: src/remmina_ssh_plugin.c:1422
-#, fuzzy
-#| msgid "Terminal color scheme"
+#: src/remmina_ssh_plugin.c:1424
 msgid "Terminal colour scheme"
 msgstr "Combinación de colores de terminal"
 
-#: src/remmina_ssh_plugin.c:1423
+#: src/remmina_ssh_plugin.c:1425
 msgid "Character set"
 msgstr "Conjunto de caracteres"
 
-#: src/remmina_ssh_plugin.c:1424 src/remmina_sftp_plugin.c:348
+#: src/remmina_ssh_plugin.c:1426 src/remmina_sftp_plugin.c:348
 msgid "SSH Proxy Command"
 msgstr "Orden de proxy SSH"
 
-#: src/remmina_ssh_plugin.c:1425
+#: src/remmina_ssh_plugin.c:1427
 msgid "KEX (Key Exchange) algorithms"
 msgstr "Algoritmos KEX (intercambio de claves)"
 
-#: src/remmina_ssh_plugin.c:1426
+#: src/remmina_ssh_plugin.c:1428
 msgid "Symmetric cipher client to server"
 msgstr "Cifrado simétrico cliente-servidor"
 
-#: src/remmina_ssh_plugin.c:1427
+#: src/remmina_ssh_plugin.c:1429
 msgid "Preferred server host key types"
 msgstr "Tipos de clave preferidos del servidor anfitrión"
 
-#: src/remmina_ssh_plugin.c:1428
+#: src/remmina_ssh_plugin.c:1430
 msgid "Folder for SSH session log"
 msgstr "Carpeta para la sesión SSH"
 
-#: src/remmina_ssh_plugin.c:1429
+#: src/remmina_ssh_plugin.c:1431
 msgid "Filename for SSH session log"
 msgstr "Nombre de archivo del registro de sesiones SSH"
 
-#: src/remmina_ssh_plugin.c:1430
+#: src/remmina_ssh_plugin.c:1432
 msgid "Log SSH session when exiting Remmina"
 msgstr "Registrar sesión SSH al salir de Remmina"
 
-#: src/remmina_ssh_plugin.c:1431
+#: src/remmina_ssh_plugin.c:1433
 msgid "Audible terminal bell"
 msgstr "Campana audible de terminal"
 
-#: src/remmina_ssh_plugin.c:1432
+#: src/remmina_ssh_plugin.c:1434
 msgid "SSH compression"
 msgstr "Compresión de SSH"
 
-#: src/remmina_ssh_plugin.c:1433
+#: src/remmina_ssh_plugin.c:1435
 msgid "Don't remember passwords"
 msgstr "No recordar contraseñas"
 
-#: src/remmina_ssh_plugin.c:1434
+#: src/remmina_ssh_plugin.c:1436
 msgid "Strict host key checking"
 msgstr "Comprobación estricta de claves de anfitrión"
 
-#: src/remmina_ssh_plugin.c:1448
+#: src/remmina_ssh_plugin.c:1450
 msgid "SSH - Secure Shell"
 msgstr "SSH - intérprete de órdenes seguro"
 
@@ -524,7 +520,7 @@ msgid "Go to parent folder"
 msgstr "Ir a la carpeta contenedora"
 
 #: src/remmina_ftp_client.c:764 plugins/vnc/vnc_plugin.c:1936
-#: plugins/rdp/rdp_plugin.c:2609
+#: plugins/rdp/rdp_plugin.c:2613
 msgid "Refresh"
 msgstr "Actualizar"
 
@@ -569,11 +565,11 @@ msgstr "Grupo"
 msgid "Permission"
 msgstr "Permiso"
 
-#: src/remmina_ftp_client.c:1006 plugins/rdp/rdp_plugin.c:2434
+#: src/remmina_ftp_client.c:1006 plugins/rdp/rdp_plugin.c:2438
 msgid "Remote"
 msgstr "Remoto"
 
-#: src/remmina_ftp_client.c:1013 plugins/rdp/rdp_plugin.c:2433
+#: src/remmina_ftp_client.c:1013 plugins/rdp/rdp_plugin.c:2437
 msgid "Local"
 msgstr "Local"
 
@@ -798,102 +794,106 @@ msgstr ""
 msgid "Remmina Remote Desktop Client"
 msgstr "Cliente de escritorio remoto Remmina"
 
-#: src/rcw.c:653
+#: src/rcw.c:654
 #, c-format
 msgid ""
 "Are you sure you want to close %i active connections in the current window?"
 msgstr ""
 "Hay %i conexiones activas en la ventana actual. ¿Confirma que quiere cerrar?"
 
-#: src/rcw.c:1389
+#: src/rcw.c:1390
 msgid "Viewport fullscreen mode"
 msgstr "Modo a pantalla completa"
 
-#: src/rcw.c:1397 data/ui/remmina_preferences.glade:646
+#: src/rcw.c:1398 data/ui/remmina_preferences.glade:646
 msgid "Scrolled fullscreen"
 msgstr "Pantalla completa desplazable"
 
-#: src/rcw.c:1482
+#: src/rcw.c:1483
 msgid "Keep aspect ratio when scaled"
 msgstr "Mantener relación de aspecto cuando se escala"
 
-#: src/rcw.c:1490
+#: src/rcw.c:1491
 msgid "Fill client window when scaled"
 msgstr "Ampliar la ventana del cliente cuando se escala"
 
-#: src/rcw.c:2053
+#: src/rcw.c:2064
 msgid "Turn off scaling to avoid screenshot distortion."
 msgstr ""
 "Desactive la escala para evitar distorsiones en las capturas de pantalla."
 
-#: src/rcw.c:2113 plugins/www/www_plugin.c:840
+#: src/rcw.c:2124 plugins/www/www_plugin.c:840
 msgid "Screenshot taken"
-msgstr "Captura de pantalla realizada"
+msgstr "Captura de pantalla hecha"
 
-#: src/rcw.c:2194
+#: src/rcw.c:2205
+msgid "Open the Remmina main window"
+msgstr "Abrir la ventana principal de Remmina"
+
+#: src/rcw.c:2214
+msgid "Duplicate current connection"
+msgstr "Conexión actual duplicada"
+
+#: src/rcw.c:2231
 msgid "Resize the window to fit in remote resolution"
 msgstr "Redimensionar la ventana para ajustarla a la resolución remota"
 
-#: src/rcw.c:2205
+#: src/rcw.c:2242
 msgid "Toggle fullscreen mode"
 msgstr "Conmutar el modo a pantalla completa"
 
-#: src/rcw.c:2251 data/ui/remmina_preferences.glade:1299
+#: src/rcw.c:2288 data/ui/remmina_preferences.glade:1299
 #: data/ui/remmina_preferences.glade:1309
 msgid "Multi monitor"
 msgstr "Multimonitor"
 
-#: src/rcw.c:2267
+#: src/rcw.c:2304
 msgid "Toggle dynamic resolution update"
 msgstr "Conmutar actualización dinámica de resolución"
 
-#: src/rcw.c:2277
+#: src/rcw.c:2314
 msgid "Toggle scaled mode"
 msgstr "Conmutar modo escalado"
 
-#: src/rcw.c:2317 data/ui/remmina_preferences.glade:1043
+#: src/rcw.c:2354 data/ui/remmina_preferences.glade:1043
 msgid "Switch tab pages"
 msgstr "Cambiar entre pestañas"
 
-#: src/rcw.c:2327
+#: src/rcw.c:2364
 msgid "Grab all keyboard events"
 msgstr "Capturar todos los eventos del teclado"
 
-#: src/rcw.c:2337
+#: src/rcw.c:2374
 msgid "Preferences"
-msgstr "_Preferencias"
+msgstr "Preferencias"
 
-#: src/rcw.c:2346
+#: src/rcw.c:2383
 msgid "_Tools"
 msgstr "_Herramientas"
 
-#: src/rcw.c:2347 data/ui/remmina_main.glade:213
+#: src/rcw.c:2384 data/ui/remmina_main.glade:213
 msgid "Tools"
 msgstr "Herramientas"
 
-#: src/rcw.c:2360
-msgid "Duplicate current connection"
-msgstr "Conexión actual duplicada"
-
-#: src/rcw.c:2371 data/ui/remmina_preferences.glade:1236
+#: src/rcw.c:2397 data/ui/remmina_preferences.glade:1236
 #: data/ui/remmina_preferences.glade:1246
 msgid "Screenshot"
 msgstr "Captura de pantalla"
 
-#: src/rcw.c:2385 data/ui/remmina_preferences.glade:1146
+#: src/rcw.c:2411 data/ui/remmina_preferences.glade:1146
 msgid "Minimize window"
 msgstr "Minimizar ventana"
 
-#: src/rcw.c:2395 data/ui/remmina_preferences.glade:1176
+#: src/rcw.c:2421 data/ui/remmina_preferences.glade:1176
 msgid "Disconnect"
 msgstr "Desconectarse"
 
-#: src/rcw.c:4117
+#: src/rcw.c:4143
 #, c-format
 msgid "The file “%s” is corrupted, unreadable, or could not be found."
 msgstr "El archivo %s está dañado, es ilegible o no se encuentra."
 
-#: src/rcw.c:4285
+#: src/rcw.c:4311
 msgid "Warning: This plugin requires GtkSocket, but it’s not available."
 msgstr "Atención: este complemento requiere GtkSocket pero no está disponible."
 
@@ -1120,7 +1120,7 @@ msgstr "Sí"
 msgid "No"
 msgstr "No"
 
-#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2530
+#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2534
 #: data/ui/remmina_mpc.glade:172
 msgid "Domain"
 msgstr "Dominio"
@@ -1168,114 +1168,111 @@ msgstr "SFTP - Transferencia segura de archivos"
 #: src/remmina_ssh.c:236
 #, c-format
 msgid "Could not authenticate with TOTP/OTP/2FA. %s"
-msgstr "No se pudo autentificar con la contraseña de SSH. %s"
+msgstr "No se pudo autenticar con TOTP/OTP/2FA. %s"
 
-#: src/remmina_ssh.c:295 src/remmina_ssh.c:672
+#: src/remmina_ssh.c:295 src/remmina_ssh.c:676
 #, c-format
 msgid "Could not authenticate with SSH password. %s"
 msgstr "No se pudo autenticar con la contraseña de SSH. %s"
 
-#: src/remmina_ssh.c:321 src/remmina_ssh.c:384
+#: src/remmina_ssh.c:322 src/remmina_ssh.c:389
 msgid "No saved SSH passphrase supplied. Asking user to enter it."
 msgstr ""
 "No se proporcionó ninguna frase de contraseña SSH. Se solicita al usuario "
 "introducirla."
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:326 src/remmina_ssh.c:363 src/remmina_ssh.c:389
-#: src/remmina_ssh.c:428 src/remmina_ssh.c:742
+#: src/remmina_ssh.c:327 src/remmina_ssh.c:368 src/remmina_ssh.c:394
+#: src/remmina_ssh.c:433 src/remmina_ssh.c:746
 #, c-format
 msgid "Could not authenticate with public SSH key. %s"
 msgstr "No se pudo autenticar con la clave pública SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:334
-#, fuzzy, c-format
-#| msgid "Public SSH key cannot be imported. %s"
+#: src/remmina_ssh.c:336
+#, c-format
 msgid "SSH certificate cannot be imported. %s"
-msgstr "No se puede importar la clave pública SSH. %s"
+msgstr "No se puede importar el certificado SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:343
-#, fuzzy, c-format
-#| msgid "Public SSH key cannot be imported. %s"
+#: src/remmina_ssh.c:345
+#, c-format
 msgid "SSH certificate cannot be copied into the private SSH key. %s"
-msgstr "No se puede importar la clave pública SSH. %s"
+msgstr "El certificado SSH no puede copiarse en la clave privada SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:353
-#, fuzzy, c-format
-#| msgid "Could not authenticate with public SSH key. %s"
+#: src/remmina_ssh.c:355
+#, c-format
 msgid "Could not authenticate using SSH certificate. %s"
-msgstr "No se pudo autenticar con la clave pública SSH. %s"
+msgstr "No se pudo autenticar con el certificado SSH. %s"
 
-#: src/remmina_ssh.c:364
+#: src/remmina_ssh.c:369
 msgid "SSH identity file not selected."
 msgstr "Aún no se ha definido un archivo de clave SSH."
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:375
+#: src/remmina_ssh.c:380
 #, c-format
 msgid "Public SSH key cannot be imported. %s"
 msgstr "No se puede importar la clave pública SSH. %s"
 
-#: src/remmina_ssh.c:473
+#: src/remmina_ssh.c:478
 #, c-format
 msgid "Could not authenticate automatically with public SSH key. %s"
 msgstr "No se pudo autenticar automáticamente con la clave pública SSH. %s"
 
-#: src/remmina_ssh.c:518
+#: src/remmina_ssh.c:523
 #, c-format
 msgid "Could not authenticate automatically with SSH agent. %s"
-msgstr "No pudo autenticarse automáticamente con la clave pública SSH. %s"
+msgstr "No se pudo autenticar automáticamente con el agente SSH. %s"
 
-#: src/remmina_ssh.c:564 src/remmina_ssh.c:852
+#: src/remmina_ssh.c:569 src/remmina_ssh.c:856
 #, c-format
 msgid "Could not authenticate with SSH GSSAPI/Kerberos. %s"
-msgstr "No pudo autenticarse con la GSSAPI SSH de Kerberos. %s"
+msgstr "No se pudo autenticar con GSSAPI SSH/Kerberos. %s"
 
-#: src/remmina_ssh.c:593
+#: src/remmina_ssh.c:598
 msgid "The public SSH key changed!"
 msgstr "Ha cambiado la clave pública SSH."
 
-#: src/remmina_ssh.c:707
+#: src/remmina_ssh.c:711
 #, c-format
 msgid "Could not authenticate with keyboard-interactive. %s"
-msgstr "No se pudo autentificar con la clave pública SSH. %s"
+msgstr "No se pudo autenticar con keyboard-interactive. %s"
 
-#: src/remmina_ssh.c:809
+#: src/remmina_ssh.c:813
 #, c-format
 msgid "Could not authenticate with automatic public SSH key. %s"
-msgstr "No se pudo autentificar con la clave pública SSH. %s"
+msgstr "No se pudo autenticar con la clave pública automática SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:917
+#: src/remmina_ssh.c:921
 #, c-format
 msgid "Could not fetch the server's public SSH key. %s"
 msgstr "No se pudo recuperar la clave pública SSH del servidor. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:924
+#: src/remmina_ssh.c:928
 #, c-format
 msgid "Could not fetch public SSH key. %s"
 msgstr "Falló la conexión al túnel SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:932
+#: src/remmina_ssh.c:936
 #, c-format
 msgid "Could not fetch checksum of the public SSH key. %s"
 msgstr ""
 "No se pudo recuperar la suma de comprobación de la clave pública SSH. %s"
 
-#: src/remmina_ssh.c:945
+#: src/remmina_ssh.c:949
 msgid "The server is unknown. The public key fingerprint is:"
 msgstr "El servidor es desconocido. La huella digital de la clave es:"
 
-#: src/remmina_ssh.c:947 src/remmina_ssh.c:953
+#: src/remmina_ssh.c:951 src/remmina_ssh.c:957
 msgid "Do you trust the new public key?"
 msgstr "¿Confía en la clave pública nueva?"
 
-#: src/remmina_ssh.c:950
+#: src/remmina_ssh.c:954
 msgid ""
 "Warning: The server has changed its public key. This means you are either "
 "under attack,\n"
@@ -1287,154 +1284,154 @@ msgstr ""
 "pública es:"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:975
+#: src/remmina_ssh.c:979
 #, c-format
 msgid "Could not check list of known SSH hosts. %s"
 msgstr "No se pudo comprobar la lista de anfitriones SSH conocidos. %s"
 
-#: src/remmina_ssh.c:984
+#: src/remmina_ssh.c:988
 msgid "SSH password"
 msgstr "Contraseña SSH"
 
-#: src/remmina_ssh.c:991 src/remmina_ssh.c:1035
+#: src/remmina_ssh.c:995 src/remmina_ssh.c:1039
 msgid "SSH private key passphrase"
 msgstr "Frase de contraseña de clave privada SSH"
 
-#: src/remmina_ssh.c:996
+#: src/remmina_ssh.c:1000
 msgid "SSH Kerberos/GSSAPI"
 msgstr "Kerberos/GSSAPI SSH"
 
-#: src/remmina_ssh.c:1001
+#: src/remmina_ssh.c:1005
 msgid "Enter TOTP/OTP/2FA code"
 msgstr "Proporcione el código TOTP/OTP/2FA"
 
-#: src/remmina_ssh.c:1031 src/remmina_ssh.c:1057
+#: src/remmina_ssh.c:1035 src/remmina_ssh.c:1061
 msgid "SSH tunnel credentials"
 msgstr "Credenciales de túnel SSH"
 
-#: src/remmina_ssh.c:1031 src/remmina_ssh.c:1057 plugins/nx/nx_plugin.c:203
+#: src/remmina_ssh.c:1035 src/remmina_ssh.c:1061 plugins/nx/nx_plugin.c:203
 msgid "SSH credentials"
 msgstr "Credenciales de SSH"
 
-#: src/remmina_ssh.c:1108
+#: src/remmina_ssh.c:1112
 msgid "Keyboard interactive login, TOTP/OTP/2FA"
 msgstr "Acceso interactivo por teclado, TOTP/OTP/2FA"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1329
+#: src/remmina_ssh.c:1333
 #, c-format
 msgid "Could not start SSH session. %s"
 msgstr "No se ha podido iniciar la sesión SSH: %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1735 src/remmina_ssh.c:1798
+#: src/remmina_ssh.c:1739 src/remmina_ssh.c:1802
 #, c-format
 msgid "Could not create channel. %s"
 msgstr "No se pudo crear el canal. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1746
+#: src/remmina_ssh.c:1750
 #, c-format
 msgid "Could not connect to SSH tunnel. %s"
 msgstr "No se pudo conectar con el túnel SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1813 src/remmina_ssh.c:2437
+#: src/remmina_ssh.c:1817 src/remmina_ssh.c:2441
 #, c-format
 msgid "Could not open channel. %s"
 msgstr "No se pudo abrir el canal. %s"
 
-#: src/remmina_ssh.c:1819
+#: src/remmina_ssh.c:1823
 #, c-format
 msgid "Could not run %s on SSH server."
 msgstr "No se pudo ejecutar %s en el servidor SSH."
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1857 src/remmina_ssh.c:1878 src/remmina_ssh.c:1887
+#: src/remmina_ssh.c:1861 src/remmina_ssh.c:1882 src/remmina_ssh.c:1891
 #, c-format
 msgid "Could not request port forwarding. %s"
 msgstr "No se pudo solicitar la redirección de puertos. %s"
 
-#: src/remmina_ssh.c:1922
+#: src/remmina_ssh.c:1926
 msgid "The server did not respond."
 msgstr "El servidor no respondió."
 
-#: src/remmina_ssh.c:1965
+#: src/remmina_ssh.c:1969
 #, c-format
 msgid "Cannot connect to local port %i."
 msgstr "No se puede conectar con el puerto local %i."
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2015
+#: src/remmina_ssh.c:2019
 #, c-format
 msgid "Could not write to SSH channel. %s"
 msgstr "No se pudo escribir en el canal SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2022
+#: src/remmina_ssh.c:2026
 #, c-format
 msgid "Could not read from tunnel listening socket. %s"
 msgstr "No se pudo leer del socket de escucha del túnel. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2042
+#: src/remmina_ssh.c:2046
 #, c-format
 msgid "Could not poll SSH channel. %s"
 msgstr "Falló la apertura del canal SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2049
+#: src/remmina_ssh.c:2053
 #, c-format
 msgid "Could not read SSH channel in a non-blocking way. %s"
 msgstr "No se pudo leer del canal SSH de una manera no obstaculizante. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2068
+#: src/remmina_ssh.c:2072
 #, c-format
 msgid "Could not send data to tunnel listening socket. %s"
 msgstr "No se pudieron enviar datos al socket de escucha del túnel. %s"
 
-#: src/remmina_ssh.c:2170
+#: src/remmina_ssh.c:2174
 msgid "Assign a destination port."
 msgstr "Asigne un puerto de destino."
 
-#: src/remmina_ssh.c:2177
+#: src/remmina_ssh.c:2181
 msgid "Could not create socket."
 msgstr "No se pudo crear el socket."
 
-#: src/remmina_ssh.c:2187
+#: src/remmina_ssh.c:2191
 msgid "Could not bind server socket to local port."
 msgstr "No se pudo conectar el socket con un puerto local."
 
-#: src/remmina_ssh.c:2193
+#: src/remmina_ssh.c:2197
 msgid "Could not listen to local port."
 msgstr "No se pudo escuchar en el puerto local."
 
 #. TRANSLATORS: Do not translate pthread
-#: src/remmina_ssh.c:2203 src/remmina_ssh.c:2220 src/remmina_ssh.c:2237
-#: src/remmina_ssh.c:2255
+#: src/remmina_ssh.c:2207 src/remmina_ssh.c:2224 src/remmina_ssh.c:2241
+#: src/remmina_ssh.c:2259
 msgid "Could not start pthread."
 msgstr "No se pudo iniciar pthread."
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2347
+#: src/remmina_ssh.c:2351
 #, c-format
 msgid "Could not create SFTP session. %s"
 msgstr "No se pudo crear la sesión SFTP.%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2352
+#: src/remmina_ssh.c:2356
 #, c-format
 msgid "Could not start SFTP session. %s"
 msgstr "No se pudo iniciar la sesión SFTP: %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2467
+#: src/remmina_ssh.c:2471
 #, c-format
 msgid "Could not request shell. %s"
 msgstr "No se pudo solicitar un intérprete de órdenes. %s"
 
-#: src/remmina_ssh.c:2560
+#: src/remmina_ssh.c:2564
 msgid "Could not create PTY device."
 msgstr "No se pudo crear el dispositivo PTY."
 
@@ -1570,7 +1567,7 @@ msgstr "Túnel a través de dirección de autobucle"
 msgid "Same server at port %i"
 msgstr "Mismo servidor en el puerto %i"
 
-#: src/remmina_file_editor.c:937 plugins/rdp/rdp_plugin.c:2569
+#: src/remmina_file_editor.c:937 plugins/rdp/rdp_plugin.c:2573
 msgid "Start-up path"
 msgstr "Ruta de inicio"
 
@@ -1579,10 +1576,8 @@ msgid "SSH Authentication"
 msgstr "Autenticación SSH"
 
 #: src/remmina_file_editor.c:972
-#, fuzzy
-#| msgid "SSH private key passphrase"
 msgid "SSH private key file"
-msgstr "Frase de contraseña de clave privada SSH"
+msgstr "Archivo de clave privada SSH"
 
 #: src/remmina_file_editor.c:1036
 msgid "Basic"
@@ -1730,7 +1725,7 @@ msgid "Ignore TLS errors"
 msgstr "Ignorar errores de TLS"
 
 #: plugins/www/www_plugin.c:896 plugins/vnc/vnc_plugin.c:1923
-#: plugins/spice/spice_plugin.c:604 plugins/rdp/rdp_plugin.c:2590
+#: plugins/spice/spice_plugin.c:604 plugins/rdp/rdp_plugin.c:2594
 #: plugins/nx/nx_plugin.c:752
 msgid "Forget passwords after use"
 msgstr "Olvidar contraseñas después de usarlas"
@@ -1786,34 +1781,34 @@ msgstr "El servidor VNC solicitó un método de autenticación desconocido. %s"
 msgid "Please retry after turning on encryption for this profile."
 msgstr "Inténtelo de nuevo después de activar el cifrado en este perfil."
 
-#: plugins/vnc/vnc_plugin.c:1850 plugins/rdp/rdp_plugin.c:2383
+#: plugins/vnc/vnc_plugin.c:1850 plugins/rdp/rdp_plugin.c:2387
 msgid "True colour (32 bpp)"
 msgstr "Color verdadero (32 bpp)"
 
-#: plugins/vnc/vnc_plugin.c:1851 plugins/rdp/rdp_plugin.c:2385
+#: plugins/vnc/vnc_plugin.c:1851 plugins/rdp/rdp_plugin.c:2389
 msgid "High colour (16 bpp)"
 msgstr "Color alto (16 bpp)"
 
-#: plugins/vnc/vnc_plugin.c:1852 plugins/rdp/rdp_plugin.c:2387
+#: plugins/vnc/vnc_plugin.c:1852 plugins/rdp/rdp_plugin.c:2391
 msgid "256 colours (8 bpp)"
 msgstr "256 colores (8 bpp)"
 
-#: plugins/vnc/vnc_plugin.c:1859 plugins/rdp/rdp_plugin.c:2411
+#: plugins/vnc/vnc_plugin.c:1859 plugins/rdp/rdp_plugin.c:2415
 #: plugins/rdp/rdp_settings.c:273 plugins/nx/nx_plugin.c:713
 msgid "Best (slowest)"
 msgstr "Mejor (más lento)"
 
-#: plugins/vnc/vnc_plugin.c:1860 plugins/rdp/rdp_plugin.c:2410
+#: plugins/vnc/vnc_plugin.c:1860 plugins/rdp/rdp_plugin.c:2414
 #: plugins/rdp/rdp_settings.c:271 plugins/nx/nx_plugin.c:712
 msgid "Good"
 msgstr "Buena"
 
-#: plugins/vnc/vnc_plugin.c:1861 plugins/rdp/rdp_plugin.c:2409
+#: plugins/vnc/vnc_plugin.c:1861 plugins/rdp/rdp_plugin.c:2413
 #: plugins/rdp/rdp_settings.c:269 plugins/nx/nx_plugin.c:711
 msgid "Medium"
 msgstr "Medio"
 
-#: plugins/vnc/vnc_plugin.c:1862 plugins/rdp/rdp_plugin.c:2408
+#: plugins/vnc/vnc_plugin.c:1862 plugins/rdp/rdp_plugin.c:2412
 #: plugins/rdp/rdp_settings.c:267 plugins/nx/nx_plugin.c:710
 msgid "Poor (fastest)"
 msgstr "Pobre (más rápido)"
@@ -1823,12 +1818,12 @@ msgid "Repeater"
 msgstr "Repetidor"
 
 #: plugins/vnc/vnc_plugin.c:1881 plugins/vnc/vnc_plugin.c:1901
-#: plugins/xdmcp/xdmcp_plugin.c:369 plugins/rdp/rdp_plugin.c:2536
+#: plugins/xdmcp/xdmcp_plugin.c:369 plugins/rdp/rdp_plugin.c:2540
 msgid "Colour depth"
 msgstr "Profundidad de color"
 
 #: plugins/vnc/vnc_plugin.c:1882 plugins/vnc/vnc_plugin.c:1902
-#: plugins/rdp/rdp_plugin.c:2553 plugins/nx/nx_plugin.c:733
+#: plugins/rdp/rdp_plugin.c:2557 plugins/nx/nx_plugin.c:733
 msgid "Quality"
 msgstr "Calidad"
 
@@ -1845,7 +1840,7 @@ msgstr "Mostrar el cursor remoto"
 msgid "View only"
 msgstr "Ver solamente"
 
-#: plugins/vnc/vnc_plugin.c:1920 plugins/rdp/rdp_plugin.c:2587
+#: plugins/vnc/vnc_plugin.c:1920 plugins/rdp/rdp_plugin.c:2591
 msgid "Turn off clipboard sync"
 msgstr "Desactivar sincronización del portapapeles"
 
@@ -1862,7 +1857,7 @@ msgid "Open Chat…"
 msgstr "Abrir chat…"
 
 #: plugins/vnc/vnc_plugin.c:1938 plugins/spice/spice_plugin.c:617
-#: plugins/xdmcp/xdmcp_plugin.c:381 plugins/rdp/rdp_plugin.c:2613
+#: plugins/xdmcp/xdmcp_plugin.c:381 plugins/rdp/rdp_plugin.c:2617
 msgid "Send Ctrl+Alt+Delete"
 msgstr "Enviar Ctrl+Alt+Supr"
 
@@ -1908,7 +1903,7 @@ msgstr "Falló la conexión con el servidor SPICE."
 msgid "Default"
 msgstr "Predeterminados"
 
-#: plugins/spice/spice_plugin.c:545 plugins/rdp/rdp_plugin.c:2432
+#: plugins/spice/spice_plugin.c:545 plugins/rdp/rdp_plugin.c:2436
 #: data/ui/remmina_preferences.glade:719
 msgid "Off"
 msgstr "Apagar"
@@ -1935,17 +1930,17 @@ msgstr "Utilizar cifrado TLS"
 msgid "Server CA certificate"
 msgstr "Servidor de certificados CA"
 
-#: plugins/spice/spice_plugin.c:579 plugins/rdp/rdp_plugin.c:2538
+#: plugins/spice/spice_plugin.c:579 plugins/rdp/rdp_plugin.c:2542
 msgid "Share folder"
 msgstr "Compartir carpeta"
 
 #: plugins/spice/spice_plugin.c:596
 msgid "Prefered video codec"
-msgstr "Preferencias"
+msgstr "Códec de vídeo preferido"
 
 #: plugins/spice/spice_plugin.c:597
 msgid "Turn off GStreamer overlay"
-msgstr "Desactivar entrada del servidor"
+msgstr "Desactivar superposición de GStreamer"
 
 #: plugins/spice/spice_plugin.c:600
 msgid "Prefered image compression"
@@ -2048,15 +2043,15 @@ msgstr "Ventana separada"
 msgid "Remmina simple terminal"
 msgstr "Terminal simple de Remmina"
 
-#: plugins/rdp/rdp_plugin.c:717 plugins/rdp/rdp_plugin.c:782
+#: plugins/rdp/rdp_plugin.c:726 plugins/rdp/rdp_plugin.c:791
 msgid "Enter RDP authentication credentials"
 msgstr "Proporcione los datos de autenticación RDP"
 
-#: plugins/rdp/rdp_plugin.c:790
+#: plugins/rdp/rdp_plugin.c:799
 msgid "Enter RDP gateway authentication credentials"
 msgstr "Proporcione los datos de autenticación de la puerta de enlace de RDP"
 
-#: plugins/rdp/rdp_plugin.c:1950
+#: plugins/rdp/rdp_plugin.c:1954
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2065,7 +2060,7 @@ msgstr ""
 "No se pudo acceder al servidor RDP «%s».\n"
 "La cuenta quedó bloqueada."
 
-#: plugins/rdp/rdp_plugin.c:1957
+#: plugins/rdp/rdp_plugin.c:1961
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2074,7 +2069,7 @@ msgstr ""
 "No se pudo acceder al servidor RDP «%s».\n"
 "La cuenta caducó."
 
-#: plugins/rdp/rdp_plugin.c:1964
+#: plugins/rdp/rdp_plugin.c:1968
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2083,7 +2078,7 @@ msgstr ""
 "No se pudo acceder al servidor RDP «%s».\n"
 "La contraseña caducó."
 
-#: plugins/rdp/rdp_plugin.c:1971
+#: plugins/rdp/rdp_plugin.c:1975
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2092,7 +2087,7 @@ msgstr ""
 "No se pudo acceder al servidor RDP «%s».\n"
 "La cuenta está desactivada."
 
-#: plugins/rdp/rdp_plugin.c:1977
+#: plugins/rdp/rdp_plugin.c:1981
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2101,7 +2096,7 @@ msgstr ""
 "No se pudo acceder al servidor RDP «%s».\n"
 "Los privilegios de usuario son insuficientes."
 
-#: plugins/rdp/rdp_plugin.c:1985
+#: plugins/rdp/rdp_plugin.c:1989
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2110,7 +2105,7 @@ msgstr ""
 "No se pudo acceder al servidor RDP «%s».\n"
 "La cuenta tiene restricciones."
 
-#: plugins/rdp/rdp_plugin.c:1993
+#: plugins/rdp/rdp_plugin.c:1997
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2119,17 +2114,17 @@ msgstr ""
 "No se pudo acceder al servidor RDP «%s».\n"
 "El usuario debe cambiar la contraseña antes de conectarse."
 
-#: plugins/rdp/rdp_plugin.c:1998
+#: plugins/rdp/rdp_plugin.c:2002
 #, c-format
 msgid "Lost connection to the RDP server “%s”."
 msgstr "Se perdió la conexión con el servidor RDP «%s»."
 
-#: plugins/rdp/rdp_plugin.c:2001
+#: plugins/rdp/rdp_plugin.c:2005
 #, c-format
 msgid "Could not find the address for the RDP server “%s”."
 msgstr "No se pudo encontrar la dirección del servidor RDP «%s»."
 
-#: plugins/rdp/rdp_plugin.c:2005
+#: plugins/rdp/rdp_plugin.c:2009
 #, c-format
 msgid ""
 "Could not connect to the RDP server “%s” via TLS. Check that client and "
@@ -2139,7 +2134,7 @@ msgstr ""
 "cliente y el servidor admitan la misma versión de TLS."
 
 #. TRANSLATORS: the placeholder may be either an IP/FQDN or a server hostname
-#: plugins/rdp/rdp_plugin.c:2009
+#: plugins/rdp/rdp_plugin.c:2013
 #, c-format
 msgid ""
 "Unable to establish a connection to the RDP server “%s”. Check \"Security "
@@ -2148,16 +2143,16 @@ msgstr ""
 "No se pudo establecer una conexión RDP con el servidor. Revise la "
 "«negociación de protocolo de seguridad» «%s»."
 
-#: plugins/rdp/rdp_plugin.c:2017
+#: plugins/rdp/rdp_plugin.c:2021
 #, c-format
 msgid "Cannot connect to the RDP server “%s”."
 msgstr "No se pudo conectar con el servidor RDP «%s»."
 
-#: plugins/rdp/rdp_plugin.c:2020
+#: plugins/rdp/rdp_plugin.c:2024
 msgid "Could not start libfreerdp-gdi."
 msgstr "No se pudo iniciar libfreerdp-gdi."
 
-#: plugins/rdp/rdp_plugin.c:2023
+#: plugins/rdp/rdp_plugin.c:2027
 #, c-format
 msgid ""
 "You requested a H.264 GFX mode for the server “%s”, but your libfreerdp does "
@@ -2167,115 +2162,115 @@ msgstr ""
 "libfreerdp no admite H.264. Utilice una configuración de profundidad de "
 "colores no AVC."
 
-#: plugins/rdp/rdp_plugin.c:2030
+#: plugins/rdp/rdp_plugin.c:2034
 #, c-format
 msgid "The “%s” server refused the connection."
 msgstr "El servidor «%s» rechazó la conexión."
 
-#: plugins/rdp/rdp_plugin.c:2035
+#: plugins/rdp/rdp_plugin.c:2039
 #, c-format
 msgid ""
 "The Remote Desktop Gateway “%s” denied the user \"%s\\%s\" access due to "
 "policy."
 msgstr ""
-"La puerta de enlace de escritorio remoto «%s» rechazó el acceso a «%s»\\%s "
+"La puerta de enlace de escritorio remoto «%s» rechazó el acceso a «%s\\%s» "
 "como consecuencia de una normativa."
 
-#: plugins/rdp/rdp_plugin.c:2045
+#: plugins/rdp/rdp_plugin.c:2049
 #, c-format
 msgid "Cannot connect to the “%s” RDP server."
 msgstr "No se pudo conectar con el servidor RDP «%s»."
 
-#: plugins/rdp/rdp_plugin.c:2377
+#: plugins/rdp/rdp_plugin.c:2381
 msgid "Automatic (32 bpp) (Server chooses its best format)"
 msgstr "Automático (32 bpp; el servidor elige el mejor formato)"
 
-#: plugins/rdp/rdp_plugin.c:2378
+#: plugins/rdp/rdp_plugin.c:2382
 msgid "GFX AVC444 (32 bpp)"
 msgstr "GFX AVC444 (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2379
+#: plugins/rdp/rdp_plugin.c:2383
 msgid "GFX AVC420 (32 bpp)"
 msgstr "GFX AVC420 (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2380
+#: plugins/rdp/rdp_plugin.c:2384
 msgid "GFX RFX (32 bpp)"
 msgstr "GFX RFX (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2381
+#: plugins/rdp/rdp_plugin.c:2385
 msgid "GFX RFX Progressive (32 bpp)"
 msgstr "GFX RFX Progresivo(32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2382
+#: plugins/rdp/rdp_plugin.c:2386
 msgid "RemoteFX (32 bpp)"
 msgstr "RemoteFX (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2384
+#: plugins/rdp/rdp_plugin.c:2388
 msgid "True colour (24 bpp)"
 msgstr "Color verdadero (24 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2386
+#: plugins/rdp/rdp_plugin.c:2390
 msgid "High colour (15 bpp)"
 msgstr "Color alto (15 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2418 data/ui/remmina_preferences.glade:682
+#: plugins/rdp/rdp_plugin.c:2422 data/ui/remmina_preferences.glade:682
 msgid "None"
 msgstr "Ninguna"
 
-#: plugins/rdp/rdp_plugin.c:2419
+#: plugins/rdp/rdp_plugin.c:2423
 msgid "Auto-detect"
 msgstr "<Detectar automáticamente>"
 
-#: plugins/rdp/rdp_plugin.c:2420
+#: plugins/rdp/rdp_plugin.c:2424
 msgid "Modem"
 msgstr "Módem"
 
-#: plugins/rdp/rdp_plugin.c:2421
+#: plugins/rdp/rdp_plugin.c:2425
 msgid "Low performance broadband"
 msgstr "Banda ancha de bajo rendimiento"
 
-#: plugins/rdp/rdp_plugin.c:2422
+#: plugins/rdp/rdp_plugin.c:2426
 msgid "Satellite"
 msgstr "Satelital"
 
-#: plugins/rdp/rdp_plugin.c:2423
+#: plugins/rdp/rdp_plugin.c:2427
 msgid "High performance broadband"
 msgstr "Banda ancha de alto rendimiento"
 
-#: plugins/rdp/rdp_plugin.c:2424
+#: plugins/rdp/rdp_plugin.c:2428
 msgid "WAN"
 msgstr "WAN"
 
-#: plugins/rdp/rdp_plugin.c:2425
+#: plugins/rdp/rdp_plugin.c:2429
 msgid "LAN"
 msgstr "LAN"
 
-#: plugins/rdp/rdp_plugin.c:2441
+#: plugins/rdp/rdp_plugin.c:2445
 msgid "Automatic negotiation"
 msgstr "Negociación automática"
 
-#: plugins/rdp/rdp_plugin.c:2442
+#: plugins/rdp/rdp_plugin.c:2446
 msgid "NLA protocol security"
 msgstr "Protocolo de seguridad NLA"
 
-#: plugins/rdp/rdp_plugin.c:2443
+#: plugins/rdp/rdp_plugin.c:2447
 msgid "TLS protocol security"
 msgstr "Protocolo de seguridad TLS"
 
-#: plugins/rdp/rdp_plugin.c:2444
+#: plugins/rdp/rdp_plugin.c:2448
 msgid "RDP protocol security"
 msgstr "Protocolo de seguridad RDP"
 
-#: plugins/rdp/rdp_plugin.c:2445
+#: plugins/rdp/rdp_plugin.c:2449
 msgid "NLA extended protocol security"
 msgstr "Protocolo extendido de seguridad NLA"
 
-#: plugins/rdp/rdp_plugin.c:2458
+#: plugins/rdp/rdp_plugin.c:2462
 msgid "2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)"
 msgstr ""
 "2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 y posteriores)"
 
-#: plugins/rdp/rdp_plugin.c:2461
+#: plugins/rdp/rdp_plugin.c:2465
 msgid ""
 "Used i.a. by terminal services in a smart card channel to distinguish client "
 "capabilities:\n"
@@ -2293,7 +2288,7 @@ msgstr ""
 "  • >= 7065: Windows 8 y más recientes: SCardGetReaderIcon(),\n"
 "SCardGetDeviceTypeId()"
 
-#: plugins/rdp/rdp_plugin.c:2469
+#: plugins/rdp/rdp_plugin.c:2473
 msgid ""
 "Options for redirection of audio input:\n"
 "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
@@ -2310,16 +2305,7 @@ msgstr ""
 "  • sys:oss,dev:1,format:1\n"
 "  • sys:alsa"
 
-#: plugins/rdp/rdp_plugin.c:2478
-#, fuzzy
-#| msgid ""
-#| "Options for redirection of audio ouput:\n"
-#| "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
-#| "    [channel:<channel>] Audio output\n"
-#| "  • sys:pulse\n"
-#| "  • format:1\n"
-#| "  • sys:oss,dev:1,format:1\n"
-#| "  • sys:alsa"
+#: plugins/rdp/rdp_plugin.c:2482
 msgid ""
 "Options for redirection of audio output:\n"
 "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
@@ -2329,14 +2315,14 @@ msgid ""
 "  • sys:oss,dev:1,format:1\n"
 "  • sys:alsa"
 msgstr ""
-"Opciones para redirigir la entrada de audio:\n"
-"  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
-"    [channel:<channel>] Audio input (microphone)\n"
-"  • format:1\n"
+"Opciones para redirigir la salida de audio:\n"
+"  • [sys:<sys>,][dev:<dev>,][format:<formato>,][rate:<tasa>,]\n"
+"    [channel:<canal>] Salida de audio\n"
+"  • sys:pulse\n"
 "  • sys:oss,dev:1,format:1\n"
 "  • sys:alsa"
 
-#: plugins/rdp/rdp_plugin.c:2488
+#: plugins/rdp/rdp_plugin.c:2492
 msgid ""
 "Options for redirection of USB device:\n"
 "  • [dbg,][id:<vid>:<pid>#…,][addr:<bus>:<addr>#…,][auto]\n"
@@ -2348,7 +2334,7 @@ msgstr ""
 "  • auto\n"
 "  • id:054c:0268#4669:6e6b,addr:04:0c"
 
-#: plugins/rdp/rdp_plugin.c:2494
+#: plugins/rdp/rdp_plugin.c:2498
 msgid ""
 "Advanced setting for high latency links:\n"
 "Adjusts the connection timeout. Use if your connection times out.\n"
@@ -2359,7 +2345,7 @@ msgstr ""
 "agotado.\n"
 "El valor máximo posible es de 600000 ms (10 minutos)\n"
 
-#: plugins/rdp/rdp_plugin.c:2499
+#: plugins/rdp/rdp_plugin.c:2503
 msgid ""
 "Performance optimisations based on the network connection type:\n"
 "Using auto-detection is advised.\n"
@@ -2369,7 +2355,7 @@ msgstr ""
 "se aconseja utilizar la detección automática.\n"
 "Si esta falla, seleccione la opción más adecuada de la lista.\n"
 
-#: plugins/rdp/rdp_plugin.c:2504
+#: plugins/rdp/rdp_plugin.c:2508
 msgid ""
 "Comma separated list of monitor IDs and desktop orientations:\n"
 "  • [<id>:<orientation-in-degrees>,]\n"
@@ -2382,103 +2368,112 @@ msgid ""
 "  • 270 (portrait flipped)\n"
 "\n"
 msgstr ""
+"Lista separada por comas de los identificadores de los monitores y los "
+"entornos de escritorio:\n"
+"  - [<id>:<orientación-en-grados>,]\n"
+"  - 0,1,2,3\n"
+"  - 0:270,1:90\n"
+"Las orientaciones se especifican en grados; los valores válidos son:\n"
+"  - 0 (horizontal)\n"
+"  - 90 (vertical)\n"
+"  - 180 (horizontal invertido)\n"
+"  - 270 (vertical invertido)\n"
+"\n"
 
-#: plugins/rdp/rdp_plugin.c:2531
+#: plugins/rdp/rdp_plugin.c:2535
 msgid "Left-handed mouse support"
 msgstr "Compatibilidad con ratón para zurdos"
 
-#: plugins/rdp/rdp_plugin.c:2531
-#, fuzzy
-#| msgid "Swap left and right mouse buttons for lef-handed mouse support"
+#: plugins/rdp/rdp_plugin.c:2535
 msgid "Swap left and right mouse buttons for left-handed mouse support"
 msgstr ""
 "Intercambiar los botones izquierdo y derecho del ratón para su uso por zurdos"
 
-#: plugins/rdp/rdp_plugin.c:2532
+#: plugins/rdp/rdp_plugin.c:2536
 msgid "Enable multi monitor"
 msgstr "Activar función de multimonitor"
 
-#: plugins/rdp/rdp_plugin.c:2533
+#: plugins/rdp/rdp_plugin.c:2537
 msgid "Span screen over multiple monitors"
 msgstr "Extender pantalla por varios monitores"
 
-#: plugins/rdp/rdp_plugin.c:2534
+#: plugins/rdp/rdp_plugin.c:2538
 msgid "Monitor ID list"
 msgstr "Lista de identificadores de monitores"
 
-#: plugins/rdp/rdp_plugin.c:2537
+#: plugins/rdp/rdp_plugin.c:2541
 msgid "Network connection type"
-msgstr "Perfil de conexión nuevo"
+msgstr "Tipo de conexión de red"
 
-#: plugins/rdp/rdp_plugin.c:2554
+#: plugins/rdp/rdp_plugin.c:2558
 msgid "Security protocol negotiation"
 msgstr "Negociación del protocolo de seguridad"
 
-#: plugins/rdp/rdp_plugin.c:2555
+#: plugins/rdp/rdp_plugin.c:2559
 msgid "Gateway transport type"
 msgstr "Tipo de transporte de puerta de enlace"
 
-#: plugins/rdp/rdp_plugin.c:2556
+#: plugins/rdp/rdp_plugin.c:2560
 msgid "FreeRDP log level"
 msgstr "Nivel de registro FreeRDP"
 
-#: plugins/rdp/rdp_plugin.c:2557
+#: plugins/rdp/rdp_plugin.c:2561
 msgid "FreeRDP log filters"
-msgstr "Nivel de registro FreeRDP"
+msgstr "Filtros de registro de FreeRDP"
 
-#: plugins/rdp/rdp_plugin.c:2557
+#: plugins/rdp/rdp_plugin.c:2561
 msgid "tag:level[,tag:level[,…]]"
 msgstr "etiqueta:nivel[,etiqueta:nivel[,…]]"
 
-#: plugins/rdp/rdp_plugin.c:2558
+#: plugins/rdp/rdp_plugin.c:2562
 msgid "Audio output mode"
-msgstr ""
+msgstr "Modo de salida de audio"
 
-#: plugins/rdp/rdp_plugin.c:2559
+#: plugins/rdp/rdp_plugin.c:2563
 msgid "Redirect local audio output"
-msgstr "Redirigir el micrófono local"
+msgstr "Redirigir salida de audio local"
 
-#: plugins/rdp/rdp_plugin.c:2560
+#: plugins/rdp/rdp_plugin.c:2564
 msgid "Redirect local microphone"
 msgstr "Redirigir micrófono local"
 
-#: plugins/rdp/rdp_plugin.c:2561
+#: plugins/rdp/rdp_plugin.c:2565
 msgid "Connection timeout in ms"
 msgstr "Tiempo de espera de conexión en ms"
 
-#: plugins/rdp/rdp_plugin.c:2562
+#: plugins/rdp/rdp_plugin.c:2566
 msgid "Remote Desktop Gateway server"
 msgstr "Servidor de puerta de enlace RDP"
 
-#: plugins/rdp/rdp_plugin.c:2563
+#: plugins/rdp/rdp_plugin.c:2567
 msgid "Remote Desktop Gateway username"
 msgstr "Nombre de usuario de puerta de enlace RDP"
 
-#: plugins/rdp/rdp_plugin.c:2564
+#: plugins/rdp/rdp_plugin.c:2568
 msgid "Remote Desktop Gateway password"
 msgstr "Contraseña de puerta de enlace RDP"
 
-#: plugins/rdp/rdp_plugin.c:2565
+#: plugins/rdp/rdp_plugin.c:2569
 msgid "Remote Desktop Gateway domain"
 msgstr "Dominio de puerta de enlace RDP"
 
-#: plugins/rdp/rdp_plugin.c:2566
+#: plugins/rdp/rdp_plugin.c:2570
 msgid "Client name"
 msgstr "Nombre del cliente"
 
-#: plugins/rdp/rdp_plugin.c:2567
+#: plugins/rdp/rdp_plugin.c:2571
 msgid "Client build"
 msgstr "Compilación del cliente"
 
-#: plugins/rdp/rdp_plugin.c:2570
+#: plugins/rdp/rdp_plugin.c:2574
 msgid "Load balance info"
 msgstr "Información de equilibrio de carga"
 
-#: plugins/rdp/rdp_plugin.c:2571
+#: plugins/rdp/rdp_plugin.c:2575
 msgid "Override printer drivers"
 msgstr "Anteponerse a controladores de impresoras"
 
-#: plugins/rdp/rdp_plugin.c:2571
+#: plugins/rdp/rdp_plugin.c:2575
 msgid ""
 "\"Samsung_CLX-3300_Series\":\"Samsung CLX-3300 Series PS\";\"Canon MF410\":"
 "\"Canon MF410 Series UFR II\""
@@ -2486,147 +2481,147 @@ msgstr ""
 "\"Samsung_CLX-3300_Series\" : \"Samsung CLX-3300 Series PS\" : \"Canon "
 "MF410\" : \"Canon MF410 Series UFR II\""
 
-#: plugins/rdp/rdp_plugin.c:2572
+#: plugins/rdp/rdp_plugin.c:2576
 msgid "USB device redirection"
 msgstr "Redirección de dispositivos USB"
 
-#: plugins/rdp/rdp_plugin.c:2573
+#: plugins/rdp/rdp_plugin.c:2577
 msgid "Local serial name"
 msgstr "Nombre en serie local"
 
-#: plugins/rdp/rdp_plugin.c:2573
+#: plugins/rdp/rdp_plugin.c:2577
 msgid "COM1, COM2, etc."
 msgstr "COM1, COM2,etc."
 
-#: plugins/rdp/rdp_plugin.c:2574
+#: plugins/rdp/rdp_plugin.c:2578
 msgid "Local serial driver"
 msgstr "Controlador en serie local"
 
-#: plugins/rdp/rdp_plugin.c:2574
+#: plugins/rdp/rdp_plugin.c:2578
 msgid "Serial"
 msgstr "En serie"
 
-#: plugins/rdp/rdp_plugin.c:2575
+#: plugins/rdp/rdp_plugin.c:2579
 msgid "Local serial path"
 msgstr "Ruta en serie local"
 
-#: plugins/rdp/rdp_plugin.c:2575
+#: plugins/rdp/rdp_plugin.c:2579
 msgid "/dev/ttyS0, /dev/ttyS1, etc."
 msgstr "/dev/ttyS0,/dev/ttyS1, etc."
 
-#: plugins/rdp/rdp_plugin.c:2576
+#: plugins/rdp/rdp_plugin.c:2580
 msgid "Local parallel name"
 msgstr "Nombre en paralelo local"
 
-#: plugins/rdp/rdp_plugin.c:2577
+#: plugins/rdp/rdp_plugin.c:2581
 msgid "Local parallel device"
 msgstr "Dispositivo en paralelo local"
 
-#: plugins/rdp/rdp_plugin.c:2578
+#: plugins/rdp/rdp_plugin.c:2582
 msgid "Name of smart card"
 msgstr "Nombre de lar tarjeta inteligente"
 
-#: plugins/rdp/rdp_plugin.c:2579
+#: plugins/rdp/rdp_plugin.c:2583
 msgid "Dynamic virtual channel"
 msgstr "Canales virtuales dinámicos"
 
-#: plugins/rdp/rdp_plugin.c:2579 plugins/rdp/rdp_plugin.c:2580
+#: plugins/rdp/rdp_plugin.c:2583 plugins/rdp/rdp_plugin.c:2584
 msgid "<channel>[,<options>]"
 msgstr "<canal>[,<opciones>]"
 
-#: plugins/rdp/rdp_plugin.c:2580
+#: plugins/rdp/rdp_plugin.c:2584
 msgid "Static virtual channel"
 msgstr "Canal virtual estático"
 
-#: plugins/rdp/rdp_plugin.c:2581
+#: plugins/rdp/rdp_plugin.c:2585
 msgid "Prefer IPv6 AAAA record over IPv4 A record"
 msgstr "Preferir un registro IPv6 AAAA ante un registro IPv4 A"
 
-#: plugins/rdp/rdp_plugin.c:2582
+#: plugins/rdp/rdp_plugin.c:2586
 msgid "Share printers"
 msgstr "Compartir impresoras"
 
-#: plugins/rdp/rdp_plugin.c:2583
+#: plugins/rdp/rdp_plugin.c:2587
 msgid "Share serial ports"
 msgstr "Compartir puertos en serie"
 
-#: plugins/rdp/rdp_plugin.c:2584
+#: plugins/rdp/rdp_plugin.c:2588
 msgid "(SELinux) permissive mode for serial ports"
 msgstr "(SELinux) modo permisivo para puertos serie"
 
-#: plugins/rdp/rdp_plugin.c:2585
+#: plugins/rdp/rdp_plugin.c:2589
 msgid "Share parallel ports"
 msgstr "Compartir puertos paralelos"
 
-#: plugins/rdp/rdp_plugin.c:2586
+#: plugins/rdp/rdp_plugin.c:2590
 msgid "Share a smart card"
 msgstr "Compartir tarjeta inteligente"
 
-#: plugins/rdp/rdp_plugin.c:2588
+#: plugins/rdp/rdp_plugin.c:2592
 msgid "Ignore certificate"
 msgstr "Ignorar certificado"
 
-#: plugins/rdp/rdp_plugin.c:2589
+#: plugins/rdp/rdp_plugin.c:2593
 msgid "Use the old license workflow"
 msgstr "Utilizar flujo de trabajo de licencias antiguo"
 
-#: plugins/rdp/rdp_plugin.c:2589
+#: plugins/rdp/rdp_plugin.c:2593
 msgid "It disables CAL and hwId is set to 0"
 msgstr "Desactiva CAL y hwId se establece a 0"
 
-#: plugins/rdp/rdp_plugin.c:2591
+#: plugins/rdp/rdp_plugin.c:2595
 msgid "Attach to console (2003/2003 R2)"
 msgstr "Anexar a consola (Windows 2003/2003 R2)"
 
-#: plugins/rdp/rdp_plugin.c:2592
+#: plugins/rdp/rdp_plugin.c:2596
 msgid "Turn off fast-path"
 msgstr "Desactivar método rápido"
 
-#: plugins/rdp/rdp_plugin.c:2593
+#: plugins/rdp/rdp_plugin.c:2597
 msgid "Server detection using Remote Desktop Gateway"
 msgstr "Detección de servidor usando puerta de enlace RDP"
 
-#: plugins/rdp/rdp_plugin.c:2595
+#: plugins/rdp/rdp_plugin.c:2599
 msgid "Use system proxy settings"
 msgstr "Usar opciones de proxy del sistema"
 
-#: plugins/rdp/rdp_plugin.c:2597
+#: plugins/rdp/rdp_plugin.c:2601
 msgid "Turn off automatic reconnection"
 msgstr "Desactivar reconexión automática"
 
-#: plugins/rdp/rdp_plugin.c:2598
+#: plugins/rdp/rdp_plugin.c:2602
 msgid "Relax order checks"
 msgstr "Relajar comprobaciones de orden"
 
-#: plugins/rdp/rdp_plugin.c:2599
+#: plugins/rdp/rdp_plugin.c:2603
 msgid "Glyph cache"
 msgstr "Antememoria de glifos"
 
-#: plugins/rdp/rdp_plugin.c:2600
+#: plugins/rdp/rdp_plugin.c:2604
 msgid "Enable multitransport protocol (UDP)"
 msgstr "Activar protocolo multitransporte (UDP)"
 
-#: plugins/rdp/rdp_plugin.c:2600
+#: plugins/rdp/rdp_plugin.c:2604
 msgid "Using the UDP protocol may improve performance"
 msgstr "Usar el protocolo UDP podría mejorar el rendimiento"
 
-#: plugins/rdp/rdp_plugin.c:2601
+#: plugins/rdp/rdp_plugin.c:2605
 msgid "Use base credentials for gateway too"
 msgstr "Utilizar datos de acceso de base para la puerta de enlace también"
 
-#: plugins/rdp/rdp_plugin.c:2626
+#: plugins/rdp/rdp_plugin.c:2630
 msgid "RDP - Remote Desktop Protocol"
 msgstr "RDP. Protocolo de escritorio remoto"
 
-#: plugins/rdp/rdp_plugin.c:2649
+#: plugins/rdp/rdp_plugin.c:2653
 msgid "RDP - RDP File Handler"
 msgstr "RDP. Operario de archivos RDP"
 
-#: plugins/rdp/rdp_plugin.c:2664
+#: plugins/rdp/rdp_plugin.c:2668
 msgid "RDP - Preferences"
 msgstr "RDP. Preferencias"
 
-#: plugins/rdp/rdp_plugin.c:2717
+#: plugins/rdp/rdp_plugin.c:2721
 msgid "Export connection in Windows .rdp file format"
 msgstr "Exportar conexión en formato de archivo .rdp de Windows"
 
@@ -2985,10 +2980,6 @@ msgstr "Complemento"
 msgid "Last used"
 msgstr "Última utilización"
 
-#: data/ui/remmina_main.glade:554
-msgid "Remote Desktop Client"
-msgstr "Cliente de escritorio remoto"
-
 #: data/ui/remmina_main.glade:562
 msgid "New connection profile"
 msgstr "Perfil de conexión nuevo"
@@ -3261,7 +3252,7 @@ msgstr ""
 msgid ""
 "The folder connection profiles are saved in, it defaults to the XDG_USER_DATA"
 msgstr ""
-"Carpeta donde se guardan los perfiles de conexión, el valor predeterminado "
+"Carpeta donde se guardan los perfiles de conexión; el valor predeterminado "
 "es XDG_USER_DATA"
 
 #. The folder where profiles are saved
@@ -3387,19 +3378,14 @@ msgid "“Grab all keyboard events” status colour"
 msgstr "Color de estado «Capturar todos los eventos del teclado»"
 
 #: data/ui/remmina_preferences.glade:796
-#, fuzzy
-#| msgid ""
-#| "Hexadecimal or color names (red, #ff0000)\n"
-#| "It changes the connection name background colour, in the remmina "
-#| "connection toolbar when in full screen"
 msgid ""
 "Hexadecimal- or colour names (red, #ff0000).\n"
 "It changes the background colour of connection names in the Remmina "
 "connection toolbar (when in fullscreen)."
 msgstr ""
-"Valores hexadecimal o colores con nombre (red, #ff0000)\n"
-"Cambia el color de fondo del nombre de la conexión en la barra de conexiones "
-"de Remmina mientras se está a pantalla completa"
+"Valores hexadecimales o colores con nombre (red, #ff0000)\n"
+"Cambia el color de fondo de los nombres de las conexiones en la barra de "
+"conexiones de Remmina (en el modo de pantalla completa)."
 
 #: data/ui/remmina_preferences.glade:832
 msgid "Appearance"
@@ -3551,15 +3537,15 @@ msgstr "Escriba de nuevo la contraseña"
 
 #: data/ui/remmina_preferences.glade:1750
 msgid "Fingerprints and certificates"
-msgstr "¿Aceptar el nuevo certificado?"
+msgstr "Huellas y certificados"
 
 #: data/ui/remmina_preferences.glade:1765
 msgid "Automatically accept all fingerprints and certificates"
-msgstr "¿Aceptar el nuevo certificado?"
+msgstr "Aceptar automáticamente todas las huellas y certificados"
 
 #: data/ui/remmina_preferences.glade:1771
 msgid "Trust all fingerprints and certificates"
-msgstr "¿Aceptar el nuevo certificado?"
+msgstr "Confiar en todas las huellas y certificados"
 
 #: data/ui/remmina_preferences.glade:1806
 msgid "Security"
@@ -3725,24 +3711,18 @@ msgstr "Colores normales"
 
 #: data/ui/remmina_preferences.glade:2508
 #: data/ui/remmina_preferences.glade:2548
-#, fuzzy
-#| msgid "Bright colours"
 msgid "Highlight colour"
-msgstr "Colores brillantes"
+msgstr "Color de realce"
 
 #: data/ui/remmina_preferences.glade:2521
 #: data/ui/remmina_preferences.glade:2563
-#, fuzzy
-#| msgid "Foreground colour"
 msgid "Highlight foreground colour"
-msgstr "Color de primer plano"
+msgstr "Color de realce en primer plano"
 
 #: data/ui/remmina_preferences.glade:2534
 #: data/ui/remmina_preferences.glade:2578
-#, fuzzy
-#| msgid "Foreground colour"
 msgid "Cursor foreground colour"
-msgstr "Color de primer plano"
+msgstr "Color de cursor en primer plano"
 
 #: data/ui/remmina_preferences.glade:2597
 msgid "Terminal"
@@ -3772,6 +3752,9 @@ msgstr "Elija una tecla nueva"
 #: data/ui/remmina_key_chooser.glade:82
 msgid "Please press the new key…"
 msgstr "Oprima la tecla nueva…"
+
+#~ msgid "Remote Desktop Client"
+#~ msgstr "Cliente de escritorio remoto"
 
 #~ msgid "SSH agent (automatic)"
 #~ msgstr "Agente SSH (automático)"
