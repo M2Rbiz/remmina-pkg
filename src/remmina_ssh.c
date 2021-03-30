@@ -314,7 +314,8 @@ remmina_ssh_auth_pubkey(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile 
 	REMMINA_DEBUG("SSH certificate file: %s", ssh->certfile);
 	REMMINA_DEBUG("SSH private key file: %s", ssh->privkeyfile);
 	if (ssh->certfile != NULL) {
-		/* First we import the certificate */
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 9, 0)
+		/* First we import the private key */
 		if (ssh_pki_import_privkey_file(ssh->privkeyfile, (ssh->passphrase ? ssh->passphrase : ""),
 						NULL, NULL, &key) != SSH_OK) {
 			if (ssh->passphrase == NULL || ssh->passphrase[0] == '\0') {
@@ -327,7 +328,8 @@ remmina_ssh_auth_pubkey(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile 
 			return REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT;
 		}
 		REMMINA_DEBUG ("Imported private SSH key file");
-		ret = ssh_pki_import_cert_file 	(ssh->certfile, &cert ) 	;
+		/* First we import the certificate */
+		ret = ssh_pki_import_cert_file(ssh->certfile, &cert );
 		if (ret != SSH_OK) {
 			REMMINA_DEBUG ("Certificate import returned: %d", ret);
 			// TRANSLATORS: The placeholder %s is an error message
@@ -356,6 +358,9 @@ remmina_ssh_auth_pubkey(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile 
 			return REMMINA_SSH_AUTH_FATAL_ERROR;
 		}
 		REMMINA_DEBUG ("Authentication with a certificate file works, we can authenticate");
+#else
+		REMMINA_DEBUG ("lbssh >= 0.9.0 is required to authenticate with certificate file");
+#endif
 		/* if it goes well we authenticate (later on) with the key, not the cert*/
 	} else {
 		if (ssh->privkeyfile == NULL) {
@@ -618,7 +623,6 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 	 *
 	 * And than test both the method and the option selected by the user
 	 */
-	ssh_userauth_none(ssh->session, NULL);
 	method = ssh_userauth_list(ssh->session, NULL);
 	REMMINA_DEBUG("Methods supported by server: %s%s%s%s%s%s%s",
 		      (method & SSH_AUTH_METHOD_NONE) ? "SSH_AUTH_METHOD_NONE " : "",
