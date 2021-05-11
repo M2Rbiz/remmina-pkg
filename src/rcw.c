@@ -355,6 +355,7 @@ static void rcw_class_init(RemminaConnectionWindowClass *klass)
 	rcw_signals[TOOLBARPLACE_SIGNAL] = g_signal_new("toolbar-place", G_TYPE_FROM_CLASS(klass),
 							G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION, G_STRUCT_OFFSET(RemminaConnectionWindowClass, toolbar_place), NULL, NULL,
 							g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
+
 }
 
 static RemminaConnectionObject *rcw_get_cnnobj_at_page(RemminaConnectionWindow *cnnwin, gint npage)
@@ -1967,6 +1968,12 @@ static void rcw_toolbar_tools(GtkToolItem *toggle, RemminaConnectionWindow *cnnw
 				}
 				g_strfreev(keystroke_values);
 			}
+			menuitem = gtk_menu_item_new_with_label(_("Send clipboard content as keystrokes"));
+			gtk_menu_shell_append(GTK_MENU_SHELL(submenu_keystrokes), menuitem);
+			g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
+						    G_CALLBACK(remmina_protocol_widget_send_clipboard),
+						    REMMINA_PROTOCOL_WIDGET(cnnobj->proto));
+			gtk_widget_show(menuitem);
 		}
 		g_strfreev(keystrokes);
 	}
@@ -3075,13 +3082,49 @@ static gboolean rcw_state_event(GtkWidget *widget, GdkEventWindowState *event, g
 	return FALSE;
 }
 
+static gboolean rcw_map_event(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	TRACE_CALL(__func__);
+
+	RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow*)widget;
+	RemminaConnectionObject *cnnobj;
+	RemminaProtocolWidget *gp;
+	if (cnnwin->priv->toolbar_is_reconfiguring) return FALSE;
+	if (!(cnnobj = rcw_get_visible_cnnobj(cnnwin))) return FALSE;
+
+	gp = REMMINA_PROTOCOL_WIDGET(cnnobj->proto);
+	REMMINA_DEBUG ("Mapping: %s", gtk_widget_get_name(widget));
+	if (remmina_protocol_widget_map_event(gp)) {
+		REMMINA_DEBUG ("Called plugin mapping function");
+	}
+	return FALSE;
+}
+
+static gboolean rcw_unmap_event(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	TRACE_CALL(__func__);
+
+	RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow*)widget;
+	RemminaConnectionObject *cnnobj;
+	RemminaProtocolWidget *gp;
+	if (cnnwin->priv->toolbar_is_reconfiguring) return FALSE;
+	if (!(cnnobj = rcw_get_visible_cnnobj(cnnwin))) return FALSE;
+
+	gp = REMMINA_PROTOCOL_WIDGET(cnnobj->proto);
+	REMMINA_DEBUG ("Unmapping: %s", gtk_widget_get_name(widget));
+	if (remmina_protocol_widget_unmap_event(gp)) {
+		REMMINA_DEBUG ("Called plugin mapping function");
+	}
+	return FALSE;
+}
+
 static gboolean rcw_map_event_fullscreen(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	TRACE_CALL(__func__);
 	RemminaConnectionObject *cnnobj;
 	gint target_monitor;
 
-	REMMINA_DEBUG ("Mapping Remmina connection window");
+	REMMINA_DEBUG ("Mapping: %s", gtk_widget_get_name(widget));
 
 	if (!REMMINA_IS_CONNECTION_WINDOW(widget)) {
 		REMMINA_DEBUG ("Remmina Connection Window undefined, cannot go fullscreen");
@@ -3127,6 +3170,10 @@ static gboolean rcw_map_event_fullscreen(GtkWidget *widget, GdkEvent *event, gpo
 	gtk_window_fullscreen(GTK_WINDOW(widget));
 #endif
 
+	if (remmina_protocol_widget_map_event(gp)) {
+		REMMINA_DEBUG ("Called plugin mapping function");
+	}
+
 	return FALSE;
 }
 
@@ -3142,6 +3189,9 @@ rcw_new(gboolean fullscreen, int full_screen_target_monitor)
 	if (fullscreen)
 		/* Put the window in fullscreen after it is mapped to have it appear on the same monitor */
 		g_signal_connect(G_OBJECT(cnnwin), "map-event", G_CALLBACK(rcw_map_event_fullscreen), GINT_TO_POINTER(full_screen_target_monitor));
+	else
+		g_signal_connect(G_OBJECT(cnnwin), "map-event", G_CALLBACK(rcw_map_event), NULL);
+	g_signal_connect(G_OBJECT(cnnwin), "unmap-event", G_CALLBACK(rcw_unmap_event), NULL);
 
 	gtk_container_set_border_width(GTK_CONTAINER(cnnwin), 0);
 	g_signal_connect(G_OBJECT(cnnwin), "toolbar-place", G_CALLBACK(rcw_toolbar_place_signal), NULL);
@@ -3507,11 +3557,13 @@ static RemminaConnectionWindow *rcw_create_scrolled(gint width, gint height, gbo
 	GtkWidget *grid;
 	GtkWidget *toolbar;
 	GtkNotebook *notebook;
+	GtkSettings *settings = gtk_settings_get_default ();
 
 	cnnwin = rcw_new(FALSE, 0);
 	gtk_widget_realize(GTK_WIDGET(cnnwin));
 
 	gtk_window_set_default_size(GTK_WINDOW(cnnwin), width, height);
+	g_object_set (settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
 
 	/* Create the toolbar */
 	toolbar = rcw_create_toolbar(cnnwin, SCROLLED_WINDOW_MODE);

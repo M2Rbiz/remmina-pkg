@@ -37,6 +37,7 @@
 #include "config.h"
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -333,14 +334,103 @@ remmina_public_combine_path(const gchar *path1, const gchar *path2)
 	return g_strdup_printf("%s/%s", path1, path2);
 }
 
+//static int remmina_public_open_unix_sock(const char *unixsock, GError **error)
+gint remmina_public_open_unix_sock(const char *unixsock)
+{
+    struct sockaddr_un addr;
+    int fd;
+
+    if (strlen(unixsock) + 1 > sizeof(addr.sun_path)) {
+        //g_set_error(error, REMMINA_ERROR, REMMINA_ERROR_FAILED,
+                    g_debug(_("Address is too long for UNIX socket_path: %s"), unixsock);
+        return -1;
+    }
+
+    memset(&addr, 0, sizeof addr);
+    addr.sun_family = AF_UNIX;
+    strcpy(addr.sun_path, unixsock);
+
+    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+        //g_set_error(error, REMMINA_ERROR, REMMINA_ERROR_FAILED,
+                    g_debug(_("Creating UNIX socket failed: %s"), g_strerror(errno));
+        return -1;
+    }
+
+    if (connect(fd, (struct sockaddr *)&addr, sizeof addr) < 0) {
+        //g_set_error(error, REMMINA_ERROR, REMMINA_ERROR_FAILED,
+                    g_debug(_("Connecting to UNIX socket failed: %s"), g_strerror(errno));
+        close(fd);
+        return -1;
+    }
+
+    return fd;
+}
+
+void remmina_public_get_server_port_old(const gchar *server, gint defaultport, gchar **host, gint *port)
+{
+	TRACE_CALL(__func__);
+	gchar *str, *ptr, *ptr2;
+
+	str = g_strdup(server);
+
+	if (str) {
+		/* [server]:port format */
+		ptr = strchr(str, '[');
+		if (ptr) {
+			ptr++;
+			ptr2 = strchr(ptr, ']');
+			if (ptr2) {
+				*ptr2++ = '\0';
+				if (*ptr2 == ':')
+					defaultport = atoi(ptr2 + 1);
+			}
+			if (host)
+				*host = g_strdup(ptr);
+			if (port)
+				*port = defaultport;
+			g_free(str);
+			g_debug ("(%s) - host: %s", __func__, *host);
+			g_debug ("(%s) - port: %d", __func__, *port);
+			return;
+		}
+
+		/* server:port format, IPv6 cannot use this format */
+		ptr = strchr(str, ':');
+		if (ptr) {
+			ptr2 = strchr(ptr + 1, ':');
+			if (ptr2 == NULL) {
+				*ptr++ = '\0';
+				defaultport = atoi(ptr);
+			}
+			/* More than one ':' means this is IPv6 address. Treat it as a whole address */
+		}
+	}
+
+	if (host)
+		*host = str;
+	else
+		g_free(str);
+	if (port)
+		*port = defaultport;
+
+	g_debug ("(%s) - host: %s", __func__, *host);
+	g_debug ("(%s) - port: %d", __func__, *port);
+}
+
 void remmina_public_get_server_port(const gchar *server, gint defaultport, gchar **host, gint *port)
 {
 	TRACE_CALL(__func__);
 
 	const gchar *nul_terminated_server = NULL;
 	if (server != NULL) {
+		if(strstr(g_strdup(server), "ID:") != NULL) {
+			g_debug ("(%s) - Using remmina_public_get_server_port_old to parse the repeater ID", __func__);
+			remmina_public_get_server_port_old (server, defaultport, host, port);
+			return;
+		}
+
 		GNetworkAddress *address;
-		GError *err;
+		GError *err = NULL;
 
 		nul_terminated_server = g_strdup (server);
 		g_debug ("(%s) - Parsing server: %s, default port: %d", __func__, server, defaultport);
@@ -348,15 +438,23 @@ void remmina_public_get_server_port(const gchar *server, gint defaultport, gchar
 
 		if (address == NULL) {
 			g_debug ("(%s) - Error converting server string: %s, with error: %s", __func__, nul_terminated_server, err->message);
-		}
+			if (err)
+				g_error_free(err);
+			//g_debug ("(%s) - Using remmina_public_get_server_port_old to parse the address", __func__);
+			//remmina_public_get_server_port_old (server, defaultport, host, port);
+		} else {
 
-		*host = g_strdup(g_network_address_get_hostname (address));
-		*port = g_network_address_get_port (address);
+			*host = g_strdup(g_network_address_get_hostname (address));
+			*port = g_network_address_get_port (address);
+		}
 	} else
 		*host = NULL;
 
 	if (port == 0)
 		*port = defaultport;
+
+	g_debug ("(%s) - host: %s", __func__, *host);
+	g_debug ("(%s) - port: %d", __func__, *port);
 
 	return;
 }

@@ -399,12 +399,13 @@ static void remmina_plugin_vnc_update_quality(rfbClient *cl, gint quality)
 		break;
 	case 0:
 	default:
+		// bpp8 and tight encoding is not supported in libvnc
 		cl->appData.useBGR233 = 1;
-		cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
-		cl->appData.compressLevel = 9;
+		cl->appData.encodingsString = "copyrect zrle ultra zlib hextile corre rre raw";
 		cl->appData.qualityLevel = 1;
 		break;
 	}
+	REMMINA_PLUGIN_DEBUG("Quality: %d", quality);
 }
 
 static void remmina_plugin_vnc_update_colordepth(rfbClient *cl, gint colordepth)
@@ -686,6 +687,19 @@ static void remmina_plugin_vnc_rfb_updatefb(rfbClient *cl, int x, int y, int w, 
 	remmina_plugin_vnc_queue_draw_area(gp, x, y, w, h);
 }
 
+static void remmina_plugin_vnc_rfb_finished(rfbClient *cl) __attribute__ ((unused));
+static void remmina_plugin_vnc_rfb_finished(rfbClient *cl)
+{
+	TRACE_CALL(__func__);
+	REMMINA_PLUGIN_DEBUG("FinishedFrameBufferUpdate");
+}
+
+static void remmina_plugin_vnc_rfb_led_state(rfbClient* cl, int value, int pad)
+{
+	TRACE_CALL(__func__);
+	REMMINA_PLUGIN_DEBUG("Led state - value: %d, pad: %d", value, pad);
+}
+
 static gboolean remmina_plugin_vnc_queue_cuttext(RemminaPluginVncCuttextParam *param)
 {
 	TRACE_CALL(__func__);
@@ -894,14 +908,22 @@ static void remmina_plugin_vnc_rfb_cursor_shape(rfbClient *cl, int xhot, int yho
 static void remmina_plugin_vnc_rfb_bell(rfbClient *cl)
 {
 	TRACE_CALL(__func__);
+	REMMINA_PLUGIN_DEBUG("Bell message received");
 	RemminaProtocolWidget *gp;
+	RemminaFile *remminafile;
 	GdkWindow *window;
 
 	gp = (RemminaProtocolWidget *)(rfbClientGetClientData(cl, NULL));
+	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+
+	if (remmina_plugin_service->file_get_int(remminafile, "disableserverbell", FALSE))
+		return;
+
 	window = gtk_widget_get_window(GTK_WIDGET(gp));
 
 	if (window)
 		gdk_window_beep(window);
+	REMMINA_PLUGIN_DEBUG("Beep emitted");
 }
 
 /* Translate known VNC messages. It’s for intltool only, not for gcc */
@@ -1145,6 +1167,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		host = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, 5900, TRUE);
 
 		if (host == NULL) {
+			REMMINA_PLUGIN_DEBUG("host is null");
 			gpdata->connected = FALSE;
 			break;
 		}
@@ -1166,17 +1189,34 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 			cl = rfbGetClient(8, 3, 4);
 			break;
 		}
+		REMMINA_PLUGIN_DEBUG("Color depth: %d", colordepth);
 		cl->MallocFrameBuffer = remmina_plugin_vnc_rfb_allocfb;
 		cl->canHandleNewFBSize = TRUE;
 		cl->GetPassword = remmina_plugin_vnc_rfb_password;
 		cl->GetCredential = remmina_plugin_vnc_rfb_credential;
 		cl->GotFrameBufferUpdate = remmina_plugin_vnc_rfb_updatefb;
+		/**
+		 * @fixme we have to implement FinishedFrameBufferUpdate
+		 * This is to know when the server has finished to send a batch of frame buffer
+		 * updates.
+		 * cl->FinishedFrameBufferUpdate = remmina_plugin_vnc_rfb_finished;
+		 */
+		/**
+		 * @fixme we have to implement HandleKeyboardLedState
+		 * cl->HandleKeyboardLedState = remmina_plugin_vnc_rfb_led_state
+		 */
+		cl->HandleKeyboardLedState = remmina_plugin_vnc_rfb_led_state;
 		cl->GotXCutText = (
 			remmina_plugin_service->file_get_int(remminafile, "disableclipboard", FALSE) ?
 			NULL : remmina_plugin_vnc_rfb_cuttext);
 		cl->GotCursorShape = remmina_plugin_vnc_rfb_cursor_shape;
 		cl->Bell = remmina_plugin_vnc_rfb_bell;
 		cl->HandleTextChat = remmina_plugin_vnc_rfb_chat;
+		/**
+		 * @fixme we have to implement HandleXvpMsg
+		 * cl->HandleXvpMsg = remmina_plugin_vnc_rfb_handle_xvp;
+		 */
+
 		rfbClientSetClientData(cl, NULL, gp);
 
 		if (host[0] == '\0') {
@@ -1204,12 +1244,20 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		host = NULL;
 
 		if (remmina_plugin_service->file_get_string(remminafile, "proxy")) {
-			cl->destHost = cl->serverHost;
-			cl->destPort = cl->serverPort;
-			remmina_plugin_service->get_server_port(remmina_plugin_service->file_get_string(remminafile, "proxy"), 5900,
-								&s, &cl->serverPort);
-			cl->serverHost = g_strdup(s);
-			g_free(s);
+			remmina_plugin_service->get_server_port(
+					remmina_plugin_service->file_get_string(remminafile, "server"),
+					5900,
+					&cl->destHost,
+					&cl->destPort);
+			remmina_plugin_service->get_server_port(
+					remmina_plugin_service->file_get_string(remminafile, "proxy"),
+					5900,
+					&cl->serverHost,
+					&cl->serverPort);
+			REMMINA_PLUGIN_DEBUG("cl->serverHost: %s", cl->serverHost);
+			REMMINA_PLUGIN_DEBUG("cl->serverPort: %d", cl->serverPort);
+			REMMINA_PLUGIN_DEBUG("cl->destHost: %s", cl->destHost);
+			REMMINA_PLUGIN_DEBUG("cl->destPort: %d", cl->destPort);
 		}
 
 		cl->appData.useRemoteCursor = (
@@ -1234,11 +1282,15 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 			vnc_encryption_disable_requested = FALSE;
 		}
 
-		if (rfbInitClient(cl, NULL, NULL))
+		if (rfbInitClient(cl, NULL, NULL)) {
+			REMMINA_PLUGIN_DEBUG("Client initialization successfull");
 			break;
+		} else
+			REMMINA_PLUGIN_DEBUG("Client initialization failed");
 
-		/* If the authentication is not called, it has to be a fatel error and must quit */
+		/* If the authentication is not called, it has to be a fatal error and must quit */
 		if (!gpdata->auth_called) {
+			REMMINA_PLUGIN_DEBUG("Client not authenticated");
 			gpdata->connected = FALSE;
 			break;
 		}
@@ -1265,6 +1317,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 	}
 
 	if (!gpdata->connected) {
+		REMMINA_PLUGIN_DEBUG("Client not connected with error: %s", vnc_error);
 		if (cl && !gpdata->auth_called && !(remmina_plugin_service->protocol_plugin_has_error(gp)))
 			remmina_plugin_service->protocol_plugin_set_error(gp, "%s", vnc_error);
 		gpdata->running = FALSE;
@@ -1274,6 +1327,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		return FALSE;
 	}
 
+	REMMINA_PLUGIN_DEBUG("Client connected");
 	remmina_plugin_service->protocol_plugin_init_save_cred(gp);
 
 	gpdata->client = cl;
@@ -1863,6 +1917,15 @@ static gpointer quality_list[] =
 	NULL
 };
 
+static gchar repeater_tooltip[] =
+	N_("Connect to VNC using a repeater:\n"
+	   "  • The server field must contain the repeater ID, e.g. ID:123456789\n"
+	   "  • The repeater field have to be set to the repeater IP and port, like:\n"
+	   "    10.10.10.12:5901\n"
+	   "  • From the remote VNC server, you will connect to\n"
+	   "    the repeater, e.g. with x11vnc:\n"
+	   "    x11vnc -connect repeater=ID:123456789+10.10.10.12:5500");
+
 /* Array of RemminaProtocolSetting for basic settings.
  * Each item is composed by:
  * a) RemminaProtocolSettingType for setting type
@@ -1875,7 +1938,7 @@ static gpointer quality_list[] =
 static const RemminaProtocolSetting remmina_plugin_vnc_basic_settings[] =
 {
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	  "server",	NULL,		     FALSE, "_rfb._tcp",     NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "proxy",	N_("Repeater"),	     FALSE, NULL,	     NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "proxy",	N_("Repeater"),	     FALSE, NULL,	     repeater_tooltip },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	N_("Username"),	     FALSE, NULL,	     NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"), FALSE, NULL,	     NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Colour depth"),   FALSE, colordepth_list, NULL },
@@ -1920,7 +1983,8 @@ static const RemminaProtocolSetting remmina_plugin_vnc_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableclipboard",	 N_("Turn off clipboard sync"),	 TRUE,	NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableencryption",	 N_("Turn off encryption"),	 FALSE, NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableserverinput",	 N_("Prevent local interaction on the server"),	 TRUE,	NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring", N_("Forget passwords after use"), FALSE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableserverbell",	 N_("Ignore remote bell messages"),	 FALSE,	NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disablepasswordstoring", N_("Forget passwords after use"), TRUE, NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,   NULL,			 NULL,				 FALSE, NULL, NULL }
 };
 
@@ -1983,7 +2047,9 @@ static RemminaProtocolPlugin remmina_plugin_vnci =
 	remmina_plugin_vnc_query_feature,               // Query for available features
 	remmina_plugin_vnc_call_feature,                // Call a feature
 	remmina_plugin_vnc_keystroke,                   // Send a keystroke
-	NULL                                            // No screenshot support available
+	NULL,                                           // No screenshot support available
+	NULL,                                           // RCW map event
+	NULL                                            // RCW unmap event
 };
 
 G_MODULE_EXPORT gboolean

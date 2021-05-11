@@ -169,8 +169,12 @@ void remmina_protocol_widget_send_keys_signals(GtkWidget *widget, const guint *k
 gboolean remmina_protocol_widget_plugin_receives_keystrokes(RemminaProtocolWidget *gp);
 /* Send to the plugin some keystrokes */
 void remmina_protocol_widget_send_keystrokes(RemminaProtocolWidget *gp, GtkMenuItem *widget);
+void remmina_protocol_widget_send_clipboard(RemminaProtocolWidget *gp, GtkMenuItem *widget);
 /* Take screenshot of plugin */
 gboolean remmina_protocol_widget_plugin_screenshot(RemminaProtocolWidget *gp, RemminaPluginScreenshotData *rpsd);
+/* Deal with the remimna connection window map/unmap events */
+gboolean remmina_protocol_widget_map_event(RemminaProtocolWidget *gp);
+gboolean remmina_protocol_widget_unmap_event(RemminaProtocolWidget *gp);
 
 void remmina_protocol_widget_update_remote_resolution(RemminaProtocolWidget *gp);
 
