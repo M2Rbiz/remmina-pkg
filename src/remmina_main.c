@@ -755,14 +755,25 @@ void remmina_main_on_action_connection_new(GSimpleAction *action, GVariant *para
 }
 
 static gboolean remmina_main_search_key_event (GtkWidget *search_entry, GdkEventKey *event, gpointer user_data)
+
 {
 	TRACE_CALL(__func__);
 	if (event->keyval == GDK_KEY_Escape) {
 		gtk_entry_set_text(remminamain->entry_quick_connect_server, "");
-		gtk_search_bar_set_search_mode(remminamain->search_bar, FALSE);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(RM_GET_OBJECT("search_toggle")), FALSE);
 		return TRUE;
 	}
 	return FALSE;
+}
+
+static gboolean remmina_main_tree_row_activated (GtkTreeView *tree, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
+{
+	TRACE_CALL(__func__);
+	if (gtk_tree_view_row_expanded(tree, path))
+		gtk_tree_view_collapse_row(tree, path);
+	else
+		gtk_tree_view_expand_row(tree, path, FALSE);
+	return TRUE;
 }
 
 void remmina_main_on_view_toggle()
@@ -881,8 +892,6 @@ void remmina_main_on_action_application_preferences(GSimpleAction *action, GVari
 	/* Switch to a dark theme if the user enabled it */
 	settings = gtk_settings_get_default ();
 	g_object_set (settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
-	gtk_switch_set_active (remminamain->switch_dark_mode, remmina_pref.dark_theme);
-
 }
 
 void remmina_main_on_action_application_default(GSimpleAction *action, GVariant *param, gpointer data)
@@ -1172,13 +1181,21 @@ void remmina_main_on_action_collapse(GSimpleAction *action, GVariant *param, gpo
 void remmina_main_on_action_search_toggle(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
-	if (gtk_toggle_button_get_active(remminamain->search_toggle)) {
-		gtk_search_bar_set_search_mode(remminamain->search_bar, TRUE);
+	REMMINA_DEBUG("Search toggle triggered");
+	gboolean toggle_status = gtk_toggle_button_get_active(remminamain->search_toggle);
+	gtk_search_bar_set_search_mode(remminamain->search_bar, toggle_status);
+	if (toggle_status) {
+		REMMINA_DEBUG("Search toggle is active");
 		gtk_widget_grab_focus (GTK_WIDGET(remminamain->entry_quick_connect_server));
 	} else
-		gtk_search_bar_set_search_mode(remminamain->search_bar, FALSE);
+		REMMINA_DEBUG("Search toggle is not active");
 }
 
+void remmina_main_on_accel_search_toggle(RemminaMain *remminamain)
+{
+	TRACE_CALL(__func__);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remminamain->search_toggle), TRUE);
+}
 
 void remmina_main_on_action_expand(GSimpleAction *action, GVariant *param, gpointer data)
 {
@@ -1311,7 +1328,6 @@ static void remmina_main_init(void)
 	/* Switch to a dark theme if the user enabled it */
 	settings = gtk_settings_get_default ();
 	g_object_set (settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
-	gtk_switch_set_active (remminamain->switch_dark_mode, remmina_pref.dark_theme);
 
 	remminamain->priv->expanded_group = remmina_string_array_new_from_string(remmina_pref.expanded_group);
 	if (!kioskmode && kioskmode == FALSE)
@@ -1399,7 +1415,6 @@ GtkWidget *remmina_main_new(void)
 		gtk_widget_set_sensitive(GTK_WIDGET(remminamain->button_new), FALSE);
 	/* Search bar */
 	remminamain->search_toggle = GTK_TOGGLE_BUTTON(RM_GET_OBJECT("search_toggle"));
-	remminamain->switch_dark_mode = GTK_SWITCH(RM_GET_OBJECT("switch_dark_mode"));
 	remminamain->search_bar = GTK_SEARCH_BAR(RM_GET_OBJECT("search_bar"));
 	/* view mode list/tree */
 	remminamain->view_toggle_button = GTK_TOGGLE_BUTTON(RM_GET_OBJECT("view_toggle_button"));
@@ -1429,6 +1444,7 @@ GtkWidget *remmina_main_new(void)
 	remminamain->statusbar_main = GTK_STATUSBAR(RM_GET_OBJECT("statusbar_main"));
 	/* signals */
 	g_signal_connect (remminamain->entry_quick_connect_server, "key-release-event", G_CALLBACK (remmina_main_search_key_event), NULL);
+	g_signal_connect (remminamain->tree_files_list, "row-activated", G_CALLBACK (remmina_main_tree_row_activated), NULL);
 	/* Non widget objects */
 	actions = g_simple_action_group_new();
 	g_action_map_add_action_entries(G_ACTION_MAP(actions), app_actions, G_N_ELEMENTS(app_actions), remminamain->window);
@@ -1445,7 +1461,8 @@ GtkWidget *remmina_main_new(void)
 	gtk_accel_group_connect(accel_group, GDK_KEY_P, GDK_CONTROL_MASK, 0,
 				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_accel_application_preferences), NULL, NULL));
 	gtk_accel_group_connect(accel_group, GDK_KEY_F, GDK_CONTROL_MASK, 0,
-				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_action_search_toggle), NULL, NULL));
+				//g_cclosure_new_swap(G_CALLBACK(remmina_main_on_action_search_toggle), NULL, NULL));
+				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_accel_search_toggle), remminamain, NULL));
 
 	/* Connect signals */
 	gtk_builder_connect_signals(remminamain->builder, NULL);

@@ -81,6 +81,8 @@ typedef struct _RemminaProtocolPlugin {
 	void (*call_feature)(RemminaProtocolWidget *gp, const RemminaProtocolFeature *feature);
 	void (*send_keystrokes)(RemminaProtocolWidget *gp, const guint keystrokes[], const gint keylen);
 	gboolean (*get_plugin_screenshot)(RemminaProtocolWidget *gp, RemminaPluginScreenshotData *rpsd);
+	gboolean (*map_event)(RemminaProtocolWidget *gp);
+	gboolean (*unmap_event)(RemminaProtocolWidget *gp);
 } RemminaProtocolPlugin;
 
 typedef struct _RemminaEntryPlugin {
@@ -221,6 +223,7 @@ typedef struct _RemminaPluginService {
 	void (*ui_register)(GtkWidget *widget);
 
 	GtkWidget *   (*open_connection)(RemminaFile * remminafile, GCallback disconnect_cb, gpointer data, guint *handler);
+	gint (*open_unix_sock)(const char *unixsock);
 	void (*get_server_port)(const gchar *server, gint defaultport, gchar **host, gint *port);
 	gboolean (*is_main_thread)(void);
 	gboolean (*gtksocket_available)(void);

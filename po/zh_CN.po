@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: l10n@lists.remmina.org\n"
-"POT-Creation-Date: 2021-03-30 08:38+0000\n"
-"PO-Revision-Date: 2021-03-15 10:02+0000\n"
+"POT-Creation-Date: 2021-05-10 12:11+0000\n"
+"PO-Revision-Date: 2021-05-10 12:11+0000\n"
 "Last-Translator: Eric <spice2wolf@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "remmina/remmina/zh_Hans/>\n"
@@ -22,125 +22,126 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.5.2-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 "X-Launchpad-Export-Date: 2014-04-10 15:04+0000\n"
 
-#: src/remmina_protocol_widget.c:280
+#: src/remmina_protocol_widget.c:283 src/remmina_sftp_plugin.c:328
 msgid "Connect via SSH from a new terminal"
 msgstr "通过 SSH 从新终端连接"
 
-#: src/remmina_protocol_widget.c:286
+#: src/remmina_protocol_widget.c:290 src/remmina_ssh_plugin.c:826
+#: src/remmina_ssh_plugin.c:1391
 msgid "Open SFTP transfer…"
 msgstr "打开 SFTP 传输…"
 
-#: src/remmina_protocol_widget.c:314
+#: src/remmina_protocol_widget.c:319
 msgid "Executing external commands…"
 msgstr "执行外部命令…"
 
-#: src/remmina_protocol_widget.c:321
+#: src/remmina_protocol_widget.c:326
 #, c-format
 msgid "Connecting to “%s”…"
 msgstr "正在连接到 “%s”…"
 
-#: src/remmina_protocol_widget.c:767 src/remmina_protocol_widget.c:885
+#: src/remmina_protocol_widget.c:907 src/remmina_protocol_widget.c:1030
 #, c-format
 msgid "Connecting to “%s” via SSH…"
 msgstr "正在通过 SSH 连接到 “%s”…"
 
-#: src/remmina_protocol_widget.c:948
+#: src/remmina_protocol_widget.c:1093
 #, c-format
 msgid "Awaiting incoming SSH connection on port %i…"
 msgstr "在端口 %i 等待传入的 SSH 连接…"
 
-#: src/remmina_protocol_widget.c:1000
+#: src/remmina_protocol_widget.c:1145
 #, c-format
 msgid "The “%s” command is not available on the SSH server."
 msgstr "“%s”命令在 SSH 服务器上不可用。"
 
-#: src/remmina_protocol_widget.c:1004
+#: src/remmina_protocol_widget.c:1149
 #, c-format
 msgid "Could not run the “%s” command on the SSH server (status = %i)."
 msgstr "SSH 服务器运行命令 “%s” 失败（状态= %i）。"
 
 #. TRANSLATORS: %s is a placeholder for an error message
-#: src/remmina_protocol_widget.c:1012
+#: src/remmina_protocol_widget.c:1157
 #, c-format
 msgid "Could not run command. %s"
 msgstr "无法运行命令。%s"
 
-#: src/remmina_protocol_widget.c:1081
+#: src/remmina_protocol_widget.c:1226
 #, c-format
 msgid "Connecting to %s via SSH…"
 msgstr "通过 SSH 连接到 %s …"
 
-#: src/remmina_protocol_widget.c:1457 src/remmina_protocol_widget.c:1476
-#: src/remmina_ssh_plugin.c:1287 src/remmina_sftp_plugin.c:309
-#: src/remmina_sftp_plugin.c:344 src/remmina_file_editor.c:845
-#: src/remmina_file_editor.c:966 plugins/www/www_plugin.c:872
-#: plugins/rdp/rdp_plugin.c:2533 data/ui/remmina_unlock.glade:116
+#: src/remmina_protocol_widget.c:1602 src/remmina_protocol_widget.c:1621
+#: src/remmina_ssh_plugin.c:1306 src/remmina_sftp_plugin.c:310
+#: src/remmina_sftp_plugin.c:346 src/remmina_file_editor.c:846
+#: src/remmina_file_editor.c:967 plugins/www/www_plugin.c:880
+#: plugins/rdp/rdp_plugin.c:2574 data/ui/remmina_unlock.glade:116
 #: data/ui/remmina_mpc.glade:236 data/ui/remmina_preferences.glade:1682
 msgid "Password"
 msgstr "密码"
 
-#: src/remmina_protocol_widget.c:1475
+#: src/remmina_protocol_widget.c:1620
 msgid "Type in SSH username and password."
 msgstr "输入 SSH 的用户名和密码。"
 
-#: src/remmina_protocol_widget.c:1530 src/remmina_protocol_widget.c:1557
+#: src/remmina_protocol_widget.c:1675 src/remmina_protocol_widget.c:1702
 msgid "Fingerprint automatically accepted"
 msgstr "自动接受指纹"
 
-#: src/remmina_protocol_widget.c:1537
+#: src/remmina_protocol_widget.c:1682
 msgid "Certificate details:"
 msgstr "证书详情："
 
-#: src/remmina_protocol_widget.c:1538 src/remmina_protocol_widget.c:1565
+#: src/remmina_protocol_widget.c:1683 src/remmina_protocol_widget.c:1710
 msgid "Subject:"
 msgstr "主题："
 
-#: src/remmina_protocol_widget.c:1539 src/remmina_protocol_widget.c:1566
+#: src/remmina_protocol_widget.c:1684 src/remmina_protocol_widget.c:1711
 msgid "Issuer:"
 msgstr "颁发者："
 
-#: src/remmina_protocol_widget.c:1540
+#: src/remmina_protocol_widget.c:1685
 msgid "Fingerprint:"
 msgstr "指纹："
 
-#: src/remmina_protocol_widget.c:1541
+#: src/remmina_protocol_widget.c:1686
 msgid "Accept certificate?"
 msgstr "接受证书吗？"
 
-#: src/remmina_protocol_widget.c:1564
+#: src/remmina_protocol_widget.c:1709
 msgid "The certificate changed! Details:"
 msgstr "证书已更改！详情："
 
-#: src/remmina_protocol_widget.c:1567
+#: src/remmina_protocol_widget.c:1712
 msgid "Old fingerprint:"
 msgstr "旧指纹："
 
-#: src/remmina_protocol_widget.c:1568
+#: src/remmina_protocol_widget.c:1713
 msgid "New fingerprint:"
 msgstr "新指纹："
 
-#: src/remmina_protocol_widget.c:1569
+#: src/remmina_protocol_widget.c:1714
 msgid "Accept changed certificate?"
 msgstr "接受更改的证书吗？"
 
-#: src/remmina_protocol_widget.c:1711
+#: src/remmina_protocol_widget.c:1856
 #, c-format
 msgid "Listening on port %i for an incoming %s connection…"
 msgstr "在 %i 端口监听传入的 %s 连接…"
 
-#: src/remmina_protocol_widget.c:1736
+#: src/remmina_protocol_widget.c:1881
 msgid "Could not authenticate, attempting reconnection…"
 msgstr "验证失败，重新连接…"
 
-#: src/remmina_protocol_widget.c:1798 src/remmina_file_editor.c:345
-#: src/remmina_file_editor.c:916 data/ui/remmina_main.glade:485
+#: src/remmina_protocol_widget.c:1943 src/remmina_file_editor.c:346
+#: src/remmina_file_editor.c:917 data/ui/remmina_main.glade:478
 msgid "Server"
 msgstr "服务器"
 
-#: src/remmina_protocol_widget.c:1815
+#: src/remmina_protocol_widget.c:1960
 #, c-format
 msgid "Install the %s protocol plugin first."
 msgstr "请先安装 %s 协议插件。"
@@ -150,11 +151,11 @@ msgstr "请先安装 %s 协议插件。"
 msgid "Plugin %s is not registered."
 msgstr "插件 %s 未注册。"
 
-#: src/remmina_pref_dialog.c:90 src/remmina_file_editor.c:434
+#: src/remmina_pref_dialog.c:90 src/remmina_file_editor.c:435
 msgid "Resolutions"
 msgstr "分辨率"
 
-#: src/remmina_pref_dialog.c:90 src/remmina_file_editor.c:434
+#: src/remmina_pref_dialog.c:90 src/remmina_file_editor.c:435
 msgid "Configure the available resolutions"
 msgstr "配置可提供的分辨率"
 
@@ -162,7 +163,7 @@ msgstr "配置可提供的分辨率"
 msgid "Recent lists cleared."
 msgstr "最近项已被清除。"
 
-#: src/remmina_pref_dialog.c:153 src/rcw.c:1949
+#: src/remmina_pref_dialog.c:153 src/rcw.c:1950
 #: data/ui/remmina_preferences.glade:251 data/ui/remmina_preferences.glade:261
 msgid "Keystrokes"
 msgstr "键盘监听"
@@ -188,146 +189,146 @@ msgid ""
 msgstr ""
 
 #. TRANSLATORS: %s is a placeholder for an error message
-#: src/remmina_ssh_plugin.c:534
+#: src/remmina_ssh_plugin.c:536
 #, c-format
 msgid "Error: %s"
 msgstr "错误: %s"
 
-#: src/remmina_ssh_plugin.c:551
+#: src/remmina_ssh_plugin.c:553
 msgid "Terminal content saved in"
 msgstr "终端内容保存在"
 
-#: src/remmina_ssh_plugin.c:805
+#: src/remmina_ssh_plugin.c:819
 msgid "Select All (host+A)"
 msgstr "全选 (Host + A)"
 
-#: src/remmina_ssh_plugin.c:806
+#: src/remmina_ssh_plugin.c:820
 msgid "Copy (host+C)"
 msgstr "复制 (host + C)"
 
-#: src/remmina_ssh_plugin.c:807
+#: src/remmina_ssh_plugin.c:821
 msgid "Paste (host+V)"
 msgstr "粘贴 (host+V)"
 
-#: src/remmina_ssh_plugin.c:808
+#: src/remmina_ssh_plugin.c:822
 msgid "Save session to file"
 msgstr "将会话保存到文件"
 
-#: src/remmina_ssh_plugin.c:809
+#: src/remmina_ssh_plugin.c:823
 msgid "Increase font size (host+Page Up)"
 msgstr "增加字体大小 (host+Page Up)"
 
-#: src/remmina_ssh_plugin.c:810
+#: src/remmina_ssh_plugin.c:824
 msgid "Decrease font size (host+Page Down)"
 msgstr "减小字体大小 (host+Page Down)"
 
-#: src/remmina_ssh_plugin.c:811
+#: src/remmina_ssh_plugin.c:825
 msgid "Find text (host+G)"
 msgstr "寻找文本 (host+G)"
 
-#: src/remmina_ssh_plugin.c:1288 src/remmina_ssh_plugin.c:1392
-#: src/remmina_sftp_plugin.c:310 src/remmina_sftp_plugin.c:346
-#: src/remmina_file_editor.c:846 plugins/nx/nx_plugin.c:729
+#: src/remmina_ssh_plugin.c:1307 src/remmina_ssh_plugin.c:1412
+#: src/remmina_sftp_plugin.c:311 src/remmina_sftp_plugin.c:348
+#: src/remmina_file_editor.c:847 plugins/nx/nx_plugin.c:729
 msgid "SSH identity file"
 msgstr "SSH 私钥文件"
 
-#: src/remmina_ssh_plugin.c:1289 src/remmina_sftp_plugin.c:311
-#: src/remmina_file_editor.c:847
+#: src/remmina_ssh_plugin.c:1308 src/remmina_sftp_plugin.c:312
+#: src/remmina_file_editor.c:848
 msgid "SSH agent"
 msgstr "SSH 代理"
 
-#: src/remmina_ssh_plugin.c:1290 src/remmina_sftp_plugin.c:312
-#: src/remmina_file_editor.c:848
+#: src/remmina_ssh_plugin.c:1309 src/remmina_sftp_plugin.c:313
+#: src/remmina_file_editor.c:849
 msgid "Public key (automatic)"
 msgstr "公钥（自动）"
 
-#: src/remmina_ssh_plugin.c:1291 src/remmina_sftp_plugin.c:313
-#: src/remmina_file_editor.c:849
+#: src/remmina_ssh_plugin.c:1310 src/remmina_sftp_plugin.c:314
+#: src/remmina_file_editor.c:850
 msgid "Kerberos (GSSAPI)"
 msgstr "Kerberos (GSSAPI)"
 
-#: src/remmina_ssh_plugin.c:1366 data/ui/remmina_main.glade:183
+#: src/remmina_ssh_plugin.c:1385 data/ui/remmina_main.glade:177
 msgid "Copy"
 msgstr "复制"
 
-#: src/remmina_ssh_plugin.c:1366
+#: src/remmina_ssh_plugin.c:1385
 msgid "_Copy"
 msgstr "复制(_C)"
 
-#: src/remmina_ssh_plugin.c:1367
+#: src/remmina_ssh_plugin.c:1386
 msgid "Paste"
 msgstr "粘贴"
 
-#: src/remmina_ssh_plugin.c:1367
+#: src/remmina_ssh_plugin.c:1386
 msgid "_Paste"
 msgstr "粘贴(_P)"
 
-#: src/remmina_ssh_plugin.c:1368
+#: src/remmina_ssh_plugin.c:1387
 msgid "Select all"
 msgstr "全选"
 
-#: src/remmina_ssh_plugin.c:1368
+#: src/remmina_ssh_plugin.c:1387
 msgid "_Select all"
 msgstr "全选(_S)"
 
-#: src/remmina_ssh_plugin.c:1369 data/ui/remmina_preferences.glade:2388
+#: src/remmina_ssh_plugin.c:1388 data/ui/remmina_preferences.glade:2388
 msgid "Increase font size"
 msgstr "增大字体"
 
-#: src/remmina_ssh_plugin.c:1369
+#: src/remmina_ssh_plugin.c:1388
 msgid "_Increase font size"
 msgstr "增大字体(_I)"
 
-#: src/remmina_ssh_plugin.c:1370 data/ui/remmina_preferences.glade:2401
+#: src/remmina_ssh_plugin.c:1389 data/ui/remmina_preferences.glade:2401
 msgid "Decrease font size"
 msgstr "减小字体"
 
-#: src/remmina_ssh_plugin.c:1370
+#: src/remmina_ssh_plugin.c:1389
 msgid "_Decrease font size"
 msgstr "减小字体(_D)"
 
-#: src/remmina_ssh_plugin.c:1371
+#: src/remmina_ssh_plugin.c:1390
 msgid "Find text"
 msgstr "查找文本"
 
-#: src/remmina_ssh_plugin.c:1371
+#: src/remmina_ssh_plugin.c:1390
 msgid "_Find text"
 msgstr "查找文本(_F)"
 
-#: src/remmina_ssh_plugin.c:1389 src/remmina_sftp_plugin.c:345
-#: src/remmina_file_editor.c:951
+#: src/remmina_ssh_plugin.c:1409 src/remmina_sftp_plugin.c:347
+#: src/remmina_file_editor.c:952
 msgid "Authentication type"
 msgstr "认证类型"
 
-#: src/remmina_ssh_plugin.c:1390 src/remmina_message_panel.c:330
-#: src/remmina_sftp_plugin.c:343 src/remmina_file_editor.c:960
-#: plugins/www/www_plugin.c:871 plugins/vnc/vnc_plugin.c:1879
-#: plugins/vnc/vnc_plugin.c:1899 plugins/rdp/rdp_plugin.c:2532
+#: src/remmina_ssh_plugin.c:1410 src/remmina_message_panel.c:330
+#: src/remmina_sftp_plugin.c:345 src/remmina_file_editor.c:961
+#: plugins/www/www_plugin.c:879 plugins/vnc/vnc_plugin.c:1942
+#: plugins/vnc/vnc_plugin.c:1962 plugins/rdp/rdp_plugin.c:2573
 #: plugins/nx/nx_plugin.c:730 data/ui/remmina_mpc.glade:144
 msgid "Username"
 msgstr "用户名"
 
-#: src/remmina_ssh_plugin.c:1391 plugins/vnc/vnc_plugin.c:1880
-#: plugins/vnc/vnc_plugin.c:1900 plugins/spice/spice_plugin.c:576
+#: src/remmina_ssh_plugin.c:1411 plugins/vnc/vnc_plugin.c:1943
+#: plugins/vnc/vnc_plugin.c:1963 plugins/spice/spice_plugin.c:666
 #: plugins/nx/nx_plugin.c:731
 msgid "User password"
 msgstr "用户密码"
 
-#: src/remmina_ssh_plugin.c:1394 src/remmina_file_editor.c:978
+#: src/remmina_ssh_plugin.c:1414 src/remmina_file_editor.c:979
 msgid "SSH certificate file"
 msgstr "SSH 证书文件"
 
-#: src/remmina_ssh_plugin.c:1396 src/remmina_sftp_plugin.c:347
-#: src/remmina_file_editor.c:983
+#: src/remmina_ssh_plugin.c:1416 src/remmina_sftp_plugin.c:349
+#: src/remmina_file_editor.c:984
 msgid "Password to unlock private key"
 msgstr "解锁私钥的密码"
 
-#: src/remmina_ssh_plugin.c:1397 plugins/xdmcp/xdmcp_plugin.c:370
-#: plugins/rdp/rdp_plugin.c:2572 plugins/nx/nx_plugin.c:734
+#: src/remmina_ssh_plugin.c:1417 plugins/xdmcp/xdmcp_plugin.c:370
+#: plugins/rdp/rdp_plugin.c:2613 plugins/nx/nx_plugin.c:734
 msgid "Start-up program"
 msgstr "启动程序"
 
-#: src/remmina_ssh_plugin.c:1402
+#: src/remmina_ssh_plugin.c:1422
 msgid ""
 "The filename can use the following placeholders:\n"
 "\n"
@@ -349,59 +350,59 @@ msgstr ""
 "  • %g 由 Remmina 配置组名组成\n"
 "  • %d 由 ISO 8601 格式的本地日期和时间组成\n"
 
-#: src/remmina_ssh_plugin.c:1424
+#: src/remmina_ssh_plugin.c:1444
 msgid "Terminal colour scheme"
 msgstr "终端配色方案"
 
-#: src/remmina_ssh_plugin.c:1425
+#: src/remmina_ssh_plugin.c:1445
 msgid "Character set"
 msgstr "字符集"
 
-#: src/remmina_ssh_plugin.c:1426 src/remmina_sftp_plugin.c:348
+#: src/remmina_ssh_plugin.c:1446 src/remmina_sftp_plugin.c:350
 msgid "SSH Proxy Command"
 msgstr "SSH 代理命令"
 
-#: src/remmina_ssh_plugin.c:1427
+#: src/remmina_ssh_plugin.c:1447
 msgid "KEX (Key Exchange) algorithms"
 msgstr "KEX（密钥交换）算法"
 
-#: src/remmina_ssh_plugin.c:1428
+#: src/remmina_ssh_plugin.c:1448
 msgid "Symmetric cipher client to server"
 msgstr "对称加密客户端到服务器"
 
-#: src/remmina_ssh_plugin.c:1429
+#: src/remmina_ssh_plugin.c:1449
 msgid "Preferred server host key types"
 msgstr "首选服务器主机密钥类型"
 
-#: src/remmina_ssh_plugin.c:1430
+#: src/remmina_ssh_plugin.c:1450
 msgid "Folder for SSH session log"
 msgstr "SSH 会话日志文件夹"
 
-#: src/remmina_ssh_plugin.c:1431
+#: src/remmina_ssh_plugin.c:1451
 msgid "Filename for SSH session log"
 msgstr "SSH 会话日志的文件名"
 
-#: src/remmina_ssh_plugin.c:1432
+#: src/remmina_ssh_plugin.c:1452
 msgid "Log SSH session when exiting Remmina"
 msgstr "退出 Remmina 时记录 SSH 会话"
 
-#: src/remmina_ssh_plugin.c:1433
+#: src/remmina_ssh_plugin.c:1453
 msgid "Audible terminal bell"
 msgstr "有声终端铃"
 
-#: src/remmina_ssh_plugin.c:1434
+#: src/remmina_ssh_plugin.c:1454
 msgid "SSH compression"
 msgstr "SSH 压缩"
 
-#: src/remmina_ssh_plugin.c:1435
+#: src/remmina_ssh_plugin.c:1455
 msgid "Don't remember passwords"
 msgstr "忘记密码"
 
-#: src/remmina_ssh_plugin.c:1436
+#: src/remmina_ssh_plugin.c:1456
 msgid "Strict host key checking"
 msgstr "严格的主机密钥检查"
 
-#: src/remmina_ssh_plugin.c:1450
+#: src/remmina_ssh_plugin.c:1470
 msgid "SSH - Secure Shell"
 msgstr "SSH - 安全 Shell 连接"
 
@@ -435,11 +436,26 @@ msgid "%d password changed."
 msgid_plural "%d passwords changed."
 msgstr[0] "%d 个密码已更改。"
 
-#: src/remmina_public.c:640
+#: src/remmina_public.c:345
+#, c-format
+msgid "Address is too long for UNIX socket_path: %s"
+msgstr ""
+
+#: src/remmina_public.c:355
+#, c-format
+msgid "Creating UNIX socket failed: %s"
+msgstr ""
+
+#: src/remmina_public.c:361
+#, c-format
+msgid "Connecting to UNIX socket failed: %s"
+msgstr "未能连接到 UNIX 套接字：%s"
+
+#: src/remmina_public.c:738
 msgid "Please enter format 'widthxheight'."
 msgstr "请正确输入“宽x高”。"
 
-#: src/remmina_public.c:662
+#: src/remmina_public.c:760
 msgid "Change security settings"
 msgstr "更改安全设置"
 
@@ -475,11 +491,11 @@ msgstr "选择要上传的文件"
 msgid "Upload folder"
 msgstr "上传文件夹"
 
-#: src/remmina_ftp_client.c:649 src/remmina_ftp_client.c:771
+#: src/remmina_ftp_client.c:649 src/remmina_ftp_client.c:763
 msgid "Download"
 msgstr "下载"
 
-#: src/remmina_ftp_client.c:656 src/remmina_ftp_client.c:782
+#: src/remmina_ftp_client.c:656 src/remmina_ftp_client.c:770
 msgid "Upload"
 msgstr "上传"
 
@@ -487,77 +503,77 @@ msgstr "上传"
 msgid "_Delete"
 msgstr "删除(_D)"
 
-#: src/remmina_ftp_client.c:750
+#: src/remmina_ftp_client.c:748
 msgid "Home"
 msgstr "首页"
 
-#: src/remmina_ftp_client.c:752
+#: src/remmina_ftp_client.c:749
 msgid "Go to home folder"
 msgstr "跳到主目录"
 
-#: src/remmina_ftp_client.c:757
+#: src/remmina_ftp_client.c:753
 msgid "Up"
 msgstr "向上"
 
-#: src/remmina_ftp_client.c:759
+#: src/remmina_ftp_client.c:754
 msgid "Go to parent folder"
 msgstr "跳到上一层目录"
 
-#: src/remmina_ftp_client.c:764 plugins/vnc/vnc_plugin.c:1936
-#: plugins/rdp/rdp_plugin.c:2613
+#: src/remmina_ftp_client.c:758 plugins/vnc/vnc_plugin.c:2000
+#: plugins/rdp/rdp_plugin.c:2654
 msgid "Refresh"
 msgstr "刷新"
 
-#: src/remmina_ftp_client.c:766
+#: src/remmina_ftp_client.c:759
 msgid "Refresh current folder"
 msgstr "刷新当前目录"
 
-#: src/remmina_ftp_client.c:773
+#: src/remmina_ftp_client.c:764
 msgid "Download from server"
 msgstr "从服务器下载"
 
-#: src/remmina_ftp_client.c:784
+#: src/remmina_ftp_client.c:771
 msgid "Upload to server"
 msgstr "上传到服务器"
 
-#: src/remmina_ftp_client.c:791 data/ui/remmina_main.glade:203
+#: src/remmina_ftp_client.c:775 data/ui/remmina_main.glade:197
 msgid "Delete"
 msgstr "删除"
 
-#: src/remmina_ftp_client.c:793
+#: src/remmina_ftp_client.c:776
 msgid "Delete files on server"
 msgstr "删除服务器上的文件"
 
-#: src/remmina_ftp_client.c:921 src/remmina_ftp_client.c:990
+#: src/remmina_ftp_client.c:905 src/remmina_ftp_client.c:974
 msgid "Filename"
 msgstr "文件名"
 
-#: src/remmina_ftp_client.c:934 src/remmina_ftp_client.c:1019
+#: src/remmina_ftp_client.c:918 src/remmina_ftp_client.c:1003
 msgid "Size"
 msgstr "大小"
 
-#: src/remmina_ftp_client.c:942
+#: src/remmina_ftp_client.c:926
 msgid "User"
 msgstr "用户名"
 
-#: src/remmina_ftp_client.c:948 src/remmina_file_editor.c:1514
-#: data/ui/remmina_main.glade:471 data/ui/remmina_mpc.glade:115
+#: src/remmina_ftp_client.c:932 src/remmina_file_editor.c:1515
+#: data/ui/remmina_main.glade:464 data/ui/remmina_mpc.glade:115
 msgid "Group"
 msgstr "分组"
 
-#: src/remmina_ftp_client.c:954
+#: src/remmina_ftp_client.c:938
 msgid "Permission"
 msgstr "权限"
 
-#: src/remmina_ftp_client.c:1006 plugins/rdp/rdp_plugin.c:2438
+#: src/remmina_ftp_client.c:990 plugins/rdp/rdp_plugin.c:2479
 msgid "Remote"
 msgstr "远程"
 
-#: src/remmina_ftp_client.c:1013 plugins/rdp/rdp_plugin.c:2437
+#: src/remmina_ftp_client.c:997 plugins/rdp/rdp_plugin.c:2478
 msgid "Local"
 msgstr "本地"
 
-#: src/remmina_ftp_client.c:1027
+#: src/remmina_ftp_client.c:1011
 msgid "Progress"
 msgstr "进度"
 
@@ -738,7 +754,7 @@ msgstr ""
 msgid "Open Main Window"
 msgstr "打开主窗口"
 
-#: src/remmina_icon.c:144 data/ui/remmina_main.glade:260
+#: src/remmina_icon.c:144 data/ui/remmina_main.glade:254
 msgid "_Preferences"
 msgstr "首选项(_P)"
 
@@ -750,7 +766,7 @@ msgstr "关于(_A)"
 msgid "Enable Service Discovery"
 msgstr "开启服务侦测功能"
 
-#: src/remmina_icon.c:171 data/ui/remmina_main.glade:411
+#: src/remmina_icon.c:171 data/ui/remmina_main.glade:404
 msgid "_Quit"
 msgstr "退出(_Q)"
 
@@ -765,112 +781,116 @@ msgstr "Remmina 面板小程序"
 msgid "Connect to remote desktops through the applet menu"
 msgstr "通过小程序菜单快速连接到远程桌面"
 
-#: src/remmina_icon.c:470 src/remmina_icon.c:471 src/remmina_main.c:1318
+#: src/remmina_icon.c:470 src/remmina_icon.c:471 src/remmina_main.c:1334
 msgid "Remmina Remote Desktop Client"
 msgstr "Remmina 远程桌面客户端"
 
-#: src/rcw.c:654
+#: src/rcw.c:655
 #, c-format
 msgid ""
 "Are you sure you want to close %i active connections in the current window?"
 msgstr "当前窗口已打开 %i 个连接。确认要关闭吗？"
 
-#: src/rcw.c:1390
+#: src/rcw.c:1391
 msgid "Viewport fullscreen mode"
 msgstr "视口全屏模式"
 
-#: src/rcw.c:1398 data/ui/remmina_preferences.glade:646
+#: src/rcw.c:1399 data/ui/remmina_preferences.glade:646
 msgid "Scrolled fullscreen"
 msgstr "滚动全屏"
 
-#: src/rcw.c:1483
+#: src/rcw.c:1484
 msgid "Keep aspect ratio when scaled"
 msgstr "缩放时保持比例"
 
-#: src/rcw.c:1491
+#: src/rcw.c:1492
 msgid "Fill client window when scaled"
 msgstr "缩放时填满客户端窗口"
 
-#: src/rcw.c:2064
+#: src/rcw.c:1971
+msgid "Send clipboard content as keystrokes"
+msgstr ""
+
+#: src/rcw.c:2071
 msgid "Turn off scaling to avoid screenshot distortion."
 msgstr "关闭缩放比例以避免屏幕截图失真。"
 
-#: src/rcw.c:2124 plugins/www/www_plugin.c:840
+#: src/rcw.c:2131 plugins/www/www_plugin.c:848
 msgid "Screenshot taken"
 msgstr "截屏"
 
-#: src/rcw.c:2205
+#: src/rcw.c:2212
 msgid "Open the Remmina main window"
 msgstr "打开 Remmina 主窗口"
 
-#: src/rcw.c:2214
+#: src/rcw.c:2221
 msgid "Duplicate current connection"
 msgstr "重复当前连接"
 
-#: src/rcw.c:2231
+#: src/rcw.c:2238
 msgid "Resize the window to fit in remote resolution"
 msgstr "调整窗口大小以适应远程分辨率"
 
-#: src/rcw.c:2242
+#: src/rcw.c:2249
 msgid "Toggle fullscreen mode"
 msgstr "切换全屏模式"
 
-#: src/rcw.c:2288 data/ui/remmina_preferences.glade:1299
+#: src/rcw.c:2295 data/ui/remmina_preferences.glade:1299
 #: data/ui/remmina_preferences.glade:1309
 msgid "Multi monitor"
 msgstr "多显示器"
 
-#: src/rcw.c:2304
+#: src/rcw.c:2311
 msgid "Toggle dynamic resolution update"
 msgstr "切换动态分辨率更新"
 
-#: src/rcw.c:2314
+#: src/rcw.c:2321
 msgid "Toggle scaled mode"
 msgstr "切换缩放模式"
 
-#: src/rcw.c:2354 data/ui/remmina_preferences.glade:1043
+#: src/rcw.c:2361 data/ui/remmina_preferences.glade:1043
 msgid "Switch tab pages"
 msgstr "切换标签页"
 
-#: src/rcw.c:2364
+#: src/rcw.c:2371
 msgid "Grab all keyboard events"
 msgstr "俘获所有键盘事件"
 
-#: src/rcw.c:2374
+#: src/rcw.c:2381
 msgid "Preferences"
 msgstr "首选项"
 
-#: src/rcw.c:2383
+#: src/rcw.c:2390
 msgid "_Tools"
 msgstr "工具(_T)"
 
-#: src/rcw.c:2384 data/ui/remmina_main.glade:213
+#: src/rcw.c:2391 data/ui/remmina_main.glade:207
 msgid "Tools"
 msgstr "工具"
 
-#: src/rcw.c:2397 data/ui/remmina_preferences.glade:1236
+#: src/rcw.c:2404 data/ui/remmina_preferences.glade:1236
 #: data/ui/remmina_preferences.glade:1246
 msgid "Screenshot"
 msgstr "截屏"
 
-#: src/rcw.c:2411 data/ui/remmina_preferences.glade:1146
+#: src/rcw.c:2418 data/ui/remmina_preferences.glade:1146
 msgid "Minimize window"
 msgstr "最小化窗口"
 
-#: src/rcw.c:2421 data/ui/remmina_preferences.glade:1176
+#: src/rcw.c:2428 data/ui/remmina_preferences.glade:1176
 msgid "Disconnect"
 msgstr "断开"
 
-#: src/rcw.c:4143
+#: src/rcw.c:4195
 #, c-format
 msgid "The file “%s” is corrupted, unreadable, or could not be found."
 msgstr "文件“%s” 已损坏，无法读取或未找到。"
 
-#: src/rcw.c:4311
+#: src/rcw.c:4363
 msgid "Warning: This plugin requires GtkSocket, but it’s not available."
 msgstr "警告：此插件需要 GtkSocket，但它不可用。"
 
-#: src/remmina_plugin_manager.c:73 src/remmina_file_editor.c:1532
+#: src/remmina_plugin_manager.c:73 src/remmina_file_editor.c:1533
 msgid "Protocol"
 msgstr "协议"
 
@@ -894,29 +914,29 @@ msgstr "首选项"
 msgid "Secret"
 msgstr "机密"
 
-#: src/remmina_plugin_manager.c:455 data/ui/remmina_main.glade:331
+#: src/remmina_plugin_manager.c:456 data/ui/remmina_main.glade:305
 msgid "Plugins"
 msgstr "插件"
 
-#: src/remmina_plugin_manager.c:455 src/remmina_message_panel.c:452
-#: src/remmina_message_panel.c:621 src/remmina_file_editor.c:151
+#: src/remmina_plugin_manager.c:456 src/remmina_message_panel.c:452
+#: src/remmina_message_panel.c:621 src/remmina_file_editor.c:152
 msgid "_OK"
 msgstr "确定(_O)"
 
-#: src/remmina_plugin_manager.c:473 src/remmina_file_editor.c:1489
-#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:449
+#: src/remmina_plugin_manager.c:474 src/remmina_file_editor.c:1490
+#: plugins/nx/nx_session_manager.c:204 data/ui/remmina_main.glade:442
 msgid "Name"
 msgstr "名称"
 
-#: src/remmina_plugin_manager.c:479 plugins/nx/nx_session_manager.c:183
+#: src/remmina_plugin_manager.c:480 plugins/nx/nx_session_manager.c:183
 msgid "Type"
 msgstr "类型"
 
-#: src/remmina_plugin_manager.c:485
+#: src/remmina_plugin_manager.c:486
 msgid "Description"
 msgstr "描述"
 
-#: src/remmina_plugin_manager.c:491
+#: src/remmina_plugin_manager.c:492
 msgid "Version"
 msgstr "版本"
 
@@ -926,12 +946,12 @@ msgid "Total %i item."
 msgid_plural "Total %i items."
 msgstr[0] "共 %i 项。"
 
-#: src/remmina_main.c:843
+#: src/remmina_main.c:854
 #, c-format
 msgid "Are you sure you want to delete “%s”?"
 msgstr "确认要删除 “%s”吗？"
 
-#: src/remmina_main.c:966
+#: src/remmina_main.c:975
 #, c-format
 msgid ""
 "Unable to import:\n"
@@ -940,21 +960,21 @@ msgstr ""
 "无法导入：\n"
 "%s"
 
-#: src/remmina_main.c:992 data/ui/remmina_main.glade:291
+#: src/remmina_main.c:1001 data/ui/remmina_main.glade:285
 msgid "Import"
 msgstr "导入"
 
-#: src/remmina_main.c:1015 src/remmina_file_editor.c:1372
+#: src/remmina_main.c:1024 src/remmina_file_editor.c:1373
 msgid "_Save"
 msgstr "保存(_S)"
 
-#: src/remmina_main.c:1021
+#: src/remmina_main.c:1030
 msgid "This protocol does not support exporting."
 msgstr "此协议不支持导出。"
 
-#: src/remmina_main.c:1320
+#: src/remmina_main.c:1336
 msgid "Remmina Kiosk"
-msgstr "Remmina Kiosk"
+msgstr "Remmina 终端"
 
 #: src/remmina_key_chooser.h:38
 msgid "Shift+"
@@ -1060,8 +1080,8 @@ msgid "Overwrite"
 msgstr "覆盖"
 
 #: src/remmina_sftp_client.c:947 src/remmina_message_panel.c:457
-#: src/remmina_message_panel.c:629 src/remmina_file_editor.c:150
-#: src/remmina_file_editor.c:1364 plugins/spice/spice_plugin_file_transfer.c:84
+#: src/remmina_message_panel.c:629 src/remmina_file_editor.c:151
+#: src/remmina_file_editor.c:1365 plugins/spice/spice_plugin_file_transfer.c:84
 #: plugins/nx/nx_session_manager.c:156 data/ui/remmina_spinner.glade:8
 #: data/ui/remmina_spinner.glade:9 data/ui/remmina_key_chooser.glade:8
 #: data/ui/remmina_key_chooser.glade:9
@@ -1092,7 +1112,7 @@ msgstr "是"
 msgid "No"
 msgstr "否"
 
-#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2534
+#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2575
 #: data/ui/remmina_mpc.glade:172
 msgid "Domain"
 msgstr "域"
@@ -1121,19 +1141,19 @@ msgstr "客户端证书文件"
 msgid "Client Certificate Key"
 msgstr "客户端证书密钥"
 
-#: src/remmina_sftp_plugin.c:322
+#: src/remmina_sftp_plugin.c:323
 msgid "Show Hidden Files"
 msgstr "显示隐藏文件"
 
-#: src/remmina_sftp_plugin.c:324
+#: src/remmina_sftp_plugin.c:325
 msgid "Overwrite all files"
 msgstr "覆盖所有文件"
 
-#: src/remmina_sftp_plugin.c:326
+#: src/remmina_sftp_plugin.c:327
 msgid "Resume all file transfers"
 msgstr "恢复所有文件传输"
 
-#: src/remmina_sftp_plugin.c:357
+#: src/remmina_sftp_plugin.c:359
 msgid "SFTP - Secure File Transfer"
 msgstr "SFTP - 安全文件传输"
 
@@ -1285,138 +1305,142 @@ msgid "Keyboard interactive login, TOTP/OTP/2FA"
 msgstr "键盘交互式登录, TOTP/OTP/2FA"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1333
+#: src/remmina_ssh.c:1337
 #, c-format
 msgid "Could not start SSH session. %s"
 msgstr "无法启动 SSH 会话。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1739 src/remmina_ssh.c:1802
+#: src/remmina_ssh.c:1743 src/remmina_ssh.c:1806
 #, c-format
 msgid "Could not create channel. %s"
 msgstr "创建通道失败。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1750
+#: src/remmina_ssh.c:1754
 #, c-format
 msgid "Could not connect to SSH tunnel. %s"
 msgstr "无法连接到 SSH 通道。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1817 src/remmina_ssh.c:2441
+#: src/remmina_ssh.c:1821 src/remmina_ssh.c:2445
 #, c-format
 msgid "Could not open channel. %s"
 msgstr "打开通道失败。%s"
 
-#: src/remmina_ssh.c:1823
+#: src/remmina_ssh.c:1827
 #, c-format
 msgid "Could not run %s on SSH server."
 msgstr "无法在 SSH 服务器上运行 %s。"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1861 src/remmina_ssh.c:1882 src/remmina_ssh.c:1891
+#: src/remmina_ssh.c:1865 src/remmina_ssh.c:1886 src/remmina_ssh.c:1895
 #, c-format
 msgid "Could not request port forwarding. %s"
 msgstr "无法申请端口转发。%s"
 
-#: src/remmina_ssh.c:1926
+#: src/remmina_ssh.c:1930
 msgid "The server did not respond."
 msgstr "服务器没有响应。"
 
-#: src/remmina_ssh.c:1969
+#: src/remmina_ssh.c:1973
 #, c-format
 msgid "Cannot connect to local port %i."
 msgstr "无法连接到本地端口 %i。"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2019
+#: src/remmina_ssh.c:2023
 #, c-format
 msgid "Could not write to SSH channel. %s"
 msgstr "无法写入SSH通道。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2026
+#: src/remmina_ssh.c:2030
 #, c-format
 msgid "Could not read from tunnel listening socket. %s"
 msgstr "读取隧道侦听套接字返回错误。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2046
+#: src/remmina_ssh.c:2050
 #, c-format
 msgid "Could not poll SSH channel. %s"
 msgstr "轮询SSH通道失败。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2053
+#: src/remmina_ssh.c:2057
 #, c-format
 msgid "Could not read SSH channel in a non-blocking way. %s"
 msgstr "无法以非阻塞方式读取SSH通道。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2072
+#: src/remmina_ssh.c:2076
 #, c-format
 msgid "Could not send data to tunnel listening socket. %s"
 msgstr "无法发送数据到隧道监听套接字。%s"
 
-#: src/remmina_ssh.c:2174
+#: src/remmina_ssh.c:2178
 msgid "Assign a destination port."
 msgstr "分配目标端口。"
 
-#: src/remmina_ssh.c:2181
+#: src/remmina_ssh.c:2185
 msgid "Could not create socket."
 msgstr "无法创建套接字。"
 
-#: src/remmina_ssh.c:2191
+#: src/remmina_ssh.c:2195
 msgid "Could not bind server socket to local port."
 msgstr "无法将服务器套接字绑定到本地端口。"
 
-#: src/remmina_ssh.c:2197
+#: src/remmina_ssh.c:2201
 msgid "Could not listen to local port."
 msgstr "无法侦听本地端口。"
 
 #. TRANSLATORS: Do not translate pthread
-#: src/remmina_ssh.c:2207 src/remmina_ssh.c:2224 src/remmina_ssh.c:2241
-#: src/remmina_ssh.c:2259
+#: src/remmina_ssh.c:2211 src/remmina_ssh.c:2228 src/remmina_ssh.c:2245
+#: src/remmina_ssh.c:2263
 msgid "Could not start pthread."
 msgstr "无法启动 pthread。"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2351
+#: src/remmina_ssh.c:2355
 #, c-format
 msgid "Could not create SFTP session. %s"
 msgstr "无法创建 SFTP 会话。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2356
+#: src/remmina_ssh.c:2360
 #, c-format
 msgid "Could not start SFTP session. %s"
 msgstr "无法启动 SFTP 会话。%s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2471
+#: src/remmina_ssh.c:2475
 #, c-format
 msgid "Could not request shell. %s"
 msgstr "无法请求 shell。%s"
 
-#: src/remmina_ssh.c:2564
+#: src/remmina_ssh.c:2568
 msgid "Could not create PTY device."
 msgstr "无法创建 PTY 设备。"
 
 #: src/remmina_file_editor.c:60
 msgid ""
-"<tt><big>Supported formats\n"
+"<big>Supported formats\n"
 "• server\n"
-"• server:port\n"
-"• [server]:port</big></tt>"
+"• server[:port]\n"
+"VNC additional formats\n"
+"• ID:repeater ID number\n"
+"• unix:///path/socket.sock</big>"
 msgstr ""
-"<tt><big>支持的格式\n"
+"<big>支持的格式\n"
 "• 服务器\n"
-"• 服务器：端口\n"
-"• [服务器]：端口</big></tt>"
+"• 服务器[:端口]\n"
+"VNC 附加格式\n"
+"•ID：中继器ID号\n"
+"• unix:///path/socket.sock</big>"
 
-#: src/remmina_file_editor.c:67
+#: src/remmina_file_editor.c:69
 msgid ""
-"<tt><big>• command in PATH args %h\n"
+"<big>• command in PATH args %h\n"
 "• /path/to/foo -options %h %u\n"
 "• %h is substituted with the server name\n"
 "• %t is substituted with the SSH server name\n"
@@ -1427,9 +1451,9 @@ msgid ""
 "• %d is substituted with local date and time in ISO 8601 format\n"
 "Do not run in background if you want the command to be executed before "
 "connecting.\n"
-"</big></tt>"
+"</big>"
 msgstr ""
-"<tt><big>• command in PATH args %h\n"
+"<big>• command in PATH args %h\n"
 " • /path/to/foo -options %h %u\n"
 " • %h 由服务器名组成\n"
 " • %t 由 SSH 服务器名组成\n"
@@ -1439,158 +1463,156 @@ msgstr ""
 " • %g 由 Remmina 配置组名组成\n"
 " • %d 由 ISO 8601 格式的本地日期和时间组成\n"
 "如果要在连接前执行命令，请不要在后台运行。\n"
-"</big></tt>"
+"</big>"
 
-#: src/remmina_file_editor.c:81
+#: src/remmina_file_editor.c:83
 msgid ""
-"<tt><big>Supported formats\n"
+"<big>Supported formats\n"
 "• server\n"
-"• server:port\n"
-"• [server]:port\n"
-"• username@server:port (SSH protocol only)</big></tt>"
+"• server[:port]\n"
+"• username@server[:port] (SSH protocol only)</big>"
 msgstr ""
-"<tt><big>支持的格式\n"
+"<big>支持的格式\n"
 "• 服务器\n"
-"• 服务器:端口\n"
-"• [服务器]:端口\n"
-"• 用户名@服务器:端口（仅 SSH 协议）</big></tt>"
+"• 服务器[:端口]\n"
+"• 用户名@服务器:[端口]（仅 SSH 协议）</big>"
 
-#: src/remmina_file_editor.c:148
+#: src/remmina_file_editor.c:149
 msgid "Choose a Remote Desktop Server"
 msgstr "请选择一个远程桌面服务器"
 
-#: src/remmina_file_editor.c:369
+#: src/remmina_file_editor.c:370
 #, c-format
 msgid "Browse the network to find a %s server"
 msgstr "浏览网络查找 %s 服务器"
 
-#: src/remmina_file_editor.c:470
+#: src/remmina_file_editor.c:471
 msgid "Resolution"
 msgstr "分辨率"
 
-#: src/remmina_file_editor.c:477
+#: src/remmina_file_editor.c:478
 msgid "Use initial window size"
 msgstr "使用初始窗口大小"
 
-#: src/remmina_file_editor.c:481
+#: src/remmina_file_editor.c:482
 msgid "Use client resolution"
 msgstr "使用客户机的分辨率"
 
-#: src/remmina_file_editor.c:492 src/remmina_file_editor.c:896
+#: src/remmina_file_editor.c:493 src/remmina_file_editor.c:897
 msgid "Custom"
 msgstr "自定义"
 
-#: src/remmina_file_editor.c:716
+#: src/remmina_file_editor.c:717
 msgid "Keyboard mapping"
 msgstr "键盘映射"
 
-#: src/remmina_file_editor.c:816
+#: src/remmina_file_editor.c:817
 msgid "Behavior"
 msgstr "行为"
 
-#: src/remmina_file_editor.c:819
+#: src/remmina_file_editor.c:820
 msgid "Execute a Command"
 msgstr "执行命令"
 
-#: src/remmina_file_editor.c:823
+#: src/remmina_file_editor.c:824
 msgid "Before connecting"
 msgstr "连接前"
 
-#: src/remmina_file_editor.c:825
+#: src/remmina_file_editor.c:826
 msgid "command %h %u %t %U %p %g --option"
 msgstr "命令 %h %u %t %U %p %g --选项"
 
-#: src/remmina_file_editor.c:830
+#: src/remmina_file_editor.c:831
 msgid "After connecting"
 msgstr "连接后"
 
-#: src/remmina_file_editor.c:832
+#: src/remmina_file_editor.c:833
 msgid "/path/to/command -opt1 arg %h %u %t -opt2 %U %p %g"
 msgstr "/路径/至/命令 -opt1 arg %h %u %t -opt2 %U %p %g"
 
-#: src/remmina_file_editor.c:836
+#: src/remmina_file_editor.c:837
 msgid "Start-up"
 msgstr "启动"
 
-#: src/remmina_file_editor.c:839
+#: src/remmina_file_editor.c:840
 msgid "Auto-start this profile"
 msgstr "自动启动此配置文件"
 
-#: src/remmina_file_editor.c:869
+#: src/remmina_file_editor.c:870
 msgid "SSH Tunnel"
 msgstr "SSH 通道"
 
-#: src/remmina_file_editor.c:870
+#: src/remmina_file_editor.c:871
 msgid "Enable SSH tunnel"
 msgstr "启用 SSH 通道"
 
-#: src/remmina_file_editor.c:877
+#: src/remmina_file_editor.c:878
 msgid "Tunnel via loopback address"
 msgstr "通过 loopback 地址建立隧道"
 
-#: src/remmina_file_editor.c:887
+#: src/remmina_file_editor.c:888
 #, c-format
 msgid "Same server at port %i"
 msgstr "相同主机上的 %i 端口"
 
-#: src/remmina_file_editor.c:937 plugins/rdp/rdp_plugin.c:2573
+#: src/remmina_file_editor.c:938 plugins/rdp/rdp_plugin.c:2614
 msgid "Start-up path"
 msgstr "启动路径"
 
-#: src/remmina_file_editor.c:946
+#: src/remmina_file_editor.c:947
 msgid "SSH Authentication"
 msgstr "SSH 验证"
 
-#: src/remmina_file_editor.c:972
+#: src/remmina_file_editor.c:973
 msgid "SSH private key file"
 msgstr "SSH 私钥文件"
 
-#: src/remmina_file_editor.c:1036
+#: src/remmina_file_editor.c:1037
 msgid "Basic"
 msgstr "基本"
 
-#: src/remmina_file_editor.c:1042
+#: src/remmina_file_editor.c:1043
 msgid "Advanced"
 msgstr "高级"
 
-#: src/remmina_file_editor.c:1053
+#: src/remmina_file_editor.c:1054
 msgid "Notes"
 msgstr "备注"
 
-#: src/remmina_file_editor.c:1292
+#: src/remmina_file_editor.c:1293
 msgid "Default settings saved."
 msgstr "默认值已保存。"
 
-#: src/remmina_file_editor.c:1362
+#: src/remmina_file_editor.c:1363
 msgid "Remote Connection Profile"
 msgstr "远程连接配置文件"
 
-#: src/remmina_file_editor.c:1368
+#: src/remmina_file_editor.c:1369
 msgid "Save as Default"
 msgstr "保存为默认值"
 
-#: src/remmina_file_editor.c:1369
+#: src/remmina_file_editor.c:1370
 msgid "Use the current settings as the default for all new connection profiles"
 msgstr "将当前设置用作所有新连接配置文件的默认设置"
 
-#: src/remmina_file_editor.c:1377 data/ui/remmina_main.glade:166
+#: src/remmina_file_editor.c:1378 data/ui/remmina_main.glade:160
 msgid "Connect"
 msgstr "连接"
 
-#: src/remmina_file_editor.c:1380
+#: src/remmina_file_editor.c:1381
 msgid "_Save and Connect"
 msgstr "保存并连接(_S)"
 
-#: src/remmina_file_editor.c:1503
+#: src/remmina_file_editor.c:1504
 msgid "Quick Connect"
 msgstr "快速连接"
 
-#: src/remmina_file_editor.c:1527
+#: src/remmina_file_editor.c:1528
 #, c-format
 msgid "Use '%s' as subgroup delimiter"
 msgstr "使用“%s”作为分组分隔符"
 
-#: src/remmina_file_editor.c:1593 src/remmina_file_editor.c:1611
+#: src/remmina_file_editor.c:1594 src/remmina_file_editor.c:1612
 #, c-format
 msgid "Could not find the file “%s”."
 msgstr "找不到文件 “%s”。"
@@ -1607,6 +1629,169 @@ msgstr "发送(_S)"
 #: src/remmina_chat_window.c:240
 msgid "_Clear"
 msgstr "清除(_C)"
+
+#: plugins/gvnc/gvnc_plugin_config.h:40
+msgid "Remmina VNC plugin for GNOME and KVM"
+msgstr "GNOME 和 KVM 的 Remmina VNC 插件"
+
+#: plugins/gvnc/gvnc_plugin.c:477
+#, c-format
+msgid "Unsupported authentication type %u"
+msgstr "不支持的认证类型 %u"
+
+#: plugins/gvnc/gvnc_plugin.c:489
+#, c-format
+msgid "Authentication failure: %s"
+msgstr "认证失败：%s"
+
+#: plugins/gvnc/gvnc_plugin.c:539 plugins/vnc/vnc_plugin.c:820
+msgid "Enter VNC authentication credentials"
+msgstr "输入 VNC 身份验证凭据"
+
+#: plugins/gvnc/gvnc_plugin.c:820
+msgid "Use server settings"
+msgstr "使用服务器设置"
+
+#: plugins/gvnc/gvnc_plugin.c:821
+msgid "True colour (24 bits)"
+msgstr "真彩色（24 位）"
+
+#: plugins/gvnc/gvnc_plugin.c:822
+msgid "High colour (16 bits)"
+msgstr "增强色（16 位）"
+
+#: plugins/gvnc/gvnc_plugin.c:823
+msgid "Low colour (8 bits)"
+msgstr "低色（8 位）"
+
+#: plugins/gvnc/gvnc_plugin.c:824
+msgid "Ultra low colour (3 bits)"
+msgstr "极低色（3 位）"
+
+#: plugins/gvnc/gvnc_plugin.c:839
+msgid "VNC password"
+msgstr "VNC 密码"
+
+#: plugins/gvnc/gvnc_plugin.c:840 plugins/vnc/vnc_plugin.c:1944
+#: plugins/vnc/vnc_plugin.c:1964 plugins/xdmcp/xdmcp_plugin.c:369
+#: plugins/rdp/rdp_plugin.c:2581
+msgid "Colour depth"
+msgstr "色深"
+
+#: plugins/gvnc/gvnc_plugin.c:841
+msgid "Use JPEG Compression"
+msgstr "使用 JPEG 压缩"
+
+#: plugins/gvnc/gvnc_plugin.c:841
+msgid "This might not work on all VNC servers"
+msgstr "这可能不适用于所有 VNC 服务器"
+
+#: plugins/gvnc/gvnc_plugin.c:842
+msgid "Enable GTK-VNC debug"
+msgstr ""
+
+#: plugins/gvnc/gvnc_plugin.c:857 plugins/gvnc/gvnc_plugin.c:871
+#: plugins/spice/spice_plugin.c:693 plugins/spice/spice_plugin.c:706
+msgid "No clipboard sync"
+msgstr "禁用剪贴板同步"
+
+#: plugins/gvnc/gvnc_plugin.c:858 plugins/www/www_plugin.c:904
+#: plugins/vnc/vnc_plugin.c:1987 plugins/spice/spice_plugin.c:694
+#: plugins/rdp/rdp_plugin.c:2635 plugins/nx/nx_plugin.c:752
+msgid "Forget passwords after use"
+msgstr "使用后忘记密码"
+
+#: plugins/gvnc/gvnc_plugin.c:859 plugins/vnc/vnc_plugin.c:1986
+msgid "Ignore remote bell messages"
+msgstr ""
+
+#: plugins/gvnc/gvnc_plugin.c:860 plugins/spice/spice_plugin.c:695
+msgid "Enable audio channel"
+msgstr "启用音频通道"
+
+#: plugins/gvnc/gvnc_plugin.c:861 plugins/gvnc/gvnc_plugin.c:870
+#: plugins/vnc/vnc_plugin.c:1982 plugins/vnc/vnc_plugin.c:1998
+#: plugins/spice/spice_plugin.c:697 plugins/spice/spice_plugin.c:705
+msgid "View only"
+msgstr "仅查看"
+
+#: plugins/gvnc/gvnc_plugin.c:862
+msgid "Shared connection"
+msgstr "共享的连接"
+
+#: plugins/gvnc/gvnc_plugin.c:862
+msgid ""
+"If the server should try to share the desktop by leaving other clients "
+"connected"
+msgstr ""
+
+#: plugins/gvnc/gvnc_plugin.c:872
+msgid "Send Ctrl+Alt+_Del"
+msgstr "发送 Ctrl+Alt+_Del"
+
+#: plugins/gvnc/gvnc_plugin.c:873
+msgid "Send Ctrl+Alt+_Backspace"
+msgstr "发送 Ctrl+Alt+_Backspace"
+
+#: plugins/gvnc/gvnc_plugin.c:874
+msgid "Send Ctrl+Alt+_F1"
+msgstr "发送 Ctrl+Alt+_F1"
+
+#: plugins/gvnc/gvnc_plugin.c:875
+msgid "Send Ctrl+Alt+_F2"
+msgstr "发送 Ctrl+Alt+_F2"
+
+#: plugins/gvnc/gvnc_plugin.c:876
+msgid "Send Ctrl+Alt+_F3"
+msgstr "发送 Ctrl+Alt+_F3"
+
+#: plugins/gvnc/gvnc_plugin.c:877
+msgid "Send Ctrl+Alt+_F4"
+msgstr "发送 Ctrl+Alt+_F4"
+
+#: plugins/gvnc/gvnc_plugin.c:878
+msgid "Send Ctrl+Alt+_F5"
+msgstr "发送 Ctrl+Alt+_F5"
+
+#: plugins/gvnc/gvnc_plugin.c:879
+msgid "Send Ctrl+Alt+_F6"
+msgstr "发送 Ctrl+Alt+_F6"
+
+#: plugins/gvnc/gvnc_plugin.c:880
+msgid "Send Ctrl+Alt+_F7"
+msgstr "发送 Ctrl+Alt+_F7"
+
+#: plugins/gvnc/gvnc_plugin.c:881
+msgid "Send Ctrl+Alt+_F8"
+msgstr "发送 Ctrl+Alt+_F8"
+
+#: plugins/gvnc/gvnc_plugin.c:882
+msgid "Send Ctrl+Alt+_F9"
+msgstr "发送 Ctrl+Alt+_F9"
+
+#: plugins/gvnc/gvnc_plugin.c:883
+msgid "Send Ctrl+Alt+_F10"
+msgstr "发送 Ctrl+Alt+_F10"
+
+#: plugins/gvnc/gvnc_plugin.c:884
+msgid "Send Ctrl+Alt+_F11"
+msgstr "发送 Ctrl+Alt+_F11"
+
+#: plugins/gvnc/gvnc_plugin.c:885
+msgid "Send Ctrl+Alt+_F12"
+msgstr "发送 Ctrl+Alt+_F12"
+
+#: plugins/gvnc/gvnc_plugin.c:887
+msgid "Reboot remote host"
+msgstr ""
+
+#: plugins/gvnc/gvnc_plugin.c:888
+msgid "Reset remote host (hard reboot)"
+msgstr ""
+
+#: plugins/gvnc/gvnc_plugin.c:889
+msgid "Shutdown remote host"
+msgstr "关闭远程主机"
 
 #: plugins/exec/exec_plugin_config.h:41
 msgid "Execute a command"
@@ -1632,69 +1817,63 @@ msgstr "命令"
 msgid "Asynchronous execution"
 msgstr "异步执行"
 
-#: plugins/www/www_plugin.c:97
+#: plugins/www/www_plugin.c:98
 msgid "File downloaded"
 msgstr "文件已下载"
 
-#: plugins/www/www_plugin.c:566
+#: plugins/www/www_plugin.c:574
 msgid "Enter WWW authentication credentials"
 msgstr "输入 WWW 身份验证凭据"
 
-#: plugins/www/www_plugin.c:870
+#: plugins/www/www_plugin.c:878
 msgid "URL"
 msgstr "网址"
 
-#: plugins/www/www_plugin.c:870
+#: plugins/www/www_plugin.c:878
 msgid "http://address or https://address"
 msgstr "http://address 或 https://address"
 
-#: plugins/www/www_plugin.c:887
+#: plugins/www/www_plugin.c:895
 msgid "User agent"
 msgstr "使用代理"
 
-#: plugins/www/www_plugin.c:888
+#: plugins/www/www_plugin.c:896
 msgid "Proxy URL"
 msgstr "代理网址"
 
-#: plugins/www/www_plugin.c:888
+#: plugins/www/www_plugin.c:896
 msgid "E.g. https://example.org, socks://mysocks:1080"
 msgstr "例如 https://example.org, socks://mysocks:1080"
 
-#: plugins/www/www_plugin.c:889
+#: plugins/www/www_plugin.c:897
 msgid "Turn on Java support"
 msgstr "启用 Java 支持"
 
-#: plugins/www/www_plugin.c:890
+#: plugins/www/www_plugin.c:898
 msgid "Turn on smooth scrolling"
 msgstr "启用平滑滚动"
 
-#: plugins/www/www_plugin.c:891
+#: plugins/www/www_plugin.c:899
 msgid "Turn on spatial navigation"
 msgstr "开启空间导航"
 
-#: plugins/www/www_plugin.c:892
+#: plugins/www/www_plugin.c:900
 msgid "Turn on plugin support"
 msgstr "打开插件支持"
 
-#: plugins/www/www_plugin.c:893
+#: plugins/www/www_plugin.c:901
 msgid "Turn on WebGL support"
 msgstr "打开 WebGL 支持"
 
-#: plugins/www/www_plugin.c:894
+#: plugins/www/www_plugin.c:902
 msgid "Turn on HTML5 audio support"
 msgstr "开启 HTML5 音频支持"
 
-#: plugins/www/www_plugin.c:895
+#: plugins/www/www_plugin.c:903
 msgid "Ignore TLS errors"
 msgstr "忽略 TLS 错误"
 
-#: plugins/www/www_plugin.c:896 plugins/vnc/vnc_plugin.c:1923
-#: plugins/spice/spice_plugin.c:604 plugins/rdp/rdp_plugin.c:2594
-#: plugins/nx/nx_plugin.c:752
-msgid "Forget passwords after use"
-msgstr "使用后忘记密码"
-
-#: plugins/www/www_plugin.c:898
+#: plugins/www/www_plugin.c:906
 msgid "Turn on Web Inspector"
 msgstr "打开 Web 检查器"
 
@@ -1710,118 +1889,115 @@ msgstr "存储在 GNOME 密钥环中的安全密码"
 msgid "Hello, World!"
 msgstr "Hello World!"
 
-#: plugins/vnc/vnc_plugin.c:753
+#: plugins/vnc/vnc_plugin.c:767
 msgid "Enter VNC password"
 msgstr "输入 VNC 密码"
 
-#: plugins/vnc/vnc_plugin.c:806
-msgid "Enter VNC authentication credentials"
-msgstr "输入 VNC 身份验证凭据"
-
-#: plugins/vnc/vnc_plugin.c:909
+#: plugins/vnc/vnc_plugin.c:931
 msgid "Unable to connect to VNC server"
 msgstr "无法连接到 VNC 服务器"
 
-#: plugins/vnc/vnc_plugin.c:910
+#: plugins/vnc/vnc_plugin.c:932
 #, c-format
 msgid "Couldn’t convert '%s' to host address"
 msgstr "无法解析主机 “%s” 的地址"
 
-#: plugins/vnc/vnc_plugin.c:911
+#: plugins/vnc/vnc_plugin.c:933
 #, c-format
 msgid "VNC connection failed: %s"
 msgstr "VNC 连接失败：%s"
 
-#: plugins/vnc/vnc_plugin.c:912
+#: plugins/vnc/vnc_plugin.c:934
 msgid "Your connection has been rejected."
 msgstr "连接被拒绝。"
 
-#: plugins/vnc/vnc_plugin.c:938
+#: plugins/vnc/vnc_plugin.c:960
 #, c-format
 msgid "The VNC server requested an unknown authentication method. %s"
 msgstr "VNC服务器请求了未知的身份验证方法。 %s"
 
-#: plugins/vnc/vnc_plugin.c:940
+#: plugins/vnc/vnc_plugin.c:962
 msgid "Please retry after turning on encryption for this profile."
 msgstr "在此配置文件上启用加密后，请重试。"
 
-#: plugins/vnc/vnc_plugin.c:1850 plugins/rdp/rdp_plugin.c:2387
+#: plugins/vnc/vnc_plugin.c:1904 plugins/rdp/rdp_plugin.c:2428
 msgid "True colour (32 bpp)"
 msgstr "真彩色（32 位）"
 
-#: plugins/vnc/vnc_plugin.c:1851 plugins/rdp/rdp_plugin.c:2389
+#: plugins/vnc/vnc_plugin.c:1905 plugins/rdp/rdp_plugin.c:2430
 msgid "High colour (16 bpp)"
 msgstr "增强色（16 位）"
 
-#: plugins/vnc/vnc_plugin.c:1852 plugins/rdp/rdp_plugin.c:2391
+#: plugins/vnc/vnc_plugin.c:1906 plugins/rdp/rdp_plugin.c:2432
 msgid "256 colours (8 bpp)"
 msgstr "256 色（8 位）"
 
-#: plugins/vnc/vnc_plugin.c:1859 plugins/rdp/rdp_plugin.c:2415
+#: plugins/vnc/vnc_plugin.c:1913 plugins/rdp/rdp_plugin.c:2456
 #: plugins/rdp/rdp_settings.c:273 plugins/nx/nx_plugin.c:713
 msgid "Best (slowest)"
 msgstr "最好（最慢）"
 
-#: plugins/vnc/vnc_plugin.c:1860 plugins/rdp/rdp_plugin.c:2414
+#: plugins/vnc/vnc_plugin.c:1914 plugins/rdp/rdp_plugin.c:2455
 #: plugins/rdp/rdp_settings.c:271 plugins/nx/nx_plugin.c:712
 msgid "Good"
 msgstr "良好"
 
-#: plugins/vnc/vnc_plugin.c:1861 plugins/rdp/rdp_plugin.c:2413
+#: plugins/vnc/vnc_plugin.c:1915 plugins/rdp/rdp_plugin.c:2454
 #: plugins/rdp/rdp_settings.c:269 plugins/nx/nx_plugin.c:711
 msgid "Medium"
 msgstr "中等"
 
-#: plugins/vnc/vnc_plugin.c:1862 plugins/rdp/rdp_plugin.c:2412
+#: plugins/vnc/vnc_plugin.c:1916 plugins/rdp/rdp_plugin.c:2453
 #: plugins/rdp/rdp_settings.c:267 plugins/nx/nx_plugin.c:710
 msgid "Poor (fastest)"
 msgstr "差（最快）"
 
-#: plugins/vnc/vnc_plugin.c:1878
+#: plugins/vnc/vnc_plugin.c:1921
+msgid ""
+"Connect to VNC using a repeater:\n"
+"  • The server field must contain the repeater ID, e.g. ID:123456789\n"
+"  • The repeater field have to be set to the repeater IP and port, like:\n"
+"    10.10.10.12:5901\n"
+"  • From the remote VNC server, you will connect to\n"
+"    the repeater, e.g. with x11vnc:\n"
+"    x11vnc -connect repeater=ID:123456789+10.10.10.12:5500"
+msgstr ""
+
+#: plugins/vnc/vnc_plugin.c:1941
 msgid "Repeater"
 msgstr "中继器"
 
-#: plugins/vnc/vnc_plugin.c:1881 plugins/vnc/vnc_plugin.c:1901
-#: plugins/xdmcp/xdmcp_plugin.c:369 plugins/rdp/rdp_plugin.c:2540
-msgid "Colour depth"
-msgstr "色深"
-
-#: plugins/vnc/vnc_plugin.c:1882 plugins/vnc/vnc_plugin.c:1902
-#: plugins/rdp/rdp_plugin.c:2557 plugins/nx/nx_plugin.c:733
+#: plugins/vnc/vnc_plugin.c:1945 plugins/vnc/vnc_plugin.c:1965
+#: plugins/rdp/rdp_plugin.c:2598 plugins/nx/nx_plugin.c:733
 msgid "Quality"
 msgstr "画质"
 
-#: plugins/vnc/vnc_plugin.c:1898
+#: plugins/vnc/vnc_plugin.c:1961
 msgid "Listen on port"
 msgstr "监听端口"
 
-#: plugins/vnc/vnc_plugin.c:1918
+#: plugins/vnc/vnc_plugin.c:1981
 msgid "Show remote cursor"
 msgstr "显示远程光标"
 
-#: plugins/vnc/vnc_plugin.c:1919 plugins/vnc/vnc_plugin.c:1934
-#: plugins/spice/spice_plugin.c:607 plugins/spice/spice_plugin.c:615
-msgid "View only"
-msgstr "仅查看"
-
-#: plugins/vnc/vnc_plugin.c:1920 plugins/rdp/rdp_plugin.c:2591
+#: plugins/vnc/vnc_plugin.c:1983 plugins/rdp/rdp_plugin.c:2632
 msgid "Turn off clipboard sync"
 msgstr "禁用剪贴板同步"
 
-#: plugins/vnc/vnc_plugin.c:1921
+#: plugins/vnc/vnc_plugin.c:1984
 msgid "Turn off encryption"
 msgstr "关闭 TLS 加密"
 
-#: plugins/vnc/vnc_plugin.c:1922 plugins/vnc/vnc_plugin.c:1935
+#: plugins/vnc/vnc_plugin.c:1985 plugins/vnc/vnc_plugin.c:1999
 msgid "Prevent local interaction on the server"
 msgstr "阻止服务器上的本地交互"
 
-#: plugins/vnc/vnc_plugin.c:1937
+#: plugins/vnc/vnc_plugin.c:2001
 msgid "Open Chat…"
 msgstr "打开聊天…"
 
-#: plugins/vnc/vnc_plugin.c:1938 plugins/spice/spice_plugin.c:617
-#: plugins/xdmcp/xdmcp_plugin.c:381 plugins/rdp/rdp_plugin.c:2617
+#: plugins/vnc/vnc_plugin.c:2002 plugins/spice/spice_plugin.c:707
+#: plugins/xdmcp/xdmcp_plugin.c:381 plugins/rdp/rdp_plugin.c:2658
 msgid "Send Ctrl+Alt+Delete"
 msgstr "发送 Ctrl+Alt+Delete"
 
@@ -1833,7 +2009,7 @@ msgstr "Remmina VNC 插件"
 msgid "Remmina VNC listener Plugin"
 msgstr "Remmina VNC 侦听插件"
 
-#: plugins/spice/spice_plugin_usb.c:51 plugins/spice/spice_plugin.c:618
+#: plugins/spice/spice_plugin_usb.c:51 plugins/spice/spice_plugin.c:708
 msgid "Select USB devices for redirection"
 msgstr "选择 USB 设备以转发"
 
@@ -1845,82 +2021,74 @@ msgstr "关闭(_C)"
 msgid "USB redirection error"
 msgstr "USB 转发错误"
 
-#: plugins/spice/spice_plugin.c:261
+#: plugins/spice/spice_plugin.c:351
 msgid "Enter SPICE password"
 msgstr "输入 SPICE 密码"
 
-#: plugins/spice/spice_plugin.c:296
+#: plugins/spice/spice_plugin.c:386
 #, c-format
 msgid "Disconnected from the SPICE server “%s”."
 msgstr "从 SPICE 服务器 \"“%s”断开连接。"
 
-#: plugins/spice/spice_plugin.c:312
+#: plugins/spice/spice_plugin.c:402
 msgid "TLS connection error."
 msgstr "TLS 连接错误。"
 
-#: plugins/spice/spice_plugin.c:318
+#: plugins/spice/spice_plugin.c:408
 msgid "Connection to the SPICE server dropped."
 msgstr "与 SPICE 服务器的连接断开。"
 
-#: plugins/spice/spice_plugin.c:526 plugins/spice/spice_plugin.c:544
+#: plugins/spice/spice_plugin.c:616 plugins/spice/spice_plugin.c:634
 #: plugins/xdmcp/xdmcp_plugin.c:348
 msgid "Default"
 msgstr "默认值"
 
-#: plugins/spice/spice_plugin.c:545 plugins/rdp/rdp_plugin.c:2436
+#: plugins/spice/spice_plugin.c:635 plugins/rdp/rdp_plugin.c:2477
 #: data/ui/remmina_preferences.glade:719
 msgid "Off"
 msgstr "关"
 
-#: plugins/spice/spice_plugin.c:546
+#: plugins/spice/spice_plugin.c:636
 msgid "Auto GLZ"
 msgstr "自动 GLZ"
 
-#: plugins/spice/spice_plugin.c:547
+#: plugins/spice/spice_plugin.c:637
 msgid "Auto LZ"
 msgstr "自动 LZ"
 
-#: plugins/spice/spice_plugin.c:560
+#: plugins/spice/spice_plugin.c:650
 msgid "Disable video overlay if videos are not displayed properly.\n"
 msgstr "如果视频显示不正常，请禁用视频叠加。\n"
 
-#: plugins/spice/spice_plugin.c:577
+#: plugins/spice/spice_plugin.c:667
 msgid "Use TLS encryption"
 msgstr "使用 TLS 加密"
 
-#: plugins/spice/spice_plugin.c:578
+#: plugins/spice/spice_plugin.c:668
 msgid "Server CA certificate"
 msgstr "服务器 CA 证书"
 
-#: plugins/spice/spice_plugin.c:579 plugins/rdp/rdp_plugin.c:2542
+#: plugins/spice/spice_plugin.c:669 plugins/rdp/rdp_plugin.c:2583
 msgid "Share folder"
 msgstr "共享目录"
 
-#: plugins/spice/spice_plugin.c:596
+#: plugins/spice/spice_plugin.c:686
 msgid "Prefered video codec"
 msgstr "首选视频编解码器"
 
-#: plugins/spice/spice_plugin.c:597
+#: plugins/spice/spice_plugin.c:687
 msgid "Turn off GStreamer overlay"
 msgstr "禁止 Gstreamer 叠加"
 
-#: plugins/spice/spice_plugin.c:600
+#: plugins/spice/spice_plugin.c:690
 msgid "Prefered image compression"
 msgstr "首选图像压缩"
 
-#: plugins/spice/spice_plugin.c:603 plugins/spice/spice_plugin.c:616
-msgid "No clipboard sync"
-msgstr "禁用剪贴板同步"
-
-#: plugins/spice/spice_plugin.c:605
-msgid "Enable audio channel"
-msgstr "启用音频通道"
-
-#: plugins/spice/spice_plugin.c:606
+#: plugins/spice/spice_plugin.c:696
 msgid "Share smart card"
 msgstr "共享智能卡"
 
-#: plugins/spice/spice_plugin.c:629
+#: plugins/spice/spice_plugin.c:719
 msgid "SPICE - Simple Protocol for Independent Computing Environments"
 msgstr "SPICE - 独立计算环境的简单协议"
 
@@ -2004,15 +2172,15 @@ msgstr "独立窗口"
 msgid "Remmina simple terminal"
 msgstr "Remmina 简单终端"
 
-#: plugins/rdp/rdp_plugin.c:726 plugins/rdp/rdp_plugin.c:791
+#: plugins/rdp/rdp_plugin.c:737 plugins/rdp/rdp_plugin.c:802
 msgid "Enter RDP authentication credentials"
 msgstr "输入 RDP 身份验证凭据"
 
-#: plugins/rdp/rdp_plugin.c:799
+#: plugins/rdp/rdp_plugin.c:810
 msgid "Enter RDP gateway authentication credentials"
 msgstr "输入 RDP 网关验证凭据"
 
-#: plugins/rdp/rdp_plugin.c:1954
+#: plugins/rdp/rdp_plugin.c:1995
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2021,7 +2189,7 @@ msgstr ""
 "RDP 服务器 “%s”访问失败。\n"
 "账户被锁。"
 
-#: plugins/rdp/rdp_plugin.c:1961
+#: plugins/rdp/rdp_plugin.c:2002
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2030,7 +2198,7 @@ msgstr ""
 "RDP 服务器 “%s”访问失败。\n"
 "账户已过期。"
 
-#: plugins/rdp/rdp_plugin.c:1968
+#: plugins/rdp/rdp_plugin.c:2009
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2039,7 +2207,7 @@ msgstr ""
 "RDP 服务器 “%s”访问失败。\n"
 "密码已过期。"
 
-#: plugins/rdp/rdp_plugin.c:1975
+#: plugins/rdp/rdp_plugin.c:2016
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2048,7 +2216,7 @@ msgstr ""
 "RDP 服务器 “%s” 访问失败。\n"
 "账户已禁用。"
 
-#: plugins/rdp/rdp_plugin.c:1981
+#: plugins/rdp/rdp_plugin.c:2022
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2057,7 +2225,7 @@ msgstr ""
 "访问 RDP 服务器 “%s”失败。\n"
 "用户权限不足。"
 
-#: plugins/rdp/rdp_plugin.c:1989
+#: plugins/rdp/rdp_plugin.c:2030
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2066,7 +2234,7 @@ msgstr ""
 "RDP 服务器 “%s”访问失败。\n"
 "账户受限。"
 
-#: plugins/rdp/rdp_plugin.c:1997
+#: plugins/rdp/rdp_plugin.c:2038
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2075,17 +2243,17 @@ msgstr ""
 "访问 RDP 服务器 “%s” 失败。\n"
 "用户必须在连接前更改密码。"
 
-#: plugins/rdp/rdp_plugin.c:2002
+#: plugins/rdp/rdp_plugin.c:2043
 #, c-format
 msgid "Lost connection to the RDP server “%s”."
 msgstr "失去到 RDP 服务器 “%s”的连接。"
 
-#: plugins/rdp/rdp_plugin.c:2005
+#: plugins/rdp/rdp_plugin.c:2046
 #, c-format
 msgid "Could not find the address for the RDP server “%s”."
 msgstr "无法找到 RDP 服务器 “%s”的地址。"
 
-#: plugins/rdp/rdp_plugin.c:2009
+#: plugins/rdp/rdp_plugin.c:2050
 #, c-format
 msgid ""
 "Could not connect to the RDP server “%s” via TLS. Check that client and "
@@ -2095,23 +2263,23 @@ msgstr ""
 "的 TLS 版本。"
 
 #. TRANSLATORS: the placeholder may be either an IP/FQDN or a server hostname
-#: plugins/rdp/rdp_plugin.c:2013
+#: plugins/rdp/rdp_plugin.c:2054
 #, c-format
 msgid ""
 "Unable to establish a connection to the RDP server “%s”. Check \"Security "
 "protocol negotiation\"."
 msgstr "无法建立到 RDP 服务器 “%s”的连接。检查“安全协议协商”。"
 
-#: plugins/rdp/rdp_plugin.c:2021
+#: plugins/rdp/rdp_plugin.c:2062
 #, c-format
 msgid "Cannot connect to the RDP server “%s”."
 msgstr "无法连接到 RDP 服务器 “%s”。"
 
-#: plugins/rdp/rdp_plugin.c:2024
+#: plugins/rdp/rdp_plugin.c:2065
 msgid "Could not start libfreerdp-gdi."
 msgstr "无法启动 libfreerdp-gdi。"
 
-#: plugins/rdp/rdp_plugin.c:2027
+#: plugins/rdp/rdp_plugin.c:2068
 #, c-format
 msgid ""
 "You requested a H.264 GFX mode for the server “%s”, but your libfreerdp does "
@@ -2120,112 +2288,112 @@ msgstr ""
 "您为服务器 “%s” 请求了 H.264 GFX 模式，但您的 libfreerdp 不支持 H.264。 请使"
 "用非AVC颜色深度设置。"
 
-#: plugins/rdp/rdp_plugin.c:2034
+#: plugins/rdp/rdp_plugin.c:2075
 #, c-format
 msgid "The “%s” server refused the connection."
 msgstr "服务器 “%s” 拒绝连接。"
 
-#: plugins/rdp/rdp_plugin.c:2039
+#: plugins/rdp/rdp_plugin.c:2080
 #, c-format
 msgid ""
 "The Remote Desktop Gateway “%s” denied the user \"%s\\%s\" access due to "
 "policy."
 msgstr "由于策略，远程桌面网关 “%s” 拒绝了用户 \"%s\\%s\" 的访问。"
 
-#: plugins/rdp/rdp_plugin.c:2049
+#: plugins/rdp/rdp_plugin.c:2090
 #, c-format
 msgid "Cannot connect to the “%s” RDP server."
 msgstr "无法连接到 RDP 服务器 “%s” 。"
 
-#: plugins/rdp/rdp_plugin.c:2381
+#: plugins/rdp/rdp_plugin.c:2422
 msgid "Automatic (32 bpp) (Server chooses its best format)"
 msgstr "自动 (32 bpp) (服务器选择其最佳格式)"
 
-#: plugins/rdp/rdp_plugin.c:2382
+#: plugins/rdp/rdp_plugin.c:2423
 msgid "GFX AVC444 (32 bpp)"
 msgstr "GFX AVC444（32 位）"
 
-#: plugins/rdp/rdp_plugin.c:2383
+#: plugins/rdp/rdp_plugin.c:2424
 msgid "GFX AVC420 (32 bpp)"
 msgstr "GFX AVC420（32 位）"
 
-#: plugins/rdp/rdp_plugin.c:2384
+#: plugins/rdp/rdp_plugin.c:2425
 msgid "GFX RFX (32 bpp)"
 msgstr "GFX RFX（32 位）"
 
-#: plugins/rdp/rdp_plugin.c:2385
+#: plugins/rdp/rdp_plugin.c:2426
 msgid "GFX RFX Progressive (32 bpp)"
 msgstr "GFX RFX Progressive (32 位)"
 
-#: plugins/rdp/rdp_plugin.c:2386
+#: plugins/rdp/rdp_plugin.c:2427
 msgid "RemoteFX (32 bpp)"
 msgstr "RemoteFX（32 位）"
 
-#: plugins/rdp/rdp_plugin.c:2388
+#: plugins/rdp/rdp_plugin.c:2429
 msgid "True colour (24 bpp)"
 msgstr "真彩色（24 位）"
 
-#: plugins/rdp/rdp_plugin.c:2390
+#: plugins/rdp/rdp_plugin.c:2431
 msgid "High colour (15 bpp)"
 msgstr "增强色（15 位）"
 
-#: plugins/rdp/rdp_plugin.c:2422 data/ui/remmina_preferences.glade:682
+#: plugins/rdp/rdp_plugin.c:2463 data/ui/remmina_preferences.glade:682
 msgid "None"
 msgstr "无"
 
-#: plugins/rdp/rdp_plugin.c:2423
+#: plugins/rdp/rdp_plugin.c:2464
 msgid "Auto-detect"
 msgstr "自动检测"
 
-#: plugins/rdp/rdp_plugin.c:2424
+#: plugins/rdp/rdp_plugin.c:2465
 msgid "Modem"
 msgstr "调制解调器"
 
-#: plugins/rdp/rdp_plugin.c:2425
+#: plugins/rdp/rdp_plugin.c:2466
 msgid "Low performance broadband"
 msgstr "低性能宽带"
 
-#: plugins/rdp/rdp_plugin.c:2426
+#: plugins/rdp/rdp_plugin.c:2467
 msgid "Satellite"
 msgstr "卫星"
 
-#: plugins/rdp/rdp_plugin.c:2427
+#: plugins/rdp/rdp_plugin.c:2468
 msgid "High performance broadband"
 msgstr "高性能宽带"
 
-#: plugins/rdp/rdp_plugin.c:2428
+#: plugins/rdp/rdp_plugin.c:2469
 msgid "WAN"
 msgstr "WAN"
 
-#: plugins/rdp/rdp_plugin.c:2429
+#: plugins/rdp/rdp_plugin.c:2470
 msgid "LAN"
 msgstr "LAN"
 
-#: plugins/rdp/rdp_plugin.c:2445
+#: plugins/rdp/rdp_plugin.c:2486
 msgid "Automatic negotiation"
 msgstr "自动协商"
 
-#: plugins/rdp/rdp_plugin.c:2446
+#: plugins/rdp/rdp_plugin.c:2487
 msgid "NLA protocol security"
 msgstr "NLA 协议安全"
 
-#: plugins/rdp/rdp_plugin.c:2447
+#: plugins/rdp/rdp_plugin.c:2488
 msgid "TLS protocol security"
 msgstr "TLS协议安全"
 
-#: plugins/rdp/rdp_plugin.c:2448
+#: plugins/rdp/rdp_plugin.c:2489
 msgid "RDP protocol security"
 msgstr "RDP协议安全"
 
-#: plugins/rdp/rdp_plugin.c:2449
+#: plugins/rdp/rdp_plugin.c:2490
 msgid "NLA extended protocol security"
 msgstr "NLA 扩展协议安全"
 
-#: plugins/rdp/rdp_plugin.c:2462
+#: plugins/rdp/rdp_plugin.c:2503
 msgid "2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)"
 msgstr "2600 (Windows XP),7601 (Windows Vista/7),9600 (Windows 8 及更高版本)"
 
-#: plugins/rdp/rdp_plugin.c:2465
+#: plugins/rdp/rdp_plugin.c:2506
 msgid ""
 "Used i.a. by terminal services in a smart card channel to distinguish client "
 "capabilities:\n"
@@ -2236,7 +2404,7 @@ msgid ""
 "    SCardGetDeviceTypeId()"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2473
+#: plugins/rdp/rdp_plugin.c:2514
 msgid ""
 "Options for redirection of audio input:\n"
 "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
@@ -2247,7 +2415,7 @@ msgid ""
 "  • sys:alsa"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2482
+#: plugins/rdp/rdp_plugin.c:2523
 msgid ""
 "Options for redirection of audio output:\n"
 "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
@@ -2265,7 +2433,7 @@ msgstr ""
 "  • sys:oss,dev:1,format:1\n"
 "  • sys:alsa"
 
-#: plugins/rdp/rdp_plugin.c:2492
+#: plugins/rdp/rdp_plugin.c:2533
 msgid ""
 "Options for redirection of USB device:\n"
 "  • [dbg,][id:<vid>:<pid>#…,][addr:<bus>:<addr>#…,][auto]\n"
@@ -2277,23 +2445,23 @@ msgstr ""
 "  • auto\n"
 "  • id:054c:0268#4669:6e6b,addr:04:0c"
 
-#: plugins/rdp/rdp_plugin.c:2498
+#: plugins/rdp/rdp_plugin.c:2539
 msgid ""
 "Advanced setting for high latency links:\n"
 "Adjusts the connection timeout. Use if your connection times out.\n"
 "The highest possible value is 600000 ms (10 minutes).\n"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2503
+#: plugins/rdp/rdp_plugin.c:2544
 msgid ""
 "Performance optimisations based on the network connection type:\n"
 "Using auto-detection is advised.\n"
 "If \"Auto-detect\" fails, choose the most appropriate option in the list.\n"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2508
+#: plugins/rdp/rdp_plugin.c:2549
 msgid ""
-"Comma separated list of monitor IDs and desktop orientations:\n"
+"Comma-separated list of monitor IDs and desktop orientations:\n"
 "  • [<id>:<orientation-in-degrees>,]\n"
 "  • 0,1,2,3\n"
 "  • 0:270,1:90\n"
@@ -2305,99 +2473,99 @@ msgid ""
 "\n"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2535
+#: plugins/rdp/rdp_plugin.c:2576
 msgid "Left-handed mouse support"
 msgstr "左手鼠标支持"
 
-#: plugins/rdp/rdp_plugin.c:2535
+#: plugins/rdp/rdp_plugin.c:2576
 msgid "Swap left and right mouse buttons for left-handed mouse support"
 msgstr "交换鼠标左键和右键以支持左手鼠标"
 
-#: plugins/rdp/rdp_plugin.c:2536
+#: plugins/rdp/rdp_plugin.c:2577
 msgid "Enable multi monitor"
 msgstr "启用多显视器"
 
-#: plugins/rdp/rdp_plugin.c:2537
+#: plugins/rdp/rdp_plugin.c:2578
 msgid "Span screen over multiple monitors"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2538
-msgid "Monitor ID list"
-msgstr "显示器 ID 列表"
+#: plugins/rdp/rdp_plugin.c:2579
+msgid "List monitor IDs"
+msgstr "列出显示器 ID"
 
-#: plugins/rdp/rdp_plugin.c:2541
+#: plugins/rdp/rdp_plugin.c:2582
 msgid "Network connection type"
 msgstr "网络连接类型"
 
-#: plugins/rdp/rdp_plugin.c:2558
+#: plugins/rdp/rdp_plugin.c:2599
 msgid "Security protocol negotiation"
 msgstr "安全协议协商"
 
-#: plugins/rdp/rdp_plugin.c:2559
+#: plugins/rdp/rdp_plugin.c:2600
 msgid "Gateway transport type"
 msgstr "网关传输类型"
 
-#: plugins/rdp/rdp_plugin.c:2560
+#: plugins/rdp/rdp_plugin.c:2601
 msgid "FreeRDP log level"
 msgstr "FreeRDP 日志级别"
 
-#: plugins/rdp/rdp_plugin.c:2561
+#: plugins/rdp/rdp_plugin.c:2602
 msgid "FreeRDP log filters"
 msgstr "FreeRDP 日志过滤器"
 
-#: plugins/rdp/rdp_plugin.c:2561
+#: plugins/rdp/rdp_plugin.c:2602
 msgid "tag:level[,tag:level[,…]]"
 msgstr "tag:level[,tag:level[,…]]"
 
-#: plugins/rdp/rdp_plugin.c:2562
+#: plugins/rdp/rdp_plugin.c:2603
 msgid "Audio output mode"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2563
+#: plugins/rdp/rdp_plugin.c:2604
 msgid "Redirect local audio output"
 msgstr "重定向本地音频输出"
 
-#: plugins/rdp/rdp_plugin.c:2564
+#: plugins/rdp/rdp_plugin.c:2605
 msgid "Redirect local microphone"
 msgstr "重定向本地麦克风"
 
-#: plugins/rdp/rdp_plugin.c:2565
+#: plugins/rdp/rdp_plugin.c:2606
 msgid "Connection timeout in ms"
 msgstr "连接超时（毫秒）"
 
-#: plugins/rdp/rdp_plugin.c:2566
+#: plugins/rdp/rdp_plugin.c:2607
 msgid "Remote Desktop Gateway server"
 msgstr "RD 网关服务器"
 
-#: plugins/rdp/rdp_plugin.c:2567
+#: plugins/rdp/rdp_plugin.c:2608
 msgid "Remote Desktop Gateway username"
 msgstr "RD 网关用户名"
 
-#: plugins/rdp/rdp_plugin.c:2568
+#: plugins/rdp/rdp_plugin.c:2609
 msgid "Remote Desktop Gateway password"
 msgstr "远程桌面网关密码"
 
-#: plugins/rdp/rdp_plugin.c:2569
+#: plugins/rdp/rdp_plugin.c:2610
 msgid "Remote Desktop Gateway domain"
 msgstr "RD 网关域"
 
-#: plugins/rdp/rdp_plugin.c:2570
+#: plugins/rdp/rdp_plugin.c:2611
 msgid "Client name"
 msgstr "客户端名称"
 
-#: plugins/rdp/rdp_plugin.c:2571
+#: plugins/rdp/rdp_plugin.c:2612
 msgid "Client build"
 msgstr "客户端构建"
 
-#: plugins/rdp/rdp_plugin.c:2574
+#: plugins/rdp/rdp_plugin.c:2615
 msgid "Load balance info"
 msgstr "负载平衡信息"
 
-#: plugins/rdp/rdp_plugin.c:2575
+#: plugins/rdp/rdp_plugin.c:2616
 msgid "Override printer drivers"
 msgstr "覆盖打印机驱动程序"
 
-#: plugins/rdp/rdp_plugin.c:2575
+#: plugins/rdp/rdp_plugin.c:2616
 msgid ""
 "\"Samsung_CLX-3300_Series\":\"Samsung CLX-3300 Series PS\";\"Canon MF410\":"
 "\"Canon MF410 Series UFR II\""
@@ -2405,147 +2573,147 @@ msgstr ""
 "\"Samsung_CLX-3300_Series\":\"Samsung CLX-3300 Series PS\";\"Canon MF410\":"
 "\"Canon MF410 Series UFR II\""
 
-#: plugins/rdp/rdp_plugin.c:2576
+#: plugins/rdp/rdp_plugin.c:2617
 msgid "USB device redirection"
 msgstr "USB 设备转发"
 
-#: plugins/rdp/rdp_plugin.c:2577
+#: plugins/rdp/rdp_plugin.c:2618
 msgid "Local serial name"
 msgstr "本地串口名称"
 
-#: plugins/rdp/rdp_plugin.c:2577
+#: plugins/rdp/rdp_plugin.c:2618
 msgid "COM1, COM2, etc."
 msgstr "COM1，COM2，等等。"
 
-#: plugins/rdp/rdp_plugin.c:2578
+#: plugins/rdp/rdp_plugin.c:2619
 msgid "Local serial driver"
 msgstr "本地串口驱动"
 
-#: plugins/rdp/rdp_plugin.c:2578
+#: plugins/rdp/rdp_plugin.c:2619
 msgid "Serial"
 msgstr "串口"
 
-#: plugins/rdp/rdp_plugin.c:2579
+#: plugins/rdp/rdp_plugin.c:2620
 msgid "Local serial path"
 msgstr "本地串口路径"
 
-#: plugins/rdp/rdp_plugin.c:2579
+#: plugins/rdp/rdp_plugin.c:2620
 msgid "/dev/ttyS0, /dev/ttyS1, etc."
 msgstr "/dev/ttyS0，/dev/ttyS1， 等等。"
 
-#: plugins/rdp/rdp_plugin.c:2580
+#: plugins/rdp/rdp_plugin.c:2621
 msgid "Local parallel name"
 msgstr "本地并口名称"
 
-#: plugins/rdp/rdp_plugin.c:2581
+#: plugins/rdp/rdp_plugin.c:2622
 msgid "Local parallel device"
 msgstr "本地并口驱动"
 
-#: plugins/rdp/rdp_plugin.c:2582
+#: plugins/rdp/rdp_plugin.c:2623
 msgid "Name of smart card"
 msgstr "智能卡名称"
 
-#: plugins/rdp/rdp_plugin.c:2583
+#: plugins/rdp/rdp_plugin.c:2624
 msgid "Dynamic virtual channel"
 msgstr "动态虚拟通道"
 
-#: plugins/rdp/rdp_plugin.c:2583 plugins/rdp/rdp_plugin.c:2584
+#: plugins/rdp/rdp_plugin.c:2624 plugins/rdp/rdp_plugin.c:2625
 msgid "<channel>[,<options>]"
 msgstr "<通道>[,<参数>]"
 
-#: plugins/rdp/rdp_plugin.c:2584
+#: plugins/rdp/rdp_plugin.c:2625
 msgid "Static virtual channel"
 msgstr "静态虚拟通道"
 
-#: plugins/rdp/rdp_plugin.c:2585
+#: plugins/rdp/rdp_plugin.c:2626
 msgid "Prefer IPv6 AAAA record over IPv4 A record"
 msgstr "优先使用 IPv6 AAAA 记录而不是 IPv4 A 记录"
 
-#: plugins/rdp/rdp_plugin.c:2586
+#: plugins/rdp/rdp_plugin.c:2627
 msgid "Share printers"
 msgstr "共享打印机"
 
-#: plugins/rdp/rdp_plugin.c:2587
+#: plugins/rdp/rdp_plugin.c:2628
 msgid "Share serial ports"
 msgstr "共享串口"
 
-#: plugins/rdp/rdp_plugin.c:2588
+#: plugins/rdp/rdp_plugin.c:2629
 msgid "(SELinux) permissive mode for serial ports"
 msgstr "(SELinux)串行端口许可模式"
 
-#: plugins/rdp/rdp_plugin.c:2589
+#: plugins/rdp/rdp_plugin.c:2630
 msgid "Share parallel ports"
 msgstr "共享并口"
 
-#: plugins/rdp/rdp_plugin.c:2590
+#: plugins/rdp/rdp_plugin.c:2631
 msgid "Share a smart card"
 msgstr "共享智能卡"
 
-#: plugins/rdp/rdp_plugin.c:2592
+#: plugins/rdp/rdp_plugin.c:2633
 msgid "Ignore certificate"
 msgstr "忽略证书"
 
-#: plugins/rdp/rdp_plugin.c:2593
+#: plugins/rdp/rdp_plugin.c:2634
 msgid "Use the old license workflow"
 msgstr "使用旧的许可证工作流程"
 
-#: plugins/rdp/rdp_plugin.c:2593
+#: plugins/rdp/rdp_plugin.c:2634
 msgid "It disables CAL and hwId is set to 0"
 msgstr "它禁用 CAL，并将 hwId 设置为 0"
 
-#: plugins/rdp/rdp_plugin.c:2595
+#: plugins/rdp/rdp_plugin.c:2636
 msgid "Attach to console (2003/2003 R2)"
 msgstr "挂接到控制台（2003/2003 R2）"
 
-#: plugins/rdp/rdp_plugin.c:2596
+#: plugins/rdp/rdp_plugin.c:2637
 msgid "Turn off fast-path"
 msgstr "关闭快速路径"
 
-#: plugins/rdp/rdp_plugin.c:2597
+#: plugins/rdp/rdp_plugin.c:2638
 msgid "Server detection using Remote Desktop Gateway"
 msgstr "使用远程桌面网关检测服务器"
 
-#: plugins/rdp/rdp_plugin.c:2599
+#: plugins/rdp/rdp_plugin.c:2640
 msgid "Use system proxy settings"
 msgstr "使用系统代理设置"
 
-#: plugins/rdp/rdp_plugin.c:2601
+#: plugins/rdp/rdp_plugin.c:2642
 msgid "Turn off automatic reconnection"
 msgstr "禁用自动重连"
 
-#: plugins/rdp/rdp_plugin.c:2602
+#: plugins/rdp/rdp_plugin.c:2643
 msgid "Relax order checks"
 msgstr "Relax Order 检查"
 
-#: plugins/rdp/rdp_plugin.c:2603
+#: plugins/rdp/rdp_plugin.c:2644
 msgid "Glyph cache"
 msgstr "字形缓存"
 
-#: plugins/rdp/rdp_plugin.c:2604
+#: plugins/rdp/rdp_plugin.c:2645
 msgid "Enable multitransport protocol (UDP)"
 msgstr "启用多重传输协议 (UDP)"
 
-#: plugins/rdp/rdp_plugin.c:2604
+#: plugins/rdp/rdp_plugin.c:2645
 msgid "Using the UDP protocol may improve performance"
 msgstr "使用 UDP 协议可以提高性能"
 
-#: plugins/rdp/rdp_plugin.c:2605
+#: plugins/rdp/rdp_plugin.c:2646
 msgid "Use base credentials for gateway too"
 msgstr ""
 
-#: plugins/rdp/rdp_plugin.c:2630
+#: plugins/rdp/rdp_plugin.c:2671
 msgid "RDP - Remote Desktop Protocol"
 msgstr "RDP - 远程桌面协议"
 
-#: plugins/rdp/rdp_plugin.c:2653
+#: plugins/rdp/rdp_plugin.c:2696
 msgid "RDP - RDP File Handler"
 msgstr "RDP - RDP 文件处理器"
 
-#: plugins/rdp/rdp_plugin.c:2668
+#: plugins/rdp/rdp_plugin.c:2711
 msgid "RDP - Preferences"
 msgstr "RDP - 首选项"
 
-#: plugins/rdp/rdp_plugin.c:2721
+#: plugins/rdp/rdp_plugin.c:2764
 msgid "Export connection in Windows .rdp file format"
 msgstr "使用 Windows .rdp 文件格式导出连接"
 
@@ -2621,7 +2789,7 @@ msgstr "设备缩放因子 %"
 msgid "Desktop orientation"
 msgstr "桌面方向"
 
-#: plugins/rdp/rdp_event.c:332
+#: plugins/rdp/rdp_event.c:343
 #, c-format
 msgid "Reconnection attempt %d of %d…"
 msgstr "正在重新连接。尝试 %d 的 %d…"
@@ -2787,7 +2955,7 @@ msgstr "<big>Snap 设置</big>"
 msgid "Do not show this message again"
 msgstr "不要再显示此消息"
 
-#: data/ui/remmina_about.glade:30 data/ui/remmina_main.glade:402
+#: data/ui/remmina_about.glade:30 data/ui/remmina_main.glade:395
 msgid "About"
 msgstr "关于"
 
@@ -2818,61 +2986,57 @@ msgid "Add a new connection profile"
 msgstr "创建一个新的连接配置文件"
 
 #: data/ui/remmina_main.glade:47
-msgid "Show the Remmina changelog."
-msgstr "显示 Remmina 更新日志。"
-
-#: data/ui/remmina_main.glade:53
 msgid "Switch from grouped to list view"
 msgstr "从分组视图切换到列表视图"
 
-#: data/ui/remmina_main.glade:85
+#: data/ui/remmina_main.glade:79
 msgid "Select the protocol to use with the quick connect bar."
 msgstr "选择要用于快速连接栏的协议。"
 
-#: data/ui/remmina_main.glade:103
+#: data/ui/remmina_main.glade:97
 msgid "Search string or server name/IP address for “Quick Connect”"
 msgstr "搜索字符串或服务器名称、IP 地址进行快速连接"
 
-#: data/ui/remmina_main.glade:107 data/ui/remmina_main.glade:109
+#: data/ui/remmina_main.glade:101 data/ui/remmina_main.glade:103
 msgid "Server name or IP address"
 msgstr "服务器名或 IP 地址"
 
-#: data/ui/remmina_main.glade:108 data/ui/remmina_main.glade:110
+#: data/ui/remmina_main.glade:102 data/ui/remmina_main.glade:104
 #: data/ui/remmina_preferences.glade:216
 msgid "Clear"
 msgstr "清除"
 
-#: data/ui/remmina_main.glade:193
+#: data/ui/remmina_main.glade:187
 msgid "Edit"
 msgstr "编辑"
 
-#: data/ui/remmina_main.glade:223
+#: data/ui/remmina_main.glade:217
 msgid "Collapse all"
 msgstr "全部折叠"
 
-#: data/ui/remmina_main.glade:233
+#: data/ui/remmina_main.glade:227
 msgid "Expand all"
 msgstr "全部展开"
 
-#: data/ui/remmina_main.glade:271
+#: data/ui/remmina_main.glade:265
 msgid "Multi password changer"
 msgstr "多密码更换器"
 
-#: data/ui/remmina_main.glade:281
+#: data/ui/remmina_main.glade:275
 msgid "Debugging"
 msgstr "调试"
 
-#: data/ui/remmina_main.glade:301
+#: data/ui/remmina_main.glade:295
 msgid "Export"
 msgstr "导出"
 
-#: data/ui/remmina_main.glade:311
-msgid "News"
-msgstr "新闻"
-
-#: data/ui/remmina_main.glade:321
+#: data/ui/remmina_main.glade:322
 msgid "Make Remmina your default remote desktop client"
 msgstr "将 Remmina 设置为默认的远程桌面客户端"
+
+#: data/ui/remmina_main.glade:338
+msgid "News"
+msgstr "新闻"
 
 #: data/ui/remmina_main.glade:348
 msgid "Homepage"
@@ -2891,39 +3055,33 @@ msgstr "Wiki"
 msgid "Community"
 msgstr "社区"
 
-#: data/ui/remmina_main.glade:499
+#: data/ui/remmina_main.glade:492
 msgid "Plugin"
 msgstr "插件"
 
-#: data/ui/remmina_main.glade:513
+#: data/ui/remmina_main.glade:506
 msgid "Last used"
 msgstr "最后使用"
 
-#: data/ui/remmina_main.glade:562
+#: data/ui/remmina_main.glade:555
 msgid "New connection profile"
 msgstr "创建一个新的连接配置文件"
 
-#: data/ui/remmina_main.glade:574
+#: data/ui/remmina_main.glade:567
 msgid "Show search bar"
 msgstr "显示搜索栏"
 
-#: data/ui/remmina_main.glade:607
+#: data/ui/remmina_main.glade:587
 msgid "Remmina main menu"
 msgstr "Remmina 主菜单"
 
-#: data/ui/remmina_main.glade:614
+#: data/ui/remmina_main.glade:594
 msgid "Actions"
 msgstr "动作"
 
-#: data/ui/remmina_main.glade:629
+#: data/ui/remmina_main.glade:609
 msgid "Toggle view"
 msgstr "切换视图"
-
-#: data/ui/remmina_main.glade:642 data/ui/remmina_preferences.glade:765
-msgid ""
-"If a GTK theme includes a dark variant, it will be used instead of the "
-"configured theme."
-msgstr ""
 
 #: data/ui/remmina_unlock.glade:60
 msgid "Unlock"
@@ -3108,7 +3266,7 @@ msgstr "标题"
 
 #: data/ui/remmina_preferences.glade:144
 msgid "Bilinear"
-msgstr "Bilinear"
+msgstr "双线性"
 
 #: data/ui/remmina_preferences.glade:145
 msgid "Hyper"
@@ -3276,6 +3434,12 @@ msgstr "在主窗口中隐藏搜索栏"
 #: data/ui/remmina_preferences.glade:761
 msgid "Prefer dark theme"
 msgstr "喜欢深色主题"
+
+#: data/ui/remmina_preferences.glade:765
+msgid ""
+"If a GTK theme includes a dark variant, it will be used instead of the "
+"configured theme."
+msgstr ""
 
 #: data/ui/remmina_preferences.glade:785
 msgid "“Grab all keyboard events” status colour"
@@ -3598,27 +3762,27 @@ msgstr "前景色"
 msgid "Search text"
 msgstr "搜索文本"
 
-#: data/ui/remmina_preferences.glade:2480
-#: data/ui/remmina_preferences.glade:2494
+#: data/ui/remmina_preferences.glade:2481
+#: data/ui/remmina_preferences.glade:2495
 msgid "Bold colour"
 msgstr "粗体颜色"
 
-#: data/ui/remmina_preferences.glade:2508
-#: data/ui/remmina_preferences.glade:2548
+#: data/ui/remmina_preferences.glade:2509
+#: data/ui/remmina_preferences.glade:2549
 msgid "Highlight colour"
 msgstr "高亮颜色"
 
-#: data/ui/remmina_preferences.glade:2521
-#: data/ui/remmina_preferences.glade:2563
+#: data/ui/remmina_preferences.glade:2522
+#: data/ui/remmina_preferences.glade:2564
 msgid "Highlight foreground colour"
 msgstr "高亮前景色"
 
-#: data/ui/remmina_preferences.glade:2534
-#: data/ui/remmina_preferences.glade:2578
+#: data/ui/remmina_preferences.glade:2535
+#: data/ui/remmina_preferences.glade:2579
 msgid "Cursor foreground colour"
 msgstr "光标前景色"
 
-#: data/ui/remmina_preferences.glade:2597
+#: data/ui/remmina_preferences.glade:2598
 msgid "Terminal"
 msgstr "终端"
 
@@ -3646,6 +3810,20 @@ msgstr "选择一个新按键"
 #: data/ui/remmina_key_chooser.glade:82
 msgid "Please press the new key…"
 msgstr "请按下新按键…"
+
+#~ msgid "Show the Remmina changelog."
+#~ msgstr "显示 Remmina 更新日志。"
+
+#~ msgid ""
+#~ "<tt><big>Supported formats\n"
+#~ "• server\n"
+#~ "• server:port\n"
+#~ "• server:[port]</big></tt>"
+#~ msgstr ""
+#~ "<tt><big>支持的格式\n"
+#~ "• 服务器\n"
+#~ "• 服务器：端口\n"
+#~ "• 服务器：[端口]</big></tt>"
 
 #~ msgid "Remote Desktop Client"
 #~ msgstr "远程桌面客户端"

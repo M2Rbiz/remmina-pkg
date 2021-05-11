@@ -245,6 +245,8 @@ void remmina_protocol_widget_open_connection_real(gpointer data)
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = REMMINA_PROTOCOL_WIDGET(data);
 
+	REMMINA_DEBUG("Opening connection");
+
 	RemminaProtocolPlugin *plugin;
 	RemminaProtocolFeature *feature;
 	gint num_plugin;
@@ -274,17 +276,20 @@ void remmina_protocol_widget_open_connection_real(gpointer data)
 			feature += num_plugin;
 		}
 #ifdef HAVE_LIBSSH
+	REMMINA_DEBUG("Have SSH");
 		if (num_ssh) {
 			feature->type = REMMINA_PROTOCOL_FEATURE_TYPE_TOOL;
 			feature->id = REMMINA_PROTOCOL_FEATURE_TOOL_SSH;
 			feature->opt1 = _("Connect via SSH from a new terminal");
 			feature->opt2 = "utilities-terminal";
+			feature->opt3 = NULL;
 			feature++;
 
 			feature->type = REMMINA_PROTOCOL_FEATURE_TYPE_TOOL;
 			feature->id = REMMINA_PROTOCOL_FEATURE_TOOL_SFTP;
 			feature->opt1 = _("Open SFTP transfer…");
 			feature->opt2 = "folder-remote";
+			feature->opt3 = NULL;
 			feature++;
 		}
 		feature->type = REMMINA_PROTOCOL_FEATURE_TYPE_END;
@@ -574,14 +579,149 @@ void remmina_protocol_widget_send_keystrokes(RemminaProtocolWidget *gp, GtkMenuI
 	return;
 }
 
+/**
+ * Send to the plugin some keystrokes from the content of the clipboard
+ * This is a copy of remmina_protocol_widget_send_keystrokes but it uses the clipboard content
+ * get from remmina_protocol_widget_send_clipboard
+ * Probably we don't need the replacement table.
+ */
+void remmina_protocol_widget_send_clip_strokes(GtkClipboard *clipboard, const gchar *clip_text, gpointer data)
+{
+	TRACE_CALL(__func__);
+	RemminaProtocolWidget *gp = REMMINA_PROTOCOL_WIDGET(data);
+	gchar *text = g_strdup(clip_text);
+	guint *keyvals;
+	gint i;
+	GdkKeymap *keymap = gdk_keymap_get_for_display(gdk_display_get_default());
+	gunichar character;
+	guint keyval;
+	GdkKeymapKey *keys;
+	gint n_keys;
+	/* Single keystroke replace */
+	typedef struct _KeystrokeReplace {
+		gchar * search;
+		gchar * replace;
+		guint	keyval;
+	} KeystrokeReplace;
+	/* Special characters to replace */
+	KeystrokeReplace text_replaces[] =
+	{
+		{ "\\n",  "\n", GDK_KEY_Return	  },
+		{ "\\t",  "\t", GDK_KEY_Tab	  },
+		{ "\\b",  "\b", GDK_KEY_BackSpace },
+		{ "\\e",  "\e", GDK_KEY_Escape	  },
+		{ "\\\\", "\\", GDK_KEY_backslash },
+		{ NULL,	  NULL, 0		  }
+	};
+	if (remmina_protocol_widget_plugin_receives_keystrokes(gp)) {
+		if(text) {
+			/* Replace special characters */
+			for (i = 0; text_replaces[i].replace; i++) {
+				REMMINA_DEBUG("Text clipboard before replacement is \'%s\'", text);
+				text = g_strdup(remmina_public_str_replace_in_place(text,
+							text_replaces[i].search,
+							text_replaces[i].replace));
+				REMMINA_DEBUG("Text clipboard after replacement is \'%s\'", text);
+			}
+			gchar *iter = g_strdup(text);
+			keyvals = (guint *)g_malloc(strlen(text));
+			while (TRUE) {
+				/* Process each character in the keystrokes */
+				character = g_utf8_get_char_validated(iter, -1);
+				if (character == 0)
+					break;
+				keyval = gdk_unicode_to_keyval(character);
+				/* Replace all the special character with its keyval */
+				for (i = 0; text_replaces[i].replace; i++) {
+					if (character == text_replaces[i].replace[0]) {
+						keys = g_new0(GdkKeymapKey, 1);
+						keyval = text_replaces[i].keyval;
+						/* A special character was generated, no keyval lookup needed */
+						character = 0;
+						break;
+					}
+				}
+				/* Decode character if it’s not a special character */
+				if (character) {
+					/* get keyval without modifications */
+					if (!gdk_keymap_get_entries_for_keyval(keymap, keyval, &keys, &n_keys)) {
+						g_warning("keyval 0x%04x has no keycode!", keyval);
+						iter = g_utf8_find_next_char(iter, NULL);
+						continue;
+					}
+				}
+				/* Add modifier keys */
+				n_keys = 0;
+				if (keys->level & 1)
+					keyvals[n_keys++] = GDK_KEY_Shift_L;
+				if (keys->level & 2)
+					keyvals[n_keys++] = GDK_KEY_Alt_R;
+				/*
+				 * @fixme heap buffer overflow
+				 * In some cases, for example sending \t as the only sequence
+				 * may lead to a buffer overflow
+				 */
+				keyvals[n_keys++] = keyval;
+				/* Send keystroke to the plugin */
+				gp->priv->plugin->send_keystrokes(gp, keyvals, n_keys);
+				g_free(keys);
+				/* Process next character in the keystrokes */
+				iter = g_utf8_find_next_char(iter, NULL);
+			}
+			g_free(keyvals);
+		}
+		g_free(text);
+	}
+	return;
+}
+
+void remmina_protocol_widget_send_clipboard(RemminaProtocolWidget *gp, GtkMenuItem *widget)
+{
+	TRACE_CALL(__func__);
+	GtkClipboard *clipboard;
+
+	clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+
+	/* Request the contents of the clipboard, contents_received will be
+	   called when we do get the contents.
+	   */
+	gtk_clipboard_request_text (clipboard,
+			remmina_protocol_widget_send_clip_strokes, gp);
+}
+
 gboolean remmina_protocol_widget_plugin_screenshot(RemminaProtocolWidget *gp, RemminaPluginScreenshotData *rpsd)
 {
+	TRACE_CALL(__func__);
 	if (!gp->priv->plugin->get_plugin_screenshot) {
 		REMMINA_DEBUG("plugin screenshot function is not implemented, using core Remmina functionality");
 		return FALSE;
 	}
 
 	return gp->priv->plugin->get_plugin_screenshot(gp, rpsd);
+}
+
+gboolean remmina_protocol_widget_map_event(RemminaProtocolWidget *gp)
+{
+	TRACE_CALL(__func__);
+	if (!gp->priv->plugin->map_event) {
+		REMMINA_DEBUG("Map plugin function not implemented");
+		return FALSE;
+	}
+
+	REMMINA_DEBUG ("Calling plugin mapping function");
+	return gp->priv->plugin->map_event(gp);
+}
+
+gboolean remmina_protocol_widget_unmap_event(RemminaProtocolWidget *gp)
+{
+	TRACE_CALL(__func__);
+	if (!gp->priv->plugin->get_plugin_screenshot) {
+		REMMINA_DEBUG("Unmap plugin function not implemented");
+		return FALSE;
+	}
+
+	REMMINA_DEBUG ("Calling plugin unmapping function");
+	return gp->priv->plugin->unmap_event(gp);
 }
 
 void remmina_protocol_widget_emit_signal(RemminaProtocolWidget *gp, const gchar *signal_name)
@@ -850,6 +990,11 @@ gchar *remmina_protocol_widget_start_direct_tunnel(RemminaProtocolWidget *gp, gi
 
 	if (!server)
 		return g_strdup("");
+
+	if(strstr(g_strdup(server), "unix:///") != NULL) {
+		REMMINA_DEBUG ("%s is a UNIX socket", server);
+		return g_strdup(server);
+	}
 
 	REMMINA_DEBUG ("Calling remmina_public_get_server_port");
 	remmina_public_get_server_port(server, default_port, &srv_host, &srv_port);
