@@ -52,6 +52,7 @@ include(GtkUpdateIconCache)
 include(CheckHasModule)
 include(FindPCRE2)
 include(GlibCompileResourcesSupport)
+include(FindIntl)
 
 #---------------------------------------------------------------------
 # Package creation with CMake depends on the value of umask - if permissions
@@ -276,7 +277,7 @@ endif()
 set(WITH_LIBRARY_VERSIONING "ON")
 set(REMMINA_VERSION_MAJOR "1")
 set(REMMINA_VERSION_MINOR "4")
-set(REMMINA_VERSION_REVISION "16")
+set(REMMINA_VERSION_REVISION "17")
 # set(REMMINA_VERSION_SUFFIX "1") set(REMMINA_VERSION
 # "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}.${REMMINA_VERSION_SUFFIX}")
 set(REMMINA_VERSION
