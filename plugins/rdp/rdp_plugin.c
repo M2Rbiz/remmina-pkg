@@ -67,6 +67,7 @@
 #include <cups/cups.h>
 #endif
 
+#include <unistd.h>
 #include <string.h>
 
 #ifdef GDK_WINDOWING_X11
@@ -1263,7 +1264,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	rdpChannels *channels;
 	gchar *gateway_host;
 	gint gateway_port;
-	gchar *datapath;
+	gchar *datapath = NULL;
 
 	gint desktopOrientation, desktopScaleFactor, deviceScaleFactor;
 
@@ -1272,14 +1273,16 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	datapath = g_build_path("/",
-				g_path_get_dirname(remmina_plugin_service->file_get_user_datadir()),
-				"RDP",
-				NULL);
+			remmina_plugin_service->file_get_user_datadir(),
+			"RDP",
+			NULL);
 	REMMINA_PLUGIN_DEBUG("RDP data path is %s", datapath);
 
-	if (datapath) {
-		freerdp_settings_set_string(rfi->settings, FreeRDP_ConfigPath, datapath);
+	if ((datapath != NULL) && (datapath[0] != '\0')) {
+		if (access(datapath, W_OK) == 0)
+			freerdp_settings_set_string(rfi->settings, FreeRDP_ConfigPath, datapath);
 	}
+	g_free(datapath);
 
 #if defined(PROXY_TYPE_IGNORE)
 	if (!remmina_plugin_service->file_get_int(remminafile, "useproxyenv", FALSE) ? TRUE : FALSE) {
@@ -1441,6 +1444,12 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	s = remmina_plugin_service->file_get_string(remminafile, "gateway_server");
 	if (s) {
 		cs = remmina_plugin_service->file_get_string(remminafile, "gwtransp");
+#if FREERDP_CHECK_VERSION(2, 3, 1)
+		if (remmina_plugin_service->file_get_int(remminafile, "websockets", FALSE))
+			freerdp_settings_set_bool(rfi->settings, FreeRDP_GatewayHttpUseWebsockets, TRUE);
+		else
+			freerdp_settings_set_bool(rfi->settings, FreeRDP_GatewayHttpUseWebsockets, FALSE);
+#endif
 		if (g_strcmp0(cs, "http") == 0) {
 			freerdp_settings_set_bool(rfi->settings, FreeRDP_GatewayRpcTransport, FALSE);
 			freerdp_settings_set_bool(rfi->settings, FreeRDP_GatewayHttpTransport, TRUE);
@@ -2644,6 +2653,9 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "glyph-cache",	    N_("Glyph cache"),					 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "multitransport",	    N_("Enable multitransport protocol (UDP)"),		 TRUE,	NULL,		  N_("Using the UDP protocol may improve performance")								 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "base-cred-for-gw",	    N_("Use base credentials for gateway too"),		 TRUE,	NULL,		  NULL														 },
+#if FREERDP_CHECK_VERSION(2, 3, 1)
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "websockets",	    	    N_("Enable Gateway websockets support"),		 TRUE,	NULL,		  NULL														 },
+#endif
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,			    NULL,						 FALSE, NULL,		  NULL														 }
 };
 
