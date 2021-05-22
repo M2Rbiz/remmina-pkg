@@ -1,0 +1,56 @@
+From: "Matteo F. Vescovi" <mfv@debian.org>
+Date: Sat, 22 May 2021 23:17:29 +0200
+Forwarded: not-needed
+Subject: Fix_manpages
+
+---
+ data/desktop/remmina-gnome.1 | 6 +++---
+ src/remmina.1                | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/data/desktop/remmina-gnome.1 b/data/desktop/remmina-gnome.1
+index d0fe6d7..fcbc10d 100644
+--- a/data/desktop/remmina-gnome.1
++++ b/data/desktop/remmina-gnome.1
+@@ -11,14 +11,14 @@ If you have a freedesktop compliant Login Manager, a Remmina kiosk mode will be
+ added in the list of available sessions.
+ .Sh USAGE
+ Ports from the 5901-5999 range map directly to VNC displays numbered 1-99.
+-
++.Lp
+ For example, to connect to server at 192.168.0.1 to the screen :1,
+ write the IP address 192.168.0.1 in the address field.
+-
++.Lp
+ To connect to display number :2, refer to the display number by writing
+ the address as 192.168.0.1:2. Another way is to refer to the port by specifying
+ the address as 192.168.0.1:5902.
+ .Sh SEE ALSO
+ .Xr remmina 1
+ .Sh AUTHORS
+-.An Antenore Gatta Aq Mt antenore@simbiosi.org
+\ No newline at end of file
++.An Antenore Gatta Aq Mt antenore@simbiosi.org
+diff --git a/src/remmina.1 b/src/remmina.1
+index 41f452f..0a07470 100644
+--- a/src/remmina.1
++++ b/src/remmina.1
+@@ -95,15 +95,15 @@ remmina -c vnc://username@server
+ remmina -c vnc://server?VncUsername=username
+ remmina -c ssh://user@server
+ remmina -c spice://server
+-
++.Lp
+ To quick connect using a URI along with an encrypted password:
+ remmina -c rdp://username:encrypted-password@server
+ remmina -c vnc://username:encrypted-password@server
+ remmina -c vnc://server?VncUsername=username\\&VncPassword=encrypted-password
+-
++.Lp
+ To encrypt a password for use with a URI:
+ remmina --encrypt-password
+-
++.Lp
+ .fi
+ .RE
+ .Lp
