@@ -1,0 +1,22 @@
+From: "Matteo F. Vescovi" <mfv@debian.org>
+Date: Tue, 1 Jun 2021 20:30:08 +0200
+Subject: Fix_alpha_channel_issue
+
+Closes: #989163
+---
+ plugins/rdp/rdp_plugin.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plugins/rdp/rdp_plugin.c b/plugins/rdp/rdp_plugin.c
+index ca937ad..dfad02b 100644
+--- a/plugins/rdp/rdp_plugin.c
++++ b/plugins/rdp/rdp_plugin.c
+@@ -602,7 +602,7 @@ static BOOL remmina_rdp_post_connect(freerdp *instance)
+ 
+ 	if (rfi->bpp == 32) {
+ 		freerdp_local_color_format = PIXEL_FORMAT_BGRA32;
+-		rfi->cairo_format = CAIRO_FORMAT_ARGB32;
++		rfi->cairo_format = CAIRO_FORMAT_RGB24;
+ 	} else if (rfi->bpp == 24) {
+ 		/* CAIRO_FORMAT_RGB24 is 32bit aligned, so we map it to libfreerdp’s PIXEL_FORMAT_BGRX32 */
+ 		freerdp_local_color_format = PIXEL_FORMAT_BGRX32;
