@@ -89,9 +89,6 @@
 
 #define REMMINA_CONNECTION_TYPE_NONE             0
 
-/* Some string settings of FreeRDP are preallocated buffers of N bytes */
-#define FREERDP_CLIENTHOSTNAME_LEN      32
-
 RemminaPluginService *remmina_plugin_service = NULL;
 static char remmina_rdp_plugin_default_drive_name[] = "RemminaDisk";
 
@@ -1238,8 +1235,8 @@ static gboolean remmina_rdp_set_connection_type(rdpSettings *settings, guint32 t
 
 		/* Automatically activate GFX and RFX codec support */
 #ifdef WITH_GFX_H264
-		freerdp_settings_set_bool(settings, FreeRDP_GfxAVC444, TRUE);
-		freerdp_settings_set_bool(settings, FreeRDP_GfxH264, TRUE);
+		freerdp_settings_set_bool(settings, FreeRDP_GfxAVC444, gfx_h264_available);
+		freerdp_settings_set_bool(settings, FreeRDP_GfxH264, gfx_h264_available);
 #endif
 		freerdp_settings_set_bool(settings, FreeRDP_RemoteFxCodec, TRUE);
 		freerdp_settings_set_bool(settings, FreeRDP_SupportGraphicsPipeline, TRUE);
@@ -1330,14 +1327,14 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		/* /gfx:avc420 (Win8.1) */
 		freerdp_settings_set_uint32(rfi->settings, FreeRDP_ColorDepth, 32);
 		freerdp_settings_set_bool(rfi->settings, FreeRDP_SupportGraphicsPipeline, TRUE);
-		freerdp_settings_set_bool(rfi->settings, FreeRDP_GfxH264, TRUE);
+		freerdp_settings_set_bool(rfi->settings, FreeRDP_GfxH264, gfx_h264_available);
 		freerdp_settings_set_bool(rfi->settings, FreeRDP_GfxAVC444, FALSE);
 	} else if (freerdp_settings_get_uint32(rfi->settings, FreeRDP_ColorDepth) == 66) {
 		/* /gfx:avc444 (Win10) */
 		freerdp_settings_set_uint32(rfi->settings, FreeRDP_ColorDepth, 32);
 		freerdp_settings_set_bool(rfi->settings, FreeRDP_SupportGraphicsPipeline, TRUE);
-		freerdp_settings_set_bool(rfi->settings, FreeRDP_GfxH264, TRUE);
-		freerdp_settings_set_bool(rfi->settings, FreeRDP_GfxAVC444, TRUE);
+		freerdp_settings_set_bool(rfi->settings, FreeRDP_GfxH264, gfx_h264_available);
+		freerdp_settings_set_bool(rfi->settings, FreeRDP_GfxAVC444, gfx_h264_available);
 	} else if (freerdp_settings_get_uint32(rfi->settings, FreeRDP_ColorDepth) == 99) {
 		/* Automatic (Let the server choose its best format) */
 		freerdp_settings_set_uint32(rfi->settings, FreeRDP_ColorDepth, 32);
@@ -1356,22 +1353,29 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		rfi->bpp = 32;
 	}
 
-	freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopWidth, remmina_plugin_service->get_profile_remote_width(gp));
-	freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopHeight, remmina_plugin_service->get_profile_remote_height(gp));
+	gint w = remmina_plugin_service->get_profile_remote_width(gp);
+	gint h = remmina_plugin_service->get_profile_remote_height(gp);
+	/* multiple of 4 */
+	w = (w + 3) & ~0x3;
+	h = (h + 3) & ~0x3;
+	freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopWidth, w);
+	freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopHeight, h);
+	REMMINA_PLUGIN_DEBUG ("Resolution set by the user: %dx%d", w, h);
 
 	/* Workaround for FreeRDP issue #5417: in GFX AVC modes we can't go under
 	 * AVC_MIN_DESKTOP_WIDTH x AVC_MIN_DESKTOP_HEIGHT */
-	if (freerdp_settings_get_bool(rfi->settings, FreeRDP_SupportGraphicsPipeline) && freerdp_settings_get_bool(rfi->settings, FreeRDP_GfxH264)) {
-          if (freerdp_settings_get_uint32(rfi->settings, FreeRDP_DesktopWidth) <
-              AVC_MIN_DESKTOP_WIDTH)
-            freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopWidth,
-                                        AVC_MIN_DESKTOP_WIDTH);
-          if (freerdp_settings_get_uint32(rfi->settings,
-                                          FreeRDP_DesktopHeight) <
-              AVC_MIN_DESKTOP_HEIGHT)
-            freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopHeight,
-                                        AVC_MIN_DESKTOP_HEIGHT);
-        }
+	if (freerdp_settings_get_bool(rfi->settings, FreeRDP_SupportGraphicsPipeline) &&
+			freerdp_settings_get_bool(rfi->settings, FreeRDP_GfxH264)) {
+		if (freerdp_settings_get_uint32(rfi->settings, FreeRDP_DesktopWidth) <
+				AVC_MIN_DESKTOP_WIDTH)
+			freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopWidth,
+					AVC_MIN_DESKTOP_WIDTH);
+		if (freerdp_settings_get_uint32(rfi->settings,
+					FreeRDP_DesktopHeight) <
+				AVC_MIN_DESKTOP_HEIGHT)
+			freerdp_settings_set_uint32(rfi->settings, FreeRDP_DesktopHeight,
+					AVC_MIN_DESKTOP_HEIGHT);
+	}
 
 	/* Workaround for FreeRDP issue #5119. This will make our horizontal resolution
 	 * an even value, but it will add a vertical black 1 pixel line on the
@@ -1383,6 +1387,10 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 	remmina_plugin_service->protocol_plugin_set_width(gp, freerdp_settings_get_uint32(rfi->settings, FreeRDP_DesktopWidth));
 	remmina_plugin_service->protocol_plugin_set_height(gp, freerdp_settings_get_uint32(rfi->settings, FreeRDP_DesktopHeight));
+
+	w = freerdp_settings_get_uint32(rfi->settings, FreeRDP_DesktopWidth);
+	h = freerdp_settings_get_uint32(rfi->settings, FreeRDP_DesktopHeight);
+	REMMINA_PLUGIN_DEBUG ("Resolution set after workarounds: %dx%d", w, h);
 
 
 	if (remmina_plugin_service->file_get_string(remminafile, "username"))
@@ -1506,7 +1514,6 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	freerdp_settings_set_bool(rfi->settings, FreeRDP_AllowUnanouncedOrdersFromServer, remmina_plugin_service->file_get_int(remminafile, "relax-order-checks", 0));
 	freerdp_settings_set_uint32(rfi->settings, FreeRDP_GlyphSupportLevel, (remmina_plugin_service->file_get_int(remminafile, "glyph-cache", 0) ? GLYPH_SUPPORT_FULL : GLYPH_SUPPORT_NONE));
 
-	/* ClientHostname is internally preallocated to 32 bytes by libfreerdp */
 	if ((cs = remmina_plugin_service->file_get_string(remminafile, "clientname")))
 		freerdp_settings_set_string(rfi->settings, FreeRDP_ClientHostname, cs);
 	else
@@ -1655,6 +1662,15 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 		dcount = 1;
 		d[0] = "disp";
+		freerdp_client_add_dynamic_channel(rfi->settings, dcount, d);
+	}
+
+	if (freerdp_settings_get_bool(rfi->settings, FreeRDP_SupportGraphicsPipeline)) {
+		char *d[1];
+		int dcount;
+
+		dcount = 1;
+		d[0] = "rdpgfx";
 		freerdp_client_add_dynamic_channel(rfi->settings, dcount, d);
 	}
 
@@ -2283,6 +2299,7 @@ static gboolean remmina_rdp_close_connection(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 
+	REMMINA_PLUGIN_DEBUG("Requesting to close the connection");
 	RemminaPluginRdpEvent rdp_event = { 0 };
 	rfContext *rfi = GET_PLUGIN_DATA(gp);
 

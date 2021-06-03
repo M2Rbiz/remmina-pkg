@@ -343,10 +343,10 @@ static void remmina_icon_save_autostart_file(GKeyFile *gkeyfile)
 static void remmina_icon_create_autostart_file(void)
 {
 	TRACE_CALL(__func__);
-	GKeyFile *gkeyfile;
-
 	if (g_file_test(remmina_icon.autostart_file, G_FILE_TEST_EXISTS))
 		return;
+
+	GKeyFile *gkeyfile;
 
 	gkeyfile = g_key_file_new();
 	g_key_file_set_string(gkeyfile, "Desktop Entry", "Version", "1.0");
@@ -429,7 +429,13 @@ void remmina_icon_init(void)
 	gboolean sni_supported;
 	char msg[200];
 
-	g_stpcpy(remmina_panel, "org.remmina.Remmina-symbolic");
+	if (remmina_pref.dark_theme) {
+		g_debug("(%s) Dark theme, inverted icon (light)", __func__);
+		g_stpcpy(remmina_panel, "remmina-panel-inverted");
+	} else {
+		g_debug("(%s) Light theme, normal icon (dark)", __func__);
+		g_stpcpy(remmina_panel, "remmina-panel");
+	}
 
 	/* Print on stdout the availability of appindicators on DBUS */
 	sni_supported = remmina_sysinfo_is_appindicator_available();
@@ -459,7 +465,7 @@ void remmina_icon_init(void)
 	if (!remmina_icon.icon && !remmina_pref.disable_tray_icon) {
 #ifdef HAVE_LIBAPPINDICATOR
 		remmina_icon.icon = app_indicator_new("remmina-icon", remmina_panel, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-		app_indicator_set_icon_theme_path(remmina_icon.icon, REMMINA_RUNTIME_DATADIR G_DIR_SEPARATOR_S "icons/hicolor/apps");
+		app_indicator_set_icon_theme_path(remmina_icon.icon, REMMINA_RUNTIME_DATADIR G_DIR_SEPARATOR_S "icons");
 
 		app_indicator_set_status(remmina_icon.icon, APP_INDICATOR_STATUS_ACTIVE);
 		app_indicator_set_title(remmina_icon.icon, "Remmina");
@@ -494,7 +500,7 @@ void remmina_icon_init(void)
 			remmina_avahi_stop(remmina_icon.avahi);
 		}
 	}
-	if (!remmina_icon.autostart_file) {
+	if (!remmina_icon.autostart_file && !remmina_pref.disable_tray_icon) {
 		remmina_icon.autostart_file = g_strdup_printf("%s/.config/autostart/remmina-applet.desktop", g_get_home_dir());
 		remmina_icon_create_autostart_file();
 	}
