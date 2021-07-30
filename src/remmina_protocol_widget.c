@@ -323,6 +323,7 @@ void remmina_protocol_widget_open_connection(RemminaProtocolWidget *gp)
 	rco_destroy_message_panel(gp->cnnobj, mp);
 
 	name = remmina_file_get_string(gp->priv->remmina_file, "name");
+	// TRANSLATORS: “%s” is a placeholder for the connection profile name
 	s = g_strdup_printf(_("Connecting to “%s”…"), (name ? name : "*"));
 
 	mp = remmina_message_panel_new();
@@ -900,14 +901,71 @@ static RemminaSSHTunnel* remmina_protocol_widget_init_tunnel(RemminaProtocolWidg
 	gint ret;
 	gchar *msg;
 	RemminaMessagePanel *mp;
+	gboolean partial = FALSE;
+	gboolean cont = FALSE;
 
 	tunnel = remmina_ssh_tunnel_new_from_file(gp->priv->remmina_file);
 
 	REMMINA_DEBUG ("Creating SSH tunnel to “%s” via SSH…", REMMINA_SSH(tunnel)->server);
+	// TRANSLATORS: “%s” is a placeholder for an hostname or an IP address.
 	msg = g_strdup_printf(_("Connecting to “%s” via SSH…"), REMMINA_SSH(tunnel)->server);
 
 	mp = remmina_protocol_widget_mpprogress(gp->cnnobj, msg, cancel_init_tunnel_cb, NULL);
 	g_free(msg);
+
+
+
+	while (1) {
+		if (!partial) {
+			if (!remmina_ssh_init_session(REMMINA_SSH(tunnel))) {
+				REMMINA_DEBUG("SSH Tunnel init session error: %s", REMMINA_SSH(tunnel)->error);
+				remmina_protocol_widget_set_error(gp, REMMINA_SSH(tunnel)->error);
+				// exit the loop here: OK
+				break;
+			}
+		}
+
+		ret = remmina_ssh_auth_gui(REMMINA_SSH(tunnel), gp, gp->priv->remmina_file);
+		REMMINA_DEBUG ("Tunnel auth returned %d", ret);
+		switch (ret) {
+			case REMMINA_SSH_AUTH_SUCCESS:
+				REMMINA_DEBUG("Authentication success");
+				break;
+			case REMMINA_SSH_AUTH_PARTIAL:
+				REMMINA_DEBUG("Continue with the next auth method");
+				partial = TRUE;
+				// Continue the loop: OK
+				continue;
+				break;
+			case REMMINA_SSH_AUTH_RECONNECT:
+				REMMINA_DEBUG("Reconnecting…");
+				if (REMMINA_SSH(tunnel)->session) {
+					ssh_disconnect(REMMINA_SSH(tunnel)->session);
+					ssh_free(REMMINA_SSH(tunnel)->session);
+					REMMINA_SSH(tunnel)->session = NULL;
+				}
+				g_free(REMMINA_SSH(tunnel)->callback);
+				// Continue the loop: OK
+				continue;
+				break;
+			case REMMINA_SSH_AUTH_USERCANCEL:
+				REMMINA_DEBUG("Interrupted by the user");
+				// exit the loop here: OK
+				goto BREAK;
+				break;
+			default:
+				REMMINA_DEBUG("Error during the authentication: %s", REMMINA_SSH(tunnel)->error);
+				remmina_protocol_widget_set_error(gp, REMMINA_SSH(tunnel)->error);
+				// exit the loop here: OK
+				goto BREAK;
+		}
+
+
+		cont = TRUE;
+		break;
+	}
+
+#if 0
 
 	if (!remmina_ssh_init_session(REMMINA_SSH(tunnel))) {
 		REMMINA_DEBUG ("Cannot init SSH session with tunnel struct");
@@ -925,6 +983,13 @@ static RemminaSSHTunnel* remmina_protocol_widget_init_tunnel(RemminaProtocolWidg
 		return NULL;
 	}
 
+#endif
+
+BREAK:
+	if (!cont) {
+		remmina_ssh_tunnel_free(tunnel);
+		return NULL;
+	}
 	remmina_protocol_widget_mpdestroy(gp->cnnobj, mp);
 
 	return tunnel;
@@ -1027,6 +1092,7 @@ gchar *remmina_protocol_widget_start_direct_tunnel(RemminaProtocolWidget *gp, gi
 		return NULL;
 	}
 
+	// TRANSLATORS: “%s” is a placeholder for an hostname or an IP address.
 	msg = g_strdup_printf(_("Connecting to “%s” via SSH…"), server);
 	mp = remmina_protocol_widget_mpprogress(gp->cnnobj, msg, cancel_start_direct_tunnel_cb, NULL);
 	g_free(msg);
@@ -1090,6 +1156,7 @@ gboolean remmina_protocol_widget_start_reverse_tunnel(RemminaProtocolWidget *gp,
 	if (!(tunnel = remmina_protocol_widget_init_tunnel(gp)))
 		return FALSE;
 
+	// TRANSLATORS: “%i” is a placeholder for a TCP port number.
 	msg = g_strdup_printf(_("Awaiting incoming SSH connection on port %i…"), remmina_file_get_int(gp->priv->remmina_file, "listenport", 0));
 	mp = remmina_protocol_widget_mpprogress(gp->cnnobj, msg, cancel_start_reverse_tunnel_cb, NULL);
 	g_free(msg);
@@ -1141,10 +1208,12 @@ gboolean remmina_protocol_widget_ssh_exec(RemminaProtocolWidget *gp, gboolean wa
 				ret = TRUE;
 				break;
 			case 127:
+				// TRANSLATORS: “%s” is a place holder for a unix command path.
 				remmina_ssh_set_application_error(REMMINA_SSH(tunnel),
 								  _("The “%s” command is not available on the SSH server."), cmd);
 				break;
 			default:
+				// TRANSLATORS: “%s” is a place holder for a unix command path. “%i” is a placeholder for an error code number.
 				remmina_ssh_set_application_error(REMMINA_SSH(tunnel),
 								  _("Could not run the “%s” command on the SSH server (status = %i)."), cmd, status);
 				break;
@@ -1223,6 +1292,7 @@ gboolean remmina_protocol_widget_start_xport_tunnel(RemminaProtocolWidget *gp, R
 
 	if (!(tunnel = remmina_protocol_widget_init_tunnel(gp))) return FALSE;
 
+	// TRANSLATORS: “%s” is a placeholder for a hostname or IP address.
 	msg = g_strdup_printf(_("Connecting to %s via SSH…"), remmina_file_get_string(gp->priv->remmina_file, "server"));
 	mp = remmina_protocol_widget_mpprogress(gp->cnnobj, msg, cancel_connect_xport_cb, NULL);
 	g_free(msg);
@@ -1679,10 +1749,15 @@ gint remmina_protocol_widget_panel_new_certificate(RemminaProtocolWidget *gp, co
 	// For markup see https://developer.gnome.org/pygtk/stable/pango-markup-language.html
 	s = g_strdup_printf(
 		"<big>%s</big>\n\n%s %s\n%s %s\n%s %s\n\n<big>%s</big>",
+		// TRANSLATORS: The user is asked to verify a new SSL certificate.
 		_("Certificate details:"),
+		// TRANSLATORS: An SSL certificate subject is usually the remote server the user connect to.
 		_("Subject:"), subject,
+		// TRANSLATORS: The name or email of the entity that have issued the SSL certificate
 		_("Issuer:"), issuer,
+		// TRANSLATORS: An SSL certificate fingerprint, is a hash of a certificate calculated on all certificate's data and its signature.
 		_("Fingerprint:"), fingerprint,
+		// TRANSLATORS: The user is asked to accept or refuse a new SSL certificate.
 		_("Accept certificate?"));
 	rc = remmina_protocol_widget_dialog(RPWDT_QUESTIONYESNO, gp, 0, s, NULL, NULL, NULL, NULL);
 	g_free(s);
@@ -1706,11 +1781,17 @@ gint remmina_protocol_widget_panel_changed_certificate(RemminaProtocolWidget *gp
 	// For markup see https://developer.gnome.org/pygtk/stable/pango-markup-language.html
 	s = g_strdup_printf(
 		"<big>%s</big>\n\n%s %s\n%s %s\n%s %s\n%s %s\n\n<big>%s</big>",
+		// TRANSLATORS: The user is asked to verify a new SSL certificate.
 		_("The certificate changed! Details:"),
+		// TRANSLATORS: An SSL certificate subject is usually the remote server the user connect to.
 		_("Subject:"), subject,
+		// TRANSLATORS: The name or email of the entity that have issued the SSL certificate
 		_("Issuer:"), issuer,
+		// TRANSLATORS: An SSL certificate fingerprint, is a hash of a certificate calculated on all certificate's data and its signature.
 		_("Old fingerprint:"), old_fingerprint,
+		// TRANSLATORS: An SSL certificate fingerprint, is a hash of a certificate calculated on all certificate's data and its signature.
 		_("New fingerprint:"), new_fingerprint,
+		// TRANSLATORS: The user is asked to accept or refuse a new SSL certificate.
 		_("Accept changed certificate?"));
 	rc = remmina_protocol_widget_dialog(RPWDT_QUESTIONYESNO, gp, 0, s, NULL, NULL, NULL, NULL);
 	g_free(s);
@@ -1853,8 +1934,9 @@ void remmina_protocol_widget_panel_show_listen(RemminaProtocolWidget *gp, gint p
 
 	mp = remmina_message_panel_new();
 	s = g_strdup_printf(
-		_("Listening on port %i for an incoming %s connection…"), port,
-		remmina_file_get_string(gp->priv->remmina_file, "protocol"));
+			// TRANSLATORS: “%i” is a placeholder for a port number. “%s”  is a placeholder for a protocol name (VNC).
+			_("Listening on port %i for an incoming %s connection…"), port,
+			remmina_file_get_string(gp->priv->remmina_file, "protocol"));
 	remmina_message_panel_setup_progress(mp, s, NULL, NULL);
 	g_free(s);
 	gp->priv->listen_message_panel = mp;
@@ -1957,6 +2039,7 @@ void remmina_protocol_widget_setup(RemminaProtocolWidget *gp, RemminaFile *remmi
 									    remmina_file_get_string(remminafile, "protocol"));
 
 	if (!plugin || !plugin->init || !plugin->open_connection) {
+		// TRANSLATORS: “%s” is a placeholder for a protocol name, like “RDP”.
 		remmina_protocol_widget_set_error(gp, _("Install the %s protocol plugin first."),
 						  remmina_file_get_string(remminafile, "protocol"));
 		gp->priv->plugin = NULL;
