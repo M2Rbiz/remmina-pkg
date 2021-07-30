@@ -886,9 +886,8 @@ void remmina_main_on_action_application_preferences(GSimpleAction *action, GVari
 
 	if (remmina_unlock_new(remminamain->window) == 0)
 		return;
-	GtkDialog *dialog = remmina_pref_dialog_new(tab_num, remminamain->window);
-	gtk_dialog_run(dialog);
-	gtk_widget_destroy(GTK_WIDGET(dialog));
+	GtkWidget *widget = remmina_pref_dialog_new(tab_num, remminamain->window);
+	gtk_widget_show_all(widget);
 	/* Switch to a dark theme if the user enabled it */
 	settings = gtk_settings_get_default ();
 	g_object_set (settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
@@ -1187,8 +1186,10 @@ void remmina_main_on_action_search_toggle(GSimpleAction *action, GVariant *param
 	if (toggle_status) {
 		REMMINA_DEBUG("Search toggle is active");
 		gtk_widget_grab_focus (GTK_WIDGET(remminamain->entry_quick_connect_server));
-	} else
-		REMMINA_DEBUG("Search toggle is not active");
+	} else {
+		REMMINA_DEBUG("Search toggle is not active, focus is tree_files_list");
+		gtk_widget_grab_focus (GTK_WIDGET(remminamain->tree_files_list));
+	}
 }
 
 void remmina_main_on_accel_search_toggle(RemminaMain *remminamain)
@@ -1369,6 +1370,8 @@ static void remmina_main_init(void)
 		remmina_main_selection_func, NULL, NULL);
 	/** @todo Set entry_quick_connect_server as default search entry. Weirdly. This does not work yet. */
 	gtk_tree_view_set_search_entry(remminamain->tree_files_list, GTK_ENTRY(remminamain->entry_quick_connect_server));
+	if (remmina_pref.hide_searchbar)
+		gtk_widget_grab_focus (GTK_WIDGET(remminamain->tree_files_list));
 	/* Load the files list */
 	remmina_main_load_files();
 
@@ -1461,7 +1464,6 @@ GtkWidget *remmina_main_new(void)
 	gtk_accel_group_connect(accel_group, GDK_KEY_P, GDK_CONTROL_MASK, 0,
 				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_accel_application_preferences), NULL, NULL));
 	gtk_accel_group_connect(accel_group, GDK_KEY_F, GDK_CONTROL_MASK, 0,
-				//g_cclosure_new_swap(G_CALLBACK(remmina_main_on_action_search_toggle), NULL, NULL));
 				g_cclosure_new_swap(G_CALLBACK(remmina_main_on_accel_search_toggle), remminamain, NULL));
 
 	/* Connect signals */

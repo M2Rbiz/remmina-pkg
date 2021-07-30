@@ -277,7 +277,7 @@ endif()
 set(WITH_LIBRARY_VERSIONING "ON")
 set(REMMINA_VERSION_MAJOR "1")
 set(REMMINA_VERSION_MINOR "4")
-set(REMMINA_VERSION_REVISION "18")
+set(REMMINA_VERSION_REVISION "19")
 # set(REMMINA_VERSION_SUFFIX "1") set(REMMINA_VERSION
 # "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}.${REMMINA_VERSION_SUFFIX}")
 set(REMMINA_VERSION
@@ -444,6 +444,12 @@ if(sodium_FOUND)
   message(STATUS "sodium_LIBRARY_RELEASE: ${sodium_LIBRARY_RELEASE}")
   message(STATUS "sodium_INCLUDE_DIR: ${sodium_INCLUDE_DIR}")
   message(STATUS "sodium_LIBRARY_DEBUG: ${sodium_LIBRARY_DEBUG}")
+endif()
+
+option(TOGTK4 "Disable deprecations to easy GTK4 migration")
+if(TOGTK4)
+    message(STATUS "Do not use GTK3 and GDK deprecated symbols")
+    add_definitions(-DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED)
 endif()
 
 if(WITH_TRACE_CALLS)
