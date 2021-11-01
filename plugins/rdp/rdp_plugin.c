@@ -244,6 +244,8 @@ static BOOL rf_process_event_queue(RemminaProtocolWidget *gp)
 			break;
 
 		case REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_DATA_REQUEST:
+			REMMINA_PLUGIN_DEBUG("Sending client FormatDataRequest to server");
+			gettimeofday(&(rfi->clipboard.clientformatdatarequest_tv), NULL);
 			rfi->clipboard.context->ClientFormatDataRequest(rfi->clipboard.context, event->clipboard_formatdatarequest.pFormatDataRequest);
 			free(event->clipboard_formatdatarequest.pFormatDataRequest);
 			break;
@@ -470,7 +472,7 @@ BOOL rf_auto_reconnect(rfContext *rfi)
 		}
 
 		/* Wait until 5 secs have elapsed from last reconnect attempt, while checking for rfi->stop_reconnecting_requested */
-		while (time(NULL) - treconn < 25) {
+		while (time(NULL) - treconn < 5) {
 			if (rfi->stop_reconnecting_requested)
 				break;
 			usleep(200000); // 200ms sleep
@@ -508,6 +510,9 @@ BOOL rf_end_paint(rdpContext *context)
 
 	gdi = context->gdi;
 	rfi = (rfContext *)context;
+
+	if (gdi == NULL || gdi->primary == NULL || gdi->primary->hdc == NULL)
+		return TRUE;
 
 	if (gdi->primary->hdc->hwnd->invalid->null)
 		return TRUE;
@@ -1625,10 +1630,26 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	 */
 	freerdp_performance_flags_split(rfi->settings);
 
+#if FREERDP_CHECK_VERSION(2, 3, 0)
+	freerdp_settings_set_string(rfi->settings, FreeRDP_KeyboardRemappingList, remmina_plugin_service->pref_get_value("rdp_kbd_remap"));
+	REMMINA_PLUGIN_DEBUG("rdp_keyboard_remapping_list: %s", rfi->settings->KeyboardRemappingList);
+#endif
 	freerdp_settings_set_uint32(rfi->settings, FreeRDP_KeyboardLayout, remmina_rdp_settings_get_keyboard_layout());
 
 	if (remmina_plugin_service->file_get_int(remminafile, "console", FALSE))
 		freerdp_settings_set_bool(rfi->settings, FreeRDP_ConsoleSession, TRUE);
+
+	if (remmina_plugin_service->file_get_int(remminafile, "restricted-admin", FALSE)) {
+		freerdp_settings_set_bool(rfi->settings, FreeRDP_ConsoleSession, TRUE);
+		freerdp_settings_set_bool(rfi->settings, FreeRDP_RestrictedAdminModeRequired, TRUE);
+	}
+
+	if (remmina_plugin_service->file_get_string(remminafile, "pth")) {
+		freerdp_settings_set_bool(rfi->settings, FreeRDP_ConsoleSession, TRUE);
+		freerdp_settings_set_bool(rfi->settings, FreeRDP_RestrictedAdminModeRequired, TRUE);
+		freerdp_settings_set_string(rfi->settings, FreeRDP_PasswordHash, remmina_plugin_service->file_get_string(remminafile, "pth"));
+		remmina_plugin_service->file_set_int(remminafile, "restricted-admin", TRUE);
+	}
 
 	cs = remmina_plugin_service->file_get_string(remminafile, "security");
 	if (g_strcmp0(cs, "rdp") == 0) {
@@ -1656,7 +1677,6 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		/* This is "-nego" switch of xfreerdp */
 		freerdp_settings_set_bool(rfi->settings, FreeRDP_NegotiateSecurityLayer, TRUE);
 	}
-
 
 	freerdp_settings_set_bool(rfi->settings, FreeRDP_CompressionEnabled, TRUE);
 	if (remmina_plugin_service->file_get_int(remminafile, "disable_fastpath", FALSE)) {
@@ -1882,8 +1902,8 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 					gchar **rot_items;
 					temp_items = g_strsplit(monitorids_string, ",", -1);
 					for (i = 0; i < g_strv_length(temp_items); i++) {
-						rdpMonitor *current = &base[atoi(rot_items[0])];
 						rot_items = g_strsplit(temp_items[i], ":", -1);
+						rdpMonitor *current = &base[atoi(rot_items[0])];
 						if (i == 0)
 							monitorids = g_strdup(rot_items[0]);
 						else
@@ -2310,7 +2330,7 @@ static gboolean remmina_rdp_open_connection(RemminaProtocolWidget *gp)
 	profile_name = remmina_plugin_service->file_get_string(remminafile, "name");
 	p = profile_name;
 	strcpy(thname, "RemmRDP:");
-	if (!p) {
+	if (p) {
 		nthname = strlen(thname);
 		while ((c = *p) != 0 && nthname < sizeof(thname) - 1) {
 			if (isalnum(c))
@@ -2319,6 +2339,7 @@ static gboolean remmina_rdp_open_connection(RemminaProtocolWidget *gp)
 		}
 	} else {
 		strcat(thname, "<NONAM>");
+		nthname = strlen(thname);
 	}
 	thname[nthname] = 0;
 #if defined(__linux__)
@@ -2642,24 +2663,34 @@ static gchar drive_tooltip[] =
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Setting Tooltip
+ * f) Setting tooltip
+ * g) Validation data pointer, will be passed to the validation callback method.
+ * h) Validation callback method (Can be NULL. Every entry will be valid then.)
+ *		use following prototype:
+ *		gboolean mysetting_validator_method(gpointer key, gpointer value,
+ *						    gpointer validator_data);
+ *		gpointer key is a gchar* containing the setting's name,
+ *		gpointer value contains the value which should be validated,
+ *		gpointer validator_data contains your passed data.
  */
 static const RemminaProtocolSetting remmina_rdp_basic_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	    "server",			NULL,					  FALSE, NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",			N_("Username"),				  FALSE, NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "password",			N_("Password"),				  FALSE, NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "domain",			N_("Domain"),				  FALSE, NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_FOLDER,	    "sharefolder",		N_("Share folder"),			  FALSE, NULL,		  N_("Use “Redirect directory” in the advanced tab for multiple directories") },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "left-handed",		N_("Left-handed mouse support"),	  TRUE,	 NULL,		  N_("Swap left and right mouse buttons for left-handed mouse support")		},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disable-smooth-scrolling", N_("Disable smooth scrolling"),		  TRUE,	 NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "multimon",			N_("Enable multi monitor"),		  TRUE,	 NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "span",			N_("Span screen over multiple monitors"), TRUE,	 NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "monitorids",		N_("List monitor IDs"),			  FALSE, NULL,		  monitorids_tooltip								},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION, "resolution",		NULL,					  FALSE, NULL,		  NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "colordepth",		N_("Colour depth"),			  FALSE, colordepth_list, NULL										},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "network",			N_("Network connection type"),		  FALSE, network_list,	  network_tooltip								},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,			NULL,					  FALSE, NULL,		  NULL										}
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	    "server",			NULL,					  FALSE, NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",			N_("Username"),				  FALSE, NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "password",			N_("Password"),				  FALSE, NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "domain",			N_("Domain"),				  FALSE, NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_FOLDER,	    "sharefolder",		N_("Share folder"),			  FALSE, NULL,		  N_("Use “Redirect directory” in the advanced tab for multiple directories"),	NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "restricted-admin",		N_("Restricted admin mode"),		  FALSE, NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "pth",			N_("Password hash"),			  FALSE, NULL,		  N_("Restricted admin mode password hash"),					NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "left-handed",		N_("Left-handed mouse support"),	  TRUE,	 NULL,		  N_("Swap left and right mouse buttons for left-handed mouse support"),	NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disable-smooth-scrolling", N_("Disable smooth scrolling"),		  TRUE,	 NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "multimon",			N_("Enable multi monitor"),		  TRUE,	 NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "span",			N_("Span screen over multiple monitors"), TRUE,	 NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "monitorids",		N_("List monitor IDs"),			  FALSE, NULL,		  monitorids_tooltip,								NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION, "resolution",		NULL,					  FALSE, NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "colordepth",		N_("Colour depth"),			  FALSE, colordepth_list, NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	    "network",			N_("Network connection type"),		  FALSE, network_list,	  network_tooltip,								NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	    NULL,			NULL,					  FALSE, NULL,		  NULL,										NULL, NULL }
 };
 
 /* Array of RemminaProtocolSetting for advanced settings.
@@ -2756,8 +2787,8 @@ static RemminaProtocolPlugin remmina_rdp =
 	N_("RDP - Remote Desktop Protocol"),            // Description
 	GETTEXT_PACKAGE,                                // Translation domain
 	remmina_plugin_rdp_version,                     // Version number
-	"remmina-rdp-symbolic",                         // Icon for normal connection
-	"remmina-rdp-ssh-symbolic",                     // Icon for SSH connection
+	"org.remmina.Remmina-rdp-symbolic",                         // Icon for normal connection
+	"org.remmina.Remmina-rdp-ssh-symbolic",                     // Icon for SSH connection
 	remmina_rdp_basic_settings,                     // Array for basic settings
 	remmina_rdp_advanced_settings,                  // Array for advanced settings
 	REMMINA_PROTOCOL_SSH_SETTING_TUNNEL,            // SSH settings type

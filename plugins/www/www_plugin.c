@@ -351,8 +351,6 @@ static void remmina_www_web_view_js_finished(GObject *object, GAsyncResult *resu
 {
 	TRACE_CALL(__func__);
 
-	RemminaProtocolWidget *gp = (RemminaProtocolWidget *)user_data;
-	RemminaPluginWWWData *gpdata = GET_PLUGIN_DATA(gp);
 	WebKitJavascriptResult *js_result;
 	GError *error = NULL;
 
@@ -383,7 +381,6 @@ static void remmina_www_web_view_js_finished(GObject *object, GAsyncResult *resu
 	}
 #endif
 	if (js_result) webkit_javascript_result_unref(js_result);
-	gpdata->formauthenticated = TRUE;
 }
 
 static gboolean remmina_www_query_feature(RemminaProtocolWidget *gp, const RemminaProtocolFeature *feature)
@@ -521,15 +518,25 @@ static void remmina_plugin_www_init(RemminaProtocolWidget *gp)
 	}
 
 	if (remmina_plugin_service->file_get_int(remminafile, "ignore-tls-errors", FALSE)) {
-		webkit_website_data_manager_set_tls_errors_policy
-			(gpdata->data_mgr, WEBKIT_TLS_ERRORS_POLICY_IGNORE);
+#if WEBKIT_CHECK_VERSION(2, 32, 0)
+		webkit_website_data_manager_set_tls_errors_policy(
+			gpdata->data_mgr, WEBKIT_TLS_ERRORS_POLICY_IGNORE);
+#else
+		webkit_web_context_set_tls_errors_policy(
+			gpdata->context, WEBKIT_TLS_ERRORS_POLICY_IGNORE);
+#endif
 		g_info("Ignore TLS errors");
 	}
 	if (remmina_plugin_service->file_get_string(remminafile, "proxy-url")) {
 		gchar *proxyurl = g_strdup(remmina_plugin_service->file_get_string(remminafile, "proxy-url"));
 		WebKitNetworkProxySettings *proxy_settings = webkit_network_proxy_settings_new (proxyurl, NULL);
-		webkit_website_data_manager_set_network_proxy_settings
-			(gpdata->data_mgr, WEBKIT_NETWORK_PROXY_MODE_CUSTOM, proxy_settings);
+#if WEBKIT_CHECK_VERSION(2, 32, 0)
+		webkit_website_data_manager_set_network_proxy_settings(
+			gpdata->data_mgr, WEBKIT_NETWORK_PROXY_MODE_CUSTOM, proxy_settings);
+#else
+		webkit_web_context_set_network_proxy_settings(
+				gpdata->context, WEBKIT_NETWORK_PROXY_MODE_CUSTOM,proxy_settings);
+#endif
 		webkit_network_proxy_settings_free(proxy_settings);
 		g_free(proxyurl);
 	}
@@ -871,14 +878,22 @@ static gboolean remmina_plugin_www_get_snapshot(RemminaProtocolWidget *gp, Remmi
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Setting Tooltip
+ * f) Setting tooltip
+ * g) Validation data pointer, will be passed to the validation callback method.
+ * h) Validation callback method (Can be NULL. Every entry will be valid then.)
+ *		use following prototype:
+ *		gboolean mysetting_validator_method(gpointer key, gpointer value,
+ *						    gpointer validator_data);
+ *		gpointer key is a gchar* containing the setting's name,
+ *		gpointer value contains the value which should be validated,
+ *		gpointer validator_data contains your passed data.
  */
 static const RemminaProtocolSetting remmina_plugin_www_basic_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "server",   N_("URL"),	FALSE, NULL, N_("http://address or https://address") },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username", N_("Username"),   FALSE, NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password", N_("Password"),   FALSE, NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,	      NULL,		FALSE, NULL, NULL }
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "server",   N_("URL"),	FALSE, NULL, N_("http://address or https://address"),	NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username", N_("Username"),   FALSE, NULL, NULL,					NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password", N_("Password"),   FALSE, NULL, NULL,					NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,	      NULL,		FALSE, NULL, NULL,					NULL, NULL }
 };
 
 /* Array of RemminaProtocolSetting for advanced settings.
