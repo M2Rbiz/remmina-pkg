@@ -2,13 +2,13 @@
 * Reporting back greatly increases the attention and hope of fixing your issue.
 
 You can also ask questions via
-* IRC room, on freenode.net, in the #remmina channel, you can also use a [web client](https://kiwiirc.com/client/irc.freenode.net/?nick=remminer|?#remmina/).
+* IRC room, on libera.chat, in the #remmina channel, you can also use a [web client](https://web.libera.chat/?nick=remminer|?#remmina).
 * [General discussion mailing list](https://lists.remmina.org/listinfo/users).
 * [Reddit](https://reddit.com/r/Remmina)
 
-## Debuggin documentation
+## Debugging documentation
 
-See our wiki at https://gitlab.com/Remmina/Remmina/-/wikis/Usage/Remmina-debugging
+Check the wiki at https://gitlab.com/Remmina/Remmina/-/wikis/Usage/Remmina-debugging
 
 ## Local System Description
 

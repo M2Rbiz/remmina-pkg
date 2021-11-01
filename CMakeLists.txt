@@ -277,7 +277,7 @@ endif()
 set(WITH_LIBRARY_VERSIONING "ON")
 set(REMMINA_VERSION_MAJOR "1")
 set(REMMINA_VERSION_MINOR "4")
-set(REMMINA_VERSION_REVISION "20")
+set(REMMINA_VERSION_REVISION "21")
 # set(REMMINA_VERSION_SUFFIX "1") set(REMMINA_VERSION
 # "${REMMINA_VERSION_MAJOR}.${REMMINA_VERSION_MINOR}.${REMMINA_VERSION_REVISION}.${REMMINA_VERSION_SUFFIX}")
 set(REMMINA_VERSION
@@ -357,11 +357,32 @@ if(SNAP_BUILD)
 endif()
 
 # Uninstall support
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" IMMEDIATE @ONLY)
-add_custom_target(uninstall "${CMAKE_COMMAND}" -P
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+# setup a 'make uninstall' target if we find a
+# cmake_uninstall.cmake.in in the module path
+#===========================================================
+foreach( MODULE_PATH ${CMAKE_MODULE_PATH} )
+  set( UNINSTALL_IN  "${MODULE_PATH}/cmake_uninstall.cmake.in" )
+  set( UNINSTALL_OUT "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" )
+  if( EXISTS ${UNINSTALL_IN} )
+    configure_file( "${UNINSTALL_IN}"
+                    "${UNINSTALL_OUT}"
+                    IMMEDIATE @ONLY
+    )
+   if(WITH_CLEANUP)
+        message(STATUS "Remove folders during uninstall target")
+        add_definitions(-DREMOVE_DIRS)
+        set(UNINST_RMDIRS 1)
+    else()
+        message(STATUS "Folders won't be removed during uninstall target")
+        set(UNINST_RMDIRS 0)
+    endif()
+    add_custom_target(uninstall
+        "${CMAKE_COMMAND}" -DWITH_CLEANUP:BOOL=${WITH_CLEANUP} -P "${UNINSTALL_OUT}")
+   option(WITH_CLEANUP "Remove folders during uninstall target" OFF)
+    break()
+  endif( EXISTS ${UNINSTALL_IN} )
+endforeach( MODULE_PATH )
 
 #find_required_package(GTK)
 find_package(GLib REQUIRED)

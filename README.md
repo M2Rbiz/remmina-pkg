@@ -10,8 +10,8 @@
 *Use other desktops remotely, from a tiny screen or large monitors.*
 
 
-* RDP, VNC, SPICE, NX, XDMCP, SSH and EXEC network protocols are supported.
-* Written in GTK, with a port to Qt underway. 
+* RDP, VNC, SPICE, NX, X2Go, XDMCP, SSH and EXEC network protocols are supported.
+* Written in GTK, with a port to Qt underway.
 * Released as "remmina" (the main program) and "remmina-plugins".
 
 ### Installation
@@ -31,7 +31,7 @@ Set up everything from the graphical interface, or from $HOME/.config/remmina
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new merge request
 
-There are [other ways](CONTRIBUTING.md) to contribute too, get in contact on IRC (#remmina on freenode), or send an e-mail to the [mailing list](https://lists.remmina.org/listinfo/users).
+There are [other ways](CONTRIBUTING.md) to contribute too, get in contact on IRC (#remmina on libera.chat), or send an e-mail to the [mailing list](https://lists.remmina.org/listinfo/users).
 
 ### Donations
 
@@ -46,7 +46,7 @@ Add yourself in [AUTHORS](AUTHORS) if you have contributed.
 ### Resources
 
  * [Website](https://www.remmina.org/)
- * IRC room on freenode.net, in the #remmina channel, you can also use a [web client](https://kiwiirc.com/client/irc.freenode.net/?nick=remminer|?#remmina).
+ * IRC room on libera.chat, in the #remmina channel, you can also use a [web client](https://web.libera.chat/?nick=remminer|?#remmina).
 
 ### License
 

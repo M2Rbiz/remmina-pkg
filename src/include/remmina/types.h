@@ -92,7 +92,9 @@ typedef enum {
 	REMMINA_PROTOCOL_SETTING_TYPE_COMBO,
 	REMMINA_PROTOCOL_SETTING_TYPE_CHECK,
 	REMMINA_PROTOCOL_SETTING_TYPE_FILE,
-	REMMINA_PROTOCOL_SETTING_TYPE_FOLDER
+	REMMINA_PROTOCOL_SETTING_TYPE_FOLDER,
+	REMMINA_PROTOCOL_SETTING_TYPE_INT,
+	REMMINA_PROTOCOL_SETTING_TYPE_DOUBLE
 } RemminaProtocolSettingType;
 
 typedef struct _RemminaProtocolSetting {
@@ -102,6 +104,8 @@ typedef struct _RemminaProtocolSetting {
 	gboolean			compact;
 	gpointer			opt1;
 	gpointer			opt2;
+	gpointer			validator_data;
+	GCallback			validator;
 } RemminaProtocolSetting;
 
 typedef enum {

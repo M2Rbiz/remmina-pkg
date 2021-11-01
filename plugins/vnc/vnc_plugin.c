@@ -1944,26 +1944,13 @@ static gchar repeater_tooltip[] =
 	   "    the repeater, e.g. with x11vnc:\n"
 	   "    x11vnc -connect repeater=ID:123456789+10.10.10.12:5500");
 
-/* Array of RemminaProtocolSetting for basic settings.
- * Each item is composed by:
- * a) RemminaProtocolSettingType for setting type
- * b) Setting name
- * c) Setting description
- * d) Compact disposition
- * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Setting Tooltip
- */
-static const RemminaProtocolSetting remmina_plugin_vnc_basic_settings[] =
-{
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	  "server",	NULL,		     FALSE, "_rfb._tcp",     NULL	      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "proxy",	N_("Repeater"),	     FALSE, NULL,	     repeater_tooltip },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	N_("Username"),	     FALSE, NULL,	     NULL	      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"), FALSE, NULL,	     NULL	      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Colour depth"),  FALSE, colordepth_list, NULL	      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	N_("Quality"),	     FALSE, quality_list,    NULL	      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	NULL,		     FALSE, NULL,	     NULL	      },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		NULL,		     FALSE, NULL,	     NULL	      }
-};
+static gchar vnciport_tooltip[] =
+	N_("Listening for remote VNC connection:\n"
+	   "  • The \"Listen on port\" field is the port Remmina will listen to,\n"
+	   "    e.g. 8888\n"
+	   "  • From the remote VNC server, you will connect to\n"
+	   "    Remmina, e.g. with x11vnc:\n"
+	   "    x11vnc -display :0 -connect 192.168.1.36:8888");
 
 /* Array of RemminaProtocolSetting for basic settings.
  * Each item is composed by:
@@ -1972,17 +1959,38 @@ static const RemminaProtocolSetting remmina_plugin_vnc_basic_settings[] =
  * c) Setting description
  * d) Compact disposition
  * e) Values for REMMINA_PROTOCOL_SETTING_TYPE_SELECT or REMMINA_PROTOCOL_SETTING_TYPE_COMBO
- * f) Setting Tooltip
+ * f) Setting tooltip
+ * g) Validation data pointer, will be passed to the validation callback method.
+ * h) Validation callback method (Can be NULL. Every entry will be valid then.)
+ *		use following prototype:
+ *		gboolean mysetting_validator_method(gpointer key, gpointer value,
+ *						    gpointer validator_data);
+ *		gpointer key is a gchar* containing the setting's name,
+ *		gpointer value contains the value which should be validated,
+ *		gpointer validator_data contains your passed data.
  */
+static const RemminaProtocolSetting remmina_plugin_vnc_basic_settings[] =
+{
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SERVER,	  "server",	NULL,		     FALSE, "_rfb._tcp",     NULL,	       NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "proxy",	N_("Repeater"),	     FALSE, NULL,	     repeater_tooltip, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	N_("Username"),	     FALSE, NULL,	     NULL,	       NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"), FALSE, NULL,	     NULL,	       NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Colour depth"),  FALSE, colordepth_list, NULL,	       NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	N_("Quality"),	     FALSE, quality_list,    NULL,	       NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	NULL,		     FALSE, NULL,	     NULL,	       NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		NULL,		     FALSE, NULL,	     NULL,	       NULL, NULL }
+};
+
+// Same as above.
 static const RemminaProtocolSetting remmina_plugin_vnci_basic_settings[] =
 {
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "listenport", N_("Listen on port"), FALSE, NULL,	      NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	N_("Username"),	      FALSE, NULL,	      NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"),  FALSE, NULL,	      NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Colour depth"),   FALSE, colordepth_list, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	N_("Quality"),	      FALSE, quality_list,    NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	NULL,		      FALSE, NULL,	      NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		NULL,		      FALSE, NULL,	      NULL }
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "listenport", N_("Listen on port"), FALSE, NULL,	      vnciport_tooltip, NULL, NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "username",	N_("Username"),	      FALSE, NULL,	      NULL,		NULL, NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"),  FALSE, NULL,	      NULL,		NULL, NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Colour depth"),   FALSE, colordepth_list, NULL,		NULL, NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	N_("Quality"),	      FALSE, quality_list,    NULL,		NULL, NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	NULL,		      FALSE, NULL,	      NULL,		NULL, NULL},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		NULL,		      FALSE, NULL,	      NULL,		NULL, NULL}
 };
 
 /* Array of RemminaProtocolSetting for advanced settings.
