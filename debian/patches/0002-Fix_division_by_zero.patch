@@ -1,0 +1,27 @@
+From d180500d9bc78a2fd95cb2de90875b3f25fba124 Mon Sep 17 00:00:00 2001
+From: Giovanni panozzo <giovanni@panozzo.it>
+Date: Thu, 21 Oct 2021 09:34:39 +0200
+Subject: Fix_division_by_zero
+
+Fixes upstream issue #2624.
+
+---
+ plugins/rdp/rdp_cliprdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plugins/rdp/rdp_cliprdr.c b/plugins/rdp/rdp_cliprdr.c
+index c2c61cd80..f8de346b2 100644
+--- a/plugins/rdp/rdp_cliprdr.c
++++ b/plugins/rdp/rdp_cliprdr.c
+@@ -443,7 +443,7 @@ static UINT remmina_rdp_cliprdr_server_format_data_response(CliprdrClientContext
+ 	/* Calculate stats */
+ 	mstrans = timeval_diff(&(clipboard->clientformatdatarequest_tv), &now);
+ 	REMMINA_PLUGIN_DEBUG("gp=%p %zu bytes transferred from server in %d ms. Speed is %d bytes/sec",
+-		gp, (size_t)size, mstrans, (int)((int64_t)size * 1000 / mstrans));
++		gp, (size_t)size, mstrans, mstrans != 0 ? (int)((int64_t)size * 1000 / mstrans) : 0);
+ 
+ 	if (size > 0) {
+ 		switch (rfi->clipboard.format) {
+-- 
+2.27.0
+
