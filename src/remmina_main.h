@@ -34,11 +34,13 @@
  *
  */
 
-#include "remmina_string_array.h"
-
 #pragma once
 
 #include "remmina_file.h"
+#include "remmina_monitor.h"
+#include <gtk/gtk.h>
+
+#include "remmina_string_array.h"
 
 typedef struct _RemminaMainPriv RemminaMainPriv;
 
@@ -68,11 +70,17 @@ typedef struct _RemminaMain {
 	GtkButton *		button_quick_connect;
 	/* Other widgets */
 	GtkTreeView *		tree_files_list;
+	GtkTreeViewColumn *	column_files_list_name;
 	GtkTreeViewColumn *	column_files_list_group;
+	GtkTreeViewColumn *	column_files_list_server;
+	GtkTreeViewColumn *	column_files_list_plugin;
+	GtkTreeViewColumn *	column_files_list_date;
 	GtkStatusbar *		statusbar_main;
+	GtkWidget *		network_icon;
 	/* Non widget objects */
 	GtkAccelGroup *		accelgroup_shortcuts;
 	RemminaMainPriv *	priv;
+	RemminaMonitor *	monitor;
 } RemminaMain;
 
 struct _RemminaMainPriv {

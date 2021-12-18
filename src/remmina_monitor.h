@@ -1,11 +1,6 @@
 /*
- *     Project: Remmina Plugin X2Go
- * Description: Remmina protocol plugin to connect via X2Go using PyHoca
- *              Based on Fabio Castelli Team Viewer Plugin
- *              Copyright: 2013-2014 Fabio Castelli (Muflone)
- *      Author: Antenore Gatta <antenore@simbiosi.org>
- *   Copyright: 2015 Antenore Gatta
- *     License: GPL-2+
+ * Remmina - The GTK+ Remote Desktop Client
+ * Copyright (C) 2016-2021 Antenore Gatta
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +34,24 @@
 
 #pragma once
 
-#define PLUGIN_NAME        "X2GO"
-#define PLUGIN_DESCRIPTION N_("X2Go - Launch an X2Go session")
-#define PLUGIN_VERSION     "2.0.0"
-#define PLUGIN_APPICON     "org.remmina.Remmina-x2go-symbolic"
-#define PLUGIN_SSH_APPICON     "org.remmina.Remmina-x2go-ssh-symbolic"
+#include <glib/gi18n.h>
+#include <glib-object.h>
+#include <gio/gio.h>
+
+#include "remmina_file.h"
+
+typedef struct _RemminaMonitor {
+    GNetworkMonitor *		netmonitor;
+    gboolean			connected;
+    GSocketConnectable *	addr;
+    gboolean			reachable;
+    GHashTable *		server_status;
+} RemminaMonitor;
+
+G_BEGIN_DECLS
+
+gboolean remmina_network_monitor_status (RemminaMonitor *rm_monitor);
+RemminaMonitor *remmina_network_monitor_new ();
+gchar *remmina_monitor_can_reach(RemminaFile *remminafile, RemminaMonitor *monitor);
+
+G_END_DECLS
