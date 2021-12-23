@@ -273,10 +273,10 @@ Package: remmina-plugin-x2go
 Architecture: any
 Multi-Arch: same
 Depends:
- ${shlibs:Depends},
- ${misc:Depends},
+ pyhoca-cli,
  remmina (= ${binary:Version}),
- pyhoca-cli
+ ${shlibs:Depends},
+ ${misc:Depends}
 Description: X2Go plugin for Remmina
  Remmina is a remote desktop client written in GTK+, aiming to be
  useful for system administrators and travellers, who need to work
