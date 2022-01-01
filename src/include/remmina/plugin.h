@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -214,6 +214,7 @@ typedef struct _RemminaPluginService {
 	gint (*pref_get_sshtunnel_port)(void);
 	gint (*pref_get_ssh_loglevel)(void);
 	gboolean (*pref_get_ssh_parseconfig)(void);
+	guint *(*pref_keymap_get_table)(const gchar *keymap);
 	guint (*pref_keymap_get_keyval)(const gchar *keymap, guint keyval);
 
 	void (*_remmina_info)(const gchar *fmt, ...);

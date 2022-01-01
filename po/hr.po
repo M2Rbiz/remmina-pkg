@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: l10n@lists.remmina.org\n"
-"POT-Creation-Date: 2021-12-10 14:04+0000\n"
-"PO-Revision-Date: 2021-11-27 19:53+0000\n"
-"Last-Translator: gogogogi <trebelnik2@gmail.com>\n"
+"POT-Creation-Date: 2021-12-19 22:57+0000\n"
+"PO-Revision-Date: 2021-12-17 08:46+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Croatian <https://hosted.weblate.org/projects/remmina/remmina/"
 "hr/>\n"
 "Language: hr\n"
@@ -21,13 +21,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.10\n"
 "X-Launchpad-Export-Date: 2014-09-20 14:25+0000\n"
 
 #: src/remmina_sftp_plugin.c:310 src/remmina_sftp_plugin.c:354
 #: src/remmina_protocol_widget.c:1677 src/remmina_protocol_widget.c:1696
 #: src/remmina_file_editor.c:1101 src/remmina_file_editor.c:1222
-#: src/remmina_ssh_plugin.c:1361 plugins/rdp/rdp_plugin.c:2723
+#: src/remmina_ssh_plugin.c:1361 plugins/rdp/rdp_plugin.c:2760
 #: plugins/www/www_plugin.c:895 plugins/x2go/x2go_plugin.c:3198
 #: data/ui/remmina_mpc.glade:236 data/ui/remmina_preferences.glade:1646
 #: data/ui/remmina_unlock.glade:116
@@ -73,8 +73,8 @@ msgstr "Poveži putem SSH-a iz novog terminala"
 
 #: src/remmina_sftp_plugin.c:353 src/remmina_message_panel.c:330
 #: src/remmina_file_editor.c:1216 src/remmina_ssh_plugin.c:1471
-#: plugins/rdp/rdp_plugin.c:2722 plugins/vnc/vnc_plugin.c:1990
-#: plugins/vnc/vnc_plugin.c:2002 plugins/www/www_plugin.c:894
+#: plugins/rdp/rdp_plugin.c:2759 plugins/vnc/vnc_plugin.c:1997
+#: plugins/vnc/vnc_plugin.c:2009 plugins/www/www_plugin.c:894
 #: plugins/x2go/x2go_plugin.c:475 plugins/x2go/x2go_plugin.c:3197
 #: data/ui/remmina_mpc.glade:144
 msgid "Username"
@@ -99,16 +99,12 @@ msgid "SFTP - Secure File Transfer"
 msgstr "SFTP - Osigurani prijenos datoteka"
 
 #: src/remmina_log.c:129
-#, fuzzy
-#| msgid "Open the Remmina main window"
 msgid "Remmina debugging window"
-msgstr "Otvori glavni Remmina prozor"
+msgstr "Otvori Remmina prozor otklanjanja grešaka"
 
 #: src/remmina_log.c:133
-#, fuzzy
-#| msgid "Open the Remmina main window"
 msgid "Paste sytem info in the Remmina debugging window"
-msgstr "Otvori glavni Remmina prozor"
+msgstr "Zalijepi informacije sustava u Remmina prozor otklanjanja grešaka"
 
 #: src/remmina_log.c:153
 msgid ""
@@ -119,6 +115,13 @@ msgid ""
 "There is more info about debugging Remmina on https://gitlab.com/Remmina/"
 "Remmina/-/wikis/Usage/Remmina-debugging\n"
 msgstr ""
+"Ovaj prozor vam može pomoći u pronalasku problema s povezivanjem.\n"
+"Možete zaustaviti i pokrenuti zapisivanje u svakom trenutku koristeći Uklj/"
+"Isklj preklopnik.\n"
+"Tipka stanja (Ctrl+T), može biti korisna za prikupljanje informacija sustava "
+"koje možete podijeliti pri prijavi izvještaja greške.\n"
+"Postoji više informacija o Remmina otklanjanju grešaka na https://gitlab.com/"
+"Remmina/Remmina/-/wikis/Usage/Remmina-debugging\n"
 
 #: src/remmina_plugin_manager.c:73 src/remmina_file_editor.c:1951
 msgid "Protocol"
@@ -144,29 +147,29 @@ msgstr "Osobitost"
 msgid "Secret"
 msgstr "Tajna"
 
-#: src/remmina_plugin_manager.c:461 data/ui/remmina_main.glade:305
+#: src/remmina_plugin_manager.c:462 data/ui/remmina_main.glade:305
 msgid "Plugins"
 msgstr "Priključci"
 
-#: src/remmina_plugin_manager.c:461 src/remmina_message_panel.c:452
+#: src/remmina_plugin_manager.c:462 src/remmina_message_panel.c:452
 #: src/remmina_message_panel.c:621 src/remmina_file_editor.c:242
 msgid "_OK"
 msgstr "_U redu"
 
-#: src/remmina_plugin_manager.c:479 src/remmina_file_editor.c:1908
+#: src/remmina_plugin_manager.c:480 src/remmina_file_editor.c:1908
 #: data/ui/remmina_main.glade:442
 msgid "Name"
 msgstr "Naziv"
 
-#: src/remmina_plugin_manager.c:485
+#: src/remmina_plugin_manager.c:486
 msgid "Type"
 msgstr "Vrsta"
 
-#: src/remmina_plugin_manager.c:491
+#: src/remmina_plugin_manager.c:492
 msgid "Description"
 msgstr "Opis"
 
-#: src/remmina_plugin_manager.c:497
+#: src/remmina_plugin_manager.c:498
 msgid "Version"
 msgstr "Inačica"
 
@@ -231,25 +234,25 @@ msgstr "Podesite dostupne razlučivosti"
 msgid "Recent lists cleared."
 msgstr "Nedavni popis obrisan."
 
-#: src/remmina_pref_dialog.c:154 src/rcw.c:2028
+#: src/remmina_pref_dialog.c:155 src/rcw.c:2028
 #: data/ui/remmina_preferences.glade:169 data/ui/remmina_preferences.glade:179
 msgid "Keystrokes"
 msgstr "Tipke prečaca"
 
-#: src/remmina_pref_dialog.c:154
+#: src/remmina_pref_dialog.c:155
 msgid "Configure the keystrokes"
 msgstr "Podesi tipke prečaca"
 
 #. TRANSLATORS: Do not translate libsodium, is the name of a library
-#: src/remmina_pref_dialog.c:487
+#: src/remmina_pref_dialog.c:482
 msgid "libsodium >= 1.9.0 is required to use master password"
 msgstr "libsodium >= 1.9.0 je potreban za korištenje glavne lozinke"
 
-#: src/remmina_pref_dialog.c:806
+#: src/remmina_pref_dialog.c:805
 msgid "Picking a terminal colouring file replaces the file: "
 msgstr "Odabir datoteke boje terminala zamjenjuje datoteku: "
 
-#: src/remmina_pref_dialog.c:810
+#: src/remmina_pref_dialog.c:809
 msgid ""
 "This file contains the “Custom” terminal colour scheme selectable from the "
 "“Advanced” tab of terminal connections and editable in the “Terminal” tab in "
@@ -279,7 +282,7 @@ msgstr "Da"
 msgid "No"
 msgstr "Ne"
 
-#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2724
+#: src/remmina_message_panel.c:391 plugins/rdp/rdp_plugin.c:2761
 #: data/ui/remmina_mpc.glade:172
 msgid "Domain"
 msgstr "Domena"
@@ -428,7 +431,7 @@ msgstr "Datoteka “%s” je oštećena, nečitljiva ili nije pronađena."
 
 #. TRANSLATORS: This should be a link to the Remmina wiki page:
 #. TRANSLATORS: 'GtkSocket feature is not available'.
-#: src/rcw.c:4373
+#: src/rcw.c:4372
 msgid ""
 "https://gitlab.com/Remmina/Remmina/-/wikis/GtkSocket-feature-is-not-"
 "available-in-a-Wayland-session"
@@ -436,7 +439,7 @@ msgstr ""
 "https://gitlab.com/Remmina/Remmina/-/wikis/GtkSocket-feature-is-not-"
 "available-in-a-Wayland-session"
 
-#: src/rcw.c:4510
+#: src/rcw.c:4509
 msgid ""
 "Warning: This plugin requires GtkSocket, but this feature is unavailable in "
 "a Wayland session."
@@ -446,15 +449,7 @@ msgstr ""
 
 #. TRANSLATORS: This should be a link to the Remmina wiki page:
 #. 'GtkSocket feature is not available'.
-#: src/rcw.c:4516
-#, fuzzy
-#| msgid ""
-#| "Plugins relying on GtkSocket can't run in a Wayland session.\n"
-#| "For more information and a possible workaround, please visit the Remmina "
-#| "Wiki at:\n"
-#| "\n"
-#| "https://gitlab.com/Remmina/Remmina/-/wikis/GtkSocket-feature-is-not-"
-#| "available-in-a-Wayland-session"
+#: src/rcw.c:4515
 msgid ""
 "Plugins relying on GtkSocket can't run in a Wayland session.\n"
 "For more info and a possible workaround, please visit the Remmina wiki at:\n"
@@ -464,16 +459,14 @@ msgid ""
 msgstr ""
 "Priključci koji se oslanjaju na GtkSocketu ne mogu se pokrenuti u Wayland "
 "sesiji.\n"
-"Za više informacija i moguće rješenje, posjetite Remmina Wiki na:\n"
+"Za više informacija i moguće rješenje, posjetite Remmina wiki na:\n"
 "\n"
 "https://gitlab.com/Remmina/Remmina/-/wikis/GtkSocket-feature-is-not-"
 "available-in-a-Wayland-session"
 
-#: src/rcw.c:4530
-#, fuzzy
-#| msgid "Open in browser"
+#: src/rcw.c:4529
 msgid "Open in web browser"
-msgstr "Otvori u pregledniku"
+msgstr "Otvori u web pregledniku"
 
 #: src/remmina_mpchange.c:234
 msgid "The passwords do not match"
@@ -520,29 +513,21 @@ msgstr "DATOTEKA"
 
 #. TRANSLATORS: Shown in terminal. Do not use characters that may be not supported on a terminal
 #: src/remmina.c:88
-#, fuzzy
-#| msgid ""
-#| "Connect to a desktop described in a file (.remmina or a type supported by "
-#| "a plugin)"
 msgid ""
 "Connect to a desktop described in a file (.remmina or a filetype supported "
 "by a plugin)"
 msgstr ""
-"Povezivanje s radnom površinom opisano datotekom (.remmina ili upišite "
-"podržani priključak)"
+"Povezivanje s radnom površinom opisano datotekom (.remmina ili vrsta "
+"datoteke koju podržava priključak)"
 
 #. TRANSLATORS: Shown in terminal. Do not use characters that may be not supported on a terminal
 #: src/remmina.c:90
-#, fuzzy
-#| msgid ""
-#| "Edit desktop connection described in file (.remmina or type supported by "
-#| "plugin)"
 msgid ""
 "Edit desktop connection described in file (.remmina or a filetype supported "
 "by plugin)"
 msgstr ""
-"Uređivanje povezivanja radne površine opisano datotekom (.remmina ili "
-"upišite podržani priključak)"
+"Uređivanje povezivanja radne površine opisano datotekom (.remmina ili vrsta "
+"datoteke koju podržava priključak)"
 
 #. TRANSLATORS: Shown in terminal. Do not use characters that may be not supported on a terminal
 #: src/remmina.c:93
@@ -622,21 +607,15 @@ msgstr "Šifriraj lozinku"
 #. * to log more verbose statements.
 #.
 #: src/remmina.c:334
-#, fuzzy
-#| msgid ""
-#| "Remmina does not log all output statements. To enable a more verbose "
-#| "output please use G_MESSAGES_DEBUG=all as an environment variable.\n"
-#| "For more information, please visit the Remmina Wiki at:\n"
-#| "https://gitlab.com/Remmina/Remmina/-/wikis/Usage/Remmina-debugging"
 msgid ""
 "Remmina does not log all output statements. Turn on more verbose output by "
 "using \"G_MESSAGES_DEBUG=all\" as an environment variable.\n"
 "More info available on the Remmina wiki at:\n"
 "https://gitlab.com/Remmina/Remmina/-/wikis/Usage/Remmina-debugging"
 msgstr ""
-"Remmina ne bilježi sve izlazne izjave. Za omogućavanje opširnijeg bilježenja "
-"koristite G_MESSAGES_DEBUG=all kao varijablu okruženja.\n"
-"Za više informacija, posjetite Remmina Wiki na:\n"
+"Remmina ne bilježi sve izlazne izjave. Uključite opširnije bilježenje "
+"korištenjem \"G_MESSAGES_DEBUG=all\" kao varijablu okruženja.\n"
+"Više informacija je dostupno na Remmina wiki:\n"
 "https://gitlab.com/Remmina/Remmina/-/wikis/Usage/Remmina-debugging"
 
 #. TRANSLATORS: Shown in terminal. Do not use characters that may be not supported on a terminal
@@ -787,8 +766,8 @@ msgstr "Gore"
 msgid "Go to parent folder"
 msgstr "Idi u sadržajnu mapu"
 
-#: src/remmina_ftp_client.c:758 plugins/rdp/rdp_plugin.c:2813
-#: plugins/vnc/vnc_plugin.c:2042
+#: src/remmina_ftp_client.c:758 plugins/rdp/rdp_plugin.c:2851
+#: plugins/vnc/vnc_plugin.c:2050
 msgid "Refresh"
 msgstr "Osvježi"
 
@@ -833,11 +812,11 @@ msgstr "Grupa"
 msgid "Permission"
 msgstr "Dozvola"
 
-#: src/remmina_ftp_client.c:990 plugins/rdp/rdp_plugin.c:2611
+#: src/remmina_ftp_client.c:990 plugins/rdp/rdp_plugin.c:2648
 msgid "Remote"
 msgstr "Udaljeno"
 
-#: src/remmina_ftp_client.c:997 plugins/rdp/rdp_plugin.c:2610
+#: src/remmina_ftp_client.c:997 plugins/rdp/rdp_plugin.c:2647
 msgid "Local"
 msgstr "Lokalno"
 
@@ -1228,7 +1207,7 @@ msgstr "Neuspjeli zahtjev ljuske. %s"
 msgid "Could not create PTY device."
 msgstr "Neuspjelo stvaranje PTY uređaja."
 
-#: src/remmina_exec.c:475
+#: src/remmina_exec.c:478
 #, c-format
 msgid "Plugin %s is not registered."
 msgstr "Priključak %s nije registriran."
@@ -1247,11 +1226,11 @@ msgstr[2] "Ukupno %i stavki."
 
 #: src/remmina_main.c:695
 msgid "Network status: fully online"
-msgstr ""
+msgstr "Mrežno stanje: potpuno povezano"
 
 #: src/remmina_main.c:698
 msgid "Network status: offline"
-msgstr ""
+msgstr "Mrežno stanje: izvanmrežno"
 
 #: src/remmina_main.c:902
 #, c-format
@@ -1504,7 +1483,7 @@ msgstr "Tunel putem povratne adrese"
 msgid "Same server at port %i"
 msgstr "Isti poslužitelj na ulazu %i"
 
-#: src/remmina_file_editor.c:1193 plugins/rdp/rdp_plugin.c:2767
+#: src/remmina_file_editor.c:1193 plugins/rdp/rdp_plugin.c:2805
 msgid "Start-up path"
 msgstr "Pokreni putanju"
 
@@ -1607,55 +1586,55 @@ msgstr ""
 "Korištenje «razlučivost» parametra u datoteci Remmina osobitosti je "
 "zastarjelo.\n"
 
-#: src/remmina_icon.c:136
+#: src/remmina_icon.c:137
 msgid "Open Main Window"
 msgstr "Otvori glavni prozor"
 
-#: src/remmina_icon.c:141 data/ui/remmina_main.glade:254
+#: src/remmina_icon.c:142 data/ui/remmina_main.glade:254
 msgid "_Preferences"
 msgstr "_Osobitosti"
 
-#: src/remmina_icon.c:146
+#: src/remmina_icon.c:147
 msgid "_About"
 msgstr "_O programu"
 
-#: src/remmina_icon.c:156
+#: src/remmina_icon.c:157
 msgid "Enable Service Discovery"
 msgstr "Omogući otkrivanje usluge"
 
-#: src/remmina_icon.c:168 data/ui/remmina_main.glade:404
+#: src/remmina_icon.c:169 data/ui/remmina_main.glade:404
 msgid "_Quit"
 msgstr "_Zatvori"
 
 #. TRANSLATORS: Applet name as per the Freedesktop Desktop entry specification https://specifications.freedesktop.org/desktop-entry-spec/latest/
 #. TRANSLATORS: Applet Name as per the Freedesktop Desktop entry specification https://specifications.freedesktop.org/desktop-entry-spec/latest/
-#: src/remmina_icon.c:294 src/remmina_icon.c:446
+#: src/remmina_icon.c:295 src/remmina_icon.c:447
 msgid "Remmina Applet"
 msgstr "Remmina aplet"
 
 #. TRANSLATORS: Applet comment/description as per the Freedesktop Desktop entry specification https://specifications.freedesktop.org/desktop-entry-spec/latest/
-#: src/remmina_icon.c:296 src/remmina_icon.c:448
+#: src/remmina_icon.c:297 src/remmina_icon.c:449
 msgid "Connect to remote desktops through the applet menu"
 msgstr "Povezivanje s udaljenim radnim površinama putem apleta izbornika"
 
-#: src/remmina_icon.c:360
+#: src/remmina_icon.c:361
 msgid "StatusNotifier/Appindicator support in “"
 msgstr "Podrška za Obavijesti stanja/Appindicator “"
 
 #. TRANSLATORS: %s is a placeholder for "StatusNotifier/Appindicator suppor in “DESKTOP NAME”: "
-#: src/remmina_icon.c:367
+#: src/remmina_icon.c:368
 #, c-format
 msgid "%s your desktop does support it"
 msgstr "%s vaša radna površina ju podržava"
 
 #. TRANSLATORS: %s is a placeholder for "StatusNotifier/Appindicator suppor in “DESKTOP NAME”: "
-#: src/remmina_icon.c:369
+#: src/remmina_icon.c:370
 #, c-format
 msgid "%s and Remmina has built-in (compiled) support for libappindicator."
 msgstr "%s i Remmina imaju ugrađenu (kompiliranu) podršku za libappindicator."
 
 #. TRANSLATORS: %s is a placeholder for "StatusNotifier/Appindicator suppor in “DESKTOP NAME”: "
-#: src/remmina_icon.c:372
+#: src/remmina_icon.c:373
 #, c-format
 msgid ""
 "%s not supported natively by your Desktop Environment. libappindicator will "
@@ -1665,25 +1644,25 @@ msgstr ""
 "pokušati vratiti na GtkStatusIcon/xembed"
 
 #. TRANSLATORS: %s is a placeholder for "StatusNotifier/Appindicator suppor in “DESKTOP NAME”: "
-#: src/remmina_icon.c:376
+#: src/remmina_icon.c:377
 #, c-format
 msgid "%s You may need to install, and use XApp Status Applet"
 msgstr "%s Možda trebate instalirati, i koristiti XApp aplet stanja"
 
 #. TRANSLATORS: %s is a placeholder for "StatusNotifier/Appindicator suppor in “DESKTOP NAME”: "
-#: src/remmina_icon.c:379
+#: src/remmina_icon.c:380
 #, c-format
 msgid "%s You may need to install, and use KStatusNotifierItem"
 msgstr "%s Možda trebate instalirati, i koristiti KStatusNotifierItem"
 
 #. TRANSLATORS: %s is a placeholder for "StatusNotifier/Appindicator suppor in “DESKTOP NAME”: "
-#: src/remmina_icon.c:382
+#: src/remmina_icon.c:383
 #, c-format
 msgid "%s You may need to install, and use XEmbed SNI Proxy"
 msgstr "%s Možda trebate instalirati, i koristiti XEmbed SNI Proxy"
 
 #. TRANSLATORS: %s is a placeholder for "StatusNotifier/Appindicator suppor in “DESKTOP NAME”: "
-#: src/remmina_icon.c:385
+#: src/remmina_icon.c:386
 #, c-format
 msgid "%s You may need to install, and use Gnome Shell Extension Appindicator"
 msgstr ""
@@ -1777,21 +1756,17 @@ msgid "_Find text"
 msgstr "_Pretraži tekst"
 
 #: src/remmina_ssh_plugin.c:1472 plugins/spice/spice_plugin.c:674
-#: plugins/vnc/vnc_plugin.c:1991 plugins/vnc/vnc_plugin.c:2003
+#: plugins/vnc/vnc_plugin.c:1998 plugins/vnc/vnc_plugin.c:2010
 msgid "User password"
 msgstr "Korisnička lozinka"
 
 #: src/remmina_ssh_plugin.c:1478
-#, fuzzy
-#| msgid "Pre-command"
 msgid "Opening command"
-msgstr "Naredba prije povezivanja"
+msgstr "Otvaranje naredbe"
 
 #: src/remmina_ssh_plugin.c:1479
-#, fuzzy
-#| msgid "Start-up program"
 msgid "Start-up background program"
-msgstr "Program pokretanja"
+msgstr "Pokreni pozadinski program"
 
 #: src/remmina_ssh_plugin.c:1484
 msgid ""
@@ -1891,23 +1866,23 @@ msgstr "<Nije postavljeno>"
 msgid "<Choose a quality level to edit…>"
 msgstr "<Odaberi razinu kvalitete za uređivanje…>"
 
-#: plugins/rdp/rdp_settings.c:282 plugins/rdp/rdp_plugin.c:2585
-#: plugins/vnc/vnc_plugin.c:1940
+#: plugins/rdp/rdp_settings.c:282 plugins/rdp/rdp_plugin.c:2622
+#: plugins/vnc/vnc_plugin.c:1947
 msgid "Poor (fastest)"
 msgstr "Slabija (brže)"
 
-#: plugins/rdp/rdp_settings.c:284 plugins/rdp/rdp_plugin.c:2586
-#: plugins/vnc/vnc_plugin.c:1939
+#: plugins/rdp/rdp_settings.c:284 plugins/rdp/rdp_plugin.c:2623
+#: plugins/vnc/vnc_plugin.c:1946
 msgid "Medium"
 msgstr "Srednja"
 
-#: plugins/rdp/rdp_settings.c:286 plugins/rdp/rdp_plugin.c:2587
-#: plugins/vnc/vnc_plugin.c:1937
+#: plugins/rdp/rdp_settings.c:286 plugins/rdp/rdp_plugin.c:2624
+#: plugins/vnc/vnc_plugin.c:1944
 msgid "Good"
 msgstr "Bolja"
 
-#: plugins/rdp/rdp_settings.c:288 plugins/rdp/rdp_plugin.c:2588
-#: plugins/vnc/vnc_plugin.c:1938
+#: plugins/rdp/rdp_settings.c:288 plugins/rdp/rdp_plugin.c:2625
+#: plugins/vnc/vnc_plugin.c:1945
 msgid "Best (slowest)"
 msgstr "Najbolja (najsporije)"
 
@@ -1989,8 +1964,8 @@ msgstr "Orijentacija radne površine"
 msgid "Input device settings"
 msgstr "Postavke ulaznog uređaja"
 
-#: plugins/rdp/rdp_settings.c:658 plugins/rdp/rdp_plugin.c:2729
-#: plugins/vnc/vnc_plugin.c:2029
+#: plugins/rdp/rdp_settings.c:658 plugins/rdp/rdp_plugin.c:2766
+#: plugins/vnc/vnc_plugin.c:2030
 msgid "Disable smooth scrolling"
 msgstr "Onemogući glatko pomicanje"
 
@@ -1998,26 +1973,26 @@ msgstr "Onemogući glatko pomicanje"
 msgid "General settings"
 msgstr "Opće postavke"
 
-#: plugins/rdp/rdp_settings.c:676 plugins/rdp/rdp_plugin.c:2781
+#: plugins/rdp/rdp_settings.c:676 plugins/rdp/rdp_plugin.c:2819
 msgid "Reconnect attempts number"
 msgstr "Broj ponovnih povezivanja"
 
-#: plugins/rdp/rdp_settings.c:689 plugins/rdp/rdp_plugin.c:2781
+#: plugins/rdp/rdp_settings.c:689 plugins/rdp/rdp_plugin.c:2819
 msgid ""
 "The maximum number of reconnect attempts upon an RDP disconnect (default: 20)"
 msgstr ""
 "Najveći broj pokušaja ponovnog povezivanja zbog prekida povezivanja s RDP-om "
 "(zadano: 20)"
 
-#: plugins/rdp/rdp_plugin.c:769 plugins/rdp/rdp_plugin.c:834
+#: plugins/rdp/rdp_plugin.c:771 plugins/rdp/rdp_plugin.c:836
 msgid "Enter RDP authentication credentials"
 msgstr "Upišite RDP vjerodajnicu ovjere"
 
-#: plugins/rdp/rdp_plugin.c:842
+#: plugins/rdp/rdp_plugin.c:844
 msgid "Enter RDP gateway authentication credentials"
 msgstr "Upišite RDP pristupnik vjerodajnice ovjere"
 
-#: plugins/rdp/rdp_plugin.c:2116
+#: plugins/rdp/rdp_plugin.c:2153
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2026,7 +2001,7 @@ msgstr ""
 "Neuspjelo pristupanje RDP poslužitelju “%s”.\n"
 "Račun je zaključan."
 
-#: plugins/rdp/rdp_plugin.c:2123
+#: plugins/rdp/rdp_plugin.c:2160
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2035,7 +2010,7 @@ msgstr ""
 "Neuspjelo pristupanje RDP poslužitelju “%s”.\n"
 "Račun je istekao."
 
-#: plugins/rdp/rdp_plugin.c:2130
+#: plugins/rdp/rdp_plugin.c:2167
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2044,7 +2019,7 @@ msgstr ""
 "Neuspjelo pristupanje RDP poslužitelju “%s”.\n"
 "Lozinka je istekla."
 
-#: plugins/rdp/rdp_plugin.c:2137
+#: plugins/rdp/rdp_plugin.c:2174
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2053,7 +2028,7 @@ msgstr ""
 "Neuspjelo pristupanje RDP poslužitelju “%s”.\n"
 "Račun je deaktiviran."
 
-#: plugins/rdp/rdp_plugin.c:2143
+#: plugins/rdp/rdp_plugin.c:2180
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2062,7 +2037,7 @@ msgstr ""
 "Neuspjelo pristupanje RDP poslužitelju “%s”.\n"
 "Nedovoljne korisničke dozvole."
 
-#: plugins/rdp/rdp_plugin.c:2151
+#: plugins/rdp/rdp_plugin.c:2188
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2071,7 +2046,7 @@ msgstr ""
 "Neuspjelo pristupanje RDP poslužitelju “%s”.\n"
 "Račun je ograničen."
 
-#: plugins/rdp/rdp_plugin.c:2159
+#: plugins/rdp/rdp_plugin.c:2196
 #, c-format
 msgid ""
 "Could not access the RDP server “%s”.\n"
@@ -2080,27 +2055,30 @@ msgstr ""
 "Neuspjelo pristupanje RDP poslužitelju “%s”.\n"
 "Promijeni korisničku lozinku prije povezivanja."
 
-#: plugins/rdp/rdp_plugin.c:2164
+#: plugins/rdp/rdp_plugin.c:2201
 #, c-format
 msgid "Lost connection to the RDP server “%s”."
 msgstr "Izgubljeno povezivanje s RDP poslužiteljem “%s”."
 
-#: plugins/rdp/rdp_plugin.c:2167
+#: plugins/rdp/rdp_plugin.c:2204
 #, c-format
 msgid "Could not find the address for the RDP server “%s”."
 msgstr "Neuspjelo pronalaženje adrese za RDP poslužitelj “%s”."
 
-#: plugins/rdp/rdp_plugin.c:2171
-#, c-format
+#: plugins/rdp/rdp_plugin.c:2208
+#, fuzzy, c-format
+#| msgid ""
+#| "Could not connect to the RDP server “%s” via TLS. Check that client and "
+#| "server support a common TLS version."
 msgid ""
-"Could not connect to the RDP server “%s” via TLS. Check that client and "
-"server support a common TLS version."
+"Could not connect to the RDP server “%s” via TLS. See the DEBUG traces from "
+"a terminal for more information."
 msgstr ""
 "Neuspjelo povezivanje s RDP poslužiteljem “%s” putem TLS-a. Provjerite "
 "podržava li klijent i poslužitelj uobičajenu TLS inačicu."
 
 #. TRANSLATORS: the placeholder may be either an IP/FQDN or a server hostname
-#: plugins/rdp/rdp_plugin.c:2175
+#: plugins/rdp/rdp_plugin.c:2212
 #, c-format
 msgid ""
 "Unable to establish a connection to the RDP server “%s”. Check “Security "
@@ -2109,16 +2087,16 @@ msgstr ""
 "Nemoguće uspostavljanje povezivanja s RDP poslužiteljem “%s”. Provjerite "
 "\"Pregovaranje sigurnosnog protokola\"."
 
-#: plugins/rdp/rdp_plugin.c:2183
+#: plugins/rdp/rdp_plugin.c:2220
 #, c-format
 msgid "Cannot connect to the RDP server “%s”."
 msgstr "Nemoguće povezivanje s RDP poslužiteljem “%s”."
 
-#: plugins/rdp/rdp_plugin.c:2186
+#: plugins/rdp/rdp_plugin.c:2223
 msgid "Could not start libfreerdp-gdi."
 msgstr "Nemoguće je pokrenuti libfreerdp-gdi."
 
-#: plugins/rdp/rdp_plugin.c:2189
+#: plugins/rdp/rdp_plugin.c:2226
 #, c-format
 msgid ""
 "You requested a H.264 GFX mode for the server “%s”, but your libfreerdp does "
@@ -2127,12 +2105,12 @@ msgstr ""
 "Zatražen je H.264 GFX način rada za poslužitelja “%s”, ali vaš libfreerdp ne "
 "podržava H.264. Koristite postavku ne-AVC dubine boja."
 
-#: plugins/rdp/rdp_plugin.c:2196
+#: plugins/rdp/rdp_plugin.c:2233
 #, c-format
 msgid "The “%s” server refused the connection."
 msgstr "Poslužitelj “%s” je odbio povezivanje."
 
-#: plugins/rdp/rdp_plugin.c:2201
+#: plugins/rdp/rdp_plugin.c:2238
 #, c-format
 msgid ""
 "The Remote Desktop Gateway “%s” denied the user “%s\\%s” access due to "
@@ -2141,117 +2119,117 @@ msgstr ""
 "Pristupnik udaljene radne površine “%s” je odbio pristup korisniku “%s\\%s” "
 "zbog pravila pristupa."
 
-#: plugins/rdp/rdp_plugin.c:2211
+#: plugins/rdp/rdp_plugin.c:2248
 #, c-format
 msgid "Cannot connect to the “%s” RDP server."
 msgstr "Nemoguće povezivanje s “%s” RDP poslužiteljem."
 
-#: plugins/rdp/rdp_plugin.c:2554
+#: plugins/rdp/rdp_plugin.c:2591
 msgid "Automatic (32 bpp) (Server chooses its best format)"
 msgstr "Automatski (32 bpp) (Poslužitelj odabire najbolji format)"
 
-#: plugins/rdp/rdp_plugin.c:2555
+#: plugins/rdp/rdp_plugin.c:2592
 msgid "GFX AVC444 (32 bpp)"
 msgstr "GFX AVC444 (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2556
+#: plugins/rdp/rdp_plugin.c:2593
 msgid "GFX AVC420 (32 bpp)"
 msgstr "GFX AVC420 (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2557
+#: plugins/rdp/rdp_plugin.c:2594
 msgid "GFX RFX (32 bpp)"
 msgstr "GFX RFX (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2558
+#: plugins/rdp/rdp_plugin.c:2595
 msgid "GFX RFX Progressive (32 bpp)"
 msgstr "GFX RFX progresivno (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2559
+#: plugins/rdp/rdp_plugin.c:2596
 msgid "RemoteFX (32 bpp)"
 msgstr "UdaljeniFX (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2560 plugins/vnc/vnc_plugin.c:1928
+#: plugins/rdp/rdp_plugin.c:2597 plugins/vnc/vnc_plugin.c:1935
 msgid "True colour (32 bpp)"
 msgstr "Stvarna boja (32 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2561
+#: plugins/rdp/rdp_plugin.c:2598
 msgid "True colour (24 bpp)"
 msgstr "Stvarna boja (24 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2562 plugins/vnc/vnc_plugin.c:1929
+#: plugins/rdp/rdp_plugin.c:2599 plugins/vnc/vnc_plugin.c:1936
 msgid "High colour (16 bpp)"
 msgstr "Visoka boja (16 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2563
+#: plugins/rdp/rdp_plugin.c:2600
 msgid "High colour (15 bpp)"
 msgstr "Visoka boja (15 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2564 plugins/vnc/vnc_plugin.c:1930
+#: plugins/rdp/rdp_plugin.c:2601 plugins/vnc/vnc_plugin.c:1937
 msgid "256 colours (8 bpp)"
 msgstr "256 boja (8 bpp)"
 
-#: plugins/rdp/rdp_plugin.c:2595 data/ui/remmina_preferences.glade:612
+#: plugins/rdp/rdp_plugin.c:2632 data/ui/remmina_preferences.glade:612
 msgid "None"
 msgstr "Nepoznat"
 
-#: plugins/rdp/rdp_plugin.c:2596
+#: plugins/rdp/rdp_plugin.c:2633
 msgid "Auto-detect"
 msgstr "Automatsko-otkrivanje"
 
-#: plugins/rdp/rdp_plugin.c:2597
+#: plugins/rdp/rdp_plugin.c:2634
 msgid "Modem"
 msgstr "Modem"
 
-#: plugins/rdp/rdp_plugin.c:2598
+#: plugins/rdp/rdp_plugin.c:2635
 msgid "Low performance broadband"
 msgstr "Širokopojasni pristup internetu slabih performansi"
 
-#: plugins/rdp/rdp_plugin.c:2599
+#: plugins/rdp/rdp_plugin.c:2636
 msgid "Satellite"
 msgstr "Satelit"
 
-#: plugins/rdp/rdp_plugin.c:2600
+#: plugins/rdp/rdp_plugin.c:2637
 msgid "High performance broadband"
 msgstr "Širokopojasni pristup internetu velikih performansi"
 
-#: plugins/rdp/rdp_plugin.c:2601
+#: plugins/rdp/rdp_plugin.c:2638
 msgid "WAN"
 msgstr "WAN"
 
-#: plugins/rdp/rdp_plugin.c:2602
+#: plugins/rdp/rdp_plugin.c:2639
 msgid "LAN"
 msgstr "LAN"
 
-#: plugins/rdp/rdp_plugin.c:2609 plugins/spice/spice_plugin.c:635
+#: plugins/rdp/rdp_plugin.c:2646 plugins/spice/spice_plugin.c:635
 #: data/ui/remmina_preferences.glade:648
 msgid "Off"
 msgstr "Isključeno"
 
-#: plugins/rdp/rdp_plugin.c:2618
+#: plugins/rdp/rdp_plugin.c:2655
 msgid "Automatic negotiation"
 msgstr "Automatsko pregovaranje"
 
-#: plugins/rdp/rdp_plugin.c:2619
+#: plugins/rdp/rdp_plugin.c:2656
 msgid "NLA protocol security"
 msgstr "NLA sigurnosni protokol"
 
-#: plugins/rdp/rdp_plugin.c:2620
+#: plugins/rdp/rdp_plugin.c:2657
 msgid "TLS protocol security"
 msgstr "TLS sigurnosni protokol"
 
-#: plugins/rdp/rdp_plugin.c:2621
+#: plugins/rdp/rdp_plugin.c:2658
 msgid "RDP protocol security"
 msgstr "RDP sigurnosni protokol"
 
-#: plugins/rdp/rdp_plugin.c:2622
+#: plugins/rdp/rdp_plugin.c:2659
 msgid "NLA extended protocol security"
 msgstr "NLA prošireni sigurnosni protokol"
 
-#: plugins/rdp/rdp_plugin.c:2635
+#: plugins/rdp/rdp_plugin.c:2672
 msgid "2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)"
 msgstr "2600 (Windows XP),7601 (Windows Vista/7),9600 (Windows 8 i noviji)"
 
-#: plugins/rdp/rdp_plugin.c:2638
+#: plugins/rdp/rdp_plugin.c:2675
 msgid ""
 "Used i.a. by terminal services in a smart card channel to distinguish client "
 "capabilities:\n"
@@ -2269,7 +2247,7 @@ msgstr ""
 "  • >= 7065: Windows 8 i noviji: SCardGetReaderIcon(),\n"
 "    SCardGetDeviceTypeId()"
 
-#: plugins/rdp/rdp_plugin.c:2646
+#: plugins/rdp/rdp_plugin.c:2683
 msgid ""
 "Options for redirection of audio input:\n"
 "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
@@ -2287,7 +2265,7 @@ msgstr ""
 "  • sys:oss,dev:1,format:1\n"
 "  • sys:alsa"
 
-#: plugins/rdp/rdp_plugin.c:2655
+#: plugins/rdp/rdp_plugin.c:2692
 msgid ""
 "Options for redirection of audio output:\n"
 "  • [sys:<sys>,][dev:<dev>,][format:<format>,][rate:<rate>,]\n"
@@ -2305,7 +2283,7 @@ msgstr ""
 "  • sys:oss,dev:1,format:1\n"
 "  • sys:alsa"
 
-#: plugins/rdp/rdp_plugin.c:2665
+#: plugins/rdp/rdp_plugin.c:2702
 msgid ""
 "Options for redirection of USB device:\n"
 "  • [dbg,][id:<vid>:<pid>#…,][addr:<bus>:<addr>#…,][auto]\n"
@@ -2317,7 +2295,7 @@ msgstr ""
 "  • auto\n"
 "  • id:054c:0268#4669:6e6b,addr:04:0c"
 
-#: plugins/rdp/rdp_plugin.c:2671
+#: plugins/rdp/rdp_plugin.c:2708
 msgid ""
 "Advanced setting for high latency links:\n"
 "Adjusts the connection timeout. Use if your connection times out.\n"
@@ -2327,7 +2305,7 @@ msgstr ""
 "Prilagodite istek povezivanja. Koristite istek svojeg povezivanja.\n"
 "Najveća moguća vrijednost 600000 ms (10 minuta).\n"
 
-#: plugins/rdp/rdp_plugin.c:2676
+#: plugins/rdp/rdp_plugin.c:2713
 msgid ""
 "Performance optimisations based on the network connection type:\n"
 "Using auto-detection is advised.\n"
@@ -2338,7 +2316,7 @@ msgstr ""
 "Ako \"Automatsko otkrivanje\" ne uspije, odaberite najprikladniju mogućnost "
 "na popisu.\n"
 
-#: plugins/rdp/rdp_plugin.c:2681
+#: plugins/rdp/rdp_plugin.c:2718
 msgid ""
 "Comma-separated list of monitor IDs and desktop orientations:\n"
 "  • [<id>:<orientation-in-degrees>,]\n"
@@ -2362,7 +2340,7 @@ msgstr ""
 "  • 270 (uspravno preokrenuto)\n"
 "\n"
 
-#: plugins/rdp/rdp_plugin.c:2693
+#: plugins/rdp/rdp_plugin.c:2730
 msgid ""
 "Redirect directory <path> as named share <name>.\n"
 "  • <name>,<fullpath>[;<name>,<fullpath>[;…]]\n"
@@ -2382,140 +2360,140 @@ msgstr ""
 "   hotplug,*\n"
 "\n"
 
-#: plugins/rdp/rdp_plugin.c:2725 plugins/spice/spice_plugin.c:677
+#: plugins/rdp/rdp_plugin.c:2762 plugins/spice/spice_plugin.c:677
 msgid "Share folder"
 msgstr "Dijeli mapu"
 
-#: plugins/rdp/rdp_plugin.c:2725
+#: plugins/rdp/rdp_plugin.c:2762
 msgid "Use “Redirect directory” in the advanced tab for multiple directories"
 msgstr ""
 "Korištenje \"Direktorija preusmjeravanja\" na kartici Napredno za više "
 "direktorija"
 
-#: plugins/rdp/rdp_plugin.c:2726
+#: plugins/rdp/rdp_plugin.c:2763
 msgid "Restricted admin mode"
 msgstr "Ograničen način rada administratora"
 
-#: plugins/rdp/rdp_plugin.c:2727
+#: plugins/rdp/rdp_plugin.c:2764
 msgid "Password hash"
 msgstr "Zbroj provjere lozinke"
 
-#: plugins/rdp/rdp_plugin.c:2727
+#: plugins/rdp/rdp_plugin.c:2764
 msgid "Restricted admin mode password hash"
 msgstr "Zbroj provjere ograničenog načina rada administratora"
 
-#: plugins/rdp/rdp_plugin.c:2728
+#: plugins/rdp/rdp_plugin.c:2765
 msgid "Left-handed mouse support"
 msgstr "Podrška za ljevoruku upotrebu miša"
 
-#: plugins/rdp/rdp_plugin.c:2728
+#: plugins/rdp/rdp_plugin.c:2765
 msgid "Swap left and right mouse buttons for left-handed mouse support"
 msgstr "Zamijeni lijeve i desne tipke miša za ljevoruku upotrebu miša"
 
-#: plugins/rdp/rdp_plugin.c:2730
+#: plugins/rdp/rdp_plugin.c:2767
 msgid "Enable multi monitor"
 msgstr "Omogući upotrebu više monitora"
 
-#: plugins/rdp/rdp_plugin.c:2731
+#: plugins/rdp/rdp_plugin.c:2768
 msgid "Span screen over multiple monitors"
 msgstr "Raširi zaslon preko više monitora"
 
-#: plugins/rdp/rdp_plugin.c:2732
+#: plugins/rdp/rdp_plugin.c:2769
 msgid "List monitor IDs"
 msgstr "Prikaži ID-ove monitora"
 
-#: plugins/rdp/rdp_plugin.c:2734 plugins/vnc/vnc_plugin.c:1992
-#: plugins/vnc/vnc_plugin.c:2004 plugins/gvnc/gvnc_plugin.c:849
+#: plugins/rdp/rdp_plugin.c:2771 plugins/vnc/vnc_plugin.c:1999
+#: plugins/vnc/vnc_plugin.c:2011 plugins/gvnc/gvnc_plugin.c:849
 msgid "Colour depth"
 msgstr "Dubina boja"
 
-#: plugins/rdp/rdp_plugin.c:2735
+#: plugins/rdp/rdp_plugin.c:2772
 msgid "Network connection type"
 msgstr "Vrsta mrežnog povezivanja"
 
-#: plugins/rdp/rdp_plugin.c:2750 plugins/vnc/vnc_plugin.c:1993
-#: plugins/vnc/vnc_plugin.c:2005
+#: plugins/rdp/rdp_plugin.c:2788 plugins/vnc/vnc_plugin.c:2000
+#: plugins/vnc/vnc_plugin.c:2012
 msgid "Quality"
 msgstr "Kvaliteta"
 
-#: plugins/rdp/rdp_plugin.c:2751
+#: plugins/rdp/rdp_plugin.c:2789
 msgid "Security protocol negotiation"
 msgstr "Pregovaranje sigurnosnog protokola"
 
-#: plugins/rdp/rdp_plugin.c:2752
+#: plugins/rdp/rdp_plugin.c:2790
 msgid "Gateway transport type"
 msgstr "Vrsta transporta pristupnika"
 
-#: plugins/rdp/rdp_plugin.c:2753
+#: plugins/rdp/rdp_plugin.c:2791
 msgid "FreeRDP log level"
 msgstr "FreeRDP razina zapisa"
 
-#: plugins/rdp/rdp_plugin.c:2754
+#: plugins/rdp/rdp_plugin.c:2792
 msgid "FreeRDP log filters"
 msgstr "FreeRDP filtri zapisa"
 
-#: plugins/rdp/rdp_plugin.c:2754
+#: plugins/rdp/rdp_plugin.c:2792
 msgid "tag:level[,tag:level[,…]]"
 msgstr "oznaka:razina[,oznaka:razina[,…]]"
 
-#: plugins/rdp/rdp_plugin.c:2755
+#: plugins/rdp/rdp_plugin.c:2793
 msgid "Audio output mode"
 msgstr "Način zvučnog izlaza"
 
-#: plugins/rdp/rdp_plugin.c:2756
+#: plugins/rdp/rdp_plugin.c:2794
 msgid "Redirect local audio output"
 msgstr "Preusmjeri lokalni izlaz zvuka"
 
-#: plugins/rdp/rdp_plugin.c:2757
+#: plugins/rdp/rdp_plugin.c:2795
 msgid "Redirect local microphone"
 msgstr "Preusmjeri lokalni mikrofon"
 
-#: plugins/rdp/rdp_plugin.c:2758
+#: plugins/rdp/rdp_plugin.c:2796
 msgid "Connection timeout in ms"
 msgstr "Istek povezivanja u ms"
 
-#: plugins/rdp/rdp_plugin.c:2759
+#: plugins/rdp/rdp_plugin.c:2797
 msgid "Remote Desktop Gateway server"
 msgstr "Poslužitelj pristupnika udaljene radne površine"
 
-#: plugins/rdp/rdp_plugin.c:2760
+#: plugins/rdp/rdp_plugin.c:2798
 msgid "Remote Desktop Gateway username"
 msgstr "Korisničko ime pristupnika udaljene radne površine"
 
-#: plugins/rdp/rdp_plugin.c:2761
+#: plugins/rdp/rdp_plugin.c:2799
 msgid "Remote Desktop Gateway password"
 msgstr "Lozinka pristupnika udaljene radne površine"
 
-#: plugins/rdp/rdp_plugin.c:2762
+#: plugins/rdp/rdp_plugin.c:2800
 msgid "Remote Desktop Gateway domain"
 msgstr "Domena pristupnika udaljene radne površine"
 
-#: plugins/rdp/rdp_plugin.c:2763
+#: plugins/rdp/rdp_plugin.c:2801
 msgid "Redirect directory"
 msgstr "Direktorij preusmjeravanja"
 
-#: plugins/rdp/rdp_plugin.c:2764
+#: plugins/rdp/rdp_plugin.c:2802
 msgid "Client name"
 msgstr "Naziv klijenta"
 
-#: plugins/rdp/rdp_plugin.c:2765
+#: plugins/rdp/rdp_plugin.c:2803
 msgid "Client build"
 msgstr "Izgradnja klijenta"
 
-#: plugins/rdp/rdp_plugin.c:2766
+#: plugins/rdp/rdp_plugin.c:2804
 msgid "Start-up program"
 msgstr "Program pokretanja"
 
-#: plugins/rdp/rdp_plugin.c:2768
+#: plugins/rdp/rdp_plugin.c:2806
 msgid "Load balance info"
 msgstr "Učitaj uravnotežene informacije"
 
 #. TRANSLATORS: Do not use typographic quotation marks, these must stay as "double quote", also know as “Typewriter ("programmer's") quote, ambidextrous.”
-#: plugins/rdp/rdp_plugin.c:2770
+#: plugins/rdp/rdp_plugin.c:2808
 msgid "Override printer drivers"
 msgstr "Zaobiđi upravljačke programe pisača"
 
-#: plugins/rdp/rdp_plugin.c:2770
+#: plugins/rdp/rdp_plugin.c:2808
 msgid ""
 "\"Samsung_CLX-3300_Series\":\"Samsung CLX-3300 Series PS\";\"Canon MF410\":"
 "\"Canon MF410 Series UFR II\""
@@ -2523,174 +2501,174 @@ msgstr ""
 "\"Samsung_CLX-3300_Series\":\"Samsung CLX-3300 Series PS\";\"Canon MF410\":"
 "\"Canon MF410 Series UFR II\""
 
-#: plugins/rdp/rdp_plugin.c:2771
+#: plugins/rdp/rdp_plugin.c:2809
 msgid "USB device redirection"
 msgstr "Preusmjeravanje USB uređaja"
 
-#: plugins/rdp/rdp_plugin.c:2772
+#: plugins/rdp/rdp_plugin.c:2810
 msgid "Local serial name"
 msgstr "Naziv lokalnog serijskog uređaja"
 
-#: plugins/rdp/rdp_plugin.c:2772
+#: plugins/rdp/rdp_plugin.c:2810
 msgid "COM1, COM2, etc."
 msgstr "COM1, COM2, itd."
 
-#: plugins/rdp/rdp_plugin.c:2773
+#: plugins/rdp/rdp_plugin.c:2811
 msgid "Local serial driver"
 msgstr "Upravljački program lokalnog serijskog uređaja"
 
-#: plugins/rdp/rdp_plugin.c:2773
+#: plugins/rdp/rdp_plugin.c:2811
 msgid "Serial"
 msgstr "Serijski"
 
-#: plugins/rdp/rdp_plugin.c:2774
+#: plugins/rdp/rdp_plugin.c:2812
 msgid "Local serial path"
 msgstr "Putanja lokalnog serijskog uređaja"
 
-#: plugins/rdp/rdp_plugin.c:2774
+#: plugins/rdp/rdp_plugin.c:2812
 msgid "/dev/ttyS0, /dev/ttyS1, etc."
 msgstr "/dev/ttyS0, /dev/ttyS1, itd."
 
-#: plugins/rdp/rdp_plugin.c:2775
+#: plugins/rdp/rdp_plugin.c:2813
 msgid "Local parallel name"
 msgstr "Naziv lokalnog paralelnog uređaja"
 
-#: plugins/rdp/rdp_plugin.c:2776
+#: plugins/rdp/rdp_plugin.c:2814
 msgid "Local parallel device"
 msgstr "Lokalni paralelni uređaj"
 
-#: plugins/rdp/rdp_plugin.c:2777
+#: plugins/rdp/rdp_plugin.c:2815
 msgid "Name of smart card"
 msgstr "Naziv pametne kartice"
 
-#: plugins/rdp/rdp_plugin.c:2778
+#: plugins/rdp/rdp_plugin.c:2816
 msgid "Dynamic virtual channel"
 msgstr "Promjenjivi virtualni kanal"
 
-#: plugins/rdp/rdp_plugin.c:2778 plugins/rdp/rdp_plugin.c:2779
+#: plugins/rdp/rdp_plugin.c:2816 plugins/rdp/rdp_plugin.c:2817
 msgid "<channel>[,<options>]"
 msgstr "<kanal>[,<mogućnost>]"
 
-#: plugins/rdp/rdp_plugin.c:2779
+#: plugins/rdp/rdp_plugin.c:2817
 msgid "Static virtual channel"
 msgstr "Odaberi virtualni kanal"
 
-#: plugins/rdp/rdp_plugin.c:2780
+#: plugins/rdp/rdp_plugin.c:2818
 msgid "TCP redirection"
 msgstr "TCP preusmjeravanje"
 
-#: plugins/rdp/rdp_plugin.c:2780
+#: plugins/rdp/rdp_plugin.c:2818
 msgid "/PATH/TO/rdp2tcp"
 msgstr "/PUTANJA/DO/rdp2tcp"
 
-#: plugins/rdp/rdp_plugin.c:2782
+#: plugins/rdp/rdp_plugin.c:2820
 msgid "Prefer IPv6 AAAA record over IPv4 A record"
 msgstr "Koristi IPv6 AAAA zapis umjesto IPv4 A zapisa"
 
-#: plugins/rdp/rdp_plugin.c:2783
+#: plugins/rdp/rdp_plugin.c:2821
 msgid "Share printers"
 msgstr "Dijeli pisače"
 
-#: plugins/rdp/rdp_plugin.c:2784
+#: plugins/rdp/rdp_plugin.c:2822
 msgid "Share serial ports"
 msgstr "Dijeli lokalne serijske ulaze"
 
-#: plugins/rdp/rdp_plugin.c:2785
+#: plugins/rdp/rdp_plugin.c:2823
 msgid "(SELinux) permissive mode for serial ports"
 msgstr "(SELinux) dopušteni način serijskih ulaza"
 
-#: plugins/rdp/rdp_plugin.c:2786
+#: plugins/rdp/rdp_plugin.c:2824
 msgid "Share parallel ports"
 msgstr "Dijeli paralelne ulaze"
 
-#: plugins/rdp/rdp_plugin.c:2787
+#: plugins/rdp/rdp_plugin.c:2825
 msgid "Share a smart card"
 msgstr "Dijeli pametnu karticu"
 
-#: plugins/rdp/rdp_plugin.c:2788 plugins/vnc/vnc_plugin.c:2024
+#: plugins/rdp/rdp_plugin.c:2826 plugins/vnc/vnc_plugin.c:2035
 msgid "Turn off clipboard sync"
 msgstr "Isključi usklađivanje međuspremnika"
 
-#: plugins/rdp/rdp_plugin.c:2789
+#: plugins/rdp/rdp_plugin.c:2827
 msgid "Ignore certificate"
 msgstr "Zanemari vjerodajnicu"
 
-#: plugins/rdp/rdp_plugin.c:2790
+#: plugins/rdp/rdp_plugin.c:2828
 msgid "Use the old license workflow"
 msgstr "Koristi stari tijek rada licence"
 
-#: plugins/rdp/rdp_plugin.c:2790
+#: plugins/rdp/rdp_plugin.c:2828
 msgid "It disables CAL and hwId is set to 0"
 msgstr "Onemogućuje CAL i hwId postavlja na 0"
 
-#: plugins/rdp/rdp_plugin.c:2791 plugins/spice/spice_plugin.c:702
-#: plugins/vnc/vnc_plugin.c:2028 plugins/www/www_plugin.c:919
+#: plugins/rdp/rdp_plugin.c:2829 plugins/spice/spice_plugin.c:702
+#: plugins/vnc/vnc_plugin.c:2031 plugins/www/www_plugin.c:919
 #: plugins/gvnc/gvnc_plugin.c:867
 msgid "Forget passwords after use"
 msgstr "Zaboravi lozinku nakon korištenja"
 
-#: plugins/rdp/rdp_plugin.c:2792
+#: plugins/rdp/rdp_plugin.c:2830
 msgid "Attach to console (2003/2003 R2)"
 msgstr "Pričvrsti za konzolu (2003/2003 R2)"
 
-#: plugins/rdp/rdp_plugin.c:2793
+#: plugins/rdp/rdp_plugin.c:2831
 msgid "Turn off fast-path"
 msgstr "Isključi brzu-putanju"
 
-#: plugins/rdp/rdp_plugin.c:2794
+#: plugins/rdp/rdp_plugin.c:2832
 msgid "Server detection using Remote Desktop Gateway"
 msgstr "Otkrivanje poslužitelja pomoću pristupnika udaljene radne površine"
 
-#: plugins/rdp/rdp_plugin.c:2796
+#: plugins/rdp/rdp_plugin.c:2834
 msgid "Use system proxy settings"
 msgstr "Korisit proxy postavke sustava"
 
-#: plugins/rdp/rdp_plugin.c:2798
+#: plugins/rdp/rdp_plugin.c:2836
 msgid "Turn off automatic reconnection"
 msgstr "Isključi automatsko ponovno povezivanje"
 
-#: plugins/rdp/rdp_plugin.c:2799
+#: plugins/rdp/rdp_plugin.c:2837
 msgid "Relax order checks"
 msgstr "Opuštene provjere redoslijeda"
 
-#: plugins/rdp/rdp_plugin.c:2800
+#: plugins/rdp/rdp_plugin.c:2838
 msgid "Glyph cache"
 msgstr "Predmemorija simbola"
 
-#: plugins/rdp/rdp_plugin.c:2801
+#: plugins/rdp/rdp_plugin.c:2839
 msgid "Enable multitransport protocol (UDP)"
 msgstr "Omogući višetransportni protokol (UDP)"
 
-#: plugins/rdp/rdp_plugin.c:2801
+#: plugins/rdp/rdp_plugin.c:2839
 msgid "Using the UDP protocol may improve performance"
 msgstr "Korištenje UDP protokola može poboljšati performanse"
 
-#: plugins/rdp/rdp_plugin.c:2802
+#: plugins/rdp/rdp_plugin.c:2840
 msgid "Use base credentials for gateway too"
 msgstr "Koristi isto osnovne vjerodajnice za pristupnik"
 
-#: plugins/rdp/rdp_plugin.c:2804
+#: plugins/rdp/rdp_plugin.c:2842
 msgid "Enable Gateway websockets support"
 msgstr "Omogući podršku websocket prostupnika"
 
-#: plugins/rdp/rdp_plugin.c:2817 plugins/spice/spice_plugin.c:715
-#: plugins/vnc/vnc_plugin.c:2044
+#: plugins/rdp/rdp_plugin.c:2855 plugins/spice/spice_plugin.c:715
+#: plugins/vnc/vnc_plugin.c:2052
 msgid "Send Ctrl+Alt+Delete"
 msgstr "Pošalji Ctrl+Alt+Delete"
 
-#: plugins/rdp/rdp_plugin.c:2830
+#: plugins/rdp/rdp_plugin.c:2868
 msgid "RDP - Remote Desktop Protocol"
 msgstr "RDP - Protokol Udaljene radne površine"
 
-#: plugins/rdp/rdp_plugin.c:2855
+#: plugins/rdp/rdp_plugin.c:2893
 msgid "RDP - RDP File Handler"
 msgstr "RDP - RDP rukovanje datotekama"
 
-#: plugins/rdp/rdp_plugin.c:2870
+#: plugins/rdp/rdp_plugin.c:2908
 msgid "RDP - Preferences"
 msgstr "RDP - Osobitosti"
 
-#: plugins/rdp/rdp_plugin.c:2923
+#: plugins/rdp/rdp_plugin.c:2961
 msgid "Export connection in Windows .rdp file format"
 msgstr "Izvezi povezivanje u Windows .rdp formatu datoteke"
 
@@ -2763,8 +2741,6 @@ msgid "Server CA certificate"
 msgstr "CA vjerodajnica poslužitelja"
 
 #: plugins/spice/spice_plugin.c:694
-#, fuzzy
-#| msgid "Prefered video codec"
 msgid "Preferred video codec"
 msgstr "Željeni video kôdek"
 
@@ -2773,8 +2749,6 @@ msgid "Turn off GStreamer overlay"
 msgstr "Isključi GStreamer sloj"
 
 #: plugins/spice/spice_plugin.c:698
-#, fuzzy
-#| msgid "Prefered image compression"
 msgid "Preferred image compression"
 msgstr "Željeno sažimanje slike"
 
@@ -2792,7 +2766,7 @@ msgid "Share smart card"
 msgstr "Dijeli pametnu karticu"
 
 #: plugins/spice/spice_plugin.c:705 plugins/spice/spice_plugin.c:713
-#: plugins/vnc/vnc_plugin.c:2023 plugins/vnc/vnc_plugin.c:2040
+#: plugins/vnc/vnc_plugin.c:2037 plugins/vnc/vnc_plugin.c:2048
 #: plugins/gvnc/gvnc_plugin.c:870 plugins/gvnc/gvnc_plugin.c:879
 msgid "View only"
 msgstr "Samo gledaj"
@@ -2813,42 +2787,42 @@ msgstr "_Zatvori"
 msgid "USB redirection error"
 msgstr "Greška USB preusmjeravanja"
 
-#: plugins/vnc/vnc_plugin.c:782
+#: plugins/vnc/vnc_plugin.c:789
 msgid "Enter VNC password"
 msgstr "Upišite VNC lozinku"
 
-#: plugins/vnc/vnc_plugin.c:835 plugins/gvnc/gvnc_plugin.c:539
+#: plugins/vnc/vnc_plugin.c:842 plugins/gvnc/gvnc_plugin.c:539
 msgid "Enter VNC authentication credentials"
 msgstr "Upišite VNC vjerodajnicu ovjere"
 
-#: plugins/vnc/vnc_plugin.c:943
+#: plugins/vnc/vnc_plugin.c:950
 msgid "Unable to connect to VNC server"
 msgstr "Neuspjelo povezivanje s VNC poslužiteljem"
 
-#: plugins/vnc/vnc_plugin.c:944
+#: plugins/vnc/vnc_plugin.c:951
 #, c-format
 msgid "Couldn’t convert '%s' to host address"
 msgstr "Neuspjelo pretvaranje '%s' u adresu računala"
 
-#: plugins/vnc/vnc_plugin.c:945
+#: plugins/vnc/vnc_plugin.c:952
 #, c-format
 msgid "VNC connection failed: %s"
 msgstr "VNC povezivanje neuspjelo: %s"
 
-#: plugins/vnc/vnc_plugin.c:946
+#: plugins/vnc/vnc_plugin.c:953
 msgid "Your connection has been rejected."
 msgstr "Vaše povezivanje je odbijeno."
 
-#: plugins/vnc/vnc_plugin.c:973
+#: plugins/vnc/vnc_plugin.c:980
 #, c-format
 msgid "The VNC server requested an unknown authentication method. %s"
 msgstr "VNC poslužitelj zahtijeva nepoznati način ovjere. %s"
 
-#: plugins/vnc/vnc_plugin.c:975
+#: plugins/vnc/vnc_plugin.c:982
 msgid "Please retry after turning on encryption for this profile."
 msgstr "Pokušajte ponovno nakon omogućavanja šifriranja za ovaj profil."
 
-#: plugins/vnc/vnc_plugin.c:1945
+#: plugins/vnc/vnc_plugin.c:1952
 msgid ""
 "Connect to VNC using a repeater:\n"
 "  • The server field must contain the repeater ID, e.g. ID:123456789\n"
@@ -2866,15 +2840,7 @@ msgstr ""
 "    repetitorom, npr. s x11vnc:\n"
 "    x11vnc -connect repetitor=ID:123456789+10.10.10.12:5500"
 
-#: plugins/vnc/vnc_plugin.c:1954
-#, fuzzy
-#| msgid ""
-#| "Listening for remote VNC connection:\n"
-#| "  • The \"Listen on port\" field is the port Remmina will listen to,\n"
-#| "    e.g. 8888\n"
-#| "  • From the remote VNC server, you will connect to\n"
-#| "    Remmina, e.g. with x11vnc:\n"
-#| "    x11vnc -display :0 -connect 192.168.1.36:8888"
+#: plugins/vnc/vnc_plugin.c:1961
 msgid ""
 "Listening for remote VNC connection:\n"
 "  • The “Listen on port” field is the port Remmina will listen to,\n"
@@ -2884,13 +2850,13 @@ msgid ""
 "    x11vnc -display :0 -connect 192.168.1.36:8888"
 msgstr ""
 "Osluškivanje udaljenog VNC povezivanja:\n"
-"  • \"Osluškuj na ulazu\" polje je ulaz koji će Remmina osluškivati,\n"
+"  • “Osluškuj na ulazu” polje je ulaz koji će Remmina osluškivati,\n"
 "    npr. 8888\n"
 "  • Sa udaljenog VNC poslužitelja, povezat ćete se s\n"
 "    Remminom, npr. sa x11vnc:\n"
 "    x11vnc -display :0 -connect 192.168.1.36:8888"
 
-#: plugins/vnc/vnc_plugin.c:1962
+#: plugins/vnc/vnc_plugin.c:1969
 msgid ""
 "Override pre-set VNC encodings:\n"
 "\n"
@@ -2902,36 +2868,54 @@ msgid ""
 "  • On “Best quality” encodings is set to “copyrect zrle ultra zlib hextile "
 "corre rre raw”"
 msgstr ""
+"Zaobiđi predpostavljena VNC kôdiranja:\n"
+"\n"
+"  • Kada je “Slaba kvaliteta” kôdiranje postavljeno na “copyrect zlib "
+"hextile raw”\n"
+"  • Kada je “Srednja kvaliteta” kôdiranje postavljeno na “tight zrle ultra "
+"copyrect hextile zlib corre rre raw”\n"
+"  • Kada je “Dobra kvaliteta” kôdiranje postavljeno na “tight zrle ultra "
+"copyrect hextile zlib corre rre raw”\n"
+"  • Kada je “Najbolja kvaliteta” kôdiranje postavljeno na “copyrect zrle "
+"ultra zlib hextile corre rre raw”"
 
-#: plugins/vnc/vnc_plugin.c:1989
+#: plugins/vnc/vnc_plugin.c:1996
 msgid "Repeater"
 msgstr "Repetitor"
 
-#: plugins/vnc/vnc_plugin.c:2001
+#: plugins/vnc/vnc_plugin.c:2008
 msgid "Listen on port"
 msgstr "Osluškuj na ulazu"
 
-#: plugins/vnc/vnc_plugin.c:2021
+#: plugins/vnc/vnc_plugin.c:2028
 msgid "Override pre-set VNC encodings"
+msgstr "Zaobiđi predpostavljena VNC kôdiranja"
+
+#: plugins/vnc/vnc_plugin.c:2029
+msgid "Force tight encoding"
 msgstr ""
 
-#: plugins/vnc/vnc_plugin.c:2022
-msgid "Show remote cursor"
-msgstr "Prikaži udaljeni pokazivač"
+#: plugins/vnc/vnc_plugin.c:2029
+msgid "Enabling this may help when the remote desktop looks scrambled"
+msgstr ""
 
-#: plugins/vnc/vnc_plugin.c:2025
-msgid "Turn off encryption"
-msgstr "Isključi šifriranje"
-
-#: plugins/vnc/vnc_plugin.c:2026 plugins/vnc/vnc_plugin.c:2041
-msgid "Prevent local interaction on the server"
-msgstr "Spriječi lokalnu interakciju na poslužitelju"
-
-#: plugins/vnc/vnc_plugin.c:2027 plugins/gvnc/gvnc_plugin.c:868
+#: plugins/vnc/vnc_plugin.c:2032 plugins/gvnc/gvnc_plugin.c:868
 msgid "Ignore remote bell messages"
 msgstr "Zanemari udaljena poruke zvona"
 
-#: plugins/vnc/vnc_plugin.c:2043
+#: plugins/vnc/vnc_plugin.c:2033 plugins/vnc/vnc_plugin.c:2049
+msgid "Prevent local interaction on the server"
+msgstr "Spriječi lokalnu interakciju na poslužitelju"
+
+#: plugins/vnc/vnc_plugin.c:2034
+msgid "Show remote cursor"
+msgstr "Prikaži udaljeni pokazivač"
+
+#: plugins/vnc/vnc_plugin.c:2036
+msgid "Turn off encryption"
+msgstr "Isključi šifriranje"
+
+#: plugins/vnc/vnc_plugin.c:2051
 msgid "Open Chat…"
 msgstr "Otvori razgovor…"
 
@@ -3127,7 +3111,7 @@ msgstr "SSHFS ulaz"
 
 #: plugins/x2go/x2go_plugin.c:481
 msgid "Visible"
-msgstr ""
+msgstr "Vidljivo"
 
 #: plugins/x2go/x2go_plugin.c:520
 msgid "Couldn't retrieve valid `DialogData` or `sessions_list`! Aborting…"
@@ -3155,10 +3139,9 @@ msgid "Terminating X2Go sessions can take a moment."
 msgstr "Prekidanje X2Go sesije može kratko potrajati."
 
 #: plugins/x2go/x2go_plugin.c:618 plugins/x2go/x2go_plugin.c:620
-#, fuzzy, c-format
-#| msgid "Unknown property"
+#, c-format
 msgid "Unknown property '%i'"
-msgstr "Nepoznato svojstvo"
+msgstr "Nepoznato svojstvo '%i'"
 
 #: plugins/x2go/x2go_plugin.c:708 plugins/x2go/x2go_plugin.c:755
 msgid "Couldn't find child GtkTreeView of session chooser dialog."
@@ -3169,18 +3152,16 @@ msgid ""
 "Neither the 'dialog' nor 'treeview' parameters are initialized! At least one "
 "of them must be given."
 msgstr ""
+"Niti 'dialog' niti 'treeview' parametri nisu pokrenuti! Najmanje jedan od "
+"njih mora biti naveden."
 
 #: plugins/x2go/x2go_plugin.c:729
-#, fuzzy
-#| msgid ""
-#| "GtkTreeModel of session chooser dialog could not be obtained for an "
-#| "unknown reason."
 msgid ""
 "Could not obtain \"GtkTreeModelFilter*\" of the session chooser dialog, for "
 "unknown reason."
 msgstr ""
-"GtkTreeModel dijaloga odabiratelja sesije ne može se dobiti zbog nepoznatog "
-"razloga."
+"Nemoguće dobivanje \"GtkTreeModelFilter*\" dijaloga odabiratelja sesije, "
+"zbog nepoznatog razloga."
 
 #: plugins/x2go/x2go_plugin.c:764
 msgid "Couldn't get currently selected row (session)!"
@@ -3222,12 +3203,13 @@ msgstr ""
 "Potreban PyHoca-CLI proces je naišao na unutrašnji problem povezivanja."
 
 #: plugins/x2go/x2go_plugin.c:972
-#, fuzzy, c-format
-#| msgid "Could not start PyHoca-CLI (%i): '%s'"
+#, c-format
 msgid ""
 "Could not start PyHoca-CLI:\n"
 "%s"
-msgstr "Neuspjelo pokretanje PyHoca-CLI (%i): '%s'"
+msgstr ""
+"Neuspjelo pokretanje PyHoca-CLI:\n"
+"%s"
 
 #: plugins/x2go/x2go_plugin.c:983
 #, c-format
@@ -3246,10 +3228,8 @@ msgstr ""
 "Greška: '%s'"
 
 #: plugins/x2go/x2go_plugin.c:1032
-#, fuzzy
-#| msgid "Both parameters 'dialog' and 'treeview' are uninitialized!"
 msgid "Neither the 'path' nor 'dialog' parameters are initialized."
-msgstr "Oba parametra 'dialog' i 'treeview' nisu pokrenuti!"
+msgstr "Niti 'path' niti 'dialog' parametri nisu pokrenuti."
 
 #: plugins/x2go/x2go_plugin.c:1048
 msgid "GtkTreePath 'path' describes a non-existing row!"
@@ -3265,12 +3245,13 @@ msgid "'Invalid connection data.'"
 msgstr "'Nevaljani podaci povezivanja.'"
 
 #: plugins/x2go/x2go_plugin.c:1218
-#, fuzzy, c-format
-#| msgid "An error occured while trying to terminate a X2Go session: %s"
+#, c-format
 msgid ""
 "An error occured while trying to terminate X2Go session '%s':\n"
 "%s"
-msgstr "Greška se dogodila pri prekidanju X2Go sesije: %s"
+msgstr ""
+"Greška se dogodila pri prekidanju X2Go sesije '%s':\n"
+"%s"
 
 #: plugins/x2go/x2go_plugin.c:1230 plugins/x2go/x2go_plugin.c:1594
 msgid "An error occured."
@@ -3856,8 +3837,13 @@ msgid "About"
 msgstr "O programu"
 
 #: data/ui/remmina_about.glade:34
+#, fuzzy
+#| msgid ""
+#| "Copyright © 2014–2021 Antenore Gatta, Giovanni Panozzo.\n"
+#| "Copyright © 2009–2014 Vic Lee\n"
+#| "More details in COPYING"
 msgid ""
-"Copyright © 2014–2021 Antenore Gatta, Giovanni Panozzo.\n"
+"Copyright © 2014–2022 Antenore Gatta, Giovanni Panozzo.\n"
 "Copyright © 2009–2014 Vic Lee\n"
 "More details in COPYING"
 msgstr ""
@@ -3985,17 +3971,12 @@ msgstr ""
 
 #: data/ui/remmina_news.glade:169
 msgid "Receives updated news from remmina.org"
-msgstr ""
+msgstr "Primite najnovije novosti s remmina.org"
 
 #: data/ui/remmina_news.glade:182
-#, fuzzy
-#| msgid ""
-#| "* By enabling statistics and/or news you consent to send and fetch data "
-#| "to/from remmina.org"
 msgid "* By turning on news you consent to fetching data from remmina.org"
 msgstr ""
-"* Omogućavanjem statistike i/ili novosti pristajete na slanje i preuzimanje "
-"podataka na/s remmina.org"
+"* Omogućavanjem novosti pristajete na preuzimanje podataka s remmina.org"
 
 #: data/ui/remmina_news.glade:205
 msgid "<big>Take part</big>"
@@ -4276,14 +4257,9 @@ msgid "Prevent screenshots from entering clipboard"
 msgstr "Spriječi spremanje slika zaslona u međuspremnik"
 
 #: data/ui/remmina_preferences.glade:432
-#, fuzzy
-#| msgid ""
-#| "* By enabling statistics and/or news you consent to send and fetch data "
-#| "to/from remmina.org"
 msgid "* By enabling news you consent to fetch data from remmina.org"
 msgstr ""
-"* Omogućavanjem statistike i/ili novosti pristajete na slanje i preuzimanje "
-"podataka na/s remmina.org"
+"* Omogućavanjem novosti pristajete na preuzimanje podataka s remmina.org"
 
 #: data/ui/remmina_preferences.glade:500
 msgid "Options"

@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -534,7 +534,7 @@ static gboolean rmnews_periodic_check(gpointer user_data)
 	}
 	next = remmina_pref.periodic_rmnews_last_get + RMNEWS_INTERVAL_SEC;
 	if (unixts > next || (unixts < remmina_pref.periodic_rmnews_last_get && unixts > 1514764800)) {
-		REMMINA_DEBUG("remmina_pref.periodic_news_permitted is %d", remmina_pref.periodic_news_permitted);
+		//REMMINA_DEBUG("remmina_pref.periodic_news_permitted is %d", remmina_pref.periodic_news_permitted);
 		if (remmina_pref.periodic_news_permitted == 1) {
 			rmnews_get_news();
 		} else if (remmina_pref.periodic_rmnews_get_count == 0) {
