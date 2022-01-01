@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -680,21 +680,6 @@ void remmina_pref_init(void)
 
 	remmina_pref_file_load_colors(gkeyfile, &remmina_pref.color_pref);
 
-	if (g_key_file_has_key(gkeyfile, "usage_stats", "periodic_usage_stats_permitted", NULL))
-		remmina_pref.periodic_usage_stats_permitted = g_key_file_get_boolean(gkeyfile, "usage_stats", "periodic_usage_stats_permitted", NULL);
-	else
-		remmina_pref.periodic_usage_stats_permitted = FALSE;
-
-	if (g_key_file_has_key(gkeyfile, "usage_stats", "periodic_usage_stats_last_sent", NULL))
-		remmina_pref.periodic_usage_stats_last_sent = g_key_file_get_int64(gkeyfile, "usage_stats", "periodic_usage_stats_last_sent", NULL);
-	else
-		remmina_pref.periodic_usage_stats_last_sent = 0;
-
-	if (g_key_file_has_key(gkeyfile, "usage_stats", "periodic_usage_stats_uuid_prefix", NULL))
-		remmina_pref.periodic_usage_stats_uuid_prefix = g_key_file_get_string(gkeyfile, "usage_stats", "periodic_usage_stats_uuid_prefix", NULL);
-	else
-		remmina_pref.periodic_usage_stats_uuid_prefix = NULL;
-
 	/** RMNEWS_ENABLE_NEWS is equal to 0 (FALSE) when compiled with -DWiTH_NEWS=OFF,
 	 * otherwise is value is 1 (TRUE), that is the default value
 	 */
@@ -877,10 +862,6 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color14", remmina_pref.color_pref.color14 ? remmina_pref.color_pref.color14 : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color15", remmina_pref.color_pref.color15 ? remmina_pref.color_pref.color15 : "");
 
-	g_key_file_set_boolean(gkeyfile, "usage_stats", "periodic_usage_stats_permitted", remmina_pref.periodic_usage_stats_permitted);
-	g_key_file_set_int64(gkeyfile, "usage_stats", "periodic_usage_stats_last_sent", remmina_pref.periodic_usage_stats_last_sent);
-	g_key_file_set_string(gkeyfile, "usage_stats", "periodic_usage_stats_uuid_prefix",
-			      remmina_pref.periodic_usage_stats_uuid_prefix ? remmina_pref.periodic_usage_stats_uuid_prefix : "");
 	g_key_file_set_boolean(gkeyfile, "remmina_news", "periodic_news_permitted", remmina_pref.periodic_news_permitted);
 	g_debug("(%s) - Setting periodic_rmnews_last_get to %ld", __func__, remmina_pref.periodic_rmnews_last_get);
 	g_key_file_set_int64(gkeyfile, "remmina_news", "periodic_rmnews_last_get", remmina_pref.periodic_rmnews_last_get);
@@ -986,6 +967,16 @@ void remmina_pref_clear_recent(void)
 	g_file_set_contents(remmina_pref_file, content, length, NULL);
 
 	g_key_file_free(gkeyfile);
+}
+
+guint *remmina_pref_keymap_get_table(const gchar *keymap)
+{
+	TRACE_CALL(__func__);
+	
+	if (!keymap || keymap[0] == '\0')
+		return NULL;
+	
+	return (guint *)g_hash_table_lookup(remmina_keymap_table, keymap);
 }
 
 guint remmina_pref_keymap_get_keyval(const gchar *keymap, guint keyval)

@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2011 Marc-Andre Moreau
 # Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
-# Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
+# Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -263,17 +263,20 @@ if(sodium_FOUND)
   target_link_libraries(remmina sodium)
 endif()
 
+option(HAVE_LIBAPPINDICATOR "Build with support for status icon. Appindicator is required" ON)
 if(GTK3_FOUND)
-  find_required_package(APPINDICATOR)
-  if(APPINDICATOR_FOUND)
-    add_definitions(-DHAVE_LIBAPPINDICATOR)
-    include_directories(${APPINDICATOR_INCLUDE_DIRS})
-    target_link_libraries(remmina ${APPINDICATOR_LIBRARIES})
-    message(STATUS "AppIndicator library dirs ${APPINDICATOR_LIBRARIES}")
-    message(STATUS "AppIndicator include dirs ${APPINDICATOR_INCLUDE_DIRS}")
-  else()
-    message(FATAL_ERROR "AppIndicator not found")
-  endif()
+    if(HAVE_LIBAPPINDICATOR)
+        find_required_package(APPINDICATOR)
+        if(APPINDICATOR_FOUND)
+            add_definitions(-DHAVE_LIBAPPINDICATOR)
+            include_directories(${APPINDICATOR_INCLUDE_DIRS})
+            target_link_libraries(remmina ${APPINDICATOR_LIBRARIES})
+            message(STATUS "AppIndicator library dirs ${APPINDICATOR_LIBRARIES}")
+            message(STATUS "AppIndicator include dirs ${APPINDICATOR_INCLUDE_DIRS}")
+        else()
+            message(FATAL_ERROR "AppIndicator not found")
+        endif()
+    endif()
   find_required_package(JSONGLIB)
   if(JSONGLIB_FOUND)
     include_directories(${JSONGLIB_INCLUDE_DIRS})

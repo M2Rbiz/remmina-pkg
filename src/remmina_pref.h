@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -211,9 +211,6 @@ typedef struct _RemminaPref {
 	RemminaColorPref	color_pref;
 
 	/* Usage stats */
-	gboolean		periodic_usage_stats_permitted;
-	glong			periodic_usage_stats_last_sent;
-	gchar *			periodic_usage_stats_uuid_prefix;
 	gchar *			last_success;
 
 	/* Remmina news */
@@ -245,6 +242,7 @@ void remmina_pref_add_recent(const gchar *protocol, const gchar *server);
 gchar *remmina_pref_get_recent(const gchar *protocol);
 void remmina_pref_clear_recent(void);
 
+guint *remmina_pref_keymap_get_table(const gchar *keymap);
 guint remmina_pref_keymap_get_keyval(const gchar *keymap, guint keyval);
 gchar **remmina_pref_keymap_groups(void);
 

@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2021 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,10 +53,11 @@
 #include "remmina_about.h"
 #include "remmina_plugin_manager.h"
 #include "remmina_exec.h"
-#include "remmina_icon.h"
 #include "remmina/remmina_trace_calls.h"
 #include "remmina_file_manager.h"
 #include "remmina_crypt.h"
+
+#include "remmina_icon.h"
 
 #ifdef SNAP_BUILD
 #   define ISSNAP "- SNAP Build -"
@@ -96,8 +97,10 @@ void remmina_exec_exitremmina()
 	/* Delete all widgets, main window not included */
 	remmina_widget_pool_foreach(cb_closewidget, NULL);
 
+#ifdef HAVE_LIBAPPINDICATOR
 	/* Remove systray menu */
 	remmina_icon_destroy();
+#endif
 
 	/* close/destroy main window struct and window */
 	remmina_main_destroy();
