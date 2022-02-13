@@ -48,10 +48,11 @@
 #define REMMINA_PLUGIN_VNC_FEATURE_UNFOCUS                 7
 #define REMMINA_PLUGIN_VNC_FEATURE_TOOL_SENDCTRLALTDEL     8
 
+#define VNC_DEFAULT_PORT 5900
+
 #define GET_PLUGIN_DATA(gp) (RemminaPluginVncData *)g_object_get_data(G_OBJECT(gp), "plugin-data")
 
 static RemminaPluginService *remmina_plugin_service = NULL;
-#define REMMINA_PLUGIN_DEBUG(fmt, ...) remmina_plugin_service->_remmina_debug(__func__, fmt, ## __VA_ARGS__)
 
 static int dot_cursor_x_hot = 2;
 static int dot_cursor_y_hot = 2;
@@ -379,10 +380,10 @@ static void remmina_plugin_vnc_update_quality(rfbClient *cl, gint quality)
 	gchar *enc = NULL;
 
 	/**
-	 * "0", "Poor (fastest)
+	 * "0", "Poor (fastest)"
 	 * "1", "Medium"
 	 * "2", "Good"
-	 * "9", "Best
+	 * "9", "Best (slowest)"
 	 */
 	switch (quality) {
 	case 9:
@@ -1186,7 +1187,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 	while (gpdata->connected) {
 		gpdata->auth_called = FALSE;
 
-		host = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, 5900, TRUE);
+		host = remmina_plugin_service->protocol_plugin_start_direct_tunnel(gp, VNC_DEFAULT_PORT, TRUE);
 
 		if (host == NULL) {
 			REMMINA_PLUGIN_DEBUG("host is null");
@@ -1254,13 +1255,13 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 
 			remmina_plugin_vnc_incoming_connection(gp, cl);
 		} else {
-			remmina_plugin_service->get_server_port(host, 5900, &s, &cl->serverPort);
+			remmina_plugin_service->get_server_port(host, VNC_DEFAULT_PORT, &s, &cl->serverPort);
 			cl->serverHost = g_strdup(s);
 			g_free(s);
 
 			/* Support short-form (:0, :1) */
 			if (cl->serverPort < 100)
-				cl->serverPort += 5900;
+				cl->serverPort += VNC_DEFAULT_PORT;
 		}
 		g_free(host);
 		host = NULL;
@@ -1268,12 +1269,12 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		if (remmina_plugin_service->file_get_string(remminafile, "proxy")) {
 			remmina_plugin_service->get_server_port(
 				remmina_plugin_service->file_get_string(remminafile, "server"),
-				5900,
+				VNC_DEFAULT_PORT,
 				&cl->destHost,
 				&cl->destPort);
 			remmina_plugin_service->get_server_port(
 				remmina_plugin_service->file_get_string(remminafile, "proxy"),
-				5900,
+				VNC_DEFAULT_PORT,
 				&cl->serverHost,
 				&cl->serverPort);
 			REMMINA_PLUGIN_DEBUG("cl->serverHost: %s", cl->serverHost);
@@ -1672,6 +1673,8 @@ static gboolean remmina_plugin_vnc_open_connection(RemminaProtocolWidget *gp)
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	gpdata->connected = TRUE;
+	gchar *server;
+	gint port;
 
 	remmina_plugin_service->protocol_plugin_register_hostkey(gp, gpdata->drawing_area);
 
@@ -1695,6 +1698,13 @@ static gboolean remmina_plugin_vnc_open_connection(RemminaProtocolWidget *gp)
 		gpdata->thread = 0;
 	}
 
+	remmina_plugin_service->get_server_port(remmina_plugin_service->file_get_string(remminafile, "server"),
+			VNC_DEFAULT_PORT,
+			&server,
+			&port);
+
+	REMMINA_PLUGIN_AUDIT(_("Connected to %s:%d via VNC"), server, port);
+	g_free(server), server = NULL;
 	return TRUE;
 }
 
@@ -1702,6 +1712,18 @@ static gboolean remmina_plugin_vnc_close_connection_timeout(RemminaProtocolWidge
 {
 	TRACE_CALL(__func__);
 	RemminaPluginVncData *gpdata = GET_PLUGIN_DATA(gp);
+
+	gchar *server;
+	gint port;
+
+	RemminaFile *remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	remmina_plugin_service->get_server_port(remmina_plugin_service->file_get_string(remminafile, "server"),
+			VNC_DEFAULT_PORT,
+			&server,
+			&port);
+
+	REMMINA_PLUGIN_AUDIT(_("Disconnected from %s:%d via VNC"), server, port);
+	g_free(server), server = NULL;
 
 	/* wait until the running attribute is set to false by the VNC thread */
 	if (gpdata->running)
@@ -1966,12 +1988,12 @@ static gchar vnciport_tooltip[] =
 	   "    x11vnc -display :0 -connect 192.168.1.36:8888");
 
 static gchar vncencodings_tooltip[] =
-	N_("Override pre-set VNC encodings:\n"
+	N_("Overriding the pre-set VNC encoding quality:\n"
 	   "\n"
-	   "  • On “Poor quality” encodings is set to “copyrect zlib hextile raw”\n"
-	   "  • On “Medium quality” encodings is set to “tight zrle ultra copyrect hextile zlib corre rre raw”\n"
-	   "  • On “Good quality” encodings is set to “tight zrle ultra copyrect hextile zlib corre rre raw”\n"
-	   "  • On “Best quality” encodings is set to “copyrect zrle ultra zlib hextile corre rre raw”");
+	   "  • “Poor (fastest)” sets encoding to “copyrect zlib hextile raw”\n"
+	   "  • “Medium” sets encoding to “tight zrle ultra copyrect hextile zlib corre rre raw”\n"
+	   "  • “Good” sets encoding to “tight zrle ultra copyrect hextile zlib corre rre raw”\n"
+	   "  • “Best (slowest)” sets encoding to “copyrect zrle ultra zlib hextile corre rre raw”");
 
 /* Array of RemminaProtocolSetting for basic settings.
  * Each item is composed by:

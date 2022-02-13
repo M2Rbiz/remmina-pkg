@@ -145,7 +145,11 @@ void remmina_rdp_event_event_push(RemminaProtocolWidget *gp, const RemminaPlugin
 		return;
 
 	if (rfi->event_queue) {
+#if GLIB_CHECK_VERSION(2,67,3)
+		event = g_memdup2(e, sizeof(RemminaPluginRdpEvent));
+#else
 		event = g_memdup(e, sizeof(RemminaPluginRdpEvent));
+#endif
 		g_async_queue_push(rfi->event_queue, event);
 
 		if (write(rfi->event_pipe[1], "\0", 1)) {
@@ -360,7 +364,9 @@ static gboolean remmina_rdp_event_on_draw(GtkWidget *widget, cairo_t *context, R
 		if (rfi->scale == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_SCALED)
 			cairo_scale(context, rfi->scale_x, rfi->scale_y);
 
+		cairo_surface_flush(rfi->surface);
 		cairo_set_source_surface(context, rfi->surface, 0, 0);
+		cairo_surface_mark_dirty(rfi->surface);
 
 		cairo_set_operator(context, CAIRO_OPERATOR_SOURCE);     // Ignore alpha channel from FreeRDP
 		cairo_paint(context);
@@ -1004,6 +1010,7 @@ void remmina_rdp_event_uninit(RemminaProtocolWidget *gp)
 	while ((ui = (RemminaPluginRdpUiObject *)g_async_queue_try_pop(rfi->ui_queue)) != NULL)
 		remmina_rdp_event_free_event(gp, ui);
 	if (rfi->surface) {
+		cairo_surface_mark_dirty(rfi->surface);
 		cairo_surface_destroy(rfi->surface);
 		rfi->surface = NULL;
 	}
@@ -1044,11 +1051,13 @@ static void remmina_rdp_event_create_cairo_surface(rfContext *rfi)
 		return;
 
 	if (rfi->surface) {
+		cairo_surface_mark_dirty(rfi->surface);
 		cairo_surface_destroy(rfi->surface);
 		rfi->surface = NULL;
 	}
 	stride = cairo_format_stride_for_width(rfi->cairo_format, gdi->width);
 	rfi->surface = cairo_image_surface_create_for_data((unsigned char *)gdi->primary_buffer, rfi->cairo_format, gdi->width, gdi->height, stride);
+	cairo_surface_flush(rfi->surface);
 }
 
 void remmina_rdp_event_update_scale(RemminaProtocolWidget *gp)
@@ -1071,6 +1080,7 @@ void remmina_rdp_event_update_scale(RemminaProtocolWidget *gp)
 	if (rfi->surface && (cairo_image_surface_get_width(rfi->surface) != gdi->width ||
 			     cairo_image_surface_get_height(rfi->surface) != gdi->height)) {
 		/* Destroys and recreate rfi->surface with new width and height */
+		cairo_surface_mark_dirty(rfi->surface);
 		cairo_surface_destroy(rfi->surface);
 		rfi->surface = NULL;
 		remmina_rdp_event_create_cairo_surface(rfi);
@@ -1112,6 +1122,9 @@ static void remmina_rdp_event_connected(RemminaProtocolWidget *gp, RemminaPlugin
 	remmina_rdp_event_update_scale(gp);
 
 	remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
+	const gchar *host = freerdp_settings_get_string (rfi->settings, FreeRDP_ServerHostname);
+	// TRANSLATORS: the placeholder may be either an IP/FQDN or a server hostname
+	REMMINA_PLUGIN_AUDIT(_("Connected to %s via RDP"), host);
 }
 
 static void remmina_rdp_event_reconnect_progress(RemminaProtocolWidget *gp, RemminaPluginRdpUiObject *ui)
@@ -1142,7 +1155,9 @@ static BOOL remmina_rdp_event_create_cursor(RemminaProtocolWidget *gp, RemminaPl
 	}
 
 	surface = cairo_image_surface_create_for_data(data, CAIRO_FORMAT_ARGB32, pointer->width, pointer->height, cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, pointer->width));
+	cairo_surface_flush(surface);
 	pixbuf = gdk_pixbuf_get_from_surface(surface, 0, 0, pointer->width, pointer->height);
+	cairo_surface_mark_dirty(surface);
 	cairo_surface_destroy(surface);
 	free(data);
 	((rfPointer *)ui->cursor.pointer)->cursor = gdk_cursor_new_from_pixbuf(rfi->display, pixbuf, pointer->xPos, pointer->yPos);
@@ -1254,6 +1269,7 @@ static void remmina_rdp_ui_event_destroy_cairo_surface(RemminaProtocolWidget *gp
 	TRACE_CALL(__func__);
 	rfContext *rfi = GET_PLUGIN_DATA(gp);
 
+	cairo_surface_mark_dirty(rfi->surface);
 	cairo_surface_destroy(rfi->surface);
 	rfi->surface = NULL;
 }
