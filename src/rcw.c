@@ -51,6 +51,7 @@
 #include "remmina_applet_menu.h"
 #include "remmina_file.h"
 #include "remmina_file_manager.h"
+#include "remmina_log.h"
 #include "remmina_message_panel.h"
 #include "remmina_ext_exec.h"
 #include "remmina_plugin_manager.h"
@@ -58,9 +59,9 @@
 #include "remmina_protocol_widget.h"
 #include "remmina_public.h"
 #include "remmina_scrolled_viewport.h"
+#include "remmina_unlock.h"
 #include "remmina_utils.h"
 #include "remmina_widget_pool.h"
-#include "remmina_log.h"
 #include "remmina/remmina_trace_calls.h"
 
 #ifdef GDK_WINDOWING_WAYLAND
@@ -657,6 +658,16 @@ gboolean rcw_delete(RemminaConnectionWindow *cnnwin)
 			gtk_widget_destroy(dialog);
 			if (i != GTK_RESPONSE_YES)
 				return FALSE;
+		}
+		else {
+			dialog = gtk_message_dialog_new(GTK_WINDOW(cnnwin), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION,
+							GTK_BUTTONS_YES_NO,
+							_("Are you sure you want to close this last active connection?"));
+			i = gtk_dialog_run(GTK_DIALOG(dialog));
+			gtk_widget_destroy(dialog);
+			if (i != GTK_RESPONSE_YES)
+				return FALSE;
+
 		}
 	}
 	rcw_close_all_connections(cnnwin);
@@ -4291,6 +4302,9 @@ gboolean rcw_open_from_filename(const gchar *filename)
 
 	remminafile = remmina_file_manager_load_file(filename);
 	if (remminafile) {
+		if (remmina_file_get_int (remminafile, "profile-lock", FALSE)
+				&& remmina_unlock_new(remmina_main_get_window()) == 0)
+			return FALSE;
 		rcw_open_from_file(remminafile);
 		return TRUE;
 	} else {
