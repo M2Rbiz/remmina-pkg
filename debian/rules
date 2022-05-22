@@ -19,7 +19,8 @@ override_dh_auto_configure:
 		-DWITH_KF5WALLET=ON \
 		-DWITH_KIOSK_SESSION=ON \
 		-DWITH_NEWS=$(SETNEWS) \
-		-DWITH_X2GO=ON
+		-DWITH_X2GO=ON \
+		-DWITH_PYTHONLIBS=ON
 
 override_dh_install:
 	dh_install

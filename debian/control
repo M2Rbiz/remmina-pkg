@@ -30,6 +30,7 @@ Build-Depends:
  libvte-2.91-dev,
  libwebkit2gtk-4.0-dev,
  libxkbfile-dev,
+ python3-dev
 Standards-Version: 4.6.0
 Rules-Requires-Root: no
 Homepage: https://www.remmina.org/
@@ -51,6 +52,7 @@ Recommends:
 Suggests:
  remmina-plugin-exec,
  remmina-plugin-kwallet,
+ remmina-plugin-python,
  remmina-plugin-spice,
  remmina-plugin-www,
  remmina-plugin-x2go
@@ -289,3 +291,24 @@ Description: X2Go plugin for Remmina
  Currently RDP, VNC, SPICE, WWW, X2Go, EXEC and SSH are supported.
  .
  This package contains the X2Go plugin for Remmina.
+
+Package: remmina-plugin-python
+Architecture: any
+Multi-Arch: same
+Depends:
+ remmina (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends},
+Description: Python support for Remmina
+ Remmina is a remote desktop client written in GTK+, aiming to be
+ useful for system administrators and travellers, who need to work
+ with lots of remote computers in front of either large monitors or
+ tiny netbooks.
+ .
+ Remmina supports multiple network protocols in an integrated and
+ consistent user interface.
+ .
+ Currently RDP, VNC, SPICE, WWW, X2Go, EXEC and SSH are supported.
+ .
+ This package contains the Python API, it can be used to run and
+ develop plugins for Remmina in Python.
