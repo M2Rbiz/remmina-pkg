@@ -35,7 +35,7 @@ cmake_policy(SET CMP0048 NEW)
 
 project(
   Remmina
-  VERSION 1.4.25
+  VERSION 1.4.26
   DESCRIPTION "The Gtk Remote Desktop Client"
   LANGUAGES C CXX
 )
@@ -450,6 +450,10 @@ endif()
 # issue #1276
 if(CMAKE_COMPILER_IS_GNUCC AND WITH_GCC_SANITIZE_ADDRESS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCC AND WITH_GCC_SANITIZE_THREAD)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=thread")
 endif()
 
 # LLVM coverage flags - https://clang.llvm.org/docs/SourceBasedCodeCoverage.html

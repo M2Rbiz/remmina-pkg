@@ -37,6 +37,7 @@
 
 #define _GNU_SOURCE
 
+#include "remmina/plugin.h"
 #include "rdp_plugin.h"
 #include "rdp_event.h"
 #include "rdp_graphics.h"
@@ -530,7 +531,7 @@ BOOL rf_end_paint(rdpContext *context)
 	gdi = context->gdi;
 	rfi = (rfContext *)context;
 
-	if (gdi == NULL || gdi->primary == NULL || gdi->primary->hdc == NULL)
+	if (gdi == NULL || gdi->primary == NULL || gdi->primary->hdc == NULL || gdi->primary->hdc->hwnd == NULL)
 		return TRUE;
 
 	if (gdi->primary->hdc->hwnd->invalid->null)
@@ -1739,6 +1740,12 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		freerdp_settings_set_bool(rfi->settings, FreeRDP_NegotiateSecurityLayer, TRUE);
 	}
 
+	cs = remmina_plugin_service->file_get_string(remminafile, "tls-seclevel");
+	if (cs && g_strcmp0(cs,"")!=0) {
+		i = atoi(cs);
+		freerdp_settings_set_uint32(rfi->settings, FreeRDP_TlsSecLevel, i);
+	}
+
 	freerdp_settings_set_bool(rfi->settings, FreeRDP_CompressionEnabled, TRUE);
 	if (remmina_plugin_service->file_get_int(remminafile, "disable_fastpath", FALSE)) {
 		freerdp_settings_set_bool(rfi->settings, FreeRDP_FastPathInput, FALSE);
@@ -1899,12 +1906,17 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 	cs = remmina_plugin_service->file_get_string(remminafile, "sharefolder");
 	if (cs != NULL && cs[0] != '\0') {
-		REMMINA_PLUGIN_DEBUG("Share folder set to %s", cs);
-		CLPARAM **p;
-		size_t count;
-		p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("drive", g_strdup(cs), &count);
-		status = freerdp_client_add_device_channel(rfi->settings, count, p);
-		g_free(p);
+		REMMINA_PLUGIN_DEBUG("[Deprecated->migrating] - Old sharefolder %s to \"drive \"", cs);
+		if (!remmina_plugin_service->file_get_string(remminafile, "drive")) {
+			remmina_plugin_service->file_set_string(remminafile, "drive", g_strdup(cs));
+			remmina_plugin_service->file_set_string(remminafile, "sharefolder", NULL);
+			REMMINA_PLUGIN_DEBUG("[Deprecated->migrated] - drive set to %s", g_strdup(cs));
+		}
+		//CLPARAM **p;
+		//size_t count;
+		//p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("drive", g_strdup(cs), &count);
+		//status = freerdp_client_add_device_channel(rfi->settings, count, p);
+		//g_free(p);
 	}
 	cs = remmina_plugin_service->file_get_string(remminafile, "drive");
 	if (cs != NULL && cs[0] != '\0') {
@@ -2682,6 +2694,18 @@ static gpointer gwtransp_list[] =
 	NULL
 };
 
+static gpointer tls_seclevel[] =
+{
+	"",  N_("Default"),
+	"0", N_("0 Windows 7 compatible"),
+	"1", N_("1"),
+	"2", N_("2"),
+	"3", N_("3"),
+	"4", N_("4"),
+	"5", N_("5"),
+	NULL
+};
+
 static gchar clientbuild_list[] =
 	N_("2600 (Windows XP), 7601 (Windows Vista/7), 9600 (Windows 8 and newer)");
 
@@ -2773,7 +2797,7 @@ static const RemminaProtocolSetting remmina_rdp_basic_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "username",			N_("Username"),				  FALSE, NULL,		  NULL,										NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "password",			N_("Password"),				  FALSE, NULL,		  NULL,										NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "domain",			N_("Domain"),				  FALSE, NULL,		  NULL,										NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_FOLDER,	    "sharefolder",		N_("Share folder"),			  FALSE, NULL,		  N_("Use “Redirect directory” in the advanced tab for multiple directories"),	NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "drive",			N_("Share folder"),			  FALSE, NULL,		  drive_tooltip,								NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "restricted-admin",		N_("Restricted admin mode"),		  FALSE, NULL,		  NULL,										NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "pth",			N_("Password hash"),			  FALSE, NULL,		  N_("Restricted admin mode password hash"),					NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "left-handed",		N_("Left-handed mouse support"),	  TRUE,	 NULL,		  N_("Swap left and right mouse buttons for left-handed mouse support"),	NULL, NULL },
@@ -2802,6 +2826,7 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",		    N_("Quality"),					 FALSE, quality_list,	  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "security",		    N_("Security protocol negotiation"),		 FALSE, security_list,	  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "gwtransp",		    N_("Gateway transport type"),			 FALSE, gwtransp_list,	  NULL														 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "tls-seclevel",	    N_("TLS Security Level"),			 	 FALSE, tls_seclevel,	  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "freerdp_log_level",	    N_("FreeRDP log level"),				 FALSE, log_level,	  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "freerdp_log_filters",    N_("FreeRDP log filters"),				 FALSE, NULL,		  N_("tag:level[,tag:level[,…]]")										 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "sound",		    N_("Audio output mode"),				 FALSE, sound_list,	  NULL														 },
@@ -2812,7 +2837,6 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "gateway_username",	    N_("Remote Desktop Gateway username"),		 FALSE, NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "gateway_password",	    N_("Remote Desktop Gateway password"),		 FALSE, NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "gateway_domain",	    N_("Remote Desktop Gateway domain"),		 FALSE, NULL,		  NULL														 },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "drive",		    N_("Redirect directory"),				 FALSE, NULL,		  drive_tooltip													 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "clientname",		    N_("Client name"),					 FALSE, NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_COMBO,	  "clientbuild",	    N_("Client build"),					 FALSE, clientbuild_list, clientbuild_tooltip												 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "exec",		    N_("Start-up program"),				 FALSE, NULL,		  NULL														 },
