@@ -282,15 +282,21 @@ void remmina_protocol_widget_open_connection_real(gpointer data)
 			feature->type = REMMINA_PROTOCOL_FEATURE_TYPE_TOOL;
 			feature->id = REMMINA_PROTOCOL_FEATURE_TOOL_SSH;
 			feature->opt1 = _("Connect via SSH from a new terminal");
+			feature->opt1_type_hint = REMMINA_TYPEHINT_STRING;
 			feature->opt2 = "utilities-terminal";
+			feature->opt2_type_hint = REMMINA_TYPEHINT_STRING;
 			feature->opt3 = NULL;
+			feature->opt3_type_hint = REMMINA_TYPEHINT_UNDEFINED;
 			feature++;
 
 			feature->type = REMMINA_PROTOCOL_FEATURE_TYPE_TOOL;
 			feature->id = REMMINA_PROTOCOL_FEATURE_TOOL_SFTP;
 			feature->opt1 = _("Open SFTP transfer…");
+			feature->opt1_type_hint = REMMINA_TYPEHINT_STRING;
 			feature->opt2 = "folder-remote";
+			feature->opt2_type_hint = REMMINA_TYPEHINT_STRING;
 			feature->opt3 = NULL;
+			feature->opt3_type_hint = REMMINA_TYPEHINT_UNDEFINED;
 			feature++;
 		}
 		feature->type = REMMINA_PROTOCOL_FEATURE_TYPE_END;
@@ -1366,6 +1372,11 @@ gint remmina_protocol_widget_get_profile_remote_height(RemminaProtocolWidget *gp
 	return gp->priv->profile_remote_height;
 }
 
+const gchar* remmina_protocol_widget_get_name(RemminaProtocolWidget *gp)
+{
+	TRACE_CALL(__func__);
+	return gp ? gp->plugin ? gp->plugin->name : NULL : NULL;
+}
 
 gint remmina_protocol_widget_get_width(RemminaProtocolWidget *gp)
 {

@@ -1,6 +1,6 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
- * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2014-2021 Antenore Gatta, Giovanni Panozzo, Mathias Winterhalter (ToolsDevler)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,9 +29,33 @@
  *  do not wish to do so, delete this exception statement from your
  *  version. *  If you delete this exception statement from all source
  *  files in the program, then also delete it here.
+ */
+
+/**
+ * @file 	python_wrapper_pref.h
  *
+ * @brief	Contains the specialisation of RemminaPluginFile plugins in Python.
  */
 
 #pragma once
 
-PyObject* remmina_plugin_python_remmina_file_to_python(RemminaFile* file);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// A P I
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+G_BEGIN_DECLS
+
+/**
+ * Initializes the Python plugin specialisation for preferences plugins.
+ */
+void python_wrapper_pref_init(void);
+
+/**
+ * @brief	Creates a new instance of the RemminaPluginPref, initializes its members and references the wrapper
+ * 			functions.
+ * @param 	instance The instance of the Python plugin.
+ * @return	Returns a new instance of the RemminaPlugin (must be freed!).
+ */
+RemminaPlugin* python_wrapper_create_pref_plugin(PyPlugin* instance);
+
+G_END_DECLS

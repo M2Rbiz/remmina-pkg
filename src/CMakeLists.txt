@@ -141,38 +141,6 @@ set(RESOURCE_LIST
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_spinner.glade
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_string_list.glade
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_unlock.glade)
-
-option(WITH_PYTHONLIBS "Enable Python plugins support" OFF)
-if(WITH_PYTHONLIBS)
-  message(STATUS "Python plugins support enabled")
-  find_suggested_package(PythonLibs)
-  if(PythonLibs_FOUND)
-    message(STATUS "Python libs found, Python support enabled")
-    add_definitions(-DWITH_PYTHONLIBS)
-    list(FIND REMMINA_SRCS "remmina_exec.c" SRCINDEX)
-    message(DEBUG "remmina_exec.c found at index: " ${SRCINDEX})
-    # Index calculated at "remmina_exec.c" position (43 as of today)
-    list(
-      INSERT
-      REMMINA_SRCS
-      ${SRCINDEX}
-      "remmina_plugin_python.c"
-      "remmina_plugin_python.h"
-      "remmina_plugin_python_module.c"
-      "remmina_plugin_python_module.h"
-      "remmina_plugin_python_remmina.c"
-      "remmina_plugin_python_remmina.h"
-      "remmina_plugin_python_protocol_widget.c"
-      "remmina_plugin_python_protocol_widget.h"
-      "remmina_plugin_python_remmina_file.c"
-      "remmina_plugin_python_remmina_file.h")
-  else()
-    message(STATUS "Python plugins support enabled, but Python libs not found")
-  endif()
-else()
-  message(STATUS "Python plugins support disabled")
-endif()
-
 message(DEBUG "Source list set to: " ${REMMINA_SRCS})
 
 compile_gresources(
