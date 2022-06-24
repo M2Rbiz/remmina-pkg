@@ -41,7 +41,6 @@
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
-#include <gtk/gtk.h>
 #include <stdlib.h>
 
 #include "remmina.h"
@@ -1268,6 +1267,8 @@ static void rcw_migrate(RemminaConnectionWindow *from, RemminaConnectionWindow *
 			frompage = gtk_notebook_get_nth_page(from_notebook, i);
 			cnnobj = g_object_get_data(G_OBJECT(frompage), "cnnobj");
 			cnnobj->scrolled_container = rco_create_scrolled_container(cnnobj, to->priv->view_mode);
+			g_signal_connect(G_OBJECT(cnnobj->scrolled_container), "destroy",
+					G_CALLBACK(gtk_widget_destroyed), (gpointer)&cnnobj->scrolled_container);
 			newpage = rcw_append_new_page(to, cnnobj);
 			nb_migrate_page_content(frompage, newpage);
 		}
@@ -2059,6 +2060,16 @@ static void rcw_toolbar_tools(GtkToolItem *toggle, RemminaConnectionWindow *cnnw
 				g_strfreev(keystroke_values);
 			}
 			menuitem = gtk_menu_item_new_with_label(_("Send clipboard content as keystrokes"));
+			static gchar k_tooltip[] =
+				N_("CAUTION: Pasted text will be sent as a sequence of key-codes as if typed on your local keyboard.\n"
+				"\n"
+				"  • For best results use same keyboard settings for both, client and server.\n"
+				"\n"
+				"  • If client-keyboard is different from server-keyboard the received text can contain wrong or erroneous characters.\n"
+				"\n"
+				"  • Unicode characters and other special characters that can't be translated to local key-codes won’t be sent to the server.\n"
+				"\n");
+			gtk_widget_set_tooltip_text(menuitem, k_tooltip);
 			gtk_menu_shell_append(GTK_MENU_SHELL(submenu_keystrokes), menuitem);
 			g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 						 G_CALLBACK(remmina_protocol_widget_send_clipboard),
@@ -2890,6 +2901,11 @@ static gboolean focus_in_delayed_grab(RemminaConnectionWindow *cnnwin)
 
 static void rcw_focus_in(RemminaConnectionWindow *cnnwin)
 {
+	/* This function is the default signal handler for focus-in-event,
+	 * but can also be called after a window focus state change event
+	 * from rcw_state_event(). So expect to be called twice
+	 * when cnnwin gains the focus */
+
 	TRACE_CALL(__func__);
 	RemminaConnectionObject *cnnobj;
 
@@ -2911,6 +2927,11 @@ static void rcw_focus_in(RemminaConnectionWindow *cnnwin)
 
 static void rcw_focus_out(RemminaConnectionWindow *cnnwin)
 {
+	/* This function is the default signal handler for focus-out-event,
+	 * but can also be called after a window focus state change event
+	 * from rcw_state_event(). So expect to be called twice
+	 * when cnnwin loses the focus */
+
 	TRACE_CALL(__func__);
 	RemminaConnectionObject *cnnobj;
 
@@ -3187,6 +3208,16 @@ static gboolean rcw_focus_in_event(GtkWidget *widget, GdkEventWindowState *event
 	return FALSE;
 }
 
+static gboolean rcw_focus_out_event(GtkWidget *widget, GdkEventWindowState *event, gpointer user_data)
+{
+	TRACE_CALL(__func__);
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING: RCW focus-out-event received\n");
+#endif
+	rcw_focus_out((RemminaConnectionWindow *)widget);
+	return FALSE;
+}
+
 
 static gboolean rcw_state_event(GtkWidget *widget, GdkEventWindowState *event, gpointer user_data)
 {
@@ -3327,11 +3358,13 @@ rcw_new(gboolean fullscreen, int full_screen_target_monitor)
 	g_signal_connect(G_OBJECT(cnnwin), "destroy", G_CALLBACK(rcw_destroy), NULL);
 
 	/* Under Xorg focus-in-event and focus-out-event don’t work when keyboard is grabbed
-	 * via gdk_device_grab. So we listen for window-state-event to detect focus in and focus out */
+	 * via gdk_device_grab. So we listen for window-state-event to detect focus in and focus out.
+	 * But we must also listen focus-in-event and focus-out-event because some
+	 * window managers missing _NET_WM_STATE_FOCUSED hint, does not update the window state
+	 * in case of focus change */
 	g_signal_connect(G_OBJECT(cnnwin), "window-state-event", G_CALLBACK(rcw_state_event), NULL);
-
-	/* Under wayland window-state-event is not received in some cases */
 	g_signal_connect(G_OBJECT(cnnwin), "focus-in-event", G_CALLBACK(rcw_focus_in_event), NULL);
+	g_signal_connect(G_OBJECT(cnnwin), "focus-out-event", G_CALLBACK(rcw_focus_out_event), NULL);
 
 	g_signal_connect(G_OBJECT(cnnwin), "enter-notify-event", G_CALLBACK(rcw_on_enter_notify_event), NULL);
 	g_signal_connect(G_OBJECT(cnnwin), "leave-notify-event", G_CALLBACK(rcw_on_leave_notify_event), NULL);
@@ -3411,7 +3444,7 @@ void rco_closewin(RemminaProtocolWidget *gp)
 		}
 	}
 	if (cnnobj) {
-		if (REMMINA_IS_SCROLLED_VIEWPORT(cnnobj->scrolled_container)) {
+		if (cnnobj->scrolled_container && REMMINA_IS_SCROLLED_VIEWPORT(cnnobj->scrolled_container)) {
 			REMMINA_DEBUG("deleting motion");
 			remmina_scrolled_viewport_remove_motion(REMMINA_SCROLLED_VIEWPORT(cnnobj->scrolled_container));
 		}
@@ -4483,6 +4516,7 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 
 	/* Create the scrolled container */
 	cnnobj->scrolled_container = rco_create_scrolled_container(cnnobj, view_mode);
+	g_signal_connect(G_OBJECT(cnnobj->scrolled_container), "destroy", G_CALLBACK(gtk_widget_destroyed), (gpointer)&cnnobj->scrolled_container);
 
 	gtk_container_add(GTK_CONTAINER(cnnobj->scrolled_container), cnnobj->viewport);
 
