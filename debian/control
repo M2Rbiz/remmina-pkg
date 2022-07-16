@@ -22,9 +22,9 @@ Build-Depends:
  libsecret-1-dev,
  libsodium-dev,
  libsoup2.4-dev,
- libspice-client-glib-2.0-dev,
- libspice-client-gtk-3.0-dev,
- libspice-protocol-dev,
+# libspice-client-glib-2.0-dev,
+# libspice-client-gtk-3.0-dev,
+# libspice-protocol-dev,
  libssh-dev (>= 0.8.1),
  libvncserver-dev,
  libvte-2.91-dev,
@@ -53,7 +53,7 @@ Suggests:
  remmina-plugin-exec,
  remmina-plugin-kwallet,
  remmina-plugin-python,
- remmina-plugin-spice,
+# remmina-plugin-spice,
  remmina-plugin-www,
  remmina-plugin-x2go
 Description: GTK+ Remote Desktop Client
@@ -145,25 +145,25 @@ Description: VNC plugin for Remmina
  .
  This package contains the VNC plugin for Remmina.
 
-Package: remmina-plugin-spice
-Architecture: any
-Multi-Arch: same
-Depends:
- ${shlibs:Depends},
- ${misc:Depends},
- remmina (= ${binary:Version}),
-Description: Spice plugin for Remmina
- Remmina is a remote desktop client written in GTK+, aiming to be
- useful for system administrators and travellers, who need to work
- with lots of remote computers in front of either large monitors or
- tiny netbooks.
- .
- Remmina supports multiple network protocols in an integrated and
- consistent user interface.
- .
- Currently RDP, VNC, SPICE, WWW, X2Go, EXEC and SSH are supported.
- .
- This package contains the Spice plugin for Remmina.
+#Package: remmina-plugin-spice
+#Architecture: any
+#Multi-Arch: same
+#Depends:
+# ${shlibs:Depends},
+# ${misc:Depends},
+# remmina (= ${binary:Version}),
+#Description: Spice plugin for Remmina
+# Remmina is a remote desktop client written in GTK+, aiming to be
+# useful for system administrators and travellers, who need to work
+# with lots of remote computers in front of either large monitors or
+# tiny netbooks.
+# .
+# Remmina supports multiple network protocols in an integrated and
+# consistent user interface.
+# .
+# Currently RDP, VNC, SPICE, WWW, X2Go, EXEC and SSH are supported.
+# .
+# This package contains the Spice plugin for Remmina.
 
 Package: remmina-plugin-secret
 Architecture: any
