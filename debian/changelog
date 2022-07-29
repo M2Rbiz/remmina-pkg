@@ -1,3 +1,13 @@
+remmina (1.4.27+dfsg-2) UNRELEASED; urgency=medium
+
+  [ Jeremy Bicha ]
+  * Temporarily stop building the spice plugin
+    to prevent remmina from using libsoup2.4 &
+    libsoup3 simultaneously (Closes: #1015147)
+  * Add minimal debian/gbp.conf
+
+ -- Matteo F. Vescovi <mfv@debian.org>  Fri, 29 Jul 2022 22:07:15 +0200
+
 remmina (1.4.27+dfsg-1) unstable; urgency=medium
 
   * New upstream release
