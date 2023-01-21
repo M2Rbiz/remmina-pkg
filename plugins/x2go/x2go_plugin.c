@@ -45,7 +45,11 @@
 #include "common/remmina_plugin.h"
 
 #include <gtk/gtkx.h>
+#ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
+#elif defined(GDK_WINDOWING_WAYLAND)
+#include <gdk/gdkwayland.h>
+#endif
 
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
@@ -520,7 +524,7 @@ static GtkWidget* rmplugin_x2go_choose_session_dialog_factory(X2GoCustomUserData
 	struct _DialogData* ddata = (struct _DialogData*) custom_data->dialog_data;
 
 	if (!ddata || !sessions_list || !ddata->title) {
-		REMMINA_PLUGIN_CRITICAL("%s", _("Couldn't retrieve valid `DialogData` or "
+		REMMINA_PLUGIN_CRITICAL("%s", _("Could not retrieve valid `DialogData` or "
 					        "`sessions_list`! Aborting…"));
 		return NULL;
 	}
@@ -708,7 +712,7 @@ static GtkTreeModelFilter* rmplugin_x2go_session_chooser_get_filter_model(GtkWid
 		if (!treeview_new) {
 			REMMINA_PLUGIN_CRITICAL("%s", g_strdup_printf(
 				_("Internal error: %s"),
-				_("Couldn't find child GtkTreeView of "
+				_("Could not find child GtkTreeView of "
 				  "session chooser dialog.")
 			));
 			return NULL;
@@ -755,7 +759,7 @@ static GtkTreePath* rmplugin_x2go_session_chooser_get_selected_row(GtkWidget *di
 	if (!treeview) {
 		REMMINA_PLUGIN_CRITICAL("%s", g_strdup_printf(
 			_("Internal error: %s"),
-			_("Couldn't find child GtkTreeView of session chooser dialog.")
+			_("Could not find child GtkTreeView of session chooser dialog.")
 		));
 		return NULL;
 	}
@@ -764,7 +768,7 @@ static GtkTreePath* rmplugin_x2go_session_chooser_get_selected_row(GtkWidget *di
 	if (!selection) {
 		REMMINA_PLUGIN_CRITICAL("%s", g_strdup_printf(
 			_("Internal error: %s"),
-			_("Couldn't get currently selected row (session)!")
+			_("Could not get currently selected row (session)!")
 		));
 		return NULL;
 	}
@@ -863,7 +867,7 @@ static GValue rmplugin_x2go_session_chooser_get_property(GtkWidget *dialog,
 		property = rmplugin_x2go_session_chooser_get_property(dialog, i, path);
 
 		gchar* display_name = rmplugin_x2go_session_property_to_string(i);
-		g_assert(display_name && "Couldn't get display name for a property!");
+		g_assert(display_name && "Could not get display name for a property!");
 
 		if (i == SESSION_DIALOG_IS_VISIBLE) {
 			g_assert(G_VALUE_HOLDS_BOOLEAN(&property) && "GValue does not "
@@ -937,15 +941,18 @@ static gchar* rmplugin_x2go_spawn_pyhoca_process(guint argc, gchar* argv[],
 	REMMINA_PLUGIN_INFO("%s", _("Started PyHoca-CLI with the following arguments:"));
 	// Print every argument except passwords. Free all arg strings.
 	for (gint i = 0; i < argc - 1; i++) {
-		if (g_strcmp0(argv[i], "--password") == 0) {
-			g_printf("%s ", argv[i]);
+		gchar* curr_arg = argv[i];
+
+		if (g_str_equal(curr_arg, "--password") ||
+		    g_str_equal(curr_arg, "--ssh-passphrase")) {
+			g_printf("%s ", curr_arg);
 			g_printf("XXXXXX ");
-			g_free(argv[i]);
+			g_free(curr_arg);
 			g_free(argv[++i]);
 			continue;
 		} else {
-			g_printf("%s ", argv[i]);
-			g_free(argv[i]);
+			g_printf("%s ", curr_arg);
+			g_free(curr_arg);
 		}
 	}
 	g_printf("\n");
@@ -1010,6 +1017,8 @@ struct _ConnectionData {
 	gchar* host;
 	gchar* username;
 	gchar* password;
+	gchar* ssh_privatekey;
+	gchar* ssh_passphrase;
 };
 
 /**
@@ -1090,6 +1099,35 @@ static gboolean rmplugin_x2go_session_chooser_set_row_visible(GtkTreePath *path,
 	return TRUE;
 }
 
+static gboolean rmplugin_x2go_verify_connection_data(struct _ConnectionData *connect_data) {
+	/* Check connect_data. */
+	if (!connect_data ||
+	    !connect_data->host ||
+	    !connect_data->username ||
+	    strlen(connect_data->host) <= 0 ||
+	    strlen(connect_data->username) <= 0)
+	{
+		REMMINA_PLUGIN_CRITICAL("%s", g_strdup_printf(
+			_("Internal error: %s"),
+			_("'Invalid connection data.'")
+		));
+
+		return FALSE;
+	}
+
+	if (!connect_data->password && (!connect_data->ssh_privatekey ||
+	    strlen(connect_data->ssh_privatekey) <= 0)) {
+		REMMINA_PLUGIN_CRITICAL("%s", g_strdup_printf(
+			_("Internal error: %s"),
+			_("'Invalid connection data.'")
+		));
+	} else {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 /**
  * @brief Terminates a specific X2Go session using pyhoca-cli.
  *
@@ -1126,29 +1164,26 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 	GtkTreePath* selected_row = (GtkTreePath*) custom_data->opt1;
 	GtkDialog *dialog = GTK_DIALOG(custom_data->opt2);
 
-	/* Check connect_data. */
 	gchar *host = NULL;
 	gchar *username = NULL;
 	gchar *password = NULL;
+	gchar *ssh_privatekey = NULL;
+	gchar *ssh_passphrase = NULL;
+	gboolean valid = rmplugin_x2go_verify_connection_data(connect_data);
+	if (valid) {
+		if (connect_data->password) password = connect_data->password;
+		if (connect_data->ssh_privatekey) {
+			ssh_privatekey = connect_data->ssh_privatekey;
 
-	if (!connect_data ||
-	    !connect_data->host ||
-	    !connect_data->username ||
-	    !connect_data->password ||
-	    strlen(connect_data->host) <= 0 ||
-	    strlen(connect_data->username) <= 0)
-	    // Allow empty passwords. Maybe the user wants to connect via public key?
-	{
-		REMMINA_PLUGIN_CRITICAL("%s", g_strdup_printf(
-			_("Internal error: %s"),
-			_("'Invalid connection data.'")
-		));
+			if (connect_data->ssh_passphrase) {
+				ssh_passphrase = connect_data->ssh_passphrase;
+			}
+		}
 
-		return G_SOURCE_REMOVE;
-	} else {
 		host = connect_data->host;
 		username = connect_data->username;
-		password = connect_data->password;
+	} else {
+		return G_SOURCE_REMOVE;
 	}
 
 	GValue value = rmplugin_x2go_session_chooser_get_property(GTK_WIDGET(dialog),
@@ -1187,9 +1222,11 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 		} else {
 			REMMINA_PLUGIN_WARNING("%s", FEATURE_NOT_AVAIL_STR("AUTH_ATTEMPTS"));
 		}
-		argv[argc++] = g_strdup("--force-password");
-		argv[argc++] = g_strdup("--password");
-		argv[argc++] = g_strdup_printf("%s", password);
+		if (strlen(password) > 0) {
+			argv[argc++] = g_strdup("--force-password");
+			argv[argc++] = g_strdup("--password");
+			argv[argc++] = g_strdup_printf("%s", password);
+		}
 	} else if (!password) {
 		REMMINA_PLUGIN_CRITICAL("%s", FEATURE_NOT_AVAIL_STR("PASSWORD"));
 		return G_SOURCE_REMOVE;
@@ -1209,6 +1246,24 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 		REMMINA_PLUGIN_WARNING("%s", FEATURE_NOT_AVAIL_STR("NON_INTERACTIVE"));
 	}
 
+	if (FEATURE_AVAILABLE(gpdata, "SSH_PRIVKEY")) {
+		if (ssh_privatekey && !g_str_equal(ssh_privatekey, "")) {
+			argv[argc++] = g_strdup("--ssh-privkey");
+			argv[argc++] = g_strdup_printf("%s", ssh_privatekey);
+
+			if (ssh_passphrase && !g_str_equal(ssh_passphrase, "")) {
+				if (FEATURE_AVAILABLE(gpdata, "SSH_PASSPHRASE")) {
+					argv[argc++] = g_strdup("--ssh-passphrase");
+					argv[argc++] = g_strdup_printf("%s", ssh_passphrase);
+				} else {
+					REMMINA_PLUGIN_MESSAGE("%s", FEATURE_NOT_AVAIL_STR("SSH_PASSPHRASE"));
+				}
+			}
+		}
+	} else {
+		REMMINA_PLUGIN_DEBUG("%s", FEATURE_NOT_AVAIL_STR("SSH_PRIVKEY"));
+	}
+
 	argv[argc++] = NULL;
 
 	GError* error = NULL;
@@ -1218,7 +1273,7 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 
 	if (error) {
 		gchar *err_msg = g_strdup_printf(
-			_("An error occured while trying to terminate X2Go session '%s':\n%s"),
+			_("Could not terminate X2Go session '%s':\n%s"),
 			session_id,
 			error->message
 		);
@@ -1256,7 +1311,7 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 		// gtk_tree_model_foreach(GTK_TREE_MODEL(model), (GtkTreeModelForeachFunc)
 		//			  rmplugin_x2go_dump_session_properties, dialog);
 
-		// Set row visible again since we couldn't terminate the session.
+		// Set row visible again since we could not terminate the session.
 		if (!rmplugin_x2go_session_chooser_set_row_visible(selected_row, TRUE,
 								   dialog)) {
 			// error message was already handled.
@@ -1287,7 +1342,8 @@ static gboolean rmplugin_x2go_session_chooser_callback(X2GoCustomUserData* custo
 {
 	REMMINA_PLUGIN_DEBUG("Function entry.");
 
-	if (!custom_data || !custom_data->gp || !custom_data->dialog_data) {
+	if (!custom_data || !custom_data->gp || !custom_data->dialog_data ||
+	    !custom_data->connect_data) {
 		REMMINA_PLUGIN_CRITICAL("%s", g_strdup_printf(
 			_("Internal error: %s"),
 			_("Parameter 'custom_data' is not initialized!")
@@ -1330,7 +1386,7 @@ static gboolean rmplugin_x2go_session_chooser_callback(X2GoCustomUserData* custo
 		if (!session_id || strlen(session_id) <= 0) {
 			REMMINA_PLUGIN_DEBUG(
 				"%s",
-				_("Couldn't get session ID from session chooser dialog.")
+				_("Could not get session ID from session chooser dialog.")
 			);
 			SET_RESUME_SESSION(gp, NULL);
 		} else {
@@ -1345,7 +1401,7 @@ static gboolean rmplugin_x2go_session_chooser_callback(X2GoCustomUserData* custo
 		if (!session_id || strlen(session_id) <= 0) {
 			REMMINA_PLUGIN_DEBUG(
 				"%s",
-				_("Couldn't get session ID from session chooser dialog.")
+				_("Could not get session ID from session chooser dialog.")
 			);
 			SET_RESUME_SESSION(gp, NULL);
 		} else {
@@ -1610,7 +1666,7 @@ static void rmplugin_x2go_pyhoca_cli_exited(GPid pid,
 	ddata->message = _("The necessary child process 'pyhoca-cli' stopped unexpectedly.\n"
 			   "Please check your profile settings and PyHoca-CLI's output for "
 			   "possible errors. Also ensure the remote server is "
-			   "reachable.");
+			   "reachable and you're using the right credentials.");
 	// We don't need the response.
 	ddata->callbackfunc = NULL;
 	// We don't need a custom dialog either.
@@ -1667,7 +1723,7 @@ static gboolean rmplugin_x2go_save_credentials(RemminaFile* remminafile,
 			_("Could not save new credentials.")
 		), 512);
 
-		REMMINA_PLUGIN_CRITICAL("%s", _("An error occured while trying to save "
+		REMMINA_PLUGIN_CRITICAL("%s", _("Could not save "
 						"new credentials: 's_password' or "
 						"'s_username' strings were not set."));
 		return FALSE;
@@ -1675,6 +1731,48 @@ static gboolean rmplugin_x2go_save_credentials(RemminaFile* remminafile,
 
 	return TRUE;
 }
+
+
+/**
+ * @brief Asks the user for a username and password.
+ *
+ * @param errmsg Pointer to error message string (set if function failed).
+ * @param passphrase gchar** Passphrase which will be used to unlock SSH key.
+ *
+ * @returns FALSE if auth failed and TRUE on success.
+ */
+static gboolean rmplugin_x2go_get_ssh_passphrase(RemminaProtocolWidget *gp, gchar *errmsg,
+						 gchar **passphrase)
+{
+	REMMINA_PLUGIN_DEBUG("Function entry.");
+
+	g_assert(errmsg != NULL);
+	g_assert(gp != NULL);
+
+	if ((*passphrase) == NULL) {
+		// Just setting NULL password to empty password.
+		(*passphrase) = g_strdup("");
+	}
+
+	gint ret = rm_plugin_service->protocol_plugin_init_auth(
+			gp, 0, _("Enter password to unlock the SSH key:"),
+			NULL, *passphrase, NULL, NULL
+	);
+
+	if (ret == GTK_RESPONSE_OK) {
+		gchar *s_passphrase = rm_plugin_service->protocol_plugin_init_get_password(gp);
+		if (s_passphrase) {
+			(*passphrase) = g_strdup(s_passphrase);
+			g_free(s_passphrase);
+		}
+	} else  {
+		g_strlcpy(errmsg, _("Password input cancelled. Aborting…"), 512);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 
 /**
  * @brief Asks the user for a username and password.
@@ -1685,7 +1783,7 @@ static gboolean rmplugin_x2go_save_credentials(RemminaFile* remminafile,
  *
  * @returns FALSE if auth failed and TRUE on success.
  */
-static gboolean rmplugin_x2go_get_auth(RemminaProtocolWidget *gp, gchar** errmsg,
+static gboolean rmplugin_x2go_get_auth(RemminaProtocolWidget *gp, gchar* errmsg,
 				       gchar** default_username, gchar** default_password)
 {
 	REMMINA_PLUGIN_DEBUG("Function entry.");
@@ -1695,18 +1793,21 @@ static gboolean rmplugin_x2go_get_auth(RemminaProtocolWidget *gp, gchar** errmsg
 	g_assert(default_username != NULL);
 	g_assert(default_password != NULL);
 
-	if (!(*default_username)) {
-		(*errmsg) = g_strdup_printf(
-			_("Internal error: %s"),
-			_("Parameter 'default_username' is uninitialized.")
+	// default_username is probably NULL because the user didn't configure any
+	// username in the profile settings.
+	if ((*default_username) == NULL) {
+		gchar* l_errmsg = g_strdup_printf(
+			_("Tip: Check the 'Save password' checkbox or manually input your "
+			  "X2Go username and password in the profile settings to store "
+			  "them for faster logins.")
 		);
-		REMMINA_PLUGIN_CRITICAL("%s", errmsg);
-		return FALSE;
+		REMMINA_PLUGIN_MESSAGE("%s", l_errmsg);
+		(*default_username) = g_strdup("");
 	}
 
-	// We can handle ((*default_password) == NULL).
-	// Password is probably NULL because something did go wrong at the secret-plugin.
-	// For example: The user didn't input a password for keyring.
+	// default_password is probably NULL because something did go wrong at the
+	// secret-plugin. For example: The user didn't input a password for keyring or
+	// the user simply didn't configure a password in the profile settings.
 	if ((*default_password) == NULL) {
 		(*default_password) = g_strdup("");
 	}
@@ -1743,7 +1844,7 @@ static gboolean rmplugin_x2go_get_auth(RemminaProtocolWidget *gp, gchar** errmsg
 		save = rm_plugin_service->protocol_plugin_init_get_savepassword(gp);
 		if (save) {
 			if (!rmplugin_x2go_save_credentials(remminafile, s_username,
-							    s_password, (*errmsg))) {
+							    s_password, errmsg)) {
 				return FALSE;
 			}
 		}
@@ -1756,7 +1857,7 @@ static gboolean rmplugin_x2go_get_auth(RemminaProtocolWidget *gp, gchar** errmsg
 			g_free(s_password);
 		}
 	} else  {
-		(*errmsg) = g_strdup("Authentication cancelled. Aborting…");
+		g_strlcpy(errmsg, _("Authentication cancelled. Aborting…"), 512);
 		return FALSE;
 	}
 
@@ -1783,24 +1884,24 @@ static gchar* rmplugin_x2go_get_pyhoca_sessions(RemminaProtocolWidget* gp, GErro
 	gchar *host = NULL;
 	gchar *username = NULL;
 	gchar *password = NULL;
+	gchar *ssh_privatekey = NULL;
+	gchar *ssh_passphrase = NULL;
+	gboolean valid = rmplugin_x2go_verify_connection_data(connect_data);
 
-	if (!connect_data ||
-	    !connect_data->host ||
-	    !connect_data->username ||
-	    !connect_data->password ||
-	    strlen(connect_data->host) <= 0 ||
-	    strlen(connect_data->username) <= 0)
-	    // Allow empty passwords. Maybe the user wants to connect via public key?
-	{
-		g_set_error(error, 1, 1, "%s", g_strdup_printf(
-			_("Internal error: %s"),
-			_("'Invalid connection data.'")
-		));
-		return NULL;
-	} else {
+	if (valid) {
+		if (connect_data->password) password = connect_data->password;
+		if (connect_data->ssh_privatekey) {
+			ssh_privatekey = connect_data->ssh_privatekey;
+
+			if (connect_data->ssh_passphrase) {
+				ssh_passphrase = connect_data->ssh_passphrase;
+			}
+		}
+
 		host = connect_data->host;
 		username = connect_data->username;
-		password = connect_data->password;
+	} else {
+		return G_SOURCE_REMOVE;
 	}
 
 	// We will now start pyhoca-cli with only the '--list-sessions' option.
@@ -1856,6 +1957,25 @@ static gchar* rmplugin_x2go_get_pyhoca_sessions(RemminaProtocolWidget* gp, GErro
 	if (FEATURE_AVAILABLE(gpdata, "QUIET")) {
 		argv[argc++] = g_strdup("--quiet");
 	}
+
+	if (FEATURE_AVAILABLE(gpdata, "SSH_PRIVKEY")) {
+		if (ssh_privatekey && !g_str_equal(ssh_privatekey, "")) {
+			argv[argc++] = g_strdup("--ssh-privkey");
+			argv[argc++] = g_strdup_printf("%s", ssh_privatekey);
+
+			if (ssh_passphrase && !g_str_equal(ssh_passphrase, "")) {
+				if (FEATURE_AVAILABLE(gpdata, "SSH_PASSPHRASE")) {
+					argv[argc++] = g_strdup("--ssh-passphrase");
+					argv[argc++] = g_strdup_printf("%s", ssh_passphrase);
+				} else {
+					REMMINA_PLUGIN_MESSAGE("%s", FEATURE_NOT_AVAIL_STR("SSH_PASSPHRASE"));
+				}
+			}
+		}
+	} else {
+		REMMINA_PLUGIN_DEBUG("%s", FEATURE_NOT_AVAIL_STR("SSH_PRIVKEY"));
+	}
+
 
 	argv[argc++] = NULL;
 
@@ -1924,7 +2044,7 @@ static GList* rmplugin_x2go_parse_pyhoca_sessions(RemminaProtocolWidget* gp,
 	gchar **lines_list = g_strsplit(pyhoca_output, "\n", -1);
 	// Assume at least two lines of output.
 	if (lines_list == NULL || lines_list[0] == NULL || lines_list[1] == NULL) {
-		g_set_error(error, 1, 1, "%s", _("Couldn't parse the output of PyHoca-CLI's "
+		g_set_error(error, 1, 1, "%s", _("Could not parse the output of PyHoca-CLI's "
 				           "--list-sessions option. Creating a new "
 				           "session now."));
 		return NULL;
@@ -1963,7 +2083,7 @@ static GList* rmplugin_x2go_parse_pyhoca_sessions(RemminaProtocolWidget* gp,
 
 			session = malloc(sizeof(gchar*) * (SESSION_NUM_PROPERTIES+1));
 			if (!session) {
-				REMMINA_PLUGIN_CRITICAL("%s", _("Couldn't allocate "
+				REMMINA_PLUGIN_CRITICAL("%s", _("Could not allocate "
 								"enough memory!"));
 			}
 			session[SESSION_NUM_PROPERTIES] = NULL;
@@ -2179,6 +2299,7 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
                                         gchar *clipboard,
                                         gint   dpi,
                                         gchar *resolution,
+                                        gchar *ssh_privatekey,
                                         RemminaProtocolWidget *gp,
                                         gchar *errmsg)
 {
@@ -2188,15 +2309,38 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
 	gchar *argv[50];
 	gint argc = 0;
 
-	// Sets `username` and `password`.
-	if (!rmplugin_x2go_get_auth(gp, &errmsg, &username, &password)) {
-		return FALSE;
+	// We don't want to save any SSH passphrases on hard drive!
+	// Thats why we will always ask if needed.
+	gchar *ssh_passphrase = NULL;
+
+	if (!username || strlen(username) <= 0) {
+		// Sets `username` and `password`.
+		if (!rmplugin_x2go_get_auth(gp, errmsg, &username, &password)) {
+			return FALSE;
+		}
+	}
+
+	// Password can be *empty* but not NULL.
+	if (!password) {
+		password = g_strdup("");
+	}
+
+	if (ssh_privatekey && strlen(ssh_privatekey) > 0) {
+		// FIXME: Check if file exists and is legit private key.
+		// See: https://security.stackexchange.com/a/245767
+
+		// Get ssh_privatekey now via dialog.
+		if (!rmplugin_x2go_get_ssh_passphrase(gp, errmsg, &ssh_passphrase)) {
+			return FALSE;
+		}
 	}
 
 	struct _ConnectionData* connect_data = g_new0(struct _ConnectionData, 1);
 	connect_data->host = host;
 	connect_data->username = username;
 	connect_data->password = password;
+	connect_data->ssh_privatekey = ssh_privatekey;
+	connect_data->ssh_passphrase = ssh_passphrase;
 
 	GError *session_error = NULL;
 	gchar* resume_session_id = rmplugin_x2go_ask_session(gp, &session_error,
@@ -2362,8 +2506,8 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
 	}
 
 	if (FEATURE_AVAILABLE(gpdata, "DPI")) {
-		// Event though we validate the users input in Remmina Editor,
-		// manipulating profile files is still very possible..
+		// Even though we validate the users input in the Remmina Editor,
+		// manipulating profile files is still very possible…
 		// Values are extracted from pyhoca-cli.
 		if (dpi < 20 || dpi > 400) {
 			g_strlcpy(errmsg, _("DPI setting is out of bounds. Please adjust "
@@ -2376,6 +2520,24 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
 		argv[argc++] = g_strdup_printf ("%i", dpi);
 	} else {
 		REMMINA_PLUGIN_DEBUG("%s", FEATURE_NOT_AVAIL_STR("DPI"));
+	}
+
+	if (FEATURE_AVAILABLE(gpdata, "SSH_PRIVKEY")) {
+		if (ssh_privatekey && !g_str_equal(ssh_privatekey, "")) {
+			argv[argc++] = g_strdup("--ssh-privkey");
+			argv[argc++] = g_strdup_printf("%s", ssh_privatekey);
+
+			if (ssh_passphrase && !g_str_equal(ssh_passphrase, "")) {
+				if (FEATURE_AVAILABLE(gpdata, "SSH_PASSPHRASE")) {
+					argv[argc++] = g_strdup("--ssh-passphrase");
+					argv[argc++] = g_strdup_printf("%s", ssh_passphrase);
+				} else {
+					REMMINA_PLUGIN_MESSAGE("%s", FEATURE_NOT_AVAIL_STR("SSH_PASSPHRASE"));
+				}
+			}
+		}
+	} else {
+		REMMINA_PLUGIN_DEBUG("%s", FEATURE_NOT_AVAIL_STR("SSH_PRIVKEY"));
 	}
 
 	argv[argc++] = NULL;
@@ -2391,15 +2553,18 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
 	REMMINA_PLUGIN_INFO("%s", _("Started PyHoca-CLI with the following arguments:"));
 	// Print every argument except passwords. Free all arg strings.
 	for (gint i = 0; i < argc - 1; i++) {
-		if (g_strcmp0(argv[i], "--password") == 0) {
-			g_printf("%s ", argv[i]);
+		gchar* curr_arg = argv[i];
+
+		if (g_str_equal(curr_arg, "--password") ||
+		    g_str_equal(curr_arg, "--ssh-passphrase")) {
+			g_printf("%s ", curr_arg);
 			g_printf("XXXXXX ");
-			g_free (argv[i]);
-			g_free (argv[++i]);
+			g_free(curr_arg);
+			g_free(argv[++i]);
 			continue;
 		} else {
-			g_printf("%s ", argv[i]);
-			g_free (argv[i]);
+			g_printf("%s ", curr_arg);
+			g_free(curr_arg);
 		}
 	}
 	g_printf("\n");
@@ -2408,8 +2573,7 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
 		// TRANSLATORS: Meta-error. Shouldn't be visible.
 		if (!error) error = g_error_new(0, 0, _("Internal error."));
 
-		gchar *error_title = _("An error occured while "
-				       "starting an X2Go session…");
+		gchar *error_title = _("Could not start X2Go session…");
 
 		struct _DialogData* ddata = g_new0(struct _DialogData, 1);
 		ddata->parent = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(gp)));
@@ -2431,7 +2595,7 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
 		*	dialog_data -> dialog data (struct _DialogData*)
 		*/
 		X2GoCustomUserData *custom_data = g_new0(X2GoCustomUserData, 1);
-		g_assert(custom_data && "custom_data could not be initialized.");
+		g_assert(custom_data && "Could not initialise Custom_data.");
 
 		custom_data->gp = gp;
 		custom_data->dialog_data = ddata;
@@ -2532,7 +2696,7 @@ static GList* rmplugin_x2go_populate_available_features_list()
 		// of an old limited set of features.
 
 		REMMINA_PLUGIN_WARNING("%s",
-			_("Couldn't get PyHoca-CLI's command-line features. This "
+			_("Could not get PyHoca-CLI's command-line features. This "
 			  "indicates it is either too old, or not installed. "
 			  "An old limited set of features will be used for now."));
 
@@ -2810,7 +2974,7 @@ static gboolean rmplugin_x2go_start_session(RemminaProtocolWidget *gp)
 	gboolean ret = TRUE;
 
 	gchar *servstr, *host, *username, *password, *command, *kbdlayout, *kbdtype,
-	      *audio, *clipboard, *res;
+	      *audio, *clipboard, *res, *ssh_privatekey;
 	gint sshport, dpi;
 	GdkDisplay *default_dsp;
 	gint width, height;
@@ -2844,7 +3008,14 @@ static gboolean rmplugin_x2go_start_session(RemminaProtocolWidget *gp)
 
 	clipboard = GET_PLUGIN_STRING("clipboard");
 
-	dpi = GET_PLUGIN_INT("dpi", 0);
+	dpi = GET_PLUGIN_INT("dpi", 80);
+
+	ssh_privatekey = GET_PLUGIN_STRING("ssh_privatekey");
+
+	// If empty set to NULL
+	if(ssh_privatekey && g_str_equal(ssh_privatekey, "")) {
+		ssh_privatekey = NULL;
+	}
 
 	width = rm_plugin_service->get_profile_remote_width(gp);
 	height = rm_plugin_service->get_profile_remote_height(gp);
@@ -2866,15 +3037,16 @@ static gboolean rmplugin_x2go_start_session(RemminaProtocolWidget *gp)
 	/* trigger the session start, session window should appear soon after this */
 	if (ret) ret = rmplugin_x2go_exec_x2go(host, sshport, username, password, command,
 					       kbdlayout, kbdtype, audio, clipboard, dpi,
-					       res, gp, (gchar*)&errmsg);
+					       res, ssh_privatekey, gp,
+					       (gchar*)&errmsg);
 
 	/* get the window ID of the remote x2goagent */
 	if (ret) ret = rmplugin_x2go_monitor_create_notify(gp, "x2goagent",
 						           (gchar*)&errmsg);
 
 	if (!ret) {
-		REMMINA_PLUGIN_CRITICAL("%s", _(errmsg));
-		rm_plugin_service->protocol_plugin_set_error(gp, "%s", _(errmsg));
+		REMMINA_PLUGIN_CRITICAL("%s", errmsg);
+		rm_plugin_service->protocol_plugin_set_error(gp, "%s", &errmsg);
 		return FALSE;
 	}
 
@@ -3173,8 +3345,8 @@ static GError* rmplugin_x2go_int_setting_validator(gchar* key, gpointer value,
 	gint int_value;
 	err = str2int(&int_value, value, 10);
 	if (err == STR2INT_INCONVERTIBLE) {
-		// Can't happen in theory since non-numerical characters are can't
-		// be entered but, let's be safe.
+		// non-numerical characters are can't be entered but, the user can
+		// input an empty string.
 		g_set_error(&error, 1, 1, "%s", _("The input is not a valid integer!"));
 	} else if (err == STR2INT_OVERFLOW || err == STR2INT_UNDERFLOW) {
 		g_set_error(&error, 1, 1, _("Input must be a number between %i and %i."),
@@ -3184,8 +3356,6 @@ static GError* rmplugin_x2go_int_setting_validator(gchar* key, gpointer value,
 	}
 
 	if (error) {
-		REMMINA_PLUGIN_CRITICAL("%s", _("Please check the RemminaProtocolSetting "
-						"array for possible errors."));
 		return error;
 	}
 
@@ -3247,6 +3417,7 @@ static const RemminaProtocolSetting rmplugin_x2go_basic_settings[] = {
 		      "Must be between 20 and 400."),
      /* Validation data */ "20;400", // "<min>;<max>;"
      /* Validation method */ G_CALLBACK(rmplugin_x2go_int_setting_validator)},
+    {REMMINA_PROTOCOL_SETTING_TYPE_FILE,	"ssh_privatekey",	N_("SSH identity file"),		FALSE, NULL, N_("Your private key"), NULL, NULL },
     {REMMINA_PROTOCOL_SETTING_TYPE_END, NULL, NULL, FALSE, NULL, NULL, NULL, NULL}};
 
 /* Protocol plugin definition and features */
@@ -3260,8 +3431,7 @@ static RemminaProtocolPlugin rmplugin_x2go = {
 	PLUGIN_SSH_APPICON,			// Icon for SSH connection
 	rmplugin_x2go_basic_settings,		// Array for basic settings
 	NULL,					// Array for advanced settings
-	REMMINA_PROTOCOL_SSH_SETTING_TUNNEL,	// SSH settings type
-	/* REMMINA_PROTOCOL_SSH_SETTING_NONE,	// SSH settings type */
+	REMMINA_PROTOCOL_SSH_SETTING_NONE,	// SSH settings type
 	rmplugin_x2go_features,			// Array for available features
 	rmplugin_x2go_init,			// Plugin initialization method
 	rmplugin_x2go_open_connection,		// Plugin open connection method

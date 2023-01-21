@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@ enum {
 	REMMINA_FTP_FILE_COLUMN_USER,
 	REMMINA_FTP_FILE_COLUMN_GROUP,
 	REMMINA_FTP_FILE_COLUMN_PERMISSION,
+	REMMINA_FTP_FILE_COLUMN_MODIFIED,
 	REMMINA_FTP_FILE_COLUMN_NAME_SORT, /* Auto populate */
 	REMMINA_FTP_FILE_N_COLUMNS
 };

@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,4 +42,4 @@ G_BEGIN_DECLS
 
 
 /* Schedule the multipassword change confirmation dialog to be executed ASAP */
-void remmina_mpchange_schedule(gboolean has_domain, const gchar *group, const gchar *domain, const gchar *username, const gchar *password);
+void remmina_mpchange_schedule(gboolean has_domain, const gchar *group, const gchar *domain, const gchar *username, const gchar *password, const gchar *gatewayusername, const gchar *gatewaydomain, const gchar *gatewaypassword);

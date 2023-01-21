@@ -5,6 +5,7 @@
  * Copyright (C) 2011 Marc-Andre Moreau <marcandre.moreau@gmail.com>
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +42,11 @@
 #include "rdp_monitor.h"
 #include "rdp_settings.h"
 #include <gdk/gdkkeysyms.h>
+#ifdef GDK_WINDOWING_X11
 #include <cairo/cairo-xlib.h>
+#else
+#include <cairo/cairo.h>
+#endif
 #include <freerdp/locale/keyboard.h>
 
 gboolean remmina_rdp_event_on_map(RemminaProtocolWidget *gp)
@@ -53,10 +58,15 @@ gboolean remmina_rdp_event_on_map(RemminaProtocolWidget *gp)
 	if (rfi == NULL)
 		return false;
 
-	gdi = ((rdpContext *)rfi)->gdi;
+	RemminaFile *remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	int do_suppress = !remmina_plugin_service->file_get_int(remminafile, "no-suppress", FALSE);
 
-	REMMINA_PLUGIN_DEBUG("Map event received, disabling TS_SUPPRESS_OUTPUT_PDU ");
-	gdi_send_suppress_output(gdi, FALSE);
+	if (do_suppress) {
+		gdi = ((rdpContext *)rfi)->gdi;
+
+		REMMINA_PLUGIN_DEBUG("Map event received, disabling TS_SUPPRESS_OUTPUT_PDU ");
+		gdi_send_suppress_output(gdi, FALSE);
+	}
 
 	return FALSE;
 }
@@ -78,10 +88,15 @@ gboolean remmina_rdp_event_on_unmap(RemminaProtocolWidget *gp)
 		return FALSE;
 	}
 
-	gdi = ((rdpContext *)rfi)->gdi;
+	RemminaFile *remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	int do_suppress = !remmina_plugin_service->file_get_int(remminafile, "no-suppress", FALSE);
 
-	REMMINA_PLUGIN_DEBUG("Unmap event received, enabling TS_SUPPRESS_OUTPUT_PDU ");
-	gdi_send_suppress_output(gdi, TRUE);
+	if (do_suppress) {
+		gdi = ((rdpContext *)rfi)->gdi;
+
+		REMMINA_PLUGIN_DEBUG("Unmap event received, enabling TS_SUPPRESS_OUTPUT_PDU ");
+		gdi_send_suppress_output(gdi, TRUE);
+	}
 
 	return FALSE;
 }
@@ -168,8 +183,8 @@ static void remmina_rdp_event_release_all_keys(RemminaProtocolWidget *gp)
 		rdp_event = g_array_index(rfi->pressed_keys, RemminaPluginRdpEvent, i);
 		if ((rdp_event.type == REMMINA_RDP_EVENT_TYPE_SCANCODE ||
 		     rdp_event.type == REMMINA_RDP_EVENT_TYPE_SCANCODE_UNICODE) &&
-		    rdp_event.key_event.up == False) {
-			rdp_event.key_event.up = True;
+		    rdp_event.key_event.up == false) {
+			rdp_event.key_event.up = true;
 			remmina_rdp_event_event_push(gp, &rdp_event);
 		}
 	}
@@ -547,6 +562,11 @@ static gboolean remmina_rdp_event_on_motion(GtkWidget *widget, GdkEventMotion *e
 {
 	TRACE_CALL(__func__);
 	RemminaPluginRdpEvent rdp_event = { 0 };
+	RemminaFile *remminafile;
+
+	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	if (remmina_plugin_service->file_get_int(remminafile, "viewonly", FALSE))
+		return FALSE;
 
 	rdp_event.type = REMMINA_RDP_EVENT_TYPE_MOUSE;
 	rdp_event.mouse_event.flags = PTR_FLAGS_MOVE;
@@ -569,6 +589,8 @@ static gboolean remmina_rdp_event_on_button(GtkWidget *widget, GdkEventButton *e
 	RemminaFile *remminafile;
 
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	if (remmina_plugin_service->file_get_int(remminafile, "viewonly", FALSE))
+		return FALSE;
 
 	/* We bypass 2button-press and 3button-press events */
 	if ((event->type != GDK_BUTTON_PRESS) && (event->type != GDK_BUTTON_RELEASE))
@@ -633,6 +655,11 @@ static gboolean remmina_rdp_event_on_scroll(GtkWidget *widget, GdkEventScroll *e
 	gint flag;
 	RemminaPluginRdpEvent rdp_event = { 0 };
 	float windows_delta;
+	RemminaFile *remminafile;
+
+	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	if (remmina_plugin_service->file_get_int(remminafile, "viewonly", FALSE))
+		return FALSE;
 
 	flag = 0;
 	rdp_event.type = REMMINA_RDP_EVENT_TYPE_MOUSE;
@@ -720,10 +747,15 @@ static gboolean remmina_rdp_event_on_key(GtkWidget *widget, GdkEventKey *event, 
 	rfContext *rfi = GET_PLUGIN_DATA(gp);
 	RemminaPluginRdpEvent rdp_event;
 	RemminaPluginRdpKeymapEntry *kep;
+	RemminaFile *remminafile;
 	DWORD scancode = 0;
 	int ik;
 
 	if (!rfi || !rfi->connected || rfi->is_reconnecting)
+		return FALSE;
+
+	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	if (remmina_plugin_service->file_get_int(remminafile, "viewonly", FALSE))
 		return FALSE;
 
 #ifdef ENABLE_GTK_INSPECTOR_KEY
@@ -735,8 +767,8 @@ static gboolean remmina_rdp_event_on_key(GtkWidget *widget, GdkEventKey *event, 
 #endif
 
 	rdp_event.type = REMMINA_RDP_EVENT_TYPE_SCANCODE;
-	rdp_event.key_event.up = (event->type == GDK_KEY_PRESS ? False : True);
-	rdp_event.key_event.extended = False;
+	rdp_event.key_event.up = (event->type == GDK_KEY_PRESS ? false : true);
+	rdp_event.key_event.extended = false;
 
 	switch (event->keyval) {
 	case GDK_KEY_Pause:
@@ -746,16 +778,16 @@ static gboolean remmina_rdp_event_on_key(GtkWidget *widget, GdkEventKey *event, 
 		 * for pause key management
 		 */
 		rdp_event.key_event.key_code = 0x1D;
-		rdp_event.key_event.up = False;
+		rdp_event.key_event.up = false;
 		remmina_rdp_event_event_push(gp, &rdp_event);
 		rdp_event.key_event.key_code = 0x45;
-		rdp_event.key_event.up = False;
+		rdp_event.key_event.up = false;
 		remmina_rdp_event_event_push(gp, &rdp_event);
 		rdp_event.key_event.key_code = 0x1D;
-		rdp_event.key_event.up = True;
+		rdp_event.key_event.up = true;
 		remmina_rdp_event_event_push(gp, &rdp_event);
 		rdp_event.key_event.key_code = 0x45;
-		rdp_event.key_event.up = True;
+		rdp_event.key_event.up = true;
 		remmina_rdp_event_event_push(gp, &rdp_event);
 		break;
 
@@ -803,7 +835,7 @@ static gboolean remmina_rdp_event_on_key(GtkWidget *widget, GdkEventKey *event, 
 			} else {
 				rdp_event.type = REMMINA_RDP_EVENT_TYPE_SCANCODE_UNICODE;
 				rdp_event.key_event.unicode_code = unicode_keyval;
-				rdp_event.key_event.extended = False;
+				rdp_event.key_event.extended = false;
 				remmina_rdp_event_event_push(gp, &rdp_event);
 				keypress_list_add(gp, rdp_event);
 			}

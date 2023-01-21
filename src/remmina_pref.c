@@ -3,6 +3,7 @@
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -365,6 +366,11 @@ void remmina_pref_init(void)
 
 	if (extrahardening)
 		remmina_pref.always_show_tab = FALSE;
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "always_show_notes", NULL))
+		remmina_pref.always_show_notes = g_key_file_get_boolean(gkeyfile, "remmina_pref", "always_show_notes", NULL);
+	else
+		remmina_pref.always_show_notes = FALSE;
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "hide_connection_toolbar", NULL))
 		remmina_pref.hide_connection_toolbar = g_key_file_get_boolean(gkeyfile, "remmina_pref",
@@ -729,35 +735,6 @@ void remmina_pref_init(void)
 
 	remmina_pref_file_load_colors(gkeyfile, &remmina_pref.color_pref);
 
-	/** RMNEWS_ENABLE_NEWS is equal to 0 (FALSE) when compiled with -DWiTH_NEWS=OFF,
-	 * otherwise is value is 1 (TRUE), that is the default value
-	 */
-	if (RMNEWS_ENABLE_NEWS == 0)
-		remmina_pref.periodic_news_permitted = RMNEWS_ENABLE_NEWS;
-	else if (g_key_file_has_key(gkeyfile, "remmina_news", "periodic_news_permitted", NULL))
-		remmina_pref.periodic_news_permitted = g_key_file_get_boolean(gkeyfile, "remmina_news", "periodic_news_permitted", NULL);
-	else
-		remmina_pref.periodic_news_permitted = RMNEWS_ENABLE_NEWS;
-
-
-	if (g_key_file_has_key(gkeyfile, "remmina_news", "periodic_rmnews_last_get", NULL)) {
-		remmina_pref.periodic_rmnews_last_get = g_key_file_get_int64(gkeyfile, "remmina_news", "periodic_rmnews_last_get", NULL);
-		REMMINA_DEBUG ("periodic_rmnews_last_get set to %ld", remmina_pref.periodic_rmnews_last_get);
-	} else {
-		remmina_pref.periodic_rmnews_last_get = 0;
-		REMMINA_DEBUG ("periodic_rmnews_last_get set to 0");
-	}
-
-	if (g_key_file_has_key(gkeyfile, "remmina_news", "periodic_rmnews_get_count", NULL))
-		remmina_pref.periodic_rmnews_get_count = g_key_file_get_int64(gkeyfile, "remmina_news", "periodic_rmnews_get_count", NULL);
-	else
-		remmina_pref.periodic_rmnews_get_count = 0;
-
-	if (g_key_file_has_key(gkeyfile, "remmina_news", "periodic_rmnews_uuid_prefix", NULL))
-		remmina_pref.periodic_rmnews_uuid_prefix = g_key_file_get_string(gkeyfile, "remmina_news", "periodic_rmnews_uuid_prefix", NULL);
-	else
-		remmina_pref.periodic_rmnews_uuid_prefix = NULL;
-
 	/* If we have a color scheme file, we switch to it, GIO will merge it in the
 	 * remmina.pref file */
 	if (g_file_test(remmina_colors_file, G_FILE_TEST_IS_REGULAR)) {
@@ -841,6 +818,7 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_string(gkeyfile, "remmina_pref", "last_quickconnect_protocol", remmina_pref.last_quickconnect_protocol);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "fullscreen_on_auto", remmina_pref.fullscreen_on_auto);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "always_show_tab", remmina_pref.always_show_tab);
+	g_key_file_set_boolean(gkeyfile, "remmina_pref", "always_show_notes", remmina_pref.always_show_notes);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_connection_toolbar", remmina_pref.hide_connection_toolbar);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_searchbar", remmina_pref.hide_searchbar);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "default_action", remmina_pref.default_action);
@@ -921,13 +899,6 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color13", remmina_pref.color_pref.color13 ? remmina_pref.color_pref.color13 : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color14", remmina_pref.color_pref.color14 ? remmina_pref.color_pref.color14 : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color15", remmina_pref.color_pref.color15 ? remmina_pref.color_pref.color15 : "");
-
-	g_key_file_set_boolean(gkeyfile, "remmina_news", "periodic_news_permitted", remmina_pref.periodic_news_permitted);
-	g_debug("(%s) - Setting periodic_rmnews_last_get to %ld", __func__, remmina_pref.periodic_rmnews_last_get);
-	g_key_file_set_int64(gkeyfile, "remmina_news", "periodic_rmnews_last_get", remmina_pref.periodic_rmnews_last_get);
-	g_key_file_set_integer(gkeyfile, "remmina_news", "periodic_rmnews_get_count", remmina_pref.periodic_rmnews_get_count);
-	g_key_file_set_string(gkeyfile, "remmina_news", "periodic_rmnews_uuid_prefix",
-			      remmina_pref.periodic_rmnews_uuid_prefix ? remmina_pref.periodic_rmnews_uuid_prefix : "");
 
 	/* Default settings */
 	g_key_file_set_string(gkeyfile, "remmina", "name", "");

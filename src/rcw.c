@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,11 @@
 
 #include "config.h"
 
+#ifdef GDK_WINDOWING_X11
 #include <cairo/cairo-xlib.h>
+#else
+#include <cairo/cairo.h>
+#endif
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
@@ -492,6 +496,7 @@ static gboolean rcw_keyboard_grab_retry(gpointer user_data)
 
 static void rcw_pointer_ungrab(RemminaConnectionWindow *cnnwin)
 {
+	TRACE_CALL(__func__);
 #if GTK_CHECK_VERSION(3, 20, 0)
 	GdkSeat *seat;
 	GdkDisplay *display;
@@ -507,10 +512,14 @@ static void rcw_pointer_ungrab(RemminaConnectionWindow *cnnwin)
 static void rcw_pointer_grab(RemminaConnectionWindow *cnnwin)
 {
 	TRACE_CALL(__func__);
+	/* This function in Wayland is useless and generates a spurious leave-notify event.
+	 * Should we remove it ? https://gitlab.gnome.org/GNOME/mutter/-/issues/2450#note_1588081 */
 #if GTK_CHECK_VERSION(3, 20, 0)
 	GdkSeat *seat;
 	GdkDisplay *display;
 	GdkGrabStatus ggs;
+
+
 	if (cnnwin->priv->pointer_captured) {
 #if DEBUG_KB_GRABBING
 		printf("DEBUG_KB_GRABBING: pointer_captured is true, it should not\n");
@@ -642,23 +651,30 @@ gboolean rcw_delete(RemminaConnectionWindow *cnnwin)
 	RemminaConnectionWindowPriv *priv = cnnwin->priv;
 	GtkNotebook *notebook = GTK_NOTEBOOK(priv->notebook);
 	GtkWidget *dialog;
-	gint i, n;
+	gint i, n, nopen;
 
 	if (!REMMINA_IS_CONNECTION_WINDOW(cnnwin))
 		return TRUE;
 
 	if (cnnwin->priv->on_delete_confirm_mode != RCW_ONDELETE_NOCONFIRM) {
 		n = gtk_notebook_get_n_pages(notebook);
-		if (n > 1) {
+		nopen = 0;
+		/* count all non-closed connections */
+		for(i = 0; i < n; i ++) {
+			RemminaConnectionObject *cnnobj = rcw_get_cnnobj_at_page(cnnwin, i);
+			if (!remmina_protocol_widget_is_closed((RemminaProtocolWidget *)cnnobj->proto))
+				nopen ++;
+		}
+		if (nopen > 1) {
 			dialog = gtk_message_dialog_new(GTK_WINDOW(cnnwin), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION,
 							GTK_BUTTONS_YES_NO,
-							_("Are you sure you want to close %i active connections in the current window?"), n);
+							_("Are you sure you want to close %i active connections in the current window?"), nopen);
 			i = gtk_dialog_run(GTK_DIALOG(dialog));
 			gtk_widget_destroy(dialog);
 			if (i != GTK_RESPONSE_YES)
 				return FALSE;
 		}
-		else {
+		else if (nopen == 1) {
 			if (remmina_pref.confirm_close) {
 				dialog = gtk_message_dialog_new(GTK_WINDOW(cnnwin), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION,
 								GTK_BUTTONS_YES_NO,
@@ -903,18 +919,16 @@ static void rco_get_desktop_size(RemminaConnectionObject *cnnobj, gint *width, g
 	}
 }
 
-void rco_set_scrolled_policy(RemminaConnectionObject *cnnobj, GtkScrolledWindow *scrolled_window)
+void rco_set_scrolled_policy(RemminaScaleMode scalemode, GtkScrolledWindow *scrolled_window)
 {
 	TRACE_CALL(__func__);
-	RemminaScaleMode scalemode;
 
-	scalemode = get_current_allowed_scale_mode(cnnobj, NULL, NULL);
 	gtk_scrolled_window_set_policy(scrolled_window,
 				       scalemode == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_SCALED ? GTK_POLICY_NEVER : GTK_POLICY_AUTOMATIC,
 				       scalemode == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_SCALED ? GTK_POLICY_NEVER : GTK_POLICY_AUTOMATIC);
 }
 
-static GtkWidget *rco_create_scrolled_container(RemminaConnectionObject *cnnobj, int view_mode)
+static GtkWidget *rco_create_scrolled_container(RemminaScaleMode scalemode, int view_mode)
 {
 	GtkWidget *scrolled_container;
 
@@ -922,7 +936,7 @@ static GtkWidget *rco_create_scrolled_container(RemminaConnectionObject *cnnobj,
 		scrolled_container = remmina_scrolled_viewport_new();
 	} else {
 		scrolled_container = gtk_scrolled_window_new(NULL, NULL);
-		rco_set_scrolled_policy(cnnobj, GTK_SCROLLED_WINDOW(scrolled_container));
+		rco_set_scrolled_policy(scalemode, GTK_SCROLLED_WINDOW(scrolled_container));
 		gtk_container_set_border_width(GTK_CONTAINER(scrolled_container), 0);
 		gtk_widget_set_can_focus(scrolled_container, FALSE);
 	}
@@ -963,8 +977,10 @@ gboolean rcw_toolbar_autofit_restore(RemminaConnectionWindow *cnnwin)
 					  MAX(1, dheight + ta.height + nba.height - ca.height));
 		gtk_container_check_resize(GTK_CONTAINER(cnnobj->cnnwin));
 	}
-	if (GTK_IS_SCROLLED_WINDOW(cnnobj->scrolled_container))
-		rco_set_scrolled_policy(cnnobj, GTK_SCROLLED_WINDOW(cnnobj->scrolled_container));
+	if (GTK_IS_SCROLLED_WINDOW(cnnobj->scrolled_container)) {
+		RemminaScaleMode scalemode = get_current_allowed_scale_mode(cnnobj, NULL, NULL);
+		rco_set_scrolled_policy(scalemode, GTK_SCROLLED_WINDOW(cnnobj->scrolled_container));
+	}
 
 	return G_SOURCE_REMOVE;
 }
@@ -1215,13 +1231,10 @@ static void nb_set_current_page(GtkNotebook *notebook, GtkWidget *page)
 	}
 }
 
-static void nb_migrate_page_content(GtkWidget *frompage, GtkWidget *topage)
+static void nb_migrate_message_panels(GtkWidget *frompage, GtkWidget *topage)
 {
 	/* Migrate a single connection tab from a notebook to another one */
 	GList *lst, *l;
-	RemminaConnectionObject *cnnobj;
-
-	cnnobj = (RemminaConnectionObject *)g_object_get_data(G_OBJECT(frompage), "cnnobj");
 
 	/* Reparent message panels */
 	lst = gtk_container_get_children(GTK_CONTAINER(frompage));
@@ -1236,10 +1249,6 @@ static void nb_migrate_page_content(GtkWidget *frompage, GtkWidget *topage)
 	}
 	g_list_free(lst);
 
-	/* Reparent the viewport (which is inside scrolled_container inside frompage */
-	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-	gtk_widget_reparent(cnnobj->viewport, cnnobj->scrolled_container);
-	G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 static void rcw_migrate(RemminaConnectionWindow *from, RemminaConnectionWindow *to)
@@ -1249,8 +1258,9 @@ static void rcw_migrate(RemminaConnectionWindow *from, RemminaConnectionWindow *
 	gchar *tag;
 	gint cp, np, i;
 	GtkNotebook *from_notebook;
-	GtkWidget *frompage, *newpage;
+	GtkWidget *frompage, *newpage, *old_scrolled_container;
 	RemminaConnectionObject *cnnobj;
+	RemminaScaleMode scalemode;
 
 	/* Migrate TAG */
 	tag = g_strdup((gchar *)g_object_get_data(G_OBJECT(from), "tag"));
@@ -1259,6 +1269,7 @@ static void rcw_migrate(RemminaConnectionWindow *from, RemminaConnectionWindow *
 	/* Migrate notebook content */
 	from_notebook = from->priv->notebook;
 	if (from_notebook && GTK_IS_NOTEBOOK(from_notebook)) {
+
 		cp = gtk_notebook_get_current_page(from_notebook);
 		np = gtk_notebook_get_n_pages(from_notebook);
 		/* Create pages on dest notebook and migrate
@@ -1266,16 +1277,34 @@ static void rcw_migrate(RemminaConnectionWindow *from, RemminaConnectionWindow *
 		for (i = 0; i < np; i++) {
 			frompage = gtk_notebook_get_nth_page(from_notebook, i);
 			cnnobj = g_object_get_data(G_OBJECT(frompage), "cnnobj");
-			cnnobj->scrolled_container = rco_create_scrolled_container(cnnobj, to->priv->view_mode);
-			g_signal_connect(G_OBJECT(cnnobj->scrolled_container), "destroy",
-					G_CALLBACK(gtk_widget_destroyed), (gpointer)&cnnobj->scrolled_container);
+
+			/* A scrolled container must be recreated, because it can be different on the new window/page
+			  depending on view_mode */
+			scalemode = get_current_allowed_scale_mode(cnnobj, NULL, NULL);
+			old_scrolled_container = cnnobj->scrolled_container;
+			cnnobj->scrolled_container = rco_create_scrolled_container(scalemode, to->priv->view_mode);
+
 			newpage = rcw_append_new_page(to, cnnobj);
-			nb_migrate_page_content(frompage, newpage);
+
+			nb_migrate_message_panels(frompage, newpage);
+
+			/* Reparent the viewport (which is inside scrolled_container) to the new page */
+			g_object_ref(cnnobj->viewport);
+			gtk_container_remove(GTK_CONTAINER(old_scrolled_container), cnnobj->viewport);
+			gtk_container_add(GTK_CONTAINER(cnnobj->scrolled_container), cnnobj->viewport);
+			g_object_unref(cnnobj->viewport);
+
+			/* Destroy old scrolled_container. Not really needed, it will be destroyed
+			 * when removing the page from the notepad */
+			gtk_widget_destroy(old_scrolled_container);
+
 		}
+
 		/* Remove all the pages from source notebook */
 		for (i = np - 1; i >= 0; i--)
 			gtk_notebook_remove_page(from_notebook, i);
 		gtk_notebook_set_current_page(to->priv->notebook, cp);
+
 	}
 }
 
@@ -1641,8 +1670,9 @@ static void rco_change_scalemode(RemminaConnectionObject *cnnobj, gboolean bdyn,
 
 	if (cnnobj->cnnwin->priv->view_mode != SCROLLED_WINDOW_MODE)
 		rco_check_resize(cnnobj);
-	if (GTK_IS_SCROLLED_WINDOW(cnnobj->scrolled_container))
-		rco_set_scrolled_policy(cnnobj, GTK_SCROLLED_WINDOW(cnnobj->scrolled_container));
+	if (GTK_IS_SCROLLED_WINDOW(cnnobj->scrolled_container)) {
+		rco_set_scrolled_policy(scalemode, GTK_SCROLLED_WINDOW(cnnobj->scrolled_container));
+	}
 }
 
 static void rcw_toolbar_dynres(GtkToolItem *toggle, RemminaConnectionWindow *cnnwin)
@@ -2728,6 +2758,36 @@ static void rcw_set_toolbar_visibility(RemminaConnectionWindow *cnnwin)
 	}
 }
 
+#if DEBUG_KB_GRABBING
+static void print_crossing_event(GdkEventCrossing *event) {
+	printf("DEBUG_KB_GRABBING: --- Crossing event detail: ");
+	switch (event->detail) {
+	case GDK_NOTIFY_ANCESTOR: printf("GDK_NOTIFY_ANCESTOR"); break;
+	case GDK_NOTIFY_VIRTUAL: printf("GDK_NOTIFY_VIRTUAL"); break;
+	case GDK_NOTIFY_NONLINEAR: printf("GDK_NOTIFY_NONLINEAR"); break;
+	case GDK_NOTIFY_NONLINEAR_VIRTUAL: printf("GDK_NOTIFY_NONLINEAR_VIRTUAL"); break;
+	case GDK_NOTIFY_UNKNOWN: printf("GDK_NOTIFY_UNKNOWN"); break;
+	case GDK_NOTIFY_INFERIOR: printf("GDK_NOTIFY_INFERIOR"); break;
+	default: printf("unknown");
+	}
+	printf("\n");
+	printf("DEBUG_KB_GRABBING: --- Crossing event mode=");
+	switch (event->mode) {
+	case GDK_CROSSING_NORMAL: printf("GDK_CROSSING_NORMAL"); break;
+	case GDK_CROSSING_GRAB: printf("GDK_CROSSING_GRAB"); break;
+	case GDK_CROSSING_UNGRAB: printf("GDK_CROSSING_UNGRAB"); break;
+	case GDK_CROSSING_GTK_GRAB: printf("GDK_CROSSING_GTK_GRAB"); break;
+	case GDK_CROSSING_GTK_UNGRAB: printf("GDK_CROSSING_GTK_UNGRAB"); break;
+	case GDK_CROSSING_STATE_CHANGED: printf("GDK_CROSSING_STATE_CHANGED"); break;
+	case GDK_CROSSING_TOUCH_BEGIN: printf("GDK_CROSSING_TOUCH_BEGIN"); break;
+	case GDK_CROSSING_TOUCH_END: printf("GDK_CROSSING_TOUCH_END"); break;
+	case GDK_CROSSING_DEVICE_SWITCH: printf("GDK_CROSSING_DEVICE_SWITCH"); break;
+	default: printf("unknown");
+	}
+	printf("\n");
+}
+#endif
+
 static gboolean rcw_floating_toolbar_on_enter(GtkWidget *widget, GdkEventCrossing *event,
 					      RemminaConnectionWindow *cnnwin)
 {
@@ -2736,15 +2796,28 @@ static gboolean rcw_floating_toolbar_on_enter(GtkWidget *widget, GdkEventCrossin
 	return TRUE;
 }
 
+static gboolean rcw_floating_toolbar_on_leave(GtkWidget *widget, GdkEventCrossing *event,
+					      RemminaConnectionWindow *cnnwin)
+{
+	TRACE_CALL(__func__);
+	if (event->detail != GDK_NOTIFY_INFERIOR)
+		rcw_floating_toolbar_show(cnnwin, FALSE);
+	return TRUE;
+}
+
+
 static gboolean rcw_on_enter_notify_event(GtkWidget *widget, GdkEventCrossing *event,
 					  gpointer user_data)
 {
 	TRACE_CALL(__func__);
 #if DEBUG_KB_GRABBING
 	printf("DEBUG_KB_GRABBING: enter-notify-event on rcw received\n");
+	print_crossing_event(event);
 #endif
 	return FALSE;
 }
+
+
 
 static gboolean rcw_on_leave_notify_event(GtkWidget *widget, GdkEventCrossing *event,
 					  gpointer user_data)
@@ -2752,17 +2825,32 @@ static gboolean rcw_on_leave_notify_event(GtkWidget *widget, GdkEventCrossing *e
 	TRACE_CALL(__func__);
 	RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow *)widget;
 
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING: leave-notify-event on rcw received\n");
+	print_crossing_event(event);
+#endif
+
+	if (event->mode != GDK_CROSSING_NORMAL && event->mode != GDK_CROSSING_UNGRAB) {
+#if DEBUG_KB_GRABBING
+	printf("DEBUG_KB_GRABBING:   ignored because mode is not GDK_CROSSING_NORMAL GDK_CROSSING_UNGRAB\n");
+#endif
+		return FALSE;
+	}
+
 	if (cnnwin->priv->delayed_grab_eventsourceid) {
 		g_source_remove(cnnwin->priv->delayed_grab_eventsourceid);
 		cnnwin->priv->delayed_grab_eventsourceid = 0;
 	}
 
+	/* Workaround for https://gitlab.gnome.org/GNOME/mutter/-/issues/2450#note_1586570 */
+	if (event->mode != GDK_CROSSING_UNGRAB) {
+		rcw_kp_ungrab(cnnwin);
+		rcw_pointer_ungrab(cnnwin);
+	} else {
 #if DEBUG_KB_GRABBING
-	printf("DEBUG_KB_GRABBING: leave-notify-event on rcw received\n");
+		printf("DEBUG_KB_GRABBING:   not ungrabbing, this event seems to be an unwanted event from GTK\n");
 #endif
-
-	rcw_kp_ungrab(cnnwin);
-	rcw_pointer_ungrab(cnnwin);
+	}
 
 	return FALSE;
 }
@@ -2774,32 +2862,8 @@ static gboolean rco_leave_protocol_widget(GtkWidget *widget, GdkEventCrossing *e
 	TRACE_CALL(__func__);
 
 #if DEBUG_KB_GRABBING
-	printf("DEBUG_KB_GRABBING: received leave event on RCO. detail=");
-	switch (event->detail) {
-	case GDK_NOTIFY_ANCESTOR: printf("GDK_NOTIFY_ANCESTOR"); break;
-	case GDK_NOTIFY_VIRTUAL: printf("GDK_NOTIFY_VIRTUAL"); break;
-	case GDK_NOTIFY_NONLINEAR: printf("GDK_NOTIFY_NONLINEAR"); break;
-	case GDK_NOTIFY_NONLINEAR_VIRTUAL: printf("GDK_NOTIFY_NONLINEAR_VIRTUAL"); break;
-	case GDK_NOTIFY_UNKNOWN: printf("GDK_NOTIFY_UNKNOWN"); break;
-	case GDK_NOTIFY_INFERIOR: printf("GDK_NOTIFY_INFERIOR"); break;
-	default: printf("unknown");
-	}
-	printf("\n");
-	printf("DEBUG_KB_GRABBING: leave event mode=");
-	switch (event->mode) {
-	case GDK_CROSSING_NORMAL: printf("GDK_CROSSING_NORMAL"); break;
-	case GDK_CROSSING_GRAB: printf("GDK_CROSSING_GRAB"); break;
-	case GDK_CROSSING_UNGRAB: printf("GDK_CROSSING_UNGRAB"); break;
-	case GDK_CROSSING_GTK_GRAB: printf("GDK_CROSSING_GTK_GRAB"); break;
-	case GDK_CROSSING_GTK_UNGRAB: printf("GDK_CROSSING_GTK_UNGRAB"); break;
-	case GDK_CROSSING_STATE_CHANGED: printf("GDK_CROSSING_STATE_CHANGED"); break;
-	case GDK_CROSSING_TOUCH_BEGIN: printf("GDK_CROSSING_TOUCH_BEGIN"); break;
-	case GDK_CROSSING_TOUCH_END: printf("GDK_CROSSING_TOUCH_END"); break;
-	case GDK_CROSSING_DEVICE_SWITCH: printf("GDK_CROSSING_DEVICE_SWITCH"); break;
-
-	default: printf("unknown");
-	}
-	printf("\n");
+	printf("DEBUG_KB_GRABBING: received leave event on RCO.\n");
+	print_crossing_event(event);
 #endif
 
 	if (cnnobj->cnnwin->priv->delayed_grab_eventsourceid) {
@@ -2825,32 +2889,7 @@ gboolean rco_enter_protocol_widget(GtkWidget *widget, GdkEventCrossing *event,
 
 #if DEBUG_KB_GRABBING
 	printf("DEBUG_KB_GRABBING: %s: enter on protocol widget event received\n", __func__);
-	printf("DEBUG_KB_GRABBING:    enter event detail=");
-	switch (event->detail) {
-	case GDK_NOTIFY_ANCESTOR: printf("GDK_NOTIFY_ANCESTOR"); break;
-	case GDK_NOTIFY_VIRTUAL: printf("GDK_NOTIFY_VIRTUAL"); break;
-	case GDK_NOTIFY_NONLINEAR: printf("GDK_NOTIFY_NONLINEAR"); break;
-	case GDK_NOTIFY_NONLINEAR_VIRTUAL: printf("GDK_NOTIFY_NONLINEAR_VIRTUAL"); break;
-	case GDK_NOTIFY_UNKNOWN: printf("GDK_NOTIFY_UNKNOWN"); break;
-	case GDK_NOTIFY_INFERIOR: printf("GDK_NOTIFY_INFERIOR"); break;
-	default: printf("unknown");
-	}
-	printf("\n");
-	printf("DEBUG_KB_GRABBING:    enter event mode=");
-	switch (event->mode) {
-	case GDK_CROSSING_NORMAL: printf("GDK_CROSSING_NORMAL"); break;
-	case GDK_CROSSING_GRAB: printf("GDK_CROSSING_GRAB"); break;
-	case GDK_CROSSING_UNGRAB: printf("GDK_CROSSING_UNGRAB"); break;
-	case GDK_CROSSING_GTK_GRAB: printf("GDK_CROSSING_GTK_GRAB"); break;
-	case GDK_CROSSING_GTK_UNGRAB: printf("GDK_CROSSING_GTK_UNGRAB"); break;
-	case GDK_CROSSING_STATE_CHANGED: printf("GDK_CROSSING_STATE_CHANGED"); break;
-	case GDK_CROSSING_TOUCH_BEGIN: printf("GDK_CROSSING_TOUCH_BEGIN"); break;
-	case GDK_CROSSING_TOUCH_END: printf("GDK_CROSSING_TOUCH_END"); break;
-	case GDK_CROSSING_DEVICE_SWITCH: printf("GDK_CROSSING_DEVICE_SWITCH"); break;
-
-	default: printf("unknown");
-	}
-	printf("\n");
+	print_crossing_event(event);
 #endif
 
 	RemminaConnectionWindowPriv *priv = cnnobj->cnnwin->priv;
@@ -3244,6 +3283,8 @@ static gboolean rcw_map_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	TRACE_CALL(__func__);
 
+
+
 	RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow *)widget;
 	RemminaConnectionObject *cnnobj;
 	RemminaProtocolWidget *gp;
@@ -3435,19 +3476,27 @@ void rco_closewin(RemminaProtocolWidget *gp)
 	RemminaConnectionObject *cnnobj = gp->cnnobj;
 	GtkWidget *page_to_remove;
 
+
+	if (cnnobj && cnnobj->scrolled_container && REMMINA_IS_SCROLLED_VIEWPORT(cnnobj->scrolled_container)) {
+		REMMINA_DEBUG("deleting motion");
+		remmina_scrolled_viewport_remove_motion(REMMINA_SCROLLED_VIEWPORT(cnnobj->scrolled_container));
+	}
+
 	if (cnnobj && cnnobj->cnnwin) {
 		page_to_remove = nb_find_page_by_cnnobj(cnnobj->cnnwin->priv->notebook, cnnobj);
 		if (page_to_remove) {
 			gtk_notebook_remove_page(
 				cnnobj->cnnwin->priv->notebook,
 				gtk_notebook_page_num(cnnobj->cnnwin->priv->notebook, page_to_remove));
+			/* Invalidate pointers to objects destroyed by page removal */
+			cnnobj->aspectframe = NULL;
+			cnnobj->viewport = NULL;
+			cnnobj->scrolled_container = NULL;
+			/* we cannot invalidate cnnobj->proto, because it can be already been
+			 * detached from the widget hierarchy in rco_on_disconnect() */
 		}
 	}
 	if (cnnobj) {
-		if (cnnobj->scrolled_container && REMMINA_IS_SCROLLED_VIEWPORT(cnnobj->scrolled_container)) {
-			REMMINA_DEBUG("deleting motion");
-			remmina_scrolled_viewport_remove_motion(REMMINA_SCROLLED_VIEWPORT(cnnobj->scrolled_container));
-		}
 		cnnobj->remmina_file = NULL;
 		g_free(cnnobj);
 		gp->cnnobj = NULL;
@@ -3506,8 +3555,6 @@ static GtkWidget *rco_create_tab_label(RemminaConnectionObject *cnnobj)
 
 	g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(rco_on_close_button_clicked), cnnobj);
 
-	g_signal_connect(G_OBJECT(cnnobj->proto), "enter-notify-event", G_CALLBACK(rco_enter_protocol_widget), cnnobj);
-	g_signal_connect(G_OBJECT(cnnobj->proto), "leave-notify-event", G_CALLBACK(rco_leave_protocol_widget), cnnobj);
 
 	return hbox;
 }
@@ -3630,6 +3677,7 @@ static void rcw_on_page_removed(GtkNotebook *notebook, GtkWidget *child, guint p
 
 	if (gtk_notebook_get_n_pages(GTK_NOTEBOOK(cnnwin->priv->notebook)) <= 0)
 		gtk_widget_destroy(GTK_WIDGET(cnnwin));
+
 }
 
 static GtkNotebook *
@@ -3860,6 +3908,7 @@ static void rcw_create_overlay_ftb_overlay(RemminaConnectionWindow *cnnwin)
 	rcw_floating_toolbar_show(cnnwin, TRUE);
 
 	g_signal_connect(G_OBJECT(priv->overlay_ftb_overlay), "enter-notify-event", G_CALLBACK(rcw_floating_toolbar_on_enter), cnnwin);
+	g_signal_connect(G_OBJECT(priv->overlay_ftb_overlay), "leave-notify-event", G_CALLBACK(rcw_floating_toolbar_on_leave), cnnwin);
 	g_signal_connect(G_OBJECT(priv->overlay_ftb_overlay), "scroll-event", G_CALLBACK(rcw_floating_toolbar_on_scroll), cnnwin);
 	gtk_widget_add_events(
 		GTK_WIDGET(priv->overlay_ftb_overlay),
@@ -4459,6 +4508,7 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 	gboolean maximize;
 	gint view_mode;
 	const gchar *msg;
+	RemminaScaleMode scalemode;
 
 	if (disconnect_cb) {
 		g_print("disconnect_cb is deprecated inside rcw_open_from_file_full() and should be null\n");
@@ -4515,8 +4565,8 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(cnnobj->viewport), GTK_SHADOW_NONE);
 
 	/* Create the scrolled container */
-	cnnobj->scrolled_container = rco_create_scrolled_container(cnnobj, view_mode);
-	g_signal_connect(G_OBJECT(cnnobj->scrolled_container), "destroy", G_CALLBACK(gtk_widget_destroyed), (gpointer)&cnnobj->scrolled_container);
+	scalemode = get_current_allowed_scale_mode(cnnobj, NULL, NULL);
+	cnnobj->scrolled_container = rco_create_scrolled_container(scalemode, view_mode);
 
 	gtk_container_add(GTK_CONTAINER(cnnobj->scrolled_container), cnnobj->viewport);
 
@@ -4565,6 +4615,8 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 	g_signal_connect(G_OBJECT(cnnobj->proto), "update-align", G_CALLBACK(rco_on_update_align), NULL);
 	g_signal_connect(G_OBJECT(cnnobj->proto), "lock-dynres", G_CALLBACK(rco_on_lock_dynres), NULL);
 	g_signal_connect(G_OBJECT(cnnobj->proto), "unlock-dynres", G_CALLBACK(rco_on_unlock_dynres), NULL);
+	g_signal_connect(G_OBJECT(cnnobj->proto), "enter-notify-event", G_CALLBACK(rco_enter_protocol_widget), cnnobj);
+	g_signal_connect(G_OBJECT(cnnobj->proto), "leave-notify-event", G_CALLBACK(rco_leave_protocol_widget), cnnobj);
 
 	if (!remmina_pref.save_view_mode)
 		remmina_file_set_int(cnnobj->remmina_file, "viewmode", remmina_pref.default_mode);
