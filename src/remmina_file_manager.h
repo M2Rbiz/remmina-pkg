@@ -1,7 +1,7 @@
 /*
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2010 Vic Lee
- * Copyright (C) 2017-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2017-2023 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ typedef struct _RemminaGroupData {
 	gchar * name;
 	gchar * group;
 	gchar * datetime;
+	gchar * labels;
 } RemminaGroupData;
 
 /* Initialize */

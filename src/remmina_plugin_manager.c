@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,9 +42,11 @@
 #include <gmodule.h>
 #include <gio/gio.h>
 #include <string.h>
-
+#ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
-
+#elif defined(GDK_WINDOWING_WAYLAND)
+#include <gdk/gdkwayland.h>
+#endif
 #include "remmina_public.h"
 #include "remmina_main.h"
 #include "remmina_file_manager.h"

@@ -3,6 +3,7 @@
 
 Remmina - The GTK+ Remmina Remote Desktop Client
 Copyright © 2014-2022 Antenore Gatta, Giovanni Panozzo
+Copyright © 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -330,16 +331,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="menuitem_help_news">
-                        <property name="visible">True</property>
-                        <property name="app-paintable">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.news</property>
-                        <property name="label" translatable="yes">News</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkMenuItem" id="menuitem_help_homepage">
                         <property name="visible">True</property>
                         <property name="app-paintable">True</property>
@@ -473,6 +464,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   </object>
                 </child>
                 <child>
+                  <object class="GtkTreeViewColumn" id="column_files_list_labels">
+                    <property name="resizable">True</property>
+                    <property name="title" translatable="yes">Labels</property>
+                    <property name="clickable">True</property>
+                    <property name="sort-indicator">True</property>
+                    <property name="sort-order">descending</property>
+                    <property name="sort-column-id">7</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="renderer_files_list_labels"/>
+                      <attributes>
+                        <attribute name="text">7</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkTreeViewColumn" id="column_files_list_server">
                     <property name="resizable">True</property>
                     <property name="title" translatable="yes">Server</property>
@@ -482,6 +489,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                       <object class="GtkCellRendererText" id="renderer_files_list_server"/>
                       <attributes>
                         <attribute name="text">3</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="column_files_list_notes">
+                    <property name="resizable">True</property>
+                    <property name="title" translatable="yes">Notes</property>
+                    <property name="clickable">True</property>
+                    <property name="sort-column-id">8</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="renderer_files_list_notes"/>
+                      <attributes>
+                        <attribute name="text">8</attribute>
                       </attributes>
                     </child>
                   </object>

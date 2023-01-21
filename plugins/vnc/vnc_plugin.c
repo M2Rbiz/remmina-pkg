@@ -3,6 +3,7 @@
  * Copyright (C) 2010-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +47,7 @@
 #define REMMINA_PLUGIN_VNC_FEATURE_SCALE                   6
 #define REMMINA_PLUGIN_VNC_FEATURE_UNFOCUS                 7
 #define REMMINA_PLUGIN_VNC_FEATURE_TOOL_SENDCTRLALTDEL     8
+#define REMMINA_PLUGIN_VNC_FEATURE_PREF_COLOR	           9
 
 #define VNC_DEFAULT_PORT 5900
 
@@ -1174,7 +1176,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 	rfbClient *cl = NULL;
 	gchar *host;
 	gchar *s = NULL;
-
+	
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 	gpdata->running = TRUE;
 
@@ -1254,18 +1256,22 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 
 			remmina_plugin_vnc_incoming_connection(gp, cl);
 		} else {
-			remmina_plugin_service->get_server_port(host, VNC_DEFAULT_PORT, &s, &cl->serverPort);
-			cl->serverHost = g_strdup(s);
-			g_free(s);
-
-			/* Support short-form (:0, :1) */
-			if (cl->serverPort < 100)
-				cl->serverPort += VNC_DEFAULT_PORT;
+			if (strstr(host, "unix://") == host) {
+				cl->serverHost = g_strdup(host + strlen("unix://"));
+				cl->serverPort  = 0;
+			} else {
+				remmina_plugin_service->get_server_port(host, VNC_DEFAULT_PORT, &s, &cl->serverPort);
+				cl->serverHost = g_strdup(s);
+				g_free(s);
+				/* Support short-form (:0, :1) */
+				if (cl->serverPort < 100)
+					cl->serverPort += VNC_DEFAULT_PORT;
+			}
 		}
 		g_free(host);
 		host = NULL;
 
-		if (remmina_plugin_service->file_get_string(remminafile, "proxy")) {
+		if (cl->serverHost && strstr(cl->serverHost, "unix://") != cl->serverHost && remmina_plugin_service->file_get_string(remminafile, "proxy")) {
 			remmina_plugin_service->get_server_port(
 				remmina_plugin_service->file_get_string(remminafile, "server"),
 				VNC_DEFAULT_PORT,
@@ -1682,6 +1688,7 @@ static gboolean remmina_plugin_vnc_open_connection(RemminaProtocolWidget *gp)
 	gpdata->connected = TRUE;
 	gchar *server;
 	gint port;
+	const gchar* raw_server;
 
 	remmina_plugin_service->protocol_plugin_register_hostkey(gp, gpdata->drawing_area);
 
@@ -1705,13 +1712,19 @@ static gboolean remmina_plugin_vnc_open_connection(RemminaProtocolWidget *gp)
 		gpdata->thread = 0;
 	}
 
-	remmina_plugin_service->get_server_port(remmina_plugin_service->file_get_string(remminafile, "server"),
-			VNC_DEFAULT_PORT,
-			&server,
-			&port);
+	raw_server = remmina_plugin_service->file_get_string(remminafile, "server");
 
-	REMMINA_PLUGIN_AUDIT(_("Connected to %s:%d via VNC"), server, port);
-	g_free(server), server = NULL;
+	if (raw_server && strstr(raw_server, "unix://") == raw_server) {
+		REMMINA_PLUGIN_AUDIT(_("Connected to %s via VNC"), server);
+	} else {
+		remmina_plugin_service->get_server_port(raw_server,
+				VNC_DEFAULT_PORT,
+				&server,
+				&port);
+
+		REMMINA_PLUGIN_AUDIT(_("Connected to %s:%d via VNC"), server, port);
+		g_free(server), server = NULL;
+	}
 	return TRUE;
 }
 
@@ -1823,7 +1836,8 @@ static void remmina_plugin_vnc_call_feature(RemminaProtocolWidget *gp, const Rem
 	TRACE_CALL(__func__);
 	RemminaPluginVncData *gpdata = GET_PLUGIN_DATA(gp);
 	RemminaFile *remminafile;
-
+	rfbClient*  client;
+	uint8_t previous_bpp;
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 	switch (feature->id) {
 	case REMMINA_PLUGIN_VNC_FEATURE_PREF_QUALITY:
@@ -1832,6 +1846,20 @@ static void remmina_plugin_vnc_call_feature(RemminaProtocolWidget *gp, const Rem
 		remmina_plugin_vnc_update_colordepth((rfbClient *)(gpdata->client),
 						     remmina_plugin_service->file_get_int(remminafile, "colordepth", 32));
 		SetFormatAndEncodings((rfbClient *)(gpdata->client));
+		break;
+	case REMMINA_PLUGIN_VNC_FEATURE_PREF_COLOR:
+		client = (rfbClient *)(gpdata->client);
+		previous_bpp = client->format.bitsPerPixel;
+		remmina_plugin_vnc_update_colordepth(client,
+						     remmina_plugin_service->file_get_int(remminafile, "colordepth", 32));
+		SetFormatAndEncodings(client);
+		//Need to clear away old and reallocate if we're increasing bpp 
+		if (client->format.bitsPerPixel > previous_bpp){
+			remmina_plugin_vnc_rfb_allocfb((rfbClient *)(gpdata->client));
+			SendFramebufferUpdateRequest((rfbClient *)(gpdata->client), 0, 0,
+					     remmina_plugin_service->protocol_plugin_get_width(gp),
+					     remmina_plugin_service->protocol_plugin_get_height(gp), FALSE);
+		}
 		break;
 	case REMMINA_PLUGIN_VNC_FEATURE_PREF_VIEWONLY:
 		break;
@@ -2073,6 +2101,8 @@ static const RemminaProtocolFeature remmina_plugin_vnc_features[] =
 {
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF,	 REMMINA_PLUGIN_VNC_FEATURE_PREF_QUALITY,	     GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_RADIO), "quality",
 	  quality_list },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF,	 REMMINA_PLUGIN_VNC_FEATURE_PREF_COLOR,	     GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_RADIO), "colordepth",
+	  colordepth_list },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF,	 REMMINA_PLUGIN_VNC_FEATURE_PREF_VIEWONLY,	     GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_CHECK), "viewonly",
 	  N_("View only") },
 	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF,	 REMMINA_PLUGIN_VNC_FEATURE_PREF_DISABLESERVERINPUT, GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_CHECK), "disableserverinput",N_("Prevent local interaction on the server")  },

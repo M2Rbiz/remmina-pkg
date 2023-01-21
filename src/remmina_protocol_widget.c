@@ -2,7 +2,7 @@
  * Remmina - The GTK+ Remote Desktop Client
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
- * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -480,6 +480,8 @@ void remmina_protocol_widget_close_connection(RemminaProtocolWidget *gp)
 		/* Connection is already closed by the plugin, but
 		 * rcw is asking to close again (usually after an error panel)
 		 */
+		/* Clear the current error, or "disconnect" signal func will reshow a panel */
+		remmina_protocol_widget_set_error(gp, NULL);
 		g_signal_emit_by_name(G_OBJECT(gp), "disconnect");
 		return;
 	}

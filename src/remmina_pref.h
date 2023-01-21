@@ -3,6 +3,7 @@
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -149,6 +150,7 @@ typedef struct _RemminaPref {
 	gboolean		list_refresh_workaround;
 	gboolean		fullscreen_on_auto;
 	gboolean		always_show_tab;
+	gboolean		always_show_notes;
 	gboolean		hide_connection_toolbar;
 	gboolean		hide_searchbar;
 	gint			default_mode;
@@ -234,11 +236,6 @@ typedef struct _RemminaPref {
 	/* Usage stats */
 	gchar *			last_success;
 
-	/* Remmina news */
-	gboolean		periodic_news_permitted;
-	glong			periodic_rmnews_last_get;
-	glong			periodic_rmnews_get_count;
-	gchar *			periodic_rmnews_uuid_prefix;
 } RemminaPref;
 
 #define DEFAULT_SSH_PARSECONFIG TRUE

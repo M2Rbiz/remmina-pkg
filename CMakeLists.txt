@@ -3,6 +3,7 @@
 # Copyright (C) 2011 Marc-Andre Moreau
 # Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
 # Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+# Copyright (C) 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +36,7 @@ cmake_policy(SET CMP0048 NEW)
 
 project(
   Remmina
-  VERSION 1.4.27
+  VERSION 1.4.29
   DESCRIPTION "The Gtk Remote Desktop Client"
   LANGUAGES C CXX
 )
@@ -493,16 +494,6 @@ endif()
 if(WITH_TRACE_CALLS)
   message(STATUS "Enabling trace calls.")
   add_definitions(-DWITH_TRACE_CALLS)
-endif()
-
-option(WITH_NEWS "Disable online version checking" ON)
-if(WITH_NEWS)
-  message(STATUS "Enabling version check connecting to remmina.org")
-  add_definitions(-DWITH_NEWS)
-  set(RMNEWS_ENABLE_NEWS 1)
-else()
-  message(STATUS "Disabling version check connecting to remmina.org")
-  set(RMNEWS_ENABLE_NEWS 0)
 endif()
 
 option(WITH_MANPAGES "Build with MANPAGES" ON)

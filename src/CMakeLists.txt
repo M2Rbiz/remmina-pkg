@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2011 Marc-Andre Moreau
 # Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
-# Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+# Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -117,8 +117,6 @@ list(
   "remmina_sysinfo.c"
   "rcw.c"
   "rcw.h"
-  "rmnews.c"
-  "rmnews.h"
   "remmina_mpchange.c"
   "remmina_mpchange.h"
   "remmina_scheduler.c"
@@ -132,7 +130,6 @@ set(RESOURCE_LIST
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_key_chooser.glade
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_main.glade
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_mpc.glade
-    ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_news.glade
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_passwd.glade
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_preferences.glade
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/ui/remmina_search.glade
@@ -170,10 +167,6 @@ endif()
 if(WITH_MANPAGES)
   install(FILES remmina.1 DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1)
 endif()
-
-find_package(X11)
-include_directories(${X11_INCLUDE_DIR})
-target_link_libraries(remmina ${X11_LIBRARIES})
 
 target_link_libraries(remmina ${CMAKE_THREAD_LIBS_INIT})
 
@@ -254,13 +247,6 @@ if(GTK3_FOUND)
     target_link_libraries(remmina ${JSONGLIB_LIBRARIES})
   else()
     message(FATAL_ERROR "json-glib library not found")
-  endif()
-  find_required_package(LIBSOUP24)
-  if(LIBSOUP24_FOUND)
-    include_directories(${LIBSOUP24_INCLUDE_DIRS})
-    target_link_libraries(remmina ${LIBSOUP24_LIBRARIES})
-  else()
-    message(FATAL_ERROR "libsoup 2.4 library not found")
   endif()
 endif()
 

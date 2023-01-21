@@ -40,7 +40,7 @@ This is the website [donation page](https://remmina.org/wp/donations/).
 
 ### Authors
 
-Maintained by [Antenore Gatta](https://gitlab.com/antenore), [Giovanni Panozzo](https://gitlab.com/giox069) and [Allan Nordhøy](https://gitlab.com/kingu).
+Maintained by [Hiroyuki Tanaka](https://gitlab.com/myheroyuki), [Antenore Gatta](https://gitlab.com/antenore), [Giovanni Panozzo](https://gitlab.com/giox069) and [Allan Nordhøy](https://gitlab.com/kingu).
 Add yourself in [AUTHORS](AUTHORS) if you have contributed.
 
 ### Resources
@@ -50,6 +50,5 @@ Add yourself in [AUTHORS](AUTHORS) if you have contributed.
 
 ### License
 
-Copylefted libre software, licensed [GPLv2+](https://gitlab.com/Remmina/Remmina/blob/master/COPYING).
-
+Copylefted libre software, licensed [GPLv2+](https://gitlab.com/Remmina/Remmina/blob/master/COPYING). \
 Initially developed by [Vic Lee](https://github.com/llyzs).

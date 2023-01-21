@@ -1,6 +1,6 @@
 # remmina-plugin-www - The GTK+ Remote Desktop Client
 #
-# Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
+# Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,12 +45,12 @@ set_target_properties(remmina-plugin-www PROPERTIES NO_SONAME 1)
 
 add_definitions(${WEBKIT2GTK_CFLAGS_OTHER})
 
-find_required_package(LIBSOUP24)
-if(LIBSOUP24_FOUND)
-    include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${WEBKIT2GTK_INCLUDE_DIRS} ${LIBSOUP24_INCLUDE_DIRS})
-    target_link_libraries(remmina-plugin-www ${REMMINA_COMMON_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
+find_required_package(LIBSOUP)
+if(LIBSOUP_FOUND)
+    include_directories(${REMMINA_COMMON_INCLUDE_DIRS} ${WEBKIT2GTK_INCLUDE_DIRS} ${LIBSOUP_INCLUDE_DIRS})
+    target_link_libraries(remmina-plugin-www ${REMMINA_COMMON_LIBRARIES} ${LIBSOUP_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
 else()
-    message(FATAL_ERROR "libsoup 2.4 library not found")
+    message(FATAL_ERROR "libsoup library not found")
 endif()
 
 install(TARGETS remmina-plugin-www DESTINATION ${REMMINA_PLUGINDIR})
