@@ -195,6 +195,7 @@ struct remmina_plugin_rdp_event {
 			BOOL	extended;
 			UINT8	key_code;
 			UINT32	unicode_code;
+			BOOL	extended1;
 		} key_event;
 		struct {
 			UINT16	flags;
@@ -380,6 +381,8 @@ struct rf_context {
 	GAsyncQueue *		event_queue;
 	gint			event_pipe[2];
 	HANDLE			event_handle;
+	UINT16         	last_x;
+	UINT16         	last_y;
 
 	rfClipboard		clipboard;
 

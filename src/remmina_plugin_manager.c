@@ -229,6 +229,7 @@ RemminaPluginService remmina_plugin_manager_service =
 	remmina_file_get_secret,
 	remmina_file_set_int,
 	remmina_file_get_int,
+	remmina_file_get_double,
 	remmina_file_unsave_passwords,
 
 	remmina_pref_set_value,
@@ -363,6 +364,7 @@ void remmina_plugin_manager_init()
 		fullpath = g_strdup_printf(REMMINA_RUNTIME_PLUGINDIR "/%s", name);
 		if (!remmina_plugin_manager_loader_supported(ptr)) {
 			g_ptr_array_add(alternative_language_plugins, g_strdup_printf(REMMINA_RUNTIME_PLUGINDIR "/%s", name));
+			g_free(fullpath);
 			continue;
 		}
 		remmina_plugin_native_load(&remmina_plugin_manager_service, fullpath);
@@ -428,6 +430,7 @@ void remmina_plugin_manager_init()
 	}
 
 	g_slist_free(secret_plugins);
+	g_ptr_array_free(alternative_language_plugins, TRUE);
 }
 
 gboolean remmina_plugin_manager_loader_supported(const char *filetype) {
@@ -459,6 +462,8 @@ const gchar *remmina_plugin_manager_get_canonical_setting_name(const RemminaProt
 			return "password";
 		if (setting->type == REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION)
 			return "resolution";
+		if (setting->type == REMMINA_PROTOCOL_SETTING_TYPE_ASSISTANCE)
+			return "assistance_mode";
 		return "missing_setting_name_into_plugin_RemminaProtocolSetting";
 	}
 	return setting->name;

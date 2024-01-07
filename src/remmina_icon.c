@@ -133,42 +133,48 @@ static void remmina_icon_populate_additional_menu_item(GtkWidget *menu)
 	TRACE_CALL(__func__);
 	GtkWidget *menuitem;
 
-	menuitem = gtk_menu_item_new_with_label(_("Open Main Window"));
-	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_main), NULL);
 
-	menuitem = gtk_menu_item_new_with_mnemonic(_("_Preferences"));
-	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_preferences), NULL);
-
-	menuitem = gtk_menu_item_new_with_mnemonic(_("_About"));
-	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_about), NULL);
+#ifdef HAVE_LIBAVAHI_CLIENT
 
 	menuitem = gtk_separator_menu_item_new();
 	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
 
-#ifdef HAVE_LIBAVAHI_CLIENT
 	menuitem = gtk_check_menu_item_new_with_label(_("Enable Service Discovery"));
 	if (remmina_pref.applet_enable_avahi)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
 	gtk_widget_show(menuitem);
 	g_signal_connect(G_OBJECT(menuitem), "toggled", G_CALLBACK(remmina_icon_enable_avahi), NULL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
+
+
+#endif
 
 	menuitem = gtk_separator_menu_item_new();
 	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-#endif
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
 
 	menuitem = gtk_menu_item_new_with_mnemonic(_("_Quit"));
 	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_exec_exitremmina), NULL);
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
+	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_exec_exitremmina_one_confirm), NULL);
+
+	menuitem = gtk_menu_item_new_with_mnemonic(_("_About"));
+	gtk_widget_show(menuitem);
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
+	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_about), NULL);
+
+	menuitem = gtk_menu_item_new_with_mnemonic(_("_Preferences"));
+	gtk_widget_show(menuitem);
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
+	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_preferences), NULL);
+
+	menuitem = gtk_menu_item_new_with_label(_("Open Main Window"));
+	gtk_widget_show(menuitem);
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
+	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(remmina_icon_main), NULL);
+
+
 }
 
 static void remmina_icon_on_launch_item(RemminaAppletMenu *menu, RemminaAppletMenuItem *menuitem, gpointer data)
@@ -259,13 +265,14 @@ remmina_icon_populate_menu(void)
 
 		remmina_applet_menu_set_hide_count(REMMINA_APPLET_MENU(menu), remmina_pref.applet_hide_count);
 		remmina_applet_menu_populate(REMMINA_APPLET_MENU(menu));
-		remmina_icon_populate_extra_menu_item(menu);
+		
 
 		menuitem = gtk_separator_menu_item_new();
 		gtk_widget_show(menuitem);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
 		remmina_icon_populate_additional_menu_item(menu);
+		remmina_icon_populate_extra_menu_item(menu);
 	}
 }
 
@@ -276,7 +283,12 @@ static void remmina_icon_save_autostart_file(GKeyFile *gkeyfile)
 	gsize length;
 
 	content = g_key_file_to_data(gkeyfile, &length, NULL);
-	g_file_set_contents(remmina_icon.autostart_file, content, length, NULL);
+	if (remmina_icon.autostart_file != NULL) {
+		g_file_set_contents(remmina_icon.autostart_file, content, length, NULL);
+	}
+	else {
+		REMMINA_WARNING("Cannot save remmina icon autostart file. Uncheck Preferences -> Applet -> No Tray Icon to recreate it.");
+	}
 	g_free(content);
 }
 
@@ -430,7 +442,14 @@ gboolean remmina_icon_is_autostart(void)
 	gboolean b;
 
 	gkeyfile = g_key_file_new();
-	g_key_file_load_from_file(gkeyfile, remmina_icon.autostart_file, G_KEY_FILE_NONE, NULL);
+
+	if (remmina_icon.autostart_file != NULL) {
+		g_key_file_load_from_file(gkeyfile, remmina_icon.autostart_file, G_KEY_FILE_NONE, NULL);
+	}
+	else {
+		REMMINA_WARNING("Cannot load remmina icon autostart file. Uncheck Preferences -> Applet -> No Tray Icon to recreate it.");
+	}
+
 	b = !g_key_file_get_boolean(gkeyfile, "Desktop Entry", "Hidden", NULL);
 	g_key_file_free(gkeyfile);
 	return b;
@@ -442,19 +461,24 @@ void remmina_icon_set_autostart(gboolean autostart)
 	GKeyFile *gkeyfile;
 	gboolean b;
 
-	gkeyfile = g_key_file_new();
-	g_key_file_load_from_file(gkeyfile, remmina_icon.autostart_file, G_KEY_FILE_NONE, NULL);
-	b = !g_key_file_get_boolean(gkeyfile, "Desktop Entry", "Hidden", NULL);
-	if (b != autostart) {
-		g_key_file_set_boolean(gkeyfile, "Desktop Entry", "Hidden", !autostart);
-		/* Refresh it in case translation is updated */
-		// TRANSLATORS: Applet Name as per the Freedesktop Desktop entry specification https://specifications.freedesktop.org/desktop-entry-spec/latest/
-		g_key_file_set_string(gkeyfile, "Desktop Entry", "Name", _("Remmina Applet"));
-		// TRANSLATORS: Applet comment/description as per the Freedesktop Desktop entry specification https://specifications.freedesktop.org/desktop-entry-spec/latest/
-		g_key_file_set_string(gkeyfile, "Desktop Entry", "Comment", _("Connect to remote desktops through the applet menu"));
-		remmina_icon_save_autostart_file(gkeyfile);
+	if (remmina_icon.autostart_file != NULL) {
+		gkeyfile = g_key_file_new();
+		g_key_file_load_from_file(gkeyfile, remmina_icon.autostart_file, G_KEY_FILE_NONE, NULL);
+		b = !g_key_file_get_boolean(gkeyfile, "Desktop Entry", "Hidden", NULL);
+		if (b != autostart) {
+			g_key_file_set_boolean(gkeyfile, "Desktop Entry", "Hidden", !autostart);
+			/* Refresh it in case translation is updated */
+			// TRANSLATORS: Applet Name as per the Freedesktop Desktop entry specification https://specifications.freedesktop.org/desktop-entry-spec/latest/
+			g_key_file_set_string(gkeyfile, "Desktop Entry", "Name", _("Remmina Applet"));
+			// TRANSLATORS: Applet comment/description as per the Freedesktop Desktop entry specification https://specifications.freedesktop.org/desktop-entry-spec/latest/
+			g_key_file_set_string(gkeyfile, "Desktop Entry", "Comment", _("Connect to remote desktops through the applet menu"));
+			remmina_icon_save_autostart_file(gkeyfile);
+			g_key_file_free(gkeyfile);
+		}
 	}
-	g_key_file_free(gkeyfile);
+	else {
+		REMMINA_WARNING("Cannot load remmina icon autostart file. Uncheck Preferences -> Applet -> No Tray Icon to recreate it.");
+	}
 }
 
 #else
