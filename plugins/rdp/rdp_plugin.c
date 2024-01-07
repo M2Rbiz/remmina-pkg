@@ -58,6 +58,7 @@
 #include <cairo/cairo.h>
 #endif
 #include <freerdp/addin.h>
+#include <freerdp/assistance.h>
 #include <freerdp/settings.h>
 #include <freerdp/freerdp.h>
 #include <freerdp/constants.h>
@@ -111,6 +112,8 @@
 RemminaPluginService *remmina_plugin_service = NULL;
 
 static BOOL gfx_h264_available = FALSE;
+// keep track of last interaction time for keep alive
+static time_t last_time;
 
 /* Compatibility: these functions have been introduced with https://github.com/FreeRDP/FreeRDP/commit/8c5d96784d
  * and are missing on older FreeRDP, so we add them here.
@@ -226,9 +229,16 @@ static BOOL rf_process_event_queue(RemminaProtocolWidget *gp)
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	while ((event = (RemminaPluginRdpEvent *)g_async_queue_try_pop(rfi->event_queue)) != NULL) {
+		time(&last_time); //update last user interaction time
 		switch (event->type) {
 		case REMMINA_RDP_EVENT_TYPE_SCANCODE:
-			flags = event->key_event.extended ? KBD_FLAGS_EXTENDED : 0;
+			
+			if (event->key_event.extended1){
+				flags = KBD_FLAGS_EXTENDED1;
+			}
+			else{
+				flags = event->key_event.extended ? KBD_FLAGS_EXTENDED : 0;
+			}
 			flags |= event->key_event.up ? KBD_FLAGS_RELEASE : KBD_FLAGS_DOWN;
 			input->KeyboardEvent(input, flags, event->key_event.key_code);
 			break;
@@ -992,8 +1002,20 @@ static void remmina_rdp_main_loop(RemminaProtocolWidget *gp)
 	DWORD status;
 	gchar buf[100];
 	rfContext *rfi = GET_PLUGIN_DATA(gp);
+	RemminaFile *remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	time_t cur_time, time_diff;
 
+	int jitter_time = remmina_plugin_service->file_get_int(remminafile, "rdp_mouse_jitter", 0);
+	time(&last_time);
 	while (!freerdp_shall_disconnect(rfi->instance)) {
+		//move mouse if we've been idle and option is selected
+		time(&cur_time);
+		time_diff = cur_time - last_time;
+		if (jitter_time > 0 && time_diff > jitter_time){
+			last_time = cur_time;
+			remmina_rdp_mouse_jitter(gp);
+		}
+		
 		HANDLE handles[64]={0};
 		DWORD nCount = freerdp_get_event_handles(rfi->instance->context, &handles[0], 64);
 		if (rfi->event_handle)
@@ -1374,6 +1396,37 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		if (access(datapath, W_OK) == 0)
 			freerdp_settings_set_string(rfi->settings, FreeRDP_ConfigPath, datapath);
 	g_free(datapath);
+
+	if (remmina_plugin_service->file_get_int(remminafile, "assistance_mode", 0)){
+		rdpAssistanceFile* file = freerdp_assistance_file_new();
+		if (!file){
+			REMMINA_PLUGIN_DEBUG("Could not allocate assistance file structure");
+			return FALSE;
+		}
+		
+		if (remmina_plugin_service->file_get_string(remminafile, "assistance_file") == NULL || 
+				remmina_plugin_service->file_get_string(remminafile, "assistance_pass") == NULL ){
+
+			REMMINA_PLUGIN_DEBUG("Assistance file and password are not set while assistance mode is on");
+			return FALSE;
+		}
+
+		status = freerdp_assistance_parse_file(file, 
+			remmina_plugin_service->file_get_string(remminafile, "assistance_file"), 
+			remmina_plugin_service->file_get_string(remminafile, "assistance_pass"));
+
+		if (status < 0){
+			REMMINA_PLUGIN_DEBUG("Could not parse assistance file");
+			return FALSE;
+		}
+			
+
+		if (!freerdp_assistance_populate_settings_from_assistance_file(file, rfi->settings)){
+			REMMINA_PLUGIN_DEBUG("Could not populate settings from assistance file");
+			return FALSE;
+		}		
+	}
+
 
 #if defined(PROXY_TYPE_IGNORE)
 	if (!remmina_plugin_service->file_get_int(remminafile, "useproxyenv", FALSE) ? TRUE : FALSE) {
@@ -2419,6 +2472,8 @@ static void remmina_rdp_init(RemminaProtocolWidget *gp)
 	rfi->is_reconnecting = false;
 	rfi->stop_reconnecting_requested = false;
 	rfi->user_cancelled = FALSE;
+	rfi->last_x = 0;
+	rfi->last_y = 0;
 
 	freerdp_register_addin_provider(freerdp_channels_load_static_addin_entry, 0);
 
@@ -2702,6 +2757,17 @@ static gpointer security_list[] =
 	NULL
 };
 
+/* Array of key/value pairs for mouse movement */
+static gpointer mouse_jitter_list[] =
+{
+	"No",	  N_("No"),
+	"60",  N_("Every 1 min"),
+	"180", N_("Every 3 min"),
+	"300", N_("Every 5 min"),
+	"600", N_("Every 10 min"),
+	NULL
+};
+
 static gpointer gwtransp_list[] =
 {
 	"http", "HTTP",
@@ -2871,6 +2937,9 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "vc",			    N_("Static virtual channel"),			 FALSE, NULL,		  N_("<channel>[,<options>]")											 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "rdp2tcp",		    N_("TCP redirection"),				 FALSE, NULL,		  N_("/PATH/TO/rdp2tcp")											 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "rdp_reconnect_attempts", N_("Reconnect attempts number"),			 FALSE, NULL,		  N_("The maximum number of reconnect attempts upon an RDP disconnect (default: 20)")				 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "rdp_mouse_jitter",    N_("Move mouse when connection is idle"),		 FALSE, mouse_jitter_list,	  NULL											 },
+
+	{ REMMINA_PROTOCOL_SETTING_TYPE_ASSISTANCE,	  "assistance_mode",	    N_("Attempt to connect in assistance mode"),	TRUE,	NULL																 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "preferipv6",		    N_("Prefer IPv6 AAAA record over IPv4 A record"),	 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "shareprinter",	    N_("Share printers"),				 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "shareserial",	    N_("Share serial ports"),				 TRUE,	NULL,		  NULL														 },

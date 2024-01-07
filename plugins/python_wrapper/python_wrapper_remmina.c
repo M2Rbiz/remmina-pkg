@@ -661,6 +661,7 @@ PyMODINIT_FUNC python_wrapper_module_initialize(void)
 	PyModule_AddIntConstant(module, "PROTOCOL_SETTING_TYPE_SERVER", (long)REMMINA_PROTOCOL_SETTING_TYPE_SERVER);
 	PyModule_AddIntConstant(module, "PROTOCOL_SETTING_TYPE_PASSWORD", (long)REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD);
 	PyModule_AddIntConstant(module, "PROTOCOL_SETTING_TYPE_RESOLUTION", (long)REMMINA_PROTOCOL_SETTING_TYPE_RESOLUTION);
+	PyModule_AddIntConstant(module, "PROTOCOL_SETTING_TYPE_ASSISTANCE", (long)REMMINA_PROTOCOL_SETTING_TYPE_ASSISTANCE);
 	PyModule_AddIntConstant(module, "PROTOCOL_SETTING_TYPE_KEYMAP", (long)REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP);
 	PyModule_AddIntConstant(module, "PROTOCOL_SETTING_TYPE_TEXT", (long)REMMINA_PROTOCOL_SETTING_TYPE_TEXT);
 	PyModule_AddIntConstant(module, "PROTOCOL_SETTING_TYPE_SELECT", (long)REMMINA_PROTOCOL_SETTING_TYPE_SELECT);
@@ -1023,11 +1024,11 @@ static PyObject* remmina_public_get_server_port_wrapper(PyObject* self, PyObject
 {
 	TRACE_CALL(__func__);
 
-	static char* kwlist[] = { "server", "defaultport", "host", "port", NULL };
+	static char* kwlist[] = { "server", "defaultport", NULL };
 	gchar* server;
 	gint defaultport;
 
-	if (PyArg_ParseTupleAndKeywords(args, kwargs, "slsl", kwlist, &server, &defaultport) && server)
+	if (PyArg_ParseTupleAndKeywords(args, kwargs, "sl", kwlist, &server, &defaultport) && server)
 	{
 		gchar* host;
 		gint port;
