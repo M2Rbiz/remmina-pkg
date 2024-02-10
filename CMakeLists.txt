@@ -36,7 +36,7 @@ cmake_policy(SET CMP0048 NEW)
 
 project(
   Remmina
-  VERSION 1.4.32
+  VERSION 1.4.34
   DESCRIPTION "The Gtk Remote Desktop Client"
   LANGUAGES C CXX
 )
@@ -496,6 +496,33 @@ endif()
 if(WITH_TRACE_CALLS)
   message(STATUS "Enabling trace calls.")
   add_definitions(-DWITH_TRACE_CALLS)
+endif()
+
+option(WITH_NEWS "Enable online news check" ON)
+if(WITH_NEWS)
+  message(STATUS "Enabling news check connecting to remmina.org")
+  add_definitions(-DWITH_NEWS)
+else()
+  message(STATUS "Disabling news check connecting to remmina.org")
+  add_definitions(-DDISABLE_NEWS)
+endif()
+
+option(WITH_STATS "Enable stats" ON)
+if(WITH_STATS)
+  message(STATUS "Enabling stats")
+  add_definitions(-DWITH_STATS)
+else()
+  message(STATUS "Disabling stats")
+  add_definitions(-DDISABLE_STATS)
+endif()
+
+option(WITH_TIP "Enable tip of the day" ON)
+if(WITH_TIP)
+  message(STATUS "Enabling tip of the day")
+  add_definitions(-DWITH_TIP)
+else()
+  message(STATUS "Disabling tip of the day")
+  add_definitions(-DDISABLE_TIP)
 endif()
 
 option(WITH_MANPAGES "Build with MANPAGES" ON)

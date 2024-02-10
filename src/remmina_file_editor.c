@@ -3,6 +3,7 @@
  * Copyright (C) 2009-2011 Vic Lee
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  * Copyright (C) 2016-2023 Antenore Gatta, Giovanni Panozzo
+ * Copyright (C) 2023-2024 Hiroyuki Tanaka, Sunil Bhat
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,6 +122,7 @@ struct _RemminaFileEditorPriv {
 	GtkWidget *		behavior_precommand_entry;
 	GtkWidget *		behavior_postcommand_entry;
 	GtkWidget *		behavior_lock_check;
+	GtkWidget *		behavior_disconnect;
 
 	GtkWidget *		ssh_tunnel_enabled_check;
 	GtkWidget *		ssh_tunnel_loopback_check;
@@ -360,17 +362,6 @@ static GtkWidget *remmina_file_editor_create_notebook_tab(RemminaFileEditor *gfe
 	return grid;
 }
 
-#ifdef HAVE_LIBSSH
-
-static void remmina_file_editor_ssh_tunnel_server_custom_radio_on_toggled(GtkToggleButton *togglebutton, RemminaFileEditor *gfe)
-{
-	TRACE_CALL(__func__);
-	gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->ssh_tunnel_server_entry),
-				 gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfe->priv->ssh_tunnel_enabled_check)) &&
-				 (gfe->priv->ssh_tunnel_server_custom_radio == NULL ||
-				  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfe->priv->ssh_tunnel_server_custom_radio))));
-}
-
 
 static void remmina_file_editor_assistance_enabled_check_on_toggled(GtkToggleButton *togglebutton,
 								    RemminaFileEditor *gfe)
@@ -390,6 +381,18 @@ static void remmina_file_editor_assistance_enabled_check_on_toggled(GtkToggleBut
 			gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->assistance_password_label), enabled);
 	}
 }
+
+#ifdef HAVE_LIBSSH
+
+static void remmina_file_editor_ssh_tunnel_server_custom_radio_on_toggled(GtkToggleButton *togglebutton, RemminaFileEditor *gfe)
+{
+	TRACE_CALL(__func__);
+	gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->ssh_tunnel_server_entry),
+				 gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfe->priv->ssh_tunnel_enabled_check)) &&
+				 (gfe->priv->ssh_tunnel_server_custom_radio == NULL ||
+				  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfe->priv->ssh_tunnel_server_custom_radio))));
+}
+
 
 static void remmina_file_editor_ssh_tunnel_enabled_check_on_toggled(GtkToggleButton *togglebutton,
 								    RemminaFileEditor *gfe, RemminaProtocolSSHSetting ssh_setting)
@@ -670,7 +673,10 @@ static void remmina_file_editor_create_assistance(RemminaFileEditor *gfe, const 
 	widget = gtk_entry_new();
 	gtk_widget_set_halign(widget, GTK_ALIGN_START);
 	gtk_widget_show(widget);
-	gtk_entry_set_text(GTK_ENTRY(widget), remmina_file_get_string(gfe->priv->remmina_file, "assistance_file"));
+	
+	if (remmina_file_get_string(gfe->priv->remmina_file, "assistance_file") != NULL) {
+		gtk_entry_set_text(GTK_ENTRY(widget), remmina_file_get_string(gfe->priv->remmina_file, "assistance_file"));
+	}
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, row+1, 1, 1);
 	gfe->priv->assistance_file = widget;
 
@@ -683,7 +689,10 @@ static void remmina_file_editor_create_assistance(RemminaFileEditor *gfe, const 
 	widget = gtk_entry_new();
 	gtk_widget_set_halign(widget, GTK_ALIGN_START);
 	gtk_widget_show(widget);
-	gtk_entry_set_text(GTK_ENTRY(widget), remmina_file_get_string(gfe->priv->remmina_file, "assistance_pass"));
+
+	if (remmina_file_get_string(gfe->priv->remmina_file, "assistance_pass") != NULL) {
+		gtk_entry_set_text(GTK_ENTRY(widget), remmina_file_get_string(gfe->priv->remmina_file, "assistance_pass"));
+	}
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, row+2, 1, 1);
 	gfe->priv->assistance_password = widget;
 
@@ -1192,6 +1201,13 @@ static void remmina_file_editor_create_behavior_tab(RemminaFileEditor *gfe)
 	/* Autostart profile option */
 	priv->behavior_lock_check = remmina_file_editor_create_check(gfe, grid, 10, 1, _("Require password to connect or edit the profile"),
 								     remmina_file_get_int(priv->remmina_file, "profile-lock", FALSE), "profile-lock");
+
+									 /* Startup frame */
+	remmina_public_create_group(GTK_GRID(grid), _("Unexpected disconnect"), 12, 1, 2);
+
+	/* Autostart profile option */
+	priv->behavior_disconnect = remmina_file_editor_create_check(gfe, grid, 16, 1, _("Keep window from closing if not disconnected by Remmina"),
+								     remmina_file_get_int(priv->remmina_file, "disconnect-prompt", FALSE), "disconnect-prompt");
 }
 
 #ifdef HAVE_LIBSSH
@@ -1467,6 +1483,8 @@ static void remmina_file_editor_save_behavior_tab(RemminaFileEditor *gfe)
 	remmina_file_set_int(priv->remmina_file, "enable-autostart", autostart_enabled);
 	gboolean lock_enabled = (priv->behavior_lock_check ? gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->behavior_lock_check)) : FALSE);
 	remmina_file_set_int(priv->remmina_file, "profile-lock", lock_enabled);
+	gboolean disconect_prompt = (priv->behavior_disconnect ? gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->behavior_disconnect)) : FALSE);
+	remmina_file_set_int(priv->remmina_file, "disconnect-prompt", disconect_prompt);
 }
 
 static void remmina_file_editor_save_ssh_tunnel_tab(RemminaFileEditor *gfe)

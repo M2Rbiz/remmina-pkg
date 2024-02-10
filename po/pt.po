@@ -13,9 +13,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: remmina\n"
 "Report-Msgid-Bugs-To: l10n@lists.remmina.org\n"
-"POT-Creation-Date: 2023-09-15 12:57+0000\n"
-"PO-Revision-Date: 2023-07-08 12:53+0000\n"
-"Last-Translator: SC <lalocas@protonmail.com>\n"
+"POT-Creation-Date: 2023-09-24 14:41+0000\n"
+"PO-Revision-Date: 2023-12-20 15:10+0000\n"
+"Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/remmina/"
 "remmina/pt/>\n"
 "Language: pt\n"
@@ -23,12 +23,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.3\n"
 "X-Launchpad-Export-Date: 2014-09-20 14:24+0000\n"
 
 #: src/remmina_sftp_plugin.c:309 src/remmina_sftp_plugin.c:353
 #: src/remmina_protocol_widget.c:1726 src/remmina_protocol_widget.c:1745
-#: src/remmina_file_editor.c:1200 src/remmina_file_editor.c:1323
+#: src/remmina_file_editor.c:1209 src/remmina_file_editor.c:1332
 #: src/remmina_ssh_plugin.c:1394 plugins/rdp/rdp_plugin.c:2880
 #: plugins/www/www_plugin.c:909 plugins/x2go/x2go_plugin.c:3397
 #: data/ui/remmina_mpc.glade:218 data/ui/remmina_passwd.glade:68
@@ -37,22 +37,22 @@ msgid "Password"
 msgstr "Palavra-passe"
 
 #: src/remmina_sftp_plugin.c:310 src/remmina_sftp_plugin.c:355
-#: src/remmina_file_editor.c:1201 src/remmina_ssh_plugin.c:1395
+#: src/remmina_file_editor.c:1210 src/remmina_ssh_plugin.c:1395
 #: src/remmina_ssh_plugin.c:1506 plugins/x2go/x2go_plugin.c:3420
 msgid "SSH identity file"
 msgstr "Ficheiro de identidade SSH"
 
-#: src/remmina_sftp_plugin.c:311 src/remmina_file_editor.c:1202
+#: src/remmina_sftp_plugin.c:311 src/remmina_file_editor.c:1211
 #: src/remmina_ssh_plugin.c:1396
 msgid "SSH agent"
 msgstr "Agente SSH"
 
-#: src/remmina_sftp_plugin.c:312 src/remmina_file_editor.c:1203
+#: src/remmina_sftp_plugin.c:312 src/remmina_file_editor.c:1212
 #: src/remmina_ssh_plugin.c:1397
 msgid "Public key (automatic)"
 msgstr "Chave pública (automática)"
 
-#: src/remmina_sftp_plugin.c:313 src/remmina_file_editor.c:1204
+#: src/remmina_sftp_plugin.c:313 src/remmina_file_editor.c:1213
 #: src/remmina_ssh_plugin.c:1398
 msgid "Kerberos (GSSAPI)"
 msgstr "Kerberos (GSSAPI)"
@@ -74,7 +74,7 @@ msgid "Connect via SSH from a new terminal"
 msgstr "Conectar via SSH de um novo terminal"
 
 #: src/remmina_sftp_plugin.c:352 src/remmina_message_panel.c:330
-#: src/remmina_file_editor.c:1317 src/remmina_ssh_plugin.c:1504
+#: src/remmina_file_editor.c:1326 src/remmina_ssh_plugin.c:1504
 #: plugins/rdp/rdp_plugin.c:2879 plugins/vnc/vnc_plugin.c:2098
 #: plugins/vnc/vnc_plugin.c:2110 plugins/www/www_plugin.c:908
 #: plugins/x2go/x2go_plugin.c:482 plugins/x2go/x2go_plugin.c:3396
@@ -82,12 +82,12 @@ msgstr "Conectar via SSH de um novo terminal"
 msgid "Username"
 msgstr "Nome de utilizador"
 
-#: src/remmina_sftp_plugin.c:354 src/remmina_file_editor.c:1308
+#: src/remmina_sftp_plugin.c:354 src/remmina_file_editor.c:1317
 #: src/remmina_ssh_plugin.c:1503
 msgid "Authentication type"
 msgstr "Tipo de autenticação"
 
-#: src/remmina_sftp_plugin.c:356 src/remmina_file_editor.c:1341
+#: src/remmina_sftp_plugin.c:356 src/remmina_file_editor.c:1350
 #: src/remmina_ssh_plugin.c:1510
 msgid "Password to unlock private key"
 msgstr "Palavra-passe para desbloquear a chave privada"
@@ -125,7 +125,7 @@ msgstr ""
 "Há mais informações sobre como depurar o Remmina em https://gitlab.com/"
 "Remmina/Remmina/-/wikis/Usage/Remmina-debugging\n"
 
-#: src/remmina_plugin_manager.c:74 src/remmina_file_editor.c:2101
+#: src/remmina_plugin_manager.c:74 src/remmina_file_editor.c:2112
 msgid "Protocol"
 msgstr "Protocolo"
 
@@ -158,11 +158,11 @@ msgid "Plugins"
 msgstr "Plug-ins"
 
 #: src/remmina_plugin_manager.c:531 src/remmina_message_panel.c:455
-#: src/remmina_message_panel.c:624 src/remmina_file_editor.c:251
+#: src/remmina_message_panel.c:624 src/remmina_file_editor.c:252
 msgid "_OK"
 msgstr "_OK"
 
-#: src/remmina_plugin_manager.c:549 src/remmina_file_editor.c:2033
+#: src/remmina_plugin_manager.c:549 src/remmina_file_editor.c:2044
 #: data/ui/remmina_main.glade:457
 msgid "Name"
 msgstr "Nome"
@@ -228,11 +228,11 @@ msgstr "Meta+"
 msgid "<None>"
 msgstr "<Nenhuma>"
 
-#: src/remmina_pref_dialog.c:94 src/remmina_file_editor.c:558
+#: src/remmina_pref_dialog.c:94 src/remmina_file_editor.c:560
 msgid "Resolutions"
 msgstr "Resoluções"
 
-#: src/remmina_pref_dialog.c:94 src/remmina_file_editor.c:558
+#: src/remmina_pref_dialog.c:94 src/remmina_file_editor.c:560
 msgid "Configure the available resolutions"
 msgstr "Configurar as resoluções disponíveis"
 
@@ -250,15 +250,15 @@ msgid "Configure the keystrokes"
 msgstr "Configurar as combinações de teclas"
 
 #. TRANSLATORS: Do not translate libsodium, is the name of a library
-#: src/remmina_pref_dialog.c:479
+#: src/remmina_pref_dialog.c:480
 msgid "libsodium >= 1.9.0 is required to use Primary Password"
 msgstr "libsodium >= 1.9.0 é necessário para usar a palavra-passe mestra"
 
-#: src/remmina_pref_dialog.c:813
+#: src/remmina_pref_dialog.c:816
 msgid "Picking a terminal colouring file replaces the file: "
 msgstr "Escolher um ficheiro de cores de terminal"
 
-#: src/remmina_pref_dialog.c:817
+#: src/remmina_pref_dialog.c:820
 msgid ""
 "This file contains the “Custom” terminal colour scheme selectable from the "
 "“Advanced” tab of terminal connections and editable in the “Terminal” tab in "
@@ -276,7 +276,7 @@ msgstr "Cancelar"
 #: src/remmina_message_panel.c:199 data/ui/remmina_snap_info_dialog.glade:25
 #: data/ui/remmina_string_list.glade:8 data/ui/remmina_string_list.glade:9
 #: data/ui/remmina_string_list.glade:63 data/ui/remmina_news.glade:33
-#: data/ui/remmina_preferences.glade:2708
+#: data/ui/remmina_preferences.glade:2742
 msgid "Close"
 msgstr "Fechar"
 
@@ -298,8 +298,8 @@ msgid "Save password"
 msgstr "Guardar palavra-passe"
 
 #: src/remmina_message_panel.c:460 src/remmina_message_panel.c:632
-#: src/remmina_sftp_client.c:972 src/remmina_file_editor.c:250
-#: src/remmina_file_editor.c:1907 plugins/spice/spice_plugin_file_transfer.c:84
+#: src/remmina_sftp_client.c:972 src/remmina_file_editor.c:251
+#: src/remmina_file_editor.c:1918 plugins/spice/spice_plugin_file_transfer.c:84
 #: data/ui/remmina_key_chooser.glade:8 data/ui/remmina_key_chooser.glade:9
 #: data/ui/remmina_spinner.glade:8 data/ui/remmina_spinner.glade:9
 msgid "_Cancel"
@@ -461,14 +461,14 @@ msgstr "Minimizar janela"
 msgid "Disconnect"
 msgstr "Desligar"
 
-#: src/rcw.c:4433
+#: src/rcw.c:4437
 #, c-format
 msgid "The file “%s” is corrupted, unreadable, or could not be found."
 msgstr "O ficheiro \"%s\" está corrompido, ilegível ou não foi encontrado."
 
 #. TRANSLATORS: This should be a link to the Remmina wiki page:
 #. TRANSLATORS: 'GtkSocket feature is not available'.
-#: src/rcw.c:4507
+#: src/rcw.c:4511
 msgid ""
 "https://gitlab.com/Remmina/Remmina/-/wikis/GtkSocket-feature-is-not-"
 "available-in-a-Wayland-session"
@@ -476,7 +476,7 @@ msgstr ""
 "https://gitlab.com/Remmina/Remmina/-/wikis/GtkSocket-feature-is-not-"
 "available-in-a-Wayland-session"
 
-#: src/rcw.c:4651
+#: src/rcw.c:4655
 msgid ""
 "Warning: This plugin requires GtkSocket, but this feature is unavailable in "
 "a Wayland session."
@@ -486,7 +486,7 @@ msgstr ""
 
 #. TRANSLATORS: This should be a link to the Remmina wiki page:
 #. 'GtkSocket feature is not available'.
-#: src/rcw.c:4657
+#: src/rcw.c:4661
 msgid ""
 "Plugins relying on GtkSocket can't run in a Wayland session.\n"
 "For more info and a possible workaround, please visit the Remmina wiki at:\n"
@@ -502,7 +502,7 @@ msgstr ""
 "https://gitlab.com/Remmina/Remmina/-/wikis/GtkSocket-feature-is-not-"
 "available-in-a-Wayland-session"
 
-#: src/rcw.c:4671
+#: src/rcw.c:4675
 msgid "Open in web browser"
 msgstr "Abrir no navegador web"
 
@@ -866,7 +866,7 @@ msgstr "Tamanho"
 msgid "User"
 msgstr "Utilizador"
 
-#: src/remmina_ftp_client.c:955 src/remmina_file_editor.c:2058
+#: src/remmina_ftp_client.c:955 src/remmina_file_editor.c:2069
 #: data/ui/remmina_mpc.glade:93 data/ui/remmina_main.glade:479
 msgid "Group"
 msgstr "Grupo"
@@ -1004,8 +1004,8 @@ msgstr "À escuta na porta %i pela chegada de uma ligação %s…"
 msgid "Could not authenticate, attempting reconnection…"
 msgstr "Não foi possível autenticar, a tentar a religação…"
 
-#: src/remmina_protocol_widget.c:2080 src/remmina_file_editor.c:462
-#: src/remmina_file_editor.c:1273 data/ui/remmina_main.glade:509
+#: src/remmina_protocol_widget.c:2080 src/remmina_file_editor.c:464
+#: src/remmina_file_editor.c:1282 data/ui/remmina_main.glade:509
 msgid "Server"
 msgstr "Servidor"
 
@@ -1167,124 +1167,118 @@ msgid "Keyboard interactive login, TOTP/OTP/2FA"
 msgstr "Login interativo por teclado, TOTP/OTP/2FA"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:1900
-#, c-format
-msgid "Could not start SSH session. %s"
-msgstr "Não foi possível iniciar sessão SSH. %s"
-
-#. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2300
+#: src/remmina_ssh.c:2319
 #, c-format
 msgid "Could not create channel. %s"
 msgstr "Não foi possível criar o canal. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2311
+#: src/remmina_ssh.c:2330
 #, c-format
 msgid "Could not connect to SSH tunnel. %s"
 msgstr "Não foi possível conectar no túnel SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2382 src/remmina_ssh.c:2403 src/remmina_ssh.c:2412
+#: src/remmina_ssh.c:2401 src/remmina_ssh.c:2422 src/remmina_ssh.c:2431
 #, c-format
 msgid "Could not request port forwarding. %s"
 msgstr "Não foi possível solicitar encaminhamento de porta. %s"
 
-#: src/remmina_ssh.c:2442
+#: src/remmina_ssh.c:2461
 msgid "The server did not respond."
 msgstr "O servidor não respondeu."
 
-#: src/remmina_ssh.c:2480
+#: src/remmina_ssh.c:2499
 #, c-format
 msgid "Cannot connect to local port %i."
 msgstr "Não foi possível conectar à porta local %i."
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2529
+#: src/remmina_ssh.c:2548
 #, c-format
 msgid "Could not write to SSH channel. %s"
 msgstr "Não foi possível escrever para o canal SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2536
+#: src/remmina_ssh.c:2555
 #, c-format
 msgid "Could not read from tunnel listening socket. %s"
 msgstr "Não foi possível ler do socket de escuta de túnel. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2556
+#: src/remmina_ssh.c:2575
 #, c-format
 msgid "Could not poll SSH channel. %s"
 msgstr "Não foi possível sondar o canal SSH. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2563
+#: src/remmina_ssh.c:2582
 #, c-format
 msgid "Could not read SSH channel in a non-blocking way. %s"
 msgstr "Não foi possível ler o canal SSH de maneira sem bloqueio. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2582
+#: src/remmina_ssh.c:2601
 #, c-format
 msgid "Could not send data to tunnel listening socket. %s"
 msgstr "Não foi possível enviar dados para o socket de escuta do túnel. %s"
 
-#: src/remmina_ssh.c:2684
+#: src/remmina_ssh.c:2703
 msgid "Assign a destination port."
 msgstr "Atribua uma porta de destino."
 
-#: src/remmina_ssh.c:2691
+#: src/remmina_ssh.c:2710
 msgid "Could not create socket."
 msgstr "Não foi possível criar o socket."
 
-#: src/remmina_ssh.c:2701
+#: src/remmina_ssh.c:2720
 msgid "Could not bind server socket to local port."
 msgstr "Não foi possível vincular o socket do servidor à porta local."
 
-#: src/remmina_ssh.c:2707
+#: src/remmina_ssh.c:2726
 msgid "Could not listen to local port."
 msgstr "Não foi possível escutar na porta local."
 
 #. TRANSLATORS: Do not translate pthread
-#: src/remmina_ssh.c:2717 src/remmina_ssh.c:2734 src/remmina_ssh.c:2752
+#: src/remmina_ssh.c:2736 src/remmina_ssh.c:2753 src/remmina_ssh.c:2771
 msgid "Could not start pthread."
 msgstr "Não foi possível iniciar pthread."
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2844
+#: src/remmina_ssh.c:2863
 #, c-format
 msgid "Could not create SFTP session. %s"
 msgstr "Não foi possível criar sessão SFTP. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2849
+#: src/remmina_ssh.c:2868
 #, c-format
 msgid "Could not start SFTP session. %s"
 msgstr "Não foi possível iniciar sessão SFTP. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2941
+#: src/remmina_ssh.c:2960
 #, c-format
 msgid "Could not open channel. %s"
 msgstr "Não foi possível abrir o canal. %s"
 
 #. TRANSLATORS: The placeholder %s is an error message
-#: src/remmina_ssh.c:2984
+#: src/remmina_ssh.c:3003
 #, c-format
 msgid "Could not request shell. %s"
 msgstr "Não foi possível solicitar shell. %s"
 
-#: src/remmina_ssh.c:3114
+#: src/remmina_ssh.c:3133
 msgid "Could not create PTY device."
 msgstr "Não foi possível criar o aparelho PTY."
 
 #: src/remmina_exec.c:128
-#, fuzzy
-#| msgid "Are you sure you want to close this last active connection?"
 msgid ""
 "Are you sure you want to fully quit Remmina?\n"
 " This will close any active connections."
-msgstr "Tem certeza que deseja fechar esta última conexão ativa?"
+msgstr ""
+"Tem certeza que deseja fechar o Remmina completamente?\n"
+" Isto fechará todas as conexões ativas."
 
 #: src/remmina_exec.c:505
 #, c-format
@@ -1336,7 +1330,7 @@ msgstr ""
 msgid "Import"
 msgstr "Importar"
 
-#: src/remmina_main.c:1262 src/remmina_file_editor.c:1915
+#: src/remmina_main.c:1262 src/remmina_file_editor.c:1926
 msgid "_Save"
 msgstr "_Guardar"
 
@@ -1488,136 +1482,144 @@ msgstr ""
 "- servidor[:porta]\n"
 "- nomedousuario@servidor[:porta] (somente protocolo SSH)</big>"
 
-#: src/remmina_file_editor.c:170
+#: src/remmina_file_editor.c:171
 msgid "Input is invalid."
 msgstr "A entrada é inválida."
 
-#: src/remmina_file_editor.c:248
+#: src/remmina_file_editor.c:249
 msgid "Choose a Remote Desktop Server"
 msgstr "Escolher um Servidor de Ambiente de Trabalho Remoto"
 
-#: src/remmina_file_editor.c:486
+#: src/remmina_file_editor.c:488
 #, c-format
 msgid "Browse the network to find a %s server"
 msgstr "Explore a rede para encontrar o servidor %s"
 
-#: src/remmina_file_editor.c:594
+#: src/remmina_file_editor.c:596
 msgid "Resolution"
 msgstr "Resolução"
 
-#: src/remmina_file_editor.c:601
+#: src/remmina_file_editor.c:603
 msgid "Use initial window size"
 msgstr "Usar o tamanho inicial da janela"
 
-#: src/remmina_file_editor.c:605
+#: src/remmina_file_editor.c:607
 msgid "Use client resolution"
 msgstr "Usar a resolução do cliente"
 
-#: src/remmina_file_editor.c:616 src/remmina_file_editor.c:1253
+#: src/remmina_file_editor.c:618 src/remmina_file_editor.c:1262
 msgid "Custom"
 msgstr "Personalizado"
 
-#: src/remmina_file_editor.c:655
+#: src/remmina_file_editor.c:657
 msgid "Assistance Mode"
-msgstr ""
+msgstr "Modo de assistência"
 
-#: src/remmina_file_editor.c:1036
+#: src/remmina_file_editor.c:1038
 msgid "Keyboard mapping"
 msgstr "Mapeamento do teclado"
 
-#: src/remmina_file_editor.c:1163
+#: src/remmina_file_editor.c:1165
 msgid "Behavior"
 msgstr "Comportamento"
 
-#: src/remmina_file_editor.c:1166
+#: src/remmina_file_editor.c:1168
 msgid "Execute a Command"
 msgstr "Executar um comando"
 
-#: src/remmina_file_editor.c:1170
+#: src/remmina_file_editor.c:1172
 msgid "Before connecting"
 msgstr "Antes de conectar"
 
-#: src/remmina_file_editor.c:1172
+#: src/remmina_file_editor.c:1174
 msgid "command %h %u %t %U %p %g --option"
 msgstr "comando %h %u %t %U %p %g --option"
 
-#: src/remmina_file_editor.c:1177
+#: src/remmina_file_editor.c:1179
 msgid "After connecting"
 msgstr "Após conectar"
 
-#: src/remmina_file_editor.c:1179
+#: src/remmina_file_editor.c:1181
 msgid "/path/to/command -opt1 arg %h %u %t -opt2 %U %p %g"
 msgstr "/caminho/para/comando -opt1 arg %h %u %t -opt2 %U %p %g"
 
-#: src/remmina_file_editor.c:1183
+#: src/remmina_file_editor.c:1185
 msgid "Start-up"
 msgstr "Inicialização"
 
-#: src/remmina_file_editor.c:1186
+#: src/remmina_file_editor.c:1188
 msgid "Auto-start this profile"
 msgstr "Iniciar automaticamente este perfil"
 
-#: src/remmina_file_editor.c:1190
+#: src/remmina_file_editor.c:1192
 msgid "Connection profile security"
 msgstr "Segurança do perfil de conexão"
 
-#: src/remmina_file_editor.c:1193
+#: src/remmina_file_editor.c:1195
 msgid "Require password to connect or edit the profile"
 msgstr "Exige uma palavra-passe para conectar ou editar o perfil"
 
-#: src/remmina_file_editor.c:1226
+#: src/remmina_file_editor.c:1199
+msgid "Unexpected disconnect"
+msgstr "Desconexão inesperada"
+
+#: src/remmina_file_editor.c:1202
+msgid "Keep window from closing if not disconnected by Remmina"
+msgstr "Evita que a janela se feche caso não seja desconectada pela Remmina"
+
+#: src/remmina_file_editor.c:1235
 msgid "SSH Tunnel"
 msgstr "Túnel SSH"
 
-#: src/remmina_file_editor.c:1227
+#: src/remmina_file_editor.c:1236
 msgid "Enable SSH tunnel"
 msgstr "Ativar túnel SSH"
 
-#: src/remmina_file_editor.c:1234
+#: src/remmina_file_editor.c:1243
 msgid "Tunnel via loopback address"
 msgstr "Túnel via endereço de \"loopback\""
 
-#: src/remmina_file_editor.c:1244
+#: src/remmina_file_editor.c:1253
 #, c-format
 msgid "Same server at port %i"
 msgstr "O mesmo servidor na porta %i"
 
-#: src/remmina_file_editor.c:1294 plugins/rdp/rdp_plugin.c:2925
+#: src/remmina_file_editor.c:1303 plugins/rdp/rdp_plugin.c:2925
 msgid "Start-up path"
 msgstr "Caminho de arranque"
 
-#: src/remmina_file_editor.c:1303
+#: src/remmina_file_editor.c:1312
 msgid "SSH Authentication"
 msgstr "Autenticação SSH"
 
-#: src/remmina_file_editor.c:1330
+#: src/remmina_file_editor.c:1339
 msgid "SSH private key file"
 msgstr "ficheiro de chave privada SSH"
 
-#: src/remmina_file_editor.c:1336 src/remmina_ssh_plugin.c:1508
+#: src/remmina_file_editor.c:1345 src/remmina_ssh_plugin.c:1508
 msgid "SSH certificate file"
 msgstr "Ficheiro de certificado SSH"
 
-#: src/remmina_file_editor.c:1393
+#: src/remmina_file_editor.c:1402
 msgid "Basic"
 msgstr "Básico"
 
-#: src/remmina_file_editor.c:1399
+#: src/remmina_file_editor.c:1408
 msgid "Advanced"
 msgstr "Avançadas"
 
-#: src/remmina_file_editor.c:1410 data/ui/remmina_main.glade:523
+#: src/remmina_file_editor.c:1419 data/ui/remmina_main.glade:523
 msgid "Notes"
 msgstr "Notas"
 
-#: src/remmina_file_editor.c:1540
+#: src/remmina_file_editor.c:1551
 #, c-format
 msgid "(%s: %i): Can't validate setting '%s' since 'value' or 'gfe' are NULL!"
 msgstr ""
 "(%s: %i): Não é possível validar a definição '%s' uma vez que 'valor' ou "
 "'gfe' são NULL!"
 
-#: src/remmina_file_editor.c:1544
+#: src/remmina_file_editor.c:1555
 #, c-format
 msgid ""
 "(%s: %i): Can't validate user input since 'setting_name_to_validate', "
@@ -1627,61 +1629,61 @@ msgstr ""
 "'set_name_to_validate', 'value' ou 'gfe' são NULL!"
 
 #. TRANSLATORS: Meta-error. Shouldn't be visible.
-#: src/remmina_file_editor.c:1548 plugins/x2go/x2go_plugin.c:2574
+#: src/remmina_file_editor.c:1559 plugins/x2go/x2go_plugin.c:2574
 #: plugins/x2go/x2go_plugin.c:3224
 msgid "Internal error."
 msgstr "Erro interno."
 
-#: src/remmina_file_editor.c:1791 src/remmina_file_editor.c:1827
-#: src/remmina_file_editor.c:1848 src/remmina_file_editor.c:1871
+#: src/remmina_file_editor.c:1802 src/remmina_file_editor.c:1838
+#: src/remmina_file_editor.c:1859 src/remmina_file_editor.c:1882
 #, c-format
 msgid "Couldn't validate user input. %s"
 msgstr "Não foi possível validar a entrada do utilizador. %s"
 
-#: src/remmina_file_editor.c:1815
+#: src/remmina_file_editor.c:1826
 msgid "Default settings saved."
 msgstr "Configurações predefinidas guardadas."
 
-#: src/remmina_file_editor.c:1905
+#: src/remmina_file_editor.c:1916
 msgid "Remote Connection Profile"
 msgstr "Perfil de conexão remota"
 
-#: src/remmina_file_editor.c:1911
+#: src/remmina_file_editor.c:1922
 msgid "Save as Default"
 msgstr "Gravar como predefinição"
 
-#: src/remmina_file_editor.c:1912
+#: src/remmina_file_editor.c:1923
 msgid "Use the current settings as the default for all new connection profiles"
 msgstr ""
 "Usa as configurações atuais como a predfinição para todos os novos perfis de "
 "conexão"
 
-#: src/remmina_file_editor.c:1920 data/ui/remmina_main.glade:161
+#: src/remmina_file_editor.c:1931 data/ui/remmina_main.glade:161
 msgid "Connect"
 msgstr "Conectar"
 
-#: src/remmina_file_editor.c:1923
+#: src/remmina_file_editor.c:1934
 msgid "_Save and Connect"
 msgstr "_Gravar e conectar"
 
-#: src/remmina_file_editor.c:2047
+#: src/remmina_file_editor.c:2058
 msgid "Quick Connect"
 msgstr "Ligação Rápida"
 
-#: src/remmina_file_editor.c:2071
+#: src/remmina_file_editor.c:2082
 #, c-format
 msgid "Use '%s' as subgroup delimiter"
 msgstr "Utilizar '%s' como delimitador de subgrupo"
 
-#: src/remmina_file_editor.c:2076 data/ui/remmina_main.glade:493
+#: src/remmina_file_editor.c:2087 data/ui/remmina_main.glade:493
 msgid "Labels"
 msgstr "Etiquetas"
 
-#: src/remmina_file_editor.c:2090
+#: src/remmina_file_editor.c:2101
 msgid "Label1,Label2"
 msgstr "Etiqueta1,Etiqueta2"
 
-#: src/remmina_file_editor.c:2162 src/remmina_file_editor.c:2181
+#: src/remmina_file_editor.c:2173 src/remmina_file_editor.c:2192
 #, c-format
 msgid "Could not find the file “%s”."
 msgstr "Não foi possível localizar o ficheiro \"%s\"."
@@ -2358,19 +2360,19 @@ msgstr "Segurança do protocolo NLA estendido"
 
 #: plugins/rdp/rdp_plugin.c:2764
 msgid "Every 1 min"
-msgstr ""
+msgstr "A cada 1 min"
 
 #: plugins/rdp/rdp_plugin.c:2765
 msgid "Every 3 min"
-msgstr ""
+msgstr "A cada 3 min"
 
 #: plugins/rdp/rdp_plugin.c:2766
 msgid "Every 5 min"
-msgstr ""
+msgstr "A cada 5 min"
 
 #: plugins/rdp/rdp_plugin.c:2767
 msgid "Every 10 min"
-msgstr ""
+msgstr "A cada 10 min"
 
 #: plugins/rdp/rdp_plugin.c:2781 plugins/spice/spice_plugin.c:628
 #: plugins/spice/spice_plugin.c:646
@@ -2735,14 +2737,12 @@ msgid "/PATH/TO/rdp2tcp"
 msgstr "/CAMINHO/PARA/rdp2tcp"
 
 #: plugins/rdp/rdp_plugin.c:2940
-#, fuzzy
-#| msgid "Remote Connection Profile"
 msgid "Move mouse when connection is idle"
-msgstr "Perfil de conexão remota"
+msgstr "Mova o rato quando a conexão estiver ociosa"
 
 #: plugins/rdp/rdp_plugin.c:2942
 msgid "Attempt to connect in assistance mode"
-msgstr ""
+msgstr "Tentativa de conexão no modo de assistência"
 
 #: plugins/rdp/rdp_plugin.c:2943
 msgid "Prefer IPv6 AAAA record over IPv4 A record"
@@ -2904,22 +2904,19 @@ msgid "Enter SPICE password"
 msgstr "Inerir Palavra-passe de SPICE"
 
 #: plugins/spice/spice_plugin.c:394
-#, fuzzy, c-format
-#| msgid "Disconnected from the SPICE server “%s”."
+#, c-format
 msgid "Disconnected from the SPICE %s."
 msgstr "Desligado do servidor SPICE \"%s\"."
 
 #: plugins/spice/spice_plugin.c:396
-#, fuzzy, c-format
-#| msgid "Disconnected from %s:%d via SPICE"
+#, c-format
 msgid "Disconnected from %s via SPICE"
-msgstr "Desconectado do %s:%d via SPICE"
+msgstr "Desconectado do %s via SPICE"
 
 #: plugins/spice/spice_plugin.c:399
-#, fuzzy, c-format
-#| msgid "Connected to %s:%d via SPICE"
+#, c-format
 msgid "Connected to %s via SPICE"
-msgstr "Conectado a %s:%d via SPICE"
+msgstr "Conectado a %s via SPICE"
 
 #: plugins/spice/spice_plugin.c:411
 msgid "TLS connection error."
@@ -4284,11 +4281,11 @@ msgstr "Permite que o Remmina abre automaticamente ficheiros .rdp e .remmina."
 #. The star (*) is a reference to privacy consent
 #: data/ui/remmina_news.glade:157
 msgid ""
-"Fetch news from <a href=\"https://remmina.org\" title=\"Remmina news site"
-"\">remmina.org</a> (*)"
+"Fetch news from <a href=\"https://remmina.org\" title=\"Remmina news "
+"site\">remmina.org</a> (*)"
 msgstr ""
-"Obter notícias de <a href=\"https://remmina.org\" title=\"Remmina news site"
-"\">remmina.org</a> (*)"
+"Obter notícias de <a href=\"https://remmina.org\" title=\"Remmina news "
+"site\">remmina.org</a> (*)"
 
 #: data/ui/remmina_news.glade:169
 msgid "Receives updated news from remmina.org"
@@ -4306,8 +4303,8 @@ msgstr "<big>Participe</big>"
 #: data/ui/remmina_news.glade:231
 msgid ""
 "<span>\n"
-"<b>You have our gratitude in choosing copylefted libre software, <a href="
-"\"https://remmina.org/donations/\" title=\"Where’s the money, Lebowski? "
+"<b>You have our gratitude in choosing copylefted libre software, <a "
+"href=\"https://remmina.org/donations/\" title=\"Where’s the money, Lebowski? "
 "“blblblblblb”\">donations also make us happy</a>, and further help improve "
 "Remmina.</b>\n"
 "</span>\n"
@@ -4329,7 +4326,7 @@ msgstr "Escolha uma nova chave"
 
 #: data/ui/remmina_key_chooser.glade:84 data/ui/remmina_key_chooser.glade:88
 msgid "Allow key modifiers"
-msgstr ""
+msgstr "Permitir modificadores de teclas"
 
 #: data/ui/remmina_key_chooser.glade:121
 msgid "Please press the new key…"
@@ -4742,56 +4739,64 @@ msgstr "Mostrar/ocultar barra de ferramentas"
 msgid "View-only mode"
 msgstr "Modo de somente visualização"
 
-#: data/ui/remmina_preferences.glade:1365
+#: data/ui/remmina_preferences.glade:1359
+msgid "Send clipboard as keystrokes"
+msgstr "Enviar a área de transferência como impressões de teclas"
+
+#: data/ui/remmina_preferences.glade:1369
+msgid "Send-clipboard"
+msgstr "Enviar-área de transferência"
+
+#: data/ui/remmina_preferences.glade:1399
 msgid "Keyboard"
 msgstr "Teclado"
 
-#: data/ui/remmina_preferences.glade:1396
+#: data/ui/remmina_preferences.glade:1430
 msgid "Local SSH port"
 msgstr "Porta SSH local"
 
-#: data/ui/remmina_preferences.glade:1420
+#: data/ui/remmina_preferences.glade:1454
 msgid "Parse ~/.ssh/config"
 msgstr "Analisar ~/.ssh/config"
 
-#: data/ui/remmina_preferences.glade:1444
+#: data/ui/remmina_preferences.glade:1478
 msgid "No logging at all"
 msgstr "Não registar logs"
 
-#: data/ui/remmina_preferences.glade:1445
+#: data/ui/remmina_preferences.glade:1479
 msgid "Rare conditions or warnings"
 msgstr "Condições raras ou avisos"
 
-#: data/ui/remmina_preferences.glade:1446
+#: data/ui/remmina_preferences.glade:1480
 msgid "API-accessible entrypoints"
 msgstr "Pontos de entrada acessíveis de API"
 
-#: data/ui/remmina_preferences.glade:1447
+#: data/ui/remmina_preferences.glade:1481
 msgid "Lower level protocol info, packet level"
 msgstr "Informações de protocolo de nível baixo, ao nível de pacote"
 
-#: data/ui/remmina_preferences.glade:1448
+#: data/ui/remmina_preferences.glade:1482
 msgid "Function entering and leaving"
 msgstr "Entrada e saída de função"
 
-#: data/ui/remmina_preferences.glade:1465
+#: data/ui/remmina_preferences.glade:1499
 msgid "SSH log level"
 msgstr "Nível de log SSH"
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1536
+#: data/ui/remmina_preferences.glade:1570
 msgid "Seconds of connection idleness before TCP keepalive probes are sent."
 msgstr ""
 "Segundos de conexão ociosa antes que sondas de keepalive em TCP sejam "
 "enviadas."
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1552
+#: data/ui/remmina_preferences.glade:1586
 msgid "Seconds between each keepalive probe."
 msgstr "Segundos entre cada teste de keepalive."
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1568
+#: data/ui/remmina_preferences.glade:1602
 msgid ""
 "Number of keepalive probes sent via TCP connection before it is dropped."
 msgstr ""
@@ -4799,7 +4804,7 @@ msgstr ""
 "desconetada."
 
 #. http://man7.org/linux/man-pages/man7/tcp.7.html
-#: data/ui/remmina_preferences.glade:1584
+#: data/ui/remmina_preferences.glade:1618
 msgid ""
 "Amount of milliseconds to attempt acknowledging data before closing the "
 "corresponding TCP connection forcibly."
@@ -4807,11 +4812,11 @@ msgstr ""
 "Quantidade de milissegundos para tentar reconhecer dados antes de fechar a "
 "conexão TCP correspondente à força."
 
-#: data/ui/remmina_preferences.glade:1610
+#: data/ui/remmina_preferences.glade:1644
 msgid "SSH options"
 msgstr "Opções SSH"
 
-#: data/ui/remmina_preferences.glade:1627
+#: data/ui/remmina_preferences.glade:1661
 msgid ""
 "Time in seconds before Remmina will lock the session and asks for a password "
 "again. Default: 300 Seconds."
@@ -4819,64 +4824,64 @@ msgstr ""
 "Tempo em segundos antes que o Remmina bloqueie a sessão e peça a palavra-"
 "passe novamente. Padrão: 300 segundos."
 
-#: data/ui/remmina_preferences.glade:1639
+#: data/ui/remmina_preferences.glade:1673
 msgid "Set and use a secret key to protect Remmina from unauthorized use."
 msgstr ""
 "Defina e use uma chave secreta para proteger o Remmina do uso não autorizado."
 
-#: data/ui/remmina_preferences.glade:1644
+#: data/ui/remmina_preferences.glade:1678
 msgid "Remmina password"
 msgstr "Palavra-passe do Remmina"
 
-#: data/ui/remmina_preferences.glade:1655
+#: data/ui/remmina_preferences.glade:1689
 msgid "Use secret key authentication for some widgets"
 msgstr "Usar chave secreta para autenticar com alguns widgets"
 
-#: data/ui/remmina_preferences.glade:1675
+#: data/ui/remmina_preferences.glade:1709
 msgid "Valid for"
 msgstr "Válido para"
 
-#: data/ui/remmina_preferences.glade:1686
+#: data/ui/remmina_preferences.glade:1720
 msgid "Number of seconds to keep password valid for"
 msgstr "Quantidade de segundos para manter a palavra-passe válida"
 
-#: data/ui/remmina_preferences.glade:1691
+#: data/ui/remmina_preferences.glade:1725
 msgid "timeout in seconds (default 300)"
 msgstr "tempo limite em segundos (padrão 300)"
 
-#: data/ui/remmina_preferences.glade:1703
+#: data/ui/remmina_preferences.glade:1737
 msgid "Enter your Remmina password to connect"
 msgstr "Digite a sua palavra-passe Remmina para se conectar"
 
 #. “Require to connect” is “Require the Remmina password before to connect”, the Remmina password is the Master/Principal Password, that is used to protect Remmina from unauthorized use.
-#: data/ui/remmina_preferences.glade:1707
+#: data/ui/remmina_preferences.glade:1741
 msgid "Require to connect"
 msgstr "É necessário para se conectar"
 
-#: data/ui/remmina_preferences.glade:1718
+#: data/ui/remmina_preferences.glade:1752
 msgid "Creation, editing, copying, and deletions require the Remmina password"
 msgstr ""
 "A criação, a edição, a cópia e as exclusões precisam da palavra-passe Remmina"
 
 #. Creation, editing, copying, and deletions require the primary password
-#: data/ui/remmina_preferences.glade:1722
+#: data/ui/remmina_preferences.glade:1756
 msgid "Require to modify"
 msgstr "É preciso para alterar"
 
-#: data/ui/remmina_preferences.glade:1733
+#: data/ui/remmina_preferences.glade:1767
 msgid "Enter your Remmina password to view passwords"
 msgstr "Digite a sua palavra-passe Remmina para ver as palavras-passe"
 
 #. “Require to view passwords” is “Require the Remmina password before to connect”, the Remmina password is the Master/Principal Password, that is used to protect Remmina from unauthorized use.
-#: data/ui/remmina_preferences.glade:1737
+#: data/ui/remmina_preferences.glade:1771
 msgid "Require to view passwords"
 msgstr "Requisitar para ver as palavras-passes"
 
-#: data/ui/remmina_preferences.glade:1793
+#: data/ui/remmina_preferences.glade:1827
 msgid "Encryption"
 msgstr "Criptografia"
 
-#: data/ui/remmina_preferences.glade:1804
+#: data/ui/remmina_preferences.glade:1838
 msgid ""
 "These are the encryption methods used by Remmina to store passwords.\n"
 "\n"
@@ -4895,64 +4900,64 @@ msgstr ""
 "O \"Intermediário\" não usa tanta memória ou poder de processamento e o "
 "\"Sensível\" é o mais seguro, mas usa +1 GiB de RAM e muitos ciclos da CPU. "
 
-#: data/ui/remmina_preferences.glade:1813
+#: data/ui/remmina_preferences.glade:1847
 msgid "Intermediate (+64 MiB RAM)"
 msgstr "Intermediário (+64 MiB de RAM)"
 
-#: data/ui/remmina_preferences.glade:1814
+#: data/ui/remmina_preferences.glade:1848
 msgid "Strong (+256 MiB, ~2009 CPU)"
 msgstr "Forte (+256 MiB, ~2009 CPU)"
 
-#: data/ui/remmina_preferences.glade:1815
+#: data/ui/remmina_preferences.glade:1849
 msgid "Sensitive (+1 GiB, ~2014 CPU)"
 msgstr "Sensível (+1 GiB, ~2014 CPU)"
 
-#: data/ui/remmina_preferences.glade:1831
+#: data/ui/remmina_preferences.glade:1865
 msgid "Auditing log"
 msgstr "Registo de auditoria"
 
-#: data/ui/remmina_preferences.glade:1856
+#: data/ui/remmina_preferences.glade:1890
 msgid "Automatically accept all fingerprints and certificates"
 msgstr "Aceitar automaticamente todas as impressões digitais e certificados"
 
-#: data/ui/remmina_preferences.glade:1861
+#: data/ui/remmina_preferences.glade:1895
 msgid "Trust all certificates"
 msgstr "Confie em todos os certificados"
 
-#: data/ui/remmina_preferences.glade:1896
+#: data/ui/remmina_preferences.glade:1930
 msgid "Security"
 msgstr "Segurança"
 
-#: data/ui/remmina_preferences.glade:1927
+#: data/ui/remmina_preferences.glade:1961
 msgid "Terminal font"
 msgstr "Letra do terminal"
 
-#: data/ui/remmina_preferences.glade:1940
+#: data/ui/remmina_preferences.glade:1974
 msgid "Scrollback lines"
 msgstr "Linhas de rolagem"
 
-#: data/ui/remmina_preferences.glade:1988
+#: data/ui/remmina_preferences.glade:2022
 msgid "Shortcuts for copying and pasting"
 msgstr "Atalhos para copiar e colar"
 
-#: data/ui/remmina_preferences.glade:2001
+#: data/ui/remmina_preferences.glade:2035
 msgid "Select all shortcuts"
 msgstr "Selecionar todos atalhos"
 
-#: data/ui/remmina_preferences.glade:2014
-#: data/ui/remmina_preferences.glade:2031
-#: data/ui/remmina_preferences.glade:2484
-#: data/ui/remmina_preferences.glade:2514
-#: data/ui/remmina_preferences.glade:2648
-#: data/ui/remmina_preferences.glade:2665
+#: data/ui/remmina_preferences.glade:2048
+#: data/ui/remmina_preferences.glade:2065
+#: data/ui/remmina_preferences.glade:2518
+#: data/ui/remmina_preferences.glade:2548
+#: data/ui/remmina_preferences.glade:2682
+#: data/ui/remmina_preferences.glade:2699
 msgid "(Host key+)"
 msgstr "(Tecla do host+)"
 
-#: data/ui/remmina_preferences.glade:2049
+#: data/ui/remmina_preferences.glade:2083
 msgid "Use default system font"
 msgstr "Usar a letra predefinida do sistema"
 
-#: data/ui/remmina_preferences.glade:2074
+#: data/ui/remmina_preferences.glade:2108
 msgid ""
 "Selecting “SGR 1” also switches to the bright counterparts of the first 8 "
 "palette colours (in addition to making text bold)."
@@ -4960,15 +4965,15 @@ msgstr ""
 "Selecionar \"SGR 1\" também muda para as contrapartes brilhantes das "
 "primeiras 8 cores da paleta (além de torná-las em negrito)."
 
-#: data/ui/remmina_preferences.glade:2090
+#: data/ui/remmina_preferences.glade:2124
 msgid "Show bold text in bright colors"
 msgstr "Mostra o texto em negrito e com cores brilhantes"
 
-#: data/ui/remmina_preferences.glade:2104
+#: data/ui/remmina_preferences.glade:2138
 msgid "Colour theme"
 msgstr "Tema de cores"
 
-#: data/ui/remmina_preferences.glade:2115
+#: data/ui/remmina_preferences.glade:2149
 msgid ""
 "Choose a colour scheme file. Usually available in /usr/share/remmina/theme. "
 "https://github.com/mbadolato/iTerm2-Color-Schemes has more details."
@@ -4977,130 +4982,130 @@ msgstr ""
 "remmina/theme. Mais detalhes em https://github.com/mbadolato/iTerm2-Color-"
 "Schemes."
 
-#: data/ui/remmina_preferences.glade:2119
+#: data/ui/remmina_preferences.glade:2153
 msgid "Pick a terminal colouring file"
 msgstr "Escolher um ficheiro de cores de terminal"
 
-#: data/ui/remmina_preferences.glade:2134
+#: data/ui/remmina_preferences.glade:2168
 msgid "Bright colours"
 msgstr "Cores claras"
 
-#: data/ui/remmina_preferences.glade:2148
+#: data/ui/remmina_preferences.glade:2182
 msgid "Pick a light black colour"
 msgstr "Escolha uma cor preta clara"
 
-#: data/ui/remmina_preferences.glade:2162
+#: data/ui/remmina_preferences.glade:2196
 msgid "Pick a light red colour"
 msgstr "Escolha uma cor vermelha clara"
 
-#: data/ui/remmina_preferences.glade:2176
+#: data/ui/remmina_preferences.glade:2210
 msgid "Pick a bright green colour"
 msgstr "Escolha uma cor verde clara"
 
-#: data/ui/remmina_preferences.glade:2190
+#: data/ui/remmina_preferences.glade:2224
 msgid "Pick a bright yellow colour"
 msgstr "Escolha uma cor amarela clara"
 
-#: data/ui/remmina_preferences.glade:2204
+#: data/ui/remmina_preferences.glade:2238
 msgid "Pick a bright blue colour"
 msgstr "Escolha uma cor azul clara"
 
-#: data/ui/remmina_preferences.glade:2218
+#: data/ui/remmina_preferences.glade:2252
 msgid "Pick a light magenta colour"
 msgstr "Escolha uma cor magenta clara"
 
-#: data/ui/remmina_preferences.glade:2232
+#: data/ui/remmina_preferences.glade:2266
 msgid "Pick a light cyan colour"
 msgstr "Escolha uma cor de ciano claro"
 
-#: data/ui/remmina_preferences.glade:2246
+#: data/ui/remmina_preferences.glade:2280
 msgid "Pick a light white colour"
 msgstr "Escolha uma cor branca clara"
 
-#: data/ui/remmina_preferences.glade:2260
+#: data/ui/remmina_preferences.glade:2294
 msgid "Pick a black colour"
 msgstr "Escolha uma cor preta"
 
-#: data/ui/remmina_preferences.glade:2274
+#: data/ui/remmina_preferences.glade:2308
 msgid "Pick a red colour"
 msgstr "Escolha uma cor vermelha"
 
-#: data/ui/remmina_preferences.glade:2288
+#: data/ui/remmina_preferences.glade:2322
 msgid "Pick a green colour"
 msgstr "Escolha uma cor verde"
 
-#: data/ui/remmina_preferences.glade:2302
+#: data/ui/remmina_preferences.glade:2336
 msgid "Pick a yellow colour"
 msgstr "Escolha uma cor amarela"
 
-#: data/ui/remmina_preferences.glade:2316
+#: data/ui/remmina_preferences.glade:2350
 msgid "Pick a blue colour"
 msgstr "Escolha uma cor azul"
 
-#: data/ui/remmina_preferences.glade:2330
+#: data/ui/remmina_preferences.glade:2364
 msgid "Pick a magenta colour"
 msgstr "Escolha uma cor magenta"
 
-#: data/ui/remmina_preferences.glade:2344
+#: data/ui/remmina_preferences.glade:2378
 msgid "Pick a cyan colour"
 msgstr "Escolha uma cor de ciano"
 
-#: data/ui/remmina_preferences.glade:2358
+#: data/ui/remmina_preferences.glade:2392
 msgid "Pick a white colour"
 msgstr "Escolha uma cor branca"
 
-#: data/ui/remmina_preferences.glade:2371
+#: data/ui/remmina_preferences.glade:2405
 msgid "Normal colours"
 msgstr "Cores normais"
 
-#: data/ui/remmina_preferences.glade:2384
-#: data/ui/remmina_preferences.glade:2399
+#: data/ui/remmina_preferences.glade:2418
+#: data/ui/remmina_preferences.glade:2433
 msgid "Cursor colour"
 msgstr "Cor do cursor"
 
-#: data/ui/remmina_preferences.glade:2413
-#: data/ui/remmina_preferences.glade:2428
+#: data/ui/remmina_preferences.glade:2447
+#: data/ui/remmina_preferences.glade:2462
 msgid "Background colour"
 msgstr "Cor de fundo"
 
-#: data/ui/remmina_preferences.glade:2444
-#: data/ui/remmina_preferences.glade:2458
+#: data/ui/remmina_preferences.glade:2478
+#: data/ui/remmina_preferences.glade:2492
 msgid "Foreground colour"
 msgstr "Cor de primeiro plano"
 
-#: data/ui/remmina_preferences.glade:2471
+#: data/ui/remmina_preferences.glade:2505
 msgid "Increase and decrease font size"
 msgstr "Aumentar e diminuir o tamanho da fonte"
 
-#: data/ui/remmina_preferences.glade:2501
+#: data/ui/remmina_preferences.glade:2535
 msgid "Search text shortcut"
 msgstr "Pesquisar atalho de texto"
 
-#: data/ui/remmina_preferences.glade:2532
-#: data/ui/remmina_preferences.glade:2547
+#: data/ui/remmina_preferences.glade:2566
+#: data/ui/remmina_preferences.glade:2581
 msgid "Bold colour"
 msgstr "Cores normais"
 
-#: data/ui/remmina_preferences.glade:2561
-#: data/ui/remmina_preferences.glade:2602
+#: data/ui/remmina_preferences.glade:2595
+#: data/ui/remmina_preferences.glade:2636
 msgid "Highlight colour"
 msgstr "Cor de realce"
 
-#: data/ui/remmina_preferences.glade:2574
-#: data/ui/remmina_preferences.glade:2618
+#: data/ui/remmina_preferences.glade:2608
+#: data/ui/remmina_preferences.glade:2652
 msgid "Highlight foreground colour"
 msgstr "Cor de primeiro plano de realce"
 
-#: data/ui/remmina_preferences.glade:2587
-#: data/ui/remmina_preferences.glade:2634
+#: data/ui/remmina_preferences.glade:2621
+#: data/ui/remmina_preferences.glade:2668
 msgid "Cursor foreground colour"
 msgstr "Cor de primeiro plano do cursor"
 
-#: data/ui/remmina_preferences.glade:2690
+#: data/ui/remmina_preferences.glade:2724
 msgid "Terminal"
 msgstr "Terminal"
 
-#: data/ui/remmina_preferences.glade:2704
+#: data/ui/remmina_preferences.glade:2738
 msgid "Remmina Preferences"
 msgstr "Preferências do Remmina"
 
@@ -5115,6 +5120,10 @@ msgstr "Desbloquear"
 #: data/ui/remmina_unlock.glade:109
 msgid "Master password"
 msgstr "Palavra-passe mestre"
+
+#, c-format
+#~ msgid "Could not start SSH session. %s"
+#~ msgstr "Não foi possível iniciar sessão SSH. %s"
 
 #~ msgid "Set Primary Password"
 #~ msgstr "Defina a palavra-passe principal"
@@ -5223,8 +5232,8 @@ msgstr "Palavra-passe mestre"
 
 #~ msgid ""
 #~ "Send <b><a href=\"https://remmina.gitlab.io/remminadoc.gitlab.io/"
-#~ "remmina__stats_8c.html#details\" title=\"Remmina usage statistics"
-#~ "\">anonymous</a></b> statistics. (*)"
+#~ "remmina__stats_8c.html#details\" title=\"Remmina usage "
+#~ "statistics\">anonymous</a></b> statistics. (*)"
 #~ msgstr ""
 #~ "Enviar estatísticas <b><a href=\"https://remmina.gitlab.io/remminadoc."
 #~ "gitlab.io/remmina__stats_8c.html#details\" title=\"Estatísticas de uso do "

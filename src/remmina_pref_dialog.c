@@ -4,6 +4,7 @@
  * Copyright (C) 2014-2015 Antenore Gatta, Fabio Castelli, Giovanni Panozzo
  * Copyright (C) 2016-2022 Antenore Gatta, Giovanni Panozzo
  * Copyright (C) 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
+ * Copyright (C) 2023-2024 Hiroyuki Tanaka, Sunil Bhat
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -247,7 +248,9 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	remmina_pref.always_show_notes = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_show_notes));
 	remmina_pref.hide_connection_toolbar = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_toolbar));
 	remmina_pref.hide_searchbar = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_searchbar));
-
+	remmina_pref.disable_news = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_disable_news));
+	remmina_pref.disable_stats = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_disable_stats));
+	remmina_pref.disable_tip = gtk_switch_get_active(GTK_SWITCH(remmina_pref_dialog->switch_disable_tip));
 	remmina_pref.default_action = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_options_double_click);
 	remmina_pref.default_mode = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_appearance_view_mode);
 	remmina_pref.tab_mode = gtk_combo_box_get_active(remmina_pref_dialog->comboboxtext_appearance_tab_interface);
@@ -319,6 +322,7 @@ void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data)
 	remmina_pref.shortcutkey_prevtab = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_switch_tab_left));
 	remmina_pref.shortcutkey_nexttab = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_switch_tab_right));
 	remmina_pref.shortcutkey_scale = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_scaled));
+	remmina_pref.shortcutkey_clipboard = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_clipboard));
 	remmina_pref.shortcutkey_multimon = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_multimon));
 	remmina_pref.shortcutkey_grab = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_grab_keyboard));
 	remmina_pref.shortcutkey_screenshot = remmina_key_chooser_get_keyval(gtk_button_get_label(remmina_pref_dialog->button_keyboard_screenshot));
@@ -497,6 +501,24 @@ static void remmina_pref_dialog_init(void)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_toolbar), remmina_pref.hide_connection_toolbar);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remmina_pref_dialog->checkbutton_appearance_hide_searchbar), remmina_pref.hide_searchbar);
 
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_disable_news), remmina_pref.disable_news);
+#ifdef DISABLE_NEWS
+	gtk_widget_hide(GTK_WIDGET(remmina_pref_dialog->switch_disable_news));
+	gtk_widget_hide(GTK_WIDGET(remmina_pref_dialog->label_disable_news));
+#endif
+
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_disable_stats), remmina_pref.disable_stats);
+#ifdef DISABLE_STATS
+	gtk_widget_hide(GTK_WIDGET(remmina_pref_dialog->switch_disable_stats));
+	gtk_widget_hide(GTK_WIDGET(remmina_pref_dialog->label_disable_stats));
+#endif
+
+#ifdef DISABLE_TIP
+	gtk_widget_hide(GTK_WIDGET(remmina_pref_dialog->switch_disable_tip));
+	gtk_widget_hide(GTK_WIDGET(remmina_pref_dialog->label_disable_tip));
+#endif
+	gtk_switch_set_active(GTK_SWITCH(remmina_pref_dialog->switch_disable_tip), remmina_pref.disable_tip);
+
 	g_snprintf(buf, sizeof(buf), "%i", remmina_pref.sshtunnel_port);
 	gtk_entry_set_text(remmina_pref_dialog->entry_options_ssh_port, buf);
 	g_snprintf(buf, sizeof(buf), "%i", remmina_pref.ssh_tcp_keepidle);
@@ -534,6 +556,7 @@ static void remmina_pref_dialog_init(void)
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_switch_tab_left, remmina_pref.shortcutkey_prevtab);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_switch_tab_right, remmina_pref.shortcutkey_nexttab);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_scaled, remmina_pref.shortcutkey_scale);
+	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_clipboard, remmina_pref.shortcutkey_clipboard);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_multimon, remmina_pref.shortcutkey_multimon);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_grab_keyboard, remmina_pref.shortcutkey_grab);
 	remmina_pref_dialog_set_button_label(remmina_pref_dialog->button_keyboard_screenshot, remmina_pref.shortcutkey_screenshot);
@@ -726,6 +749,14 @@ GtkWidget *remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->checkbutton_appearance_show_notes = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_show_notes"));
 	remmina_pref_dialog->checkbutton_appearance_hide_toolbar = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_hide_toolbar"));
 	remmina_pref_dialog->checkbutton_appearance_hide_searchbar = GTK_CHECK_BUTTON(GET_OBJECT("checkbutton_appearance_hide_searchbar"));
+
+	remmina_pref_dialog->switch_disable_news = GTK_SWITCH(GET_OBJECT("switch_disable_news"));
+	remmina_pref_dialog->switch_disable_stats = GTK_SWITCH(GET_OBJECT("switch_disable_stats"));
+	remmina_pref_dialog->switch_disable_tip = GTK_SWITCH(GET_OBJECT("switch_disable_tip"));
+	remmina_pref_dialog->label_disable_news = GTK_LABEL(GET_OBJECT("remmina_info_disable_news_label"));
+	remmina_pref_dialog->label_disable_stats = GTK_LABEL(GET_OBJECT("remmina_info_disable_stats_label"));
+	remmina_pref_dialog->label_disable_tip = GTK_LABEL(GET_OBJECT("remmina_info_disable_tip"));
+
 	remmina_pref_dialog->comboboxtext_options_double_click = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_options_double_click"));
 	remmina_pref_dialog->comboboxtext_appearance_view_mode = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_appearance_view_mode"));
 	remmina_pref_dialog->comboboxtext_appearance_tab_interface = GTK_COMBO_BOX(GET_OBJECT("comboboxtext_appearance_tab_interface"));
@@ -756,6 +787,7 @@ GtkWidget *remmina_pref_dialog_new(gint default_tab, GtkWindow *parent)
 	remmina_pref_dialog->button_keyboard_switch_tab_left = GTK_BUTTON(GET_OBJECT("button_keyboard_switch_tab_left"));
 	remmina_pref_dialog->button_keyboard_switch_tab_right = GTK_BUTTON(GET_OBJECT("button_keyboard_switch_tabright"));
 	remmina_pref_dialog->button_keyboard_scaled = GTK_BUTTON(GET_OBJECT("button_keyboard_scaled"));
+	remmina_pref_dialog->button_keyboard_clipboard = GTK_BUTTON(GET_OBJECT("button_keyboard_clipboard"));
 	remmina_pref_dialog->button_keyboard_grab_keyboard = GTK_BUTTON(GET_OBJECT("button_keyboard_grab_keyboard"));
 	remmina_pref_dialog->button_keyboard_multimon = GTK_BUTTON(GET_OBJECT("button_keyboard_multimon"));
 	remmina_pref_dialog->button_keyboard_screenshot = GTK_BUTTON(GET_OBJECT("button_keyboard_screenshot"));

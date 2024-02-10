@@ -363,8 +363,8 @@ static gboolean conn_closed(gpointer data)
 {
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = (RemminaProtocolWidget *)data;
-
-	if (!gp->priv->user_disconnect && !gp->priv->has_error){
+	int disconnect_prompt = remmina_file_get_int(gp->priv->remmina_file, "disconnect-prompt", FALSE);
+	if (!gp->priv->user_disconnect && !gp->priv->has_error && disconnect_prompt){
 		const char* msg = "Plugin Disconnected";
 		if (gp->priv->has_error){
 			msg = remmina_protocol_widget_get_error_message(gp);
@@ -723,7 +723,7 @@ void remmina_protocol_widget_send_clip_strokes(GtkClipboard *clipboard, const gc
 	return;
 }
 
-void remmina_protocol_widget_send_clipboard(RemminaProtocolWidget *gp, GtkMenuItem *widget)
+void remmina_protocol_widget_send_clipboard(RemminaProtocolWidget *gp, GObject*widget)
 {
 	TRACE_CALL(__func__);
 	GtkClipboard *clipboard;
@@ -1571,6 +1571,9 @@ static gboolean remmina_protocol_widget_dialog_mt_setup(gpointer user_data)
 	mp = remmina_message_panel_new();
 
 	if (d->dtype == RPWDT_AUTH) {
+		if (d->pflags & REMMINA_MESSAGE_PANEL_FLAG_USERNAME) {
+			remmina_message_panel_field_set_string(mp, REMMINA_MESSAGE_PANEL_USERNAME, d->default_username);
+		}
 		remmina_message_panel_setup_auth(mp, authpanel_mt_cb, d, d->title, d->strpasswordlabel, d->pflags);
 		remmina_message_panel_field_set_string(mp, REMMINA_MESSAGE_PANEL_USERNAME, d->default_username);
 		if (d->pflags & REMMINA_MESSAGE_PANEL_FLAG_DOMAIN)

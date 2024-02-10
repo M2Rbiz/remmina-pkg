@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 -->
+<!-- Generated with glade 3.40.0
+
+Remmina - The GTK Remmina Remote Desktop Client
+Copyright © 2014-2022 Antenore Gatta, Giovanni Panozzo
+Copyright © 2022-2023 Antenore Gatta, Giovanni Panozzo, Hiroyuki Tanaka
+Copyright © 2023-2024 Hiroyuki Tanaka, Sunil Bhat
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <interface>
   <requires lib="gtk+" version="3.12"/>
   <object class="GtkWindow" id="RemminaPrefDialog">
@@ -26,7 +47,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <!-- n-columns=3 n-rows=15 -->
+                  <!-- n-columns=3 n-rows=17 -->
                   <object class="GtkGrid" id="grid_options">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -389,7 +410,7 @@
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">11</property>
+                        <property name="top-attach">14</property>
                       </packing>
                     </child>
                     <child>
@@ -402,7 +423,7 @@
                       </object>
                       <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">11</property>
+                        <property name="top-attach">14</property>
                         <property name="width">2</property>
                       </packing>
                     </child>
@@ -450,7 +471,7 @@
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">12</property>
+                        <property name="top-attach">15</property>
                       </packing>
                     </child>
                     <child>
@@ -464,7 +485,104 @@
                       </object>
                       <packing>
                         <property name="left-attach">1</property>
+                        <property name="top-attach">15</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="remmina_info_disable_stats_label">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-left">18</property>
+                        <property name="margin-right">6</property>
+                        <property name="margin-start">18</property>
+                        <property name="margin-end">6</property>
+                        <property name="label" translatable="yes">Disable anonymous statistics</property>
+                        <property name="justify">right</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
                         <property name="top-attach">12</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSwitch" id="switch_disable_stats">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="halign">start</property>
+                        <property name="valign">center</property>
+                        <property name="margin-right">18</property>
+                        <property name="margin-end">18</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">12</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="remmina_info_disable_news_label">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-left">18</property>
+                        <property name="margin-right">6</property>
+                        <property name="margin-start">18</property>
+                        <property name="margin-end">6</property>
+                        <property name="label" translatable="yes">Disable news from &lt;a href="https://remmina.org" title="Remmina news site"&gt;remmina.org&lt;/a&gt;</property>
+                        <property name="use-markup">True</property>
+                        <property name="justify">right</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">11</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSwitch" id="switch_disable_news">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="halign">start</property>
+                        <property name="valign">center</property>
+                        <property name="margin-right">18</property>
+                        <property name="margin-end">18</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">11</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="remmina_info_disable_tip">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-left">18</property>
+                        <property name="margin-right">6</property>
+                        <property name="margin-start">18</property>
+                        <property name="margin-end">6</property>
+                        <property name="label" translatable="yes">Disable tip of the day</property>
+                        <property name="justify">right</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">13</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSwitch" id="switch_disable_tip">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="halign">start</property>
+                        <property name="valign">center</property>
+                        <property name="margin-right">18</property>
+                        <property name="margin-end">18</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">13</property>
                         <property name="width">2</property>
                       </packing>
                     </child>
@@ -1345,6 +1463,40 @@ It changes the background colour of connection names in the Remmina connection t
                       <packing>
                         <property name="left-attach">1</property>
                         <property name="top-attach">11</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label_keyboard_clipboard">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">18</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-bottom">18</property>
+                        <property name="label" translatable="yes">Send clipboard as keystrokes</property>
+                        <property name="ellipsize">start</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">12</property>
+                      </packing>
+                    </child>
+                     <child>
+                      <object class="GtkButton" id="button_keyboard_clipboard">
+                        <property name="label" translatable="yes">Send-clipboard</property>
+                        <property name="width-request">100</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">18</property>
+                        <property name="margin-bottom">18</property>
+                        <signal name="clicked" handler="remmina_pref_dialog_on_key_chooser" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">12</property>
                         <property name="width">2</property>
                       </packing>
                     </child>
