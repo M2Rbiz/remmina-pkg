@@ -6,9 +6,9 @@ include /usr/share/dpkg/vendor.mk
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 ifeq ($(DEB_VENDOR),Debian)
-	SETNEWS = OFF
+	SETSTUFF = OFF
 else
-	SETNEWS = ON
+	SETSTUFF = ON
 endif
 
 %:
@@ -18,7 +18,9 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		-DWITH_KF5WALLET=ON \
 		-DWITH_KIOSK_SESSION=ON \
-		-DWITH_NEWS=$(SETNEWS) \
+		-DWITH_NEWS=$(SETSTUFF) \
+		-DWITH_TIP=$(SETSTUFF) \
+		-DWITH_STATS=$(SETSTUFF) \
 		-DWITH_X2GO=ON \
 		-DWITH_PYTHONLIBS=ON
 
