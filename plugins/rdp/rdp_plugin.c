@@ -115,7 +115,9 @@
 
 #if FREERDP_VERSION_MAJOR < 3
 static HANDLE freerdp_abort_event(rdpContext* context) {
+#ifdef WINPR_ASSERT
 	WINPR_ASSERT(context);
+#endif
 	return context->abortEvent;
 }
 
@@ -124,8 +126,9 @@ static BOOL freerdp_settings_set_pointer_len(rdpSettings* settings, size_t id, c
 	switch(id) {
 	case FreeRDP_LoadBalanceInfo:
 		free(settings->LoadBalanceInfo);
-		settings->LoadBalanceInfo = _strdup(data);
-		settings->LoadBalanceInfoLength = len;
+		settings->LoadBalanceInfo = (BYTE *)data;
+		freerdp_settings_set_uint32(settings, FreeRDP_LoadBalanceInfoLength, strlen(data));
+
 		return TRUE;
 	default:
 		return FALSE;
@@ -133,7 +136,9 @@ static BOOL freerdp_settings_set_pointer_len(rdpSettings* settings, size_t id, c
 }
 
 static void freerdp_abort_connect_context(rdpContext* context) {
+#ifdef WINPR_ASSERT
 	WINPR_ASSERT(context);
+#endif
 	freerdp_abort_connect(context->instance);
 }
 #endif
@@ -1021,7 +1026,7 @@ static BOOL remmina_rdp_authenticate_ex(freerdp* instance, char** username, char
 								key_title,
 								remmina_plugin_service->file_get_string(remminafile, key_user),
 								remmina_plugin_service->file_get_string(remminafile, key_password),
-								remmina_plugin_service->file_get_string(remminafile, disablepasswordstoring ? NULL : key_domain),
+								remmina_plugin_service->file_get_string(remminafile, key_domain),
 								NULL);
 	if (ret == GTK_RESPONSE_OK) {
 		if (cfg_key_user != FreeRDP_STRING_UNUSED)
@@ -1881,7 +1886,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 	if (remmina_plugin_service->file_get_string(remminafile, "loadbalanceinfo")) {
 		const gchar *tmp = strdup(remmina_plugin_service->file_get_string(remminafile, "loadbalanceinfo"));
-		freerdp_settings_set_pointer_len(rfi->clientContext.context.settings, FreeRDP_LoadBalanceInfo, tmp, strlen(tmp) + 1);
+		freerdp_settings_set_pointer_len(rfi->clientContext.context.settings, FreeRDP_LoadBalanceInfo, tmp, strlen(tmp));
 	}
 
 	if (remmina_plugin_service->file_get_string(remminafile, "exec"))
