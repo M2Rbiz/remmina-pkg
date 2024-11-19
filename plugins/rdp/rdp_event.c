@@ -577,6 +577,37 @@ void remmina_rdp_mouse_jitter(RemminaProtocolWidget *gp){
 	remmina_rdp_event_event_push(gp, &rdp_event);
 }
 
+//Keys hex values from gdkkeysyms.h
+void remmina_rdp_idle_keypress(RemminaProtocolWidget *gp, int *keypress_opts){
+	TRACE_CALL(__func__);
+	guint keys[2] = { 0, 0 };
+	RemminaFile *remminafile;
+	rfContext *rfi = GET_PLUGIN_DATA(gp);
+	
+	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
+	if (remmina_plugin_service->file_get_int(remminafile, "viewonly", FALSE))
+		return;
+	
+	if (*keypress_opts == 0)
+		return;
+
+	switch (*keypress_opts) {
+		case 1:
+			keys[0] = 0xffe9; // Alt_L 
+			keys[1] = 0xff09; // Tab
+			break;
+		
+		case 2:
+			keys[0] = 0xffeb; // Option key
+			keys[1] = 0xff09; // Tab
+			break;
+		default:
+			return;
+	}
+	remmina_plugin_service->protocol_plugin_send_keys_signals(rfi->drawing_area,
+								  keys, G_N_ELEMENTS(keys), GDK_KEY_PRESS | GDK_KEY_RELEASE);
+}
+
 static gboolean remmina_rdp_event_on_motion(GtkWidget *widget, GdkEventMotion *event, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
@@ -698,6 +729,14 @@ static gboolean remmina_rdp_event_on_scroll(GtkWidget *widget, GdkEventScroll *e
 
 	case GDK_SCROLL_DOWN:
 		flag = PTR_FLAGS_WHEEL | 0x0188;  // -120 (one scroll unit) in 9 bits two's complement
+		break;
+
+	case GDK_SCROLL_RIGHT:
+		flag = PTR_FLAGS_HWHEEL | 0x0078; // 120 is one scroll unit defined in WM_MOUSEWHEEL
+		break;
+
+	case GDK_SCROLL_LEFT:
+		flag = PTR_FLAGS_HWHEEL | 0x0188; // -120 (one scroll unit) in 9 bits two's complement
 		break;
 
 #if GTK_CHECK_VERSION(3, 4, 0)
@@ -990,7 +1029,7 @@ void remmina_rdp_event_init(RemminaProtocolWidget *gp)
 	/** Fixme: This comment
 	 * needed for TS_SUPPRESS_OUTPUT_PDU
 	 * But it works only when we stay in the same window mode, if we switch to
-	 * fullscreen, for instance, the object refernce is lost, so we loose these
+	 * fullscreen, for instance, the object reference is lost, so we loose these
 	 * events.
 	 */
 	//g_signal_connect(G_OBJECT(gtk_widget_get_toplevel(rfi->drawing_area)), "map-event",

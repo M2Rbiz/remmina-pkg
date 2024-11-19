@@ -452,7 +452,6 @@ static void rcw_kp_ungrab(RemminaConnectionWindow *cnnwin)
 	display = gtk_widget_get_display(GTK_WIDGET(cnnwin));
 #if GTK_CHECK_VERSION(3, 20, 0)
 	seat = gdk_display_get_default_seat(display);
-	// keyboard = gdk_seat_get_pointer(seat);
 #else
 	manager = gdk_display_get_device_manager(display);
 	keyboard = gdk_device_manager_get_client_pointer(manager);
@@ -2001,7 +2000,6 @@ static void rcw_toolbar_menu(GtkToolItem *toggle, RemminaConnectionWindow *cnnwi
 	remmina_applet_menu_populate(REMMINA_APPLET_MENU(menu));
 
 	g_signal_connect(G_OBJECT(menu), "launch-item", G_CALLBACK(rcw_toolbar_menu_on_launch_item), NULL);
-	//g_signal_connect(G_OBJECT(menu), "edit-item", G_CALLBACK(rcw_toolbar_menu_on_edit_item), NULL);
 	menuitem = gtk_separator_menu_item_new();
 	gtk_widget_show(menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
@@ -2068,14 +2066,15 @@ static void rcw_toolbar_tools(GtkToolItem *toggle, RemminaConnectionWindow *cnnw
 	if (remmina_protocol_widget_plugin_receives_keystrokes(REMMINA_PROTOCOL_WIDGET(cnnobj->proto))) {
 		/* Get the registered keystrokes list */
 		keystrokes = g_strsplit(remmina_pref.keystrokes, STRING_DELIMITOR, -1);
+		
+		/* Add a keystrokes submenu */
+		menuitem = gtk_menu_item_new_with_label(_("Keystrokes"));
+		submenu_keystrokes = GTK_MENU(gtk_menu_new());
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), GTK_WIDGET(submenu_keystrokes));
+		gtk_widget_show(menuitem);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+		/* Add each registered keystroke */
 		if (g_strv_length(keystrokes)) {
-			/* Add a keystrokes submenu */
-			menuitem = gtk_menu_item_new_with_label(_("Keystrokes"));
-			submenu_keystrokes = GTK_MENU(gtk_menu_new());
-			gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), GTK_WIDGET(submenu_keystrokes));
-			gtk_widget_show(menuitem);
-			gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-			/* Add each registered keystroke */
 			for (i = 0; i < g_strv_length(keystrokes); i++) {
 				keystroke_values = g_strsplit(keystrokes[i], STRING_DELIMITOR2, -1);
 				if (g_strv_length(keystroke_values) > 1) {
@@ -2084,30 +2083,31 @@ static void rcw_toolbar_tools(GtkToolItem *toggle, RemminaConnectionWindow *cnnw
 						g_strdup(keystroke_values[strlen(keystroke_values[0]) ? 0 : 1]));
 					g_object_set_data(G_OBJECT(menuitem), "keystrokes", g_strdup(keystroke_values[1]));
 					g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
-								 G_CALLBACK(remmina_protocol_widget_send_keystrokes),
-								 REMMINA_PROTOCOL_WIDGET(cnnobj->proto));
+									G_CALLBACK(remmina_protocol_widget_send_keystrokes),
+									REMMINA_PROTOCOL_WIDGET(cnnobj->proto));
 					gtk_widget_show(menuitem);
 					gtk_menu_shell_append(GTK_MENU_SHELL(submenu_keystrokes), menuitem);
 				}
 				g_strfreev(keystroke_values);
 			}
-			menuitem = gtk_menu_item_new_with_label(_("Send clipboard content as keystrokes"));
-			static gchar k_tooltip[] =
-				N_("CAUTION: Pasted text will be sent as a sequence of key-codes as if typed on your local keyboard.\n"
-				"\n"
-				"  • For best results use same keyboard settings for both, client and server.\n"
-				"\n"
-				"  • If client-keyboard is different from server-keyboard the received text can contain wrong or erroneous characters.\n"
-				"\n"
-				"  • Unicode characters and other special characters that can't be translated to local key-codes won’t be sent to the server.\n"
-				"\n");
-			gtk_widget_set_tooltip_text(menuitem, k_tooltip);
-			gtk_menu_shell_append(GTK_MENU_SHELL(submenu_keystrokes), menuitem);
-			g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
-						 G_CALLBACK(remmina_protocol_widget_send_clipboard),
-						 REMMINA_PROTOCOL_WIDGET(cnnobj->proto));
-			gtk_widget_show(menuitem);
 		}
+		menuitem = gtk_menu_item_new_with_label(_("Send clipboard content as keystrokes"));
+		static gchar k_tooltip[] =
+			N_("CAUTION: Pasted text will be sent as a sequence of key-codes as if typed on your local keyboard.\n"
+			"\n"
+			"  • For best results use same keyboard settings for both, client and server.\n"
+			"\n"
+			"  • If client-keyboard is different from server-keyboard the received text can contain wrong or erroneous characters.\n"
+			"\n"
+			"  • Unicode characters and other special characters that can't be translated to local key-codes won’t be sent to the server.\n"
+			"\n");
+		gtk_widget_set_tooltip_text(menuitem, k_tooltip);
+		gtk_menu_shell_append(GTK_MENU_SHELL(submenu_keystrokes), menuitem);
+		g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
+						G_CALLBACK(remmina_protocol_widget_send_clipboard),
+						REMMINA_PROTOCOL_WIDGET(cnnobj->proto));
+		gtk_widget_show(menuitem);
+		
 		g_strfreev(keystrokes);
 	}
 
@@ -2216,9 +2216,7 @@ static void rcw_toolbar_screenshot(GtkToolItem *toggle, RemminaConnectionWindow 
 
 		// Get the screenshot.
 		active_window = gtk_widget_get_window(GTK_WIDGET(gp));
-		// width = gdk_window_get_width(gtk_widget_get_window(GTK_WIDGET(cnnobj->cnnwin)));
 		width = gdk_window_get_width(active_window);
-		// height = gdk_window_get_height(gtk_widget_get_window(GTK_WIDGET(cnnobj->cnnwin)));
 		height = gdk_window_get_height(active_window);
 
 		screenshot = gdk_pixbuf_get_from_window(active_window, 0, 0, width, height);
@@ -2296,6 +2294,20 @@ static void rcw_toolbar_disconnect(GtkToolItem *toggle, RemminaConnectionWindow 
 		return;
 	if (!(cnnobj = rcw_get_visible_cnnobj(cnnwin))) return;
 	rco_disconnect_current_page(cnnobj);
+}
+
+static void rcw_toolbar_reconnect(GtkToolItem *toggle, RemminaConnectionWindow *cnnwin)
+{
+	TRACE_CALL(__func__);
+	RemminaConnectionObject *cnnobj;
+
+	if (cnnwin->priv->toolbar_is_reconfiguring)
+		return;
+	if (!(cnnobj = rcw_get_visible_cnnobj(cnnwin))) return;
+	if (cnnobj->connected){
+		rcw_toolbar_disconnect(toggle, cnnwin);
+	}
+	rcw_open_from_file(cnnobj->remmina_file);
 }
 
 static void rcw_toolbar_grab(GtkToolItem *toggle, RemminaConnectionWindow *cnnwin)
@@ -2589,6 +2601,14 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	g_signal_connect(G_OBJECT(toolitem), "clicked", G_CALLBACK(rcw_toolbar_minimize), cnnwin);
 	if (kioskmode)
 		gtk_widget_set_sensitive(GTK_WIDGET(toolitem), FALSE);
+
+	/* Reconnect */
+	toolitem = gtk_tool_button_new(NULL, "_Reconnect");
+	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolitem), "org.remmina.Remmina-reconnect-symbolic");
+	gtk_widget_set_tooltip_text(GTK_WIDGET(toolitem), _("Reconnect"));
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
+	gtk_widget_show(GTK_WIDGET(toolitem));
+	g_signal_connect(G_OBJECT(toolitem), "clicked", G_CALLBACK(rcw_toolbar_reconnect), cnnwin);
 
 	/* Disconnect */
 	toolitem = gtk_tool_button_new(NULL, "_Disconnect");
@@ -3200,7 +3220,9 @@ static void rcw_create_floating_toolbar(RemminaConnectionWindow *cnnwin, gint mo
 
 	priv->floating_toolbar_label = label;
 
-	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM) {
+	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_RIGHT || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_LEFT) {
 		gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 		gtk_box_pack_start(GTK_BOX(vbox), tb, FALSE, FALSE, 0);
 	} else {
@@ -3345,9 +3367,7 @@ static gboolean rcw_map_event_fullscreen(GtkWidget *widget, GdkEvent *event, gpo
 		return FALSE;
 	}
 
-	//RemminaConnectionWindow *cnnwin = (RemminaConnectionWindow *)data;
 	cnnobj = rcw_get_visible_cnnobj((RemminaConnectionWindow *)widget);
-	//cnnobj = g_object_get_data(G_OBJECT(widget), "cnnobj");
 	if (!cnnobj) {
 		REMMINA_DEBUG("Remmina Connection Object undefined, cannot go fullscreen");
 		return FALSE;
@@ -3545,7 +3565,11 @@ static GtkWidget *rco_create_tab_label(RemminaConnectionObject *cnnobj)
 	gtk_widget_show(widget);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 
-	widget = gtk_label_new(remmina_file_get_string(cnnobj->remmina_file, "name"));
+	gchar* label = remmina_file_get_string(cnnobj->remmina_file, "name");
+	if (strlen(label) > 100){
+		label[99] = 0;
+	}
+	widget = gtk_label_new(label);
 	gtk_widget_set_valign(widget, GTK_ALIGN_CENTER);
 	gtk_widget_set_halign(widget, GTK_ALIGN_CENTER);
 
@@ -3884,9 +3908,21 @@ static void rcw_create_overlay_ftb_overlay(RemminaConnectionWindow *cnnwin)
 
 	revealer = gtk_revealer_new();
 
-	gtk_widget_set_halign(GTK_WIDGET(priv->overlay_ftb_overlay), GTK_ALIGN_CENTER);
+	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_LEFT || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_TOP_LEFT) {
+		gtk_widget_set_halign(GTK_WIDGET(priv->overlay_ftb_overlay), GTK_ALIGN_START);
+	}
+	else if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_RIGHT || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_TOP_RIGHT) {
+		gtk_widget_set_halign(GTK_WIDGET(priv->overlay_ftb_overlay), GTK_ALIGN_END);
+	}
+	else{
+		gtk_widget_set_halign(GTK_WIDGET(priv->overlay_ftb_overlay), GTK_ALIGN_CENTER);
+	}
 
-	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM) {
+	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_RIGHT || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_LEFT) {
 		gtk_box_pack_start(GTK_BOX(vbox), handle, FALSE, FALSE, 0);
 		gtk_box_pack_start(GTK_BOX(vbox), revealer, FALSE, FALSE, 0);
 		gtk_revealer_set_transition_type(GTK_REVEALER(revealer), GTK_REVEALER_TRANSITION_TYPE_SLIDE_UP);
@@ -3918,7 +3954,9 @@ static void rcw_create_overlay_ftb_overlay(RemminaConnectionWindow *cnnwin)
 	gtk_widget_show(priv->overlay_ftb_overlay);
 	gtk_widget_show(fr);
 
-	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM)
+	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_RIGHT || 
+		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_LEFT)
 		gtk_widget_set_name(fr, "ftbbox-lower");
 	else
 		gtk_widget_set_name(fr, "ftbbox-upper");
@@ -3959,9 +3997,17 @@ static gboolean rcw_ftb_drag_drop(GtkWidget *widget, GdkDragContext *context,
 
 	gtk_widget_get_allocation(widget, &wa);
 
-	if (y >= wa.height / 2)
+	if (y >= wa.height / 2 && x < wa.width / 3)
+		new_floating_toolbar_placement = FLOATING_TOOLBAR_PLACEMENT_BOTTOM_LEFT;
+	else if (y >= wa.height / 2 && x > (2*(wa.width / 3)))
+		new_floating_toolbar_placement = FLOATING_TOOLBAR_PLACEMENT_BOTTOM_RIGHT;
+	else if (y < wa.height / 2 && x > (2*(wa.width / 3)))
+		new_floating_toolbar_placement = FLOATING_TOOLBAR_PLACEMENT_TOP_RIGHT;
+	else if (y < wa.height / 2 && x  < wa.width / 3)
+		new_floating_toolbar_placement = FLOATING_TOOLBAR_PLACEMENT_TOP_LEFT;
+	else if (y >= wa.height /2)
 		new_floating_toolbar_placement = FLOATING_TOOLBAR_PLACEMENT_BOTTOM;
-	else
+	else 
 		new_floating_toolbar_placement = FLOATING_TOOLBAR_PLACEMENT_TOP;
 
 	gtk_drag_finish(context, TRUE, TRUE, time);
@@ -4310,9 +4356,7 @@ void rco_on_connect(RemminaProtocolWidget *gp, RemminaConnectionObject *cnnobj)
 		remmina_pref_add_recent(remmina_file_get_string(cnnobj->remmina_file, "protocol"),
 					remmina_file_get_string(cnnobj->remmina_file, "server"));
 	REMMINA_DEBUG("We save the last successful connection date");
-	//remmina_file_set_string(cnnobj->remmina_file, "last_success", last_success);
 	remmina_file_state_last_success(cnnobj->remmina_file);
-	//REMMINA_DEBUG("Last connection made on %s.", last_success);
 
 	REMMINA_DEBUG("Saving credentials");
 	/* Save credentials */

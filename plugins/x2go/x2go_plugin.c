@@ -433,8 +433,6 @@ static gboolean rmplugin_x2go_session_chooser_row_activated(GtkTreeView *treevie
 	}
 
 	RemminaProtocolWidget* gp = (RemminaProtocolWidget*) custom_data->gp;
-	// dialog_data (unused)
-	// connect_data (unused)
 	GtkWidget* dialog = GTK_WIDGET(custom_data->opt1);
 
 	gchar *session_id;
@@ -560,7 +558,6 @@ static GtkWidget* rmplugin_x2go_choose_session_dialog_factory(X2GoCustomUserData
 	gtk_window_set_resizable(GTK_WINDOW(widget_gtk_dialog), TRUE);
 
 	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	//gtk_widget_show(scrolled_window);
 
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(
 				GTK_DIALOG(widget_gtk_dialog))
@@ -577,7 +574,7 @@ static GtkWidget* rmplugin_x2go_choose_session_dialog_factory(X2GoCustomUserData
 	for (gint i = 0; i < SESSION_NUM_PROPERTIES; ++i) {
 		// Everything is a String. (Except IS_VISIBLE flag)
 		// If that changes one day, you could extent the if statement here.
-		// But you would propably need a *lot* of refactoring.
+		// But you would probably need a *lot* of refactoring.
 		// Especially in the session parser.
 		if (i == SESSION_DIALOG_IS_VISIBLE) {
 			types[i] = G_TYPE_BOOLEAN;
@@ -702,7 +699,6 @@ static GtkWidget* rmplugin_x2go_choose_session_dialog_factory(X2GoCustomUserData
 static GtkTreeModelFilter* rmplugin_x2go_session_chooser_get_filter_model(GtkWidget *dialog,
 							                  GtkTreeView* treeview)
 {
-	//REMMINA_PLUGIN_DEBUG("Function entry.");
 	GtkTreeModel *return_model = NULL;
 
 	if (!treeview && dialog) {
@@ -818,7 +814,6 @@ static GValue rmplugin_x2go_session_chooser_get_property(GtkWidget *dialog,
 							 gint property_index,
 							 GtkTreePath *row)
 {
-	//REMMINA_PLUGIN_DEBUG("Function entry.");
 
 	GValue ret_value = G_VALUE_INIT;
 
@@ -850,46 +845,13 @@ static GValue rmplugin_x2go_session_chooser_get_property(GtkWidget *dialog,
 }
 
 /**
- * @brief This function dumps all properties of a session to the console.
- *	  It can/should be used with: \n
- *	      gtk_tree_model_foreach(GTK_TREE_MODEL(model), (GtkTreeModelForeachFunc) \n
- *				     rmplugin_x2go_dump_session_properties, \n
- *				     dialog);
- */
-/*static void rmplugin_x2go_dump_session_properties(GtkTreeModel *model, GtkTreePath *path,
-						  GtkTreeIter *iter, GtkWidget *dialog)
-{
-	//REMMINA_PLUGIN_DEBUG("Function entry.");
-
-	g_debug(_("Properties for session with path '%s':"), gtk_tree_path_to_string(path));
-	for (guint i = 0; i < SESSION_NUM_PROPERTIES; i++) {
-		GValue property = G_VALUE_INIT;
-		property = rmplugin_x2go_session_chooser_get_property(dialog, i, path);
-
-		gchar* display_name = rmplugin_x2go_session_property_to_string(i);
-		g_assert(display_name && "Could not get display name for a property!");
-
-		if (i == SESSION_DIALOG_IS_VISIBLE) {
-			g_assert(G_VALUE_HOLDS_BOOLEAN(&property) && "GValue does not "
-								      "hold a boolean!");
-			g_debug("\t%s: '%s'", display_name,
-				g_value_get_boolean(&property) ? "TRUE" : "FALSE");
-		} else {
-			g_assert(G_VALUE_HOLDS_STRING(&property) && "GValue does not "
-								      "hold a string!");
-			g_debug("\t%s: '%s'", display_name, g_value_get_string(&property));
-		}
-	}
-}*/
-
-/**
  * @brief This function synchronously spawns a pyhoca-cli process with argv as arguments.
  * @param argc Number of arguments.
  * @param argv Arguments as string array. \n
  *	       Last elements has to be NULL. \n
  *	       Strings will get freed automatically.
  * @param error Will be filled with an error message on fail.
- * @param env String array of enviroment variables. \n
+ * @param env String array of environment variables. \n
  *	      The list is NULL terminated and each item in
  *	      the list is of the form `NAME=VALUE`.
  *
@@ -957,16 +919,9 @@ static gchar* rmplugin_x2go_spawn_pyhoca_process(guint argc, gchar* argv[],
 	}
 	g_printf("\n");
 
-	/* TOO VERBOSE: */
-	/*
-	REMMINA_PLUGIN_DEBUG("%s", _("Started PyHoca-CLI with the "
-				    "following environment variables:"));
-	REMMINA_PLUGIN_DEBUG("%s", g_strjoinv("\n", env));
-	*/
-
 	if (standard_err && strlen(standard_err) > 0) {
 		if (g_str_has_prefix(standard_err, "pyhoca-cli: error: a socket error "
-				     "occured while establishing the connection:")) {
+				     "occurred while establishing the connection:")) {
 			// Log error into GUI.
 			gchar* errmsg = g_strdup_printf(
 				_("The necessary PyHoca-CLI process has encountered a "
@@ -990,14 +945,14 @@ static gchar* rmplugin_x2go_spawn_pyhoca_process(guint argc, gchar* argv[],
 	} else if (!success_ret || (*error) || strlen(standard_out) <= 0 || exit_code) {
 		if (!(*error)) {
 			gchar* errmsg = g_strdup_printf(
-				_("An unknown error occured while trying "
+				_("An unknown error occurred while trying "
 				  "to start PyHoca-CLI. Exit code: %i"),
 				exit_code);
 			REMMINA_PLUGIN_WARNING("%s", errmsg);
 			g_set_error(error, 1, 1, "%s", errmsg);
 		} else {
 			gchar* errmsg = g_strdup_printf(
-				_("An unknown error occured while trying to start "
+				_("An unknown error occurred while trying to start "
 				  "PyHoca-CLI. Exit code: %i. Error: '%s'"),
 				exit_code, (*error)->message);
 			REMMINA_PLUGIN_WARNING("%s", errmsg);
@@ -1069,13 +1024,6 @@ static gboolean rmplugin_x2go_session_chooser_set_row_visible(GtkTreePath *path,
 
 	// Update row.
 	gtk_tree_model_row_changed(GTK_TREE_MODEL(model), path, &iter);
-
-	/* Get IS_VISIBLE flag of a session. */
-	// GValue ret_value = G_VALUE_INIT;
-	// ret_value = rmplugin_x2go_session_chooser_get_property(GTK_WIDGET(dialog),
-	// 						       SESSION_DIALOG_IS_VISIBLE,
-	// 						       path);
-	// g_debug("Is visible: %s", g_value_get_boolean(&ret_value) ? "TRUE" : "FALSE");
 
 
 	GtkWidget *term_button = gtk_dialog_get_widget_for_response(
@@ -1159,7 +1107,6 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 
 	// Extract data passed by X2GoCustomUserData *custom_data.
 	RemminaPluginX2GoData *gpdata = GET_PLUGIN_DATA(custom_data->gp);
-	//struct _DialogData *ddata = (struct _DialogData*) custom_data->dialog_data;
 	struct _ConnectionData *connect_data = (struct _ConnectionData*) custom_data->connect_data;
 	GtkTreePath* selected_row = (GtkTreePath*) custom_data->opt1;
 	GtkDialog *dialog = GTK_DIALOG(custom_data->opt2);
@@ -1285,7 +1232,7 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 		err_ddata->flags = GTK_DIALOG_MODAL;
 		err_ddata->type = GTK_MESSAGE_ERROR;
 		err_ddata->buttons = GTK_BUTTONS_OK;
-		err_ddata->title = _("An error occured.");
+		err_ddata->title = _("An error occurred.");
 		err_ddata->message = err_msg;
 		// We don't need the response.
 		err_ddata->callbackfunc = NULL;
@@ -1304,12 +1251,6 @@ static gboolean rmplugin_x2go_pyhoca_terminate_session(X2GoCustomUserData *custo
 		custom_data->opt2 = NULL;
 
 		IDLE_ADD((GSourceFunc) rmplugin_x2go_open_dialog, custom_data);
-
-		// Too verbose:
-		// GtkTreeModel *model = gtk_tree_model_filter_get_model(
-		// 					GTK_TREE_MODEL_FILTER(filter));
-		// gtk_tree_model_foreach(GTK_TREE_MODEL(model), (GtkTreeModelForeachFunc)
-		//			  rmplugin_x2go_dump_session_properties, dialog);
 
 		// Set row visible again since we could not terminate the session.
 		if (!rmplugin_x2go_session_chooser_set_row_visible(selected_row, TRUE,
@@ -2018,7 +1959,7 @@ static gchar* rmplugin_x2go_get_pyhoca_sessions(RemminaProtocolWidget* gp, GErro
  *			needed for retrieving sessions from a X2Go server.
  *
  * @returns Returns either a GList containing the IDs of every already existing session
- *	    found or if the function failes, NULL.
+ *	    found or if the function fails, NULL.
  *
  * TODO: If pyhoca-cli (python-x2go) implements `--json` or similar option -> Replace
  *	 entire function with JSON parsing.
@@ -2057,8 +1998,6 @@ static GList* rmplugin_x2go_parse_pyhoca_sessions(RemminaProtocolWidget* gp,
 	for (guint i = 0; lines_list[i] != NULL; i++) {
 		gchar* current_line = lines_list[i];
 
-		// TOO VERBOSE:
-		//REMMINA_PLUGIN_DEBUG("pyhoca-cli: %s", current_line);
 
 		// Hardcoded string "Session Name: " comes from python-x2go.
 		if (!g_str_has_prefix(current_line, "Session Name: ") && !found_session) {
@@ -2228,8 +2167,6 @@ static gchar* rmplugin_x2go_ask_session(RemminaProtocolWidget *gp, GError **erro
 	struct _DialogData *ddata = g_new0(struct _DialogData, 1);
 	ddata->parent = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(gp)));
 	ddata->flags = GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT;
-	//ddata->type = GTK_MESSAGE_QUESTION;
-	//ddata->buttons = GTK_BUTTONS_OK; // Doesn't get used in our custom factory.
 	ddata->title = _("Choose a session to resume:");
 	ddata->message = "";
 
@@ -2390,16 +2327,6 @@ static gboolean rmplugin_x2go_exec_x2go(gchar *host,
 			REMMINA_PLUGIN_DEBUG("%s", FEATURE_NOT_AVAIL_STR("RESUME"));
 		}
 	}
-
-	// Deprecated. The user either wants to continue a
-	// session or just not. No inbetween.
-	// if (!resume_session_id) {
-	// 	if (FEATURE_AVAILABLE(gpdata, "TRY_RESUME")) {
-	// 		argv[argc++] = g_strdup("--try-resume");
-	// 	} else {
-	// 		REMMINA_PLUGIN_DEBUG("%s", FEATURE_NOT_AVAIL_STR("TRY_RESUME"));
-	// 	}
-	// }
 
 	if (FEATURE_AVAILABLE(gpdata, "USERNAME")) {
 		argv[argc++] = g_strdup("-u");

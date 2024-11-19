@@ -146,8 +146,6 @@ static void freerdp_abort_connect_context(rdpContext* context) {
 RemminaPluginService *remmina_plugin_service = NULL;
 
 static BOOL gfx_h264_available = FALSE;
-// keep track of last interaction time for keep alive
-static time_t last_time;
 
 /* Compatibility: these functions have been introduced with https://github.com/FreeRDP/FreeRDP/commit/8c5d96784d
  * and are missing on older FreeRDP, so we add them here.
@@ -263,7 +261,8 @@ static BOOL rf_process_event_queue(RemminaProtocolWidget *gp)
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
 	while ((event = (RemminaPluginRdpEvent *)g_async_queue_try_pop(rfi->event_queue)) != NULL) {
-		time(&last_time); //update last user interaction time
+		time(&(rfi->last_time)); //update last user interaction time
+		time(&(rfi->last_time_idle_keypress));
 		switch (event->type) {
 		case REMMINA_RDP_EVENT_TYPE_SCANCODE:
 			
@@ -295,7 +294,10 @@ static BOOL rf_process_event_queue(RemminaProtocolWidget *gp)
 			break;
 
 		case REMMINA_RDP_EVENT_TYPE_CLIPBOARD_SEND_CLIENT_FORMAT_LIST:
-			rfi->clipboard.context->ClientFormatList(rfi->clipboard.context, event->clipboard_formatlist.pFormatList);
+			if(rfi->clipboard.context != NULL){
+				rfi->clipboard.context->ClientFormatList(rfi->clipboard.context, event->clipboard_formatlist.pFormatList);
+			}
+			
 			free(event->clipboard_formatlist.pFormatList);
 			break;
 
@@ -646,7 +648,7 @@ static BOOL rf_desktop_resize(rdpContext *context)
 	ui->event.type = REMMINA_RDP_UI_EVENT_DESTROY_CAIRO_SURFACE;
 	remmina_rdp_event_queue_ui_sync_retint(gp, ui);
 
-	/* Tell libfreerdp to change its internal GDI bitmap width and heigt,
+	/* Tell libfreerdp to change its internal GDI bitmap width and height,
 	 * this will also destroy gdi->primary_buffer, making our rfi->surface invalid */
 	gdi_resize(((rdpContext *)rfi)->gdi, w, h);
 
@@ -800,7 +802,6 @@ static BOOL remmina_rdp_post_connect(freerdp *instance)
 		return FALSE;
 	}
 
-	// pointer_cache_register_callbacks(instance->update);
 	rdpUpdate *update = instance->context->update;
 	update->BeginPaint = rf_begin_paint;
 	update->EndPaint = rf_end_paint;
@@ -989,6 +990,9 @@ static BOOL remmina_rdp_authenticate_ex(freerdp* instance, char** username, char
 		case AUTH_NLA:
 		case AUTH_TLS:
 		case AUTH_RDP:
+			if ((*username) && (*password)){
+				return true;
+			}
 			key_title = _("Enter RDP authentication credentials");
 			key_user = "username";
 			key_domain = "domain";
@@ -1094,9 +1098,21 @@ static BOOL remmina_rdp_present_gateway_message(freerdp* instance, UINT32 type, 
                                            BOOL isConsentMandatory, size_t length,
                                            const WCHAR* message)
 {
-	// TODO: Present a message to the user, usually terms of service or similar
-	// See client_cli_present_gateway_message or sdl_present_gateway_message
-	return client_cli_present_gateway_message(instance, type, isDisplayMandatory, isConsentMandatory, length, message);
+	if (!isConsentMandatory && !isDisplayMandatory){
+		return TRUE;
+	}
+
+	rfContext *rfi;
+	RemminaProtocolWidget *gp;
+	rfi = (rfContext *)instance->context;
+	gp = rfi->protocol_widget;
+	int ret = remmina_plugin_service->protocol_widget_panel_accept(gp, (char*)message);
+	if (ret == GTK_RESPONSE_YES){
+		return TRUE;
+	}
+	else{
+		return FALSE;
+	}
 }
 
 static int remmina_rdp_logon_error_info(freerdp* instance, UINT32 data, UINT32 type)
@@ -1208,10 +1224,13 @@ static void remmina_rdp_main_loop(RemminaProtocolWidget *gp)
 	gchar buf[100];
 	rfContext *rfi = GET_PLUGIN_DATA(gp);
 	RemminaFile *remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
-	time_t cur_time, time_diff;
+	time_t cur_time, time_diff_jitter, time_diff_keypress;
 
 	int jitter_time = remmina_plugin_service->file_get_int(remminafile, "rdp_mouse_jitter", 0);
-	time(&last_time);
+ 	int keypress_time = remmina_plugin_service->file_get_int(remminafile, "rdp_idle_keypress_time", 0);
+	int keypress_opts = remmina_plugin_service->file_get_int(remminafile, "rdp_idle_keypress_combo", 0);
+	time(&(rfi->last_time));
+	time(&(rfi->last_time_idle_keypress));
 #if FREERDP_VERSION_MAJOR >= 3
 	while (!freerdp_shall_disconnect_context(&rfi->clientContext.context)) {
 #else
@@ -1219,10 +1238,17 @@ static void remmina_rdp_main_loop(RemminaProtocolWidget *gp)
 #endif
 		// move mouse if we've been idle and option is selected
 		time(&cur_time);
-		time_diff = cur_time - last_time;
-		if (jitter_time > 0 && time_diff > jitter_time){
-			last_time = cur_time;
+		time_diff_jitter = cur_time - rfi->last_time;
+		if (jitter_time > 0 && time_diff_jitter > jitter_time){
+			rfi->last_time = cur_time;
 			remmina_rdp_mouse_jitter(gp);
+		}
+		// press key(s) if we've been idle and option is selected
+		time(&cur_time);
+		time_diff_keypress = cur_time - rfi->last_time_idle_keypress;		
+		if (keypress_time > 0 && time_diff_keypress > keypress_time){
+			rfi->last_time_idle_keypress = cur_time;
+			remmina_rdp_idle_keypress(gp, &keypress_opts);
 		}
 
 		HANDLE handles[MAXIMUM_WAIT_OBJECTS] = {0};
@@ -1658,7 +1684,9 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	REMMINA_PLUGIN_DEBUG("gfx_h264_available: %d", gfx_h264_available);
 
 	/* Avoid using H.264 modes if they are not available on libfreerdp */
-	if (!gfx_h264_available && (freerdp_settings_get_uint32(rfi->clientContext.context.settings, FreeRDP_ColorDepth) == 65 || freerdp_settings_get_bool(rfi->clientContext.context.settings, FreeRDP_ColorDepth == 66)))
+	if (!gfx_h264_available &&
+	    (freerdp_settings_get_uint32(rfi->clientContext.context.settings, FreeRDP_ColorDepth) == 65 ||
+	     freerdp_settings_get_uint32(rfi->clientContext.context.settings, FreeRDP_ColorDepth) == 66))
 		freerdp_settings_set_uint32(rfi->clientContext.context.settings, FreeRDP_ColorDepth, 64); // Fallback to GFX RFX
 
 	if (freerdp_settings_get_uint32(rfi->clientContext.context.settings, FreeRDP_ColorDepth) == 0) {
@@ -1949,7 +1977,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 			REMMINA_PLUGIN_DEBUG("Network settings not set");
 	}
 
-	/* PerformanceFlags bitmask need also to be splitted into BOOL variables
+	/* PerformanceFlags bitmask need also to be split into BOOL variables
 	 * like freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_DisableWallpaper, freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_AllowFontSmoothing…
 	 * or freerdp_get_param_bool() function will return the wrong value
 	 */
@@ -2199,11 +2227,6 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 			REMMINA_PLUGIN_DEBUG("[Deprecated->migrated] - drive set to %s", g_strdup(ccs));
 		}
 		g_free(ccs);
-		//CLPARAM **p;
-		//size_t count;
-		//p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("drive", g_strdup(cs), &count);
-		//status = freerdp_client_add_device_channel(rfi->clientContext.context.settings, count, p);
-		//g_free(p);
 	}
 	cs = remmina_plugin_service->file_get_string(remminafile, "drive");
 	if (cs != NULL && cs[0] != '\0') {
@@ -2667,14 +2690,13 @@ static void remmina_rdp_init(RemminaProtocolWidget *gp)
 	TRACE_CALL(__func__);
 	freerdp *instance;
 	rfContext *rfi;
+	gchar* auth_list;
 
 	instance = freerdp_new();
 	instance->PreConnect = remmina_rdp_pre_connect;
 	instance->PostConnect = remmina_rdp_post_connect;
 	instance->PostDisconnect = remmina_rdp_post_disconnect;
-	//instance->VerifyCertificate = remmina_rdp_verify_certificate;
 	instance->VerifyCertificateEx = remmina_rdp_verify_certificate_ex;
-	//instance->VerifyChangedCertificate = remmina_rdp_verify_changed_certificate;
 	instance->VerifyChangedCertificateEx = remmina_rdp_verify_changed_certificate_ex;
 #if FREERDP_VERSION_MAJOR >= 3
 	instance->AuthenticateEx = remmina_rdp_authenticate_ex;
@@ -2706,7 +2728,14 @@ static void remmina_rdp_init(RemminaProtocolWidget *gp)
 	rfi->last_y = 0;
 
 	freerdp_register_addin_provider(freerdp_channels_load_static_addin_entry, 0);
-
+#if FREERDP_VERSION_MAJOR >= 3
+	auth_list = remmina_plugin_service->pref_get_value("rdp_auth_filter");
+	if (auth_list != NULL && auth_list[0] != 0){
+		freerdp_settings_set_string(rfi->clientContext.context.settings, FreeRDP_AuthenticationPackageList, auth_list);
+	}
+	g_free(auth_list);
+	
+#endif
 	remmina_rdp_event_init(gp);
 }
 
@@ -3003,6 +3032,24 @@ static gpointer mouse_jitter_list[] =
 	NULL
 };
 
+static gpointer idle_keypress_time_list[] =
+{
+	"No",	  N_("No"),
+	"30",  N_("Every 30 sec"),
+	"60",  N_("Every 1 min"),
+	"180", N_("Every 3 min"),
+	"300", N_("Every 5 min"),
+	"600", N_("Every 10 min"),
+	NULL
+};
+
+static gpointer idle_keypress_combo_list[] =
+{
+	"1",  N_("ALT_L + Tab"),
+	"2",  N_("Win + Tab"),
+	NULL
+};
+
 static gpointer gwtransp_list[] =
 {
 	"http", "HTTP",
@@ -3172,7 +3219,9 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "vc",			    N_("Static virtual channel"),			 FALSE, NULL,		  N_("<channel>[,<options>]")											 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "rdp2tcp",		    N_("TCP redirection"),				 FALSE, NULL,		  N_("/PATH/TO/rdp2tcp")											 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	  "rdp_reconnect_attempts", N_("Reconnect attempts number"),			 FALSE, NULL,		  N_("The maximum number of reconnect attempts upon an RDP disconnect (default: 20)")				 },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "rdp_mouse_jitter",    N_("Move mouse when connection is idle"),		 FALSE, mouse_jitter_list,	  NULL											 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "rdp_mouse_jitter",    N_("Move mouse when connection is idle"),		 FALSE, mouse_jitter_list,	  NULL											},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "rdp_idle_keypress_time",    N_("Press keys when connection is idle"),		 FALSE, idle_keypress_time_list,	  NULL							},
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "rdp_idle_keypress_combo",    N_("Keys combination"),		 FALSE, idle_keypress_combo_list,	  NULL							},
 
 	{ REMMINA_PROTOCOL_SETTING_TYPE_ASSISTANCE,	  "assistance_mode",	    N_("Attempt to connect in assistance mode"),	TRUE,	NULL																 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "preferipv6",		    N_("Prefer IPv6 AAAA record over IPv4 A record"),	 TRUE,	NULL,		  NULL														 },
