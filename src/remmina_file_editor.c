@@ -415,16 +415,13 @@ static void remmina_file_editor_ssh_tunnel_enabled_check_on_toggled(GtkToggleBut
 			gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->ssh_tunnel_server_custom_radio), enabled);
 		remmina_file_editor_ssh_tunnel_server_custom_radio_on_toggled(NULL, gfe);
 		p = remmina_public_combo_get_active_text(GTK_COMBO_BOX(priv->protocol_combo));
-		// if (!(g_strcmp0(p, "SFTP") == 0 || g_strcmp0(p, "SSH") == 0)) {
 		gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->ssh_tunnel_username_entry), enabled);
 		gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->ssh_tunnel_auth_password), enabled);
 		gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->ssh_tunnel_auth_combo), enabled);
 		gtk_widget_set_sensitive(GTK_WIDGET(gfe->priv->ssh_tunnel_command_entry), enabled);
 		
-		//}
 		g_free(p);
 	}
-	// remmina_file_editor_ssh_tunnel_auth_publickey_radio_on_toggled(NULL, gfe);
 	s = remmina_file_get_string(gfe->priv->remmina_file, "ssh_tunnel_privatekey");
 	if (s)
 		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(gfe->priv->ssh_tunnel_privatekey_chooser), s);
@@ -1066,6 +1063,9 @@ static void remmina_file_editor_create_settings(RemminaFileEditor *gfe, GtkWidge
 			g_hash_table_insert(priv->setting_widgets, setting_name, widget);
 			if (settings->opt2)
 				gtk_widget_set_tooltip_text(widget, _((const gchar *)settings->opt2));
+			if (settings->opt1){
+				gtk_entry_set_placeholder_text(GTK_ENTRY(widget), _((const gchar *)settings->opt1));
+			}
 			grid_row++;
 			break;
 
@@ -1183,39 +1183,47 @@ static void remmina_file_editor_create_behavior_tab(RemminaFileEditor *gfe)
 	/* Execute Command frame */
 	remmina_public_create_group(GTK_GRID(grid), _("Execute a Command"), 0, 1, 2);
 
+	/* Sandbox disclaimer*/
+	widget = gtk_label_new(NULL);
+	gtk_widget_show(widget);
+	gtk_widget_set_halign(GTK_WIDGET(widget), GTK_ALIGN_START);
+	gtk_widget_set_valign(GTK_WIDGET(widget), GTK_ALIGN_CENTER);
+	gtk_label_set_text(GTK_LABEL(widget), "* Local commands may not function properly if run in a sandboxed environment *");
+	gtk_grid_attach(GTK_GRID(grid), widget, 0, 2, 2, 2);
+
 	/* PRE connection command */
 	cs = remmina_file_get_string(priv->remmina_file, "precommand");
-	widget = remmina_file_editor_create_text2(gfe, grid, 2, 0, _("Before connecting"), cs, 24, 26, "precommand");
+	widget = remmina_file_editor_create_text2(gfe, grid, 4, 0, _("Before connecting"), cs, 24, 26, "precommand");
 	priv->behavior_precommand_entry = widget;
 	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), _("command %h %u %t %U %p %g --option"));
 	gtk_widget_set_tooltip_markup(widget, _(cmd_tips));
 
 	/* POST connection command */
 	cs = remmina_file_get_string(priv->remmina_file, "postcommand");
-	widget = remmina_file_editor_create_text2(gfe, grid, 3, 0, _("After connecting"), cs, 24, 16, "postcommand");
+	widget = remmina_file_editor_create_text2(gfe, grid, 5, 0, _("After connecting"), cs, 24, 16, "postcommand");
 	priv->behavior_postcommand_entry = widget;
 	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), _("/path/to/command -opt1 arg %h %u %t -opt2 %U %p %g"));
 	gtk_widget_set_tooltip_markup(widget, _(cmd_tips));
 
 	/* Startup frame */
-	remmina_public_create_group(GTK_GRID(grid), _("Start-up"), 4, 1, 2);
+	remmina_public_create_group(GTK_GRID(grid), _("Start-up"), 6, 1, 2);
 
 	/* Autostart profile option */
-	priv->behavior_autostart_check = remmina_file_editor_create_check(gfe, grid, 6, 1, _("Auto-start this profile"),
+	priv->behavior_autostart_check = remmina_file_editor_create_check(gfe, grid, 8, 1, _("Auto-start this profile"),
 									  remmina_file_get_int(priv->remmina_file, "enable-autostart", FALSE), "enable-autostart");
 
 	/* Startup frame */
-	remmina_public_create_group(GTK_GRID(grid), _("Connection profile security"), 8, 1, 2);
+	remmina_public_create_group(GTK_GRID(grid), _("Connection profile security"), 10, 1, 2);
 
 	/* Autostart profile option */
-	priv->behavior_lock_check = remmina_file_editor_create_check(gfe, grid, 10, 1, _("Require password to connect or edit the profile"),
+	priv->behavior_lock_check = remmina_file_editor_create_check(gfe, grid, 12, 1, _("Require password to connect or edit the profile"),
 								     remmina_file_get_int(priv->remmina_file, "profile-lock", FALSE), "profile-lock");
 
 									 /* Startup frame */
-	remmina_public_create_group(GTK_GRID(grid), _("Unexpected disconnect"), 12, 1, 2);
+	remmina_public_create_group(GTK_GRID(grid), _("Unexpected disconnect"), 14, 1, 2);
 
 	/* Autostart profile option */
-	priv->behavior_disconnect = remmina_file_editor_create_check(gfe, grid, 16, 1, _("Keep window from closing if not disconnected by Remmina"),
+	priv->behavior_disconnect = remmina_file_editor_create_check(gfe, grid, 18, 1, _("Keep window from closing if not disconnected by Remmina"),
 								     remmina_file_get_int(priv->remmina_file, "disconnect-prompt", FALSE), "disconnect-prompt");
 }
 
@@ -1565,7 +1573,7 @@ static void remmina_file_editor_save_ssh_tunnel_tab(RemminaFileEditor *gfe)
 		"ssh_tunnel_password",
 		(ssh_tunnel_enabled && (ssh_tunnel_auth == SSH_AUTH_PASSWORD)) ? gtk_entry_get_text(GTK_ENTRY(priv->ssh_tunnel_auth_password)) : NULL);
 
-	char* command = gtk_entry_get_text(GTK_ENTRY(priv->ssh_tunnel_command_entry));
+	const char* command = gtk_entry_get_text(GTK_ENTRY(priv->ssh_tunnel_command_entry));
 	remmina_file_set_string(
 		priv->remmina_file,
 		"ssh_tunnel_command", command);
@@ -1607,7 +1615,6 @@ static gboolean remmina_file_editor_validate_settings(RemminaFileEditor *	gfe,
 
 	setting_iter = protocol_plugin->basic_settings;
 	if (setting_iter) {
-		// gboolean found = FALSE;
 		while (setting_iter->type != REMMINA_PROTOCOL_SETTING_TYPE_END) {
 			if (setting_iter->name == NULL) {
 				g_error("Internal error: a setting name in protocol plugin %s is "
@@ -1615,7 +1622,6 @@ static gboolean remmina_file_editor_validate_settings(RemminaFileEditor *	gfe,
 					protocol_plugin->name);
 			} else if ((gchar *)setting_name_to_validate) {
 				if (strcmp((gchar *)setting_name_to_validate, setting_iter->name) == 0) {
-					// found = TRUE;
 
 					gpointer validator_data = setting_iter->validator_data;
 					GCallback validator = setting_iter->validator;
@@ -1644,11 +1650,6 @@ static gboolean remmina_file_editor_validate_settings(RemminaFileEditor *	gfe,
 			}
 			setting_iter++;
 		}
-
-		// if (!found) {
-		// 	 TOO VERBOSE:
-		// 	 g_warning("%s is not a plugin setting!", setting_name_to_validate);
-		// }
 	}
 
 	return TRUE;
@@ -2070,8 +2071,6 @@ GtkWidget *remmina_file_editor_new_from_file(RemminaFile *remminafile)
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 8);
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(gfe))), grid, FALSE, FALSE, 2);
-
-	// remmina_public_create_group(GTK_GRID(grid), _("Profile"), 0, 4, 3);
 
 	gboolean profile_file_exists = (remmina_file_get_filename(remminafile) != NULL);
 

@@ -636,7 +636,7 @@ void remmina_rdp_cliprdr_request_data(GtkClipboard *gtkClipboard, GtkSelectionDa
 	}
 
 	if (clipboard->format != info || clipboard->srv_data == NULL) {
-		/* We do not have a local cached clipoard, so we have to start a remote request */
+		/* We do not have a local cached clipboard, so we have to start a remote request */
 		remmina_rdp_cliprdr_cached_clipboard_free(clipboard);
 
 		clipboard->format = info;
@@ -1028,7 +1028,4 @@ void remmina_rdp_cliprdr_init(rfContext *rfi, CliprdrClientContext *cliprdr)
 	cliprdr->ServerFormatListResponse = remmina_rdp_cliprdr_server_format_list_response;
 	cliprdr->ServerFormatDataRequest = remmina_rdp_cliprdr_server_format_data_request;
 	cliprdr->ServerFormatDataResponse = remmina_rdp_cliprdr_server_format_data_response;
-
-//	cliprdr->ServerFileContentsRequest = remmina_rdp_cliprdr_server_file_contents_request;
-//	cliprdr->ServerFileContentsResponse = remmina_rdp_cliprdr_server_file_contents_response;
 }
