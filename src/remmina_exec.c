@@ -262,6 +262,10 @@ static void remmina_exec_connect(const gchar *data)
 		protocol = "SSH";
 	else if (strncmp("spice://", data, 8) == 0 || strncmp("SPICE://", data, 8) == 0)
 		protocol = "SPICE";
+	else if (strncmp("https://", data, 8) == 0 || strncmp("HTTPS://", data, 8) == 0)
+		protocol = "WWW";
+	else if (strncmp("http://", data, 7) == 0 || strncmp("HTTP://", data, 7) == 0)
+		protocol = "WWW";
 
 	if (strncmp("file://", data, 6) == 0) {
 		gchar *filename = g_filename_from_uri (data, NULL, &error);
@@ -279,7 +283,13 @@ static void remmina_exec_connect(const gchar *data)
 	}
 
 	protocolserver = g_strsplit(data, "://", 2);
-	server = g_strdup(protocolserver[1]);
+	if (strncmp(protocol, "WWW", 3) == 0){
+		server = data;
+	}
+	else{
+		server = g_strdup(protocolserver[1]);
+	}
+	
 
 	// Support loading .remmina files using handler
 	if ((temp = strrchr(server, '.')) != NULL && g_strcmp0(temp + 1, "remmina") == 0) {
@@ -303,8 +313,7 @@ static void remmina_exec_connect(const gchar *data)
 			user = g_uri_unescape_string(userpass[0], NULL);
 			password = g_uri_unescape_string(userpass[1], NULL);
 
-			// Try to decrypt the password field if it contains =
-			temp = password != NULL && strrchr(password, '=') != NULL ? remmina_crypt_decrypt(password) : NULL;
+			temp = password != NULL ? remmina_crypt_decrypt(password) : NULL;
 			if (temp != NULL) {
 				g_free(password);
 				password = temp;
@@ -344,8 +353,7 @@ static void remmina_exec_connect(const gchar *data)
 			querystringpartkv = g_strsplit(*querystringpart, "=", 2);
 			value = g_uri_unescape_string(querystringpartkv[1], NULL);
 			if (strcmp(querystringpartkv[0], "VncPassword") == 0) {
-				// Try to decrypt password field if it contains =
-				temp = value != NULL && strrchr(value, '=') != NULL ? remmina_crypt_decrypt(value) : NULL;
+				temp = value != NULL ? remmina_crypt_decrypt(value) : NULL;
 				if (temp != NULL) {
 					g_free(value);
 					value = temp;
