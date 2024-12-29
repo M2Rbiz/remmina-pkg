@@ -58,7 +58,6 @@ static RemminaPluginService *remmina_plugin_service = NULL;
 
 static int dot_cursor_x_hot = 2;
 static int dot_cursor_y_hot = 2;
-static int cl_select_counter = 0;
 static const gchar *dot_cursor_xpm[] =
 { "5 5 3 1", "  c None", ".	c #000000", "+	c #FFFFFF", " ... ", ".+++.", ".+ +.", ".+++.", " ... " };
 
@@ -683,15 +682,8 @@ static void remmina_plugin_vnc_rfb_fill_buffer(rfbClient *cl, guchar *dest, gint
 	}
 }
 
-gboolean remmina_plugin_vnc_rfb_updatefb(gpointer* data){
-	FrameInfo *frame = (FrameInfo*)data;
-	rfbClient *cl = frame->cl;
-	int x = frame->x;
-	int y = frame->y;
-	int w = frame->w;
-	int h = frame->h;
-
-
+static void remmina_plugin_vnc_rfb_updatefb(rfbClient *cl, int x, int y, int w, int h)
+{
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = rfbClientGetClientData(cl, NULL);
 	RemminaPluginVncData *gpdata = GET_PLUGIN_DATA(gp);
@@ -699,42 +691,25 @@ gboolean remmina_plugin_vnc_rfb_updatefb(gpointer* data){
 	gint rowstride;
 	gint width;
 
-	if (gpdata->running){
-		LOCK_BUFFER(TRUE);
+	LOCK_BUFFER(TRUE);
 
-		if (w >= 1 || h >= 1) {
-			width = remmina_plugin_service->protocol_plugin_get_width(gp);
-			bytesPerPixel = cl->format.bitsPerPixel / 8;
-			rowstride = cairo_image_surface_get_stride(gpdata->rgb_buffer);
-			cairo_surface_flush(gpdata->rgb_buffer);
-			remmina_plugin_vnc_rfb_fill_buffer(cl, cairo_image_surface_get_data(gpdata->rgb_buffer) + y * rowstride + x * 4,
-							rowstride, gpdata->vnc_buffer + ((y * width + x) * bytesPerPixel), width * bytesPerPixel, NULL,
-							w, h);
-			cairo_surface_mark_dirty(gpdata->rgb_buffer);
-		}
-
-		if ((remmina_plugin_service->remmina_protocol_widget_get_current_scale_mode(gp) != REMMINA_PROTOCOL_WIDGET_SCALE_MODE_NONE))
-			remmina_plugin_vnc_scale_area(gp, &x, &y, &w, &h);
-
-		UNLOCK_BUFFER(TRUE);
-
-		remmina_plugin_vnc_queue_draw_area(gp, x, y, w, h);
+	if (w >= 1 || h >= 1) {
+		width = remmina_plugin_service->protocol_plugin_get_width(gp);
+		bytesPerPixel = cl->format.bitsPerPixel / 8;
+		rowstride = cairo_image_surface_get_stride(gpdata->rgb_buffer);
+		cairo_surface_flush(gpdata->rgb_buffer);
+		remmina_plugin_vnc_rfb_fill_buffer(cl, cairo_image_surface_get_data(gpdata->rgb_buffer) + y * rowstride + x * 4,
+						   rowstride, gpdata->vnc_buffer + ((y * width + x) * bytesPerPixel), width * bytesPerPixel, NULL,
+						   w, h);
+		cairo_surface_mark_dirty(gpdata->rgb_buffer);
 	}
-	free(frame);
-	return FALSE;
-}
 
-static void remmina_plugin_vnc_rfb_got_update(rfbClient *cl, int x, int y, int w, int h)
-{
-	TRACE_CALL(__func__);
-	FrameInfo* frame = malloc(sizeof(FrameInfo));
-	frame->cl = cl;
-	frame->x = x;
-	frame->y = y;
-	frame->h = h;
-	frame->w = w;
-	g_idle_add(G_SOURCE_FUNC(remmina_plugin_vnc_rfb_updatefb), frame);
+	if ((remmina_plugin_service->remmina_protocol_widget_get_current_scale_mode(gp) != REMMINA_PROTOCOL_WIDGET_SCALE_MODE_NONE))
+		remmina_plugin_vnc_scale_area(gp, &x, &y, &w, &h);
 
+	UNLOCK_BUFFER(TRUE);
+
+	remmina_plugin_vnc_queue_draw_area(gp, x, y, w, h);
 }
 
 static void remmina_plugin_vnc_rfb_finished(rfbClient *cl) __attribute__ ((unused));
@@ -1164,37 +1139,33 @@ static gboolean remmina_plugin_vnc_main_loop(RemminaProtocolWidget *gp)
 	if (cl->buffered)
 		goto handle_buffered;
 
-	timeout.tv_sec = 5;
+	timeout.tv_sec = 10;
 	timeout.tv_usec = 0;
 	FD_ZERO(&fds);
 	FD_SET(cl->sock, &fds);
 	FD_SET(gpdata->vnc_event_pipe[0], &fds);
 	ret = select(MAX(cl->sock, gpdata->vnc_event_pipe[0]) + 1, &fds, NULL, NULL, &timeout);
-	cl_select_counter++;
 
 	/* Sometimes it returns <0 when opening a modal dialog in other window. Absolutely weird */
 	/* So we continue looping anyway */
-	if (ret <= 0){
+	if (ret <= 0)
 		return TRUE;
-	}
-	if (FD_ISSET(gpdata->vnc_event_pipe[0], &fds)){
+
+	if (FD_ISSET(gpdata->vnc_event_pipe[0], &fds))
 		remmina_plugin_vnc_process_vnc_event(gp);
-	}
-	if (FD_ISSET(cl->sock, &fds) || cl_select_counter >= 10) {
-		cl_select_counter = 0;
+	if (FD_ISSET(cl->sock, &fds)) {
 		i = WaitForMessage(cl, 500);
-		if (i < 0){
-						return TRUE;
-		}
+		if (i < 0)
+			return TRUE;
 handle_buffered:
 		if (!HandleRFBServerMessage(cl)) {
 			gpdata->running = FALSE;
-			remmina_plugin_service->protocol_plugin_set_error(gp, "VNC connection timed out");
 			if (gpdata->connected && !remmina_plugin_service->protocol_plugin_is_closed(gp))
 				remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
 			return FALSE;
 		}
 	}
+
 	return TRUE;
 }
 
@@ -1214,7 +1185,6 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 
 	gint colordepth = remmina_plugin_service->file_get_int(remminafile, "colordepth", 32);
 	gint quality = remmina_plugin_service->file_get_int(remminafile, "quality", 9);
-	gint timeout = remmina_plugin_service->file_get_int(remminafile, "timeout", 60);
 
 	while (gpdata->connected) {
 		gpdata->auth_called = FALSE;
@@ -1249,10 +1219,7 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		cl->canHandleNewFBSize = TRUE;
 		cl->GetPassword = remmina_plugin_vnc_rfb_password;
 		cl->GetCredential = remmina_plugin_vnc_rfb_credential;
-		cl->GotFrameBufferUpdate = remmina_plugin_vnc_rfb_got_update;
-		cl->readTimeout = timeout;
-		cl->connectTimeout = timeout;
-		
+		cl->GotFrameBufferUpdate = remmina_plugin_vnc_rfb_updatefb;
 		/**
 		 * @fixme we have to implement FinishedFrameBufferUpdate
 		 * This is to know when the server has finished to send a batch of frame buffer
@@ -1263,7 +1230,6 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 		 * @fixme we have to implement HandleKeyboardLedState
 		 * cl->HandleKeyboardLedState = remmina_plugin_vnc_rfb_led_state
 		 */
-		cl->FinishedFrameBufferUpdate = remmina_plugin_vnc_rfb_finished;
 		cl->HandleKeyboardLedState = remmina_plugin_vnc_rfb_led_state;
 		cl->GotXCutText = (
 			remmina_plugin_service->file_get_int(remminafile, "disableclipboard", FALSE) ?
@@ -1390,8 +1356,15 @@ static gboolean remmina_plugin_vnc_main(RemminaProtocolWidget *gp)
 
 	if (!gpdata->connected) {
 		REMMINA_PLUGIN_DEBUG("Client not connected with error: %s", vnc_error);
-		if (cl && !gpdata->auth_called && !(remmina_plugin_service->protocol_plugin_has_error(gp)))
-			remmina_plugin_service->protocol_plugin_set_error(gp, "%s", vnc_error);
+		if (cl && !gpdata->auth_called && !(remmina_plugin_service->protocol_plugin_has_error(gp))){
+			if (remmina_plugin_service->file_get_int(remminafile, "closeonfailure", FALSE)){
+				//Do nothing to close immediately
+			}
+			else{
+				remmina_plugin_service->protocol_plugin_set_error(gp, "%s", vnc_error);
+			}
+		}
+			
 		gpdata->running = FALSE;
 
 		remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
@@ -2085,10 +2058,6 @@ static gchar repeater_tooltip[] =
 	   "    the repeater, e.g. with x11vnc:\n"
 	   "    x11vnc -connect repeater=ID:123456789+10.10.10.12:5500");
 
-static gchar timeout_tooltip[] =
-	N_("Time in seconds to wait while reading from the VNC server before disconnecting:\n"
-	   "  • Set to 0 to disable any timeout\n");
-
 static gchar vnciport_tooltip[] =
 	N_("Listening for remote VNC connection:\n"
 	   "  • The “Listen on port” field is the port Remmina will listen to,\n"
@@ -2137,7 +2106,6 @@ static const RemminaProtocolSetting remmina_plugin_vnc_basic_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"), FALSE, NULL,	     NULL,	       NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Colour depth"),  FALSE, colordepth_list, NULL,	       NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	N_("Quality"),	     FALSE, quality_list,    NULL,	       NULL, NULL },
-	{ REMMINA_PROTOCOL_SETTING_TYPE_INT,	  "timeout",	N_("Disconnect Timeout"),	      FALSE, NULL,    timeout_tooltip,		NULL, NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	NULL,		     FALSE, NULL,	     NULL,	       NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		NULL,		     FALSE, NULL,	     NULL,	       NULL, NULL }
 };
@@ -2150,7 +2118,6 @@ static const RemminaProtocolSetting remmina_plugin_vnci_basic_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD, "password",	N_("User password"),  FALSE, NULL,	      NULL,		NULL, NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "colordepth", N_("Colour depth"),   FALSE, colordepth_list, NULL,		NULL, NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT,	  "quality",	N_("Quality"),	      FALSE, quality_list,    NULL,		NULL, NULL},
-	{ REMMINA_PROTOCOL_SETTING_TYPE_INT,	  "timeout",	N_("Disconnect Timeout"),	      FALSE, NULL,    timeout_tooltip,		NULL, NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_KEYMAP,	  "keymap",	NULL,		      FALSE, NULL,	      NULL,		NULL, NULL},
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,		NULL,		      FALSE, NULL,	      NULL,		NULL, NULL}
 };
@@ -2177,6 +2144,7 @@ static const RemminaProtocolSetting remmina_plugin_vnc_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableclipboard",	 N_("Turn off clipboard sync"),			TRUE,  NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "disableencryption",	 N_("Turn off encryption"),			FALSE, NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "viewonly",		 N_("View only"),				TRUE, NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK, "closeonfailure",		 N_("Close on connection failure"),				TRUE, NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,   NULL,			 NULL,						FALSE, NULL, NULL }
 };
 

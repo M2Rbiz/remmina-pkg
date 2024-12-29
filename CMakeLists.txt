@@ -36,7 +36,7 @@ cmake_policy(SET CMP0048 NEW)
 
 project(
   Remmina
-  VERSION 1.4.36
+  VERSION 1.4.37
   DESCRIPTION "The Gtk Remote Desktop Client"
   LANGUAGES C CXX
 )
@@ -128,6 +128,8 @@ endif()
 if(NOT BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
 endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror=incompatible-pointer-types")
 
 if(CMAKE_COMPILER_IS_GNUCC)
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64" OR CMAKE_SYSTEM_PROCESSOR MATCHES
