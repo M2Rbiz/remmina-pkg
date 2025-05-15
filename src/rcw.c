@@ -193,7 +193,7 @@ static GtkWidget *rco_create_tab_page(RemminaConnectionObject *cnnobj);
 static GtkWidget *rco_create_tab_label(RemminaConnectionObject *cnnobj);
 
 void rcw_grab_focus(RemminaConnectionWindow *cnnwin);
-static GtkWidget *rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode);
+static GtkWidget *rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode, gboolean is_floating);
 static void rcw_place_toolbar(GtkToolbar *toolbar, GtkGrid *grid, GtkWidget *sibling, int toolbar_placement);
 static void rco_update_toolbar(RemminaConnectionObject *cnnobj);
 static void rcw_keyboard_grab(RemminaConnectionWindow *cnnwin);
@@ -404,6 +404,10 @@ static RemminaScaleMode get_current_allowed_scale_mode(RemminaConnectionObject *
 	plugin_can_scale = remmina_protocol_widget_query_feature_by_type(REMMINA_PROTOCOL_WIDGET(cnnobj->proto),
 									 REMMINA_PROTOCOL_FEATURE_TYPE_SCALE);
 
+	if (remmina_pref.start_dynres){
+		scalemode = REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES;
+	}
+
 	/* Forbid scalemode REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES when not possible */
 	if ((!plugin_has_dynres) && scalemode == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_DYNRES)
 		scalemode = REMMINA_PROTOCOL_WIDGET_SCALE_MODE_NONE;
@@ -411,7 +415,7 @@ static RemminaScaleMode get_current_allowed_scale_mode(RemminaConnectionObject *
 	/* Forbid scalemode REMMINA_PROTOCOL_WIDGET_SCALE_MODE_SCALED when not possible */
 	if (!plugin_can_scale && scalemode == REMMINA_PROTOCOL_WIDGET_SCALE_MODE_SCALED)
 		scalemode = REMMINA_PROTOCOL_WIDGET_SCALE_MODE_NONE;
-
+	
 	if (scale_avail)
 		*scale_avail = plugin_can_scale;
 	if (dynres_avail)
@@ -630,10 +634,16 @@ static void rcw_keyboard_grab(RemminaConnectionWindow *cnnwin)
 static void rcw_close_all_connections(RemminaConnectionWindow *cnnwin)
 {
 	RemminaConnectionWindowPriv *priv = cnnwin->priv;
-	GtkNotebook *notebook = GTK_NOTEBOOK(priv->notebook);
+	GtkNotebook *notebook;
 	GtkWidget *w;
 	RemminaConnectionObject *cnnobj;
 	gint i, n;
+
+	/* connection already closed */
+	if (!priv)
+		return;
+
+	notebook = GTK_NOTEBOOK(priv->notebook);
 
 	if (GTK_IS_WIDGET(notebook)) {
 		n = gtk_notebook_get_n_pages(notebook);
@@ -650,9 +660,15 @@ gboolean rcw_delete(RemminaConnectionWindow *cnnwin)
 {
 	TRACE_CALL(__func__);
 	RemminaConnectionWindowPriv *priv = cnnwin->priv;
-	GtkNotebook *notebook = GTK_NOTEBOOK(priv->notebook);
+	GtkNotebook *notebook;
 	GtkWidget *dialog;
 	gint i, n, nopen;
+
+	/* connection already closed */
+	if (!priv)
+		return TRUE;
+
+	notebook = GTK_NOTEBOOK(priv->notebook);
 
 	if (!REMMINA_IS_CONNECTION_WINDOW(cnnwin))
 		return TRUE;
@@ -2341,8 +2357,25 @@ static void rcw_toolbar_grab(GtkToolItem *toggle, RemminaConnectionWindow *cnnwi
 	rco_update_toolbar(cnnobj);
 }
 
+static void rcw_update_pin(RemminaConnectionWindow *cnnwin)
+{
+	TRACE_CALL(__func__);
+	if (cnnwin->priv->pin_down)
+		gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(cnnwin->priv->pin_button), "org.remmina.Remmina-pin-down-symbolic");
+	else
+		gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(cnnwin->priv->pin_button), "org.remmina.Remmina-pin-up-symbolic");
+}
+
+static void rcw_toolbar_pin(GtkWidget *widget, RemminaConnectionWindow *cnnwin)
+{
+	TRACE_CALL(__func__);
+	remmina_pref.toolbar_pin_down = cnnwin->priv->pin_down = !cnnwin->priv->pin_down;
+	remmina_pref_save();
+	rcw_update_pin(cnnwin);
+}
+
 static GtkWidget *
-rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
+rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode, gboolean is_floating)
 {
 	TRACE_CALL(__func__);
 	RemminaConnectionWindowPriv *priv = cnnwin->priv;
@@ -2367,6 +2400,24 @@ rcw_create_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
 
 	/* Main actions */
+
+	if (is_floating){
+			/* The pin button */
+		GtkToolItem* pinbutton = gtk_toggle_tool_button_new();
+		gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(pinbutton), "org.remmina.Remmina-pin-down-symbolic");
+		gtk_widget_show(GTK_WIDGET(pinbutton));
+		gtk_toolbar_insert(GTK_TOOLBAR(toolbar), pinbutton, -1);
+	#if GTK_CHECK_VERSION(3, 20, 0)
+		gtk_widget_set_focus_on_click(GTK_WIDGET(pinbutton), FALSE);
+	#else
+		gtk_button_set_focus_on_click(GTK_BUTTON(pinbutton), FALSE);
+	#endif
+		gtk_widget_set_name(GTK_WIDGET(pinbutton), "remmina-pin-button");
+		g_signal_connect(G_OBJECT(pinbutton), "clicked", G_CALLBACK(rcw_toolbar_pin), cnnwin);
+		priv->pin_button = GTK_WIDGET(pinbutton);
+		priv->pin_down = remmina_pref.toolbar_pin_down;
+		rcw_update_pin(cnnwin);
+	}
 
 	/* Menu */
 	toolitem = gtk_toggle_tool_button_new();
@@ -3151,25 +3202,6 @@ static gboolean rcw_on_configure(GtkWidget *widget, GdkEventConfigure *event,
 	return FALSE;
 }
 
-static void rcw_update_pin(RemminaConnectionWindow *cnnwin)
-{
-	TRACE_CALL(__func__);
-	if (cnnwin->priv->pin_down)
-		gtk_button_set_image(GTK_BUTTON(cnnwin->priv->pin_button),
-				     gtk_image_new_from_icon_name("org.remmina.Remmina-pin-down-symbolic", GTK_ICON_SIZE_MENU));
-	else
-		gtk_button_set_image(GTK_BUTTON(cnnwin->priv->pin_button),
-				     gtk_image_new_from_icon_name("org.remmina.Remmina-pin-up-symbolic", GTK_ICON_SIZE_MENU));
-}
-
-static void rcw_toolbar_pin(GtkWidget *widget, RemminaConnectionWindow *cnnwin)
-{
-	TRACE_CALL(__func__);
-	remmina_pref.toolbar_pin_down = cnnwin->priv->pin_down = !cnnwin->priv->pin_down;
-	remmina_pref_save();
-	rcw_update_pin(cnnwin);
-}
-
 static void rcw_create_floating_toolbar(RemminaConnectionWindow *cnnwin, gint mode)
 {
 	TRACE_CALL(__func__);
@@ -3191,27 +3223,9 @@ static void rcw_create_floating_toolbar(RemminaConnectionWindow *cnnwin, gint mo
 
 	gtk_container_add(GTK_CONTAINER(ftb_widget), vbox);
 
-	tb = rcw_create_toolbar(cnnwin, mode);
+	tb = rcw_create_toolbar(cnnwin, mode, TRUE);
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	gtk_widget_show(hbox);
-
-
-	/* The pin button */
-	pinbutton = gtk_button_new();
-	gtk_widget_show(pinbutton);
-	gtk_box_pack_start(GTK_BOX(hbox), pinbutton, FALSE, FALSE, 0);
-	gtk_button_set_relief(GTK_BUTTON(pinbutton), GTK_RELIEF_NONE);
-#if GTK_CHECK_VERSION(3, 20, 0)
-	gtk_widget_set_focus_on_click(GTK_WIDGET(pinbutton), FALSE);
-#else
-	gtk_button_set_focus_on_click(GTK_BUTTON(pinbutton), FALSE);
-#endif
-	gtk_widget_set_name(pinbutton, "remmina-pin-button");
-	g_signal_connect(G_OBJECT(pinbutton), "clicked", G_CALLBACK(rcw_toolbar_pin), cnnwin);
-	priv->pin_button = pinbutton;
-	priv->pin_down = remmina_pref.toolbar_pin_down;
-	rcw_update_pin(cnnwin);
-
 
 	label = gtk_label_new("");
 	gtk_label_set_max_width_chars(GTK_LABEL(label), 50);
@@ -3224,11 +3238,9 @@ static void rcw_create_floating_toolbar(RemminaConnectionWindow *cnnwin, gint mo
 	if (remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM || 
 		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_RIGHT || 
 		remmina_pref.floating_toolbar_placement == FLOATING_TOOLBAR_PLACEMENT_BOTTOM_LEFT) {
-		gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 		gtk_box_pack_start(GTK_BOX(vbox), tb, FALSE, FALSE, 0);
 	} else {
 		gtk_box_pack_start(GTK_BOX(vbox), tb, FALSE, FALSE, 0);
-		gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 	}
 
 	priv->floating_toolbar_widget = ftb_widget;
@@ -3819,7 +3831,7 @@ static RemminaConnectionWindow *rcw_create_scrolled(gint width, gint height, gbo
 	g_object_set(settings, "gtk-application-prefer-dark-theme", remmina_pref.dark_theme, NULL);
 
 	/* Create the toolbar */
-	toolbar = rcw_create_toolbar(cnnwin, SCROLLED_WINDOW_MODE);
+	toolbar = rcw_create_toolbar(cnnwin, SCROLLED_WINDOW_MODE, FALSE);
 
 	/* Create the notebook */
 	notebook = rcw_create_notebook(cnnwin);
@@ -4625,6 +4637,10 @@ GtkWidget *rcw_open_from_file_full(RemminaFile *remminafile, GCallback disconnec
 
 	if (fullscreen)
 		view_mode = VIEWPORT_FULLSCREEN_MODE;
+
+	if (remmina_pref.start_fullscreen){
+		view_mode = VIEWPORT_FULLSCREEN_MODE;
+	}
 
 	/* Create the viewport to make the RemminaProtocolWidget scrollable */
 	cnnobj->viewport = gtk_viewport_new(NULL, NULL);
