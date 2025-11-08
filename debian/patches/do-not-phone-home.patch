@@ -1,0 +1,42 @@
+Description: Comment out HTTPS requests causing phoning home
+Author: Sven Geuer <sge@debian.org>
+Bug: https://gitlab.com/Remmina/Remmina/-/issues/3130
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1109981
+Last-Update: 2025-10-31
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/src/remmina_info.c
++++ b/src/remmina_info.c
+@@ -1259,7 +1259,9 @@
+ 	enc_s = json_generator_to_data(g, NULL);
+ 	g_object_unref(g);
+ 
++	/* Do not phone home.
+ 	remmina_curl_compose_message(enc_s, "POST",  PERIODIC_UPLOAD_URL, NULL);
++	 */
+ 
+ 	json_node_unref(n);
+ 
+@@ -1327,7 +1329,9 @@
+ 	json_generator_set_root(g, n2);
+ 	enc_s = json_generator_to_data(g, NULL);
+ 	g_object_unref(g);
++	/* Do not phone home.
+ 	remmina_curl_compose_message(enc_s, "POST", INFO_REQUEST_URL, NULL);
++	 */
+ 	if(n != NULL){
+ 		json_node_unref(n);
+ 	}
+--- a/src/remmina_plugin_manager.c
++++ b/src/remmina_plugin_manager.c
+@@ -1301,7 +1301,10 @@
+ 		g_object_unref(g);
+ 		json_node_free(n);
+ 	}
++	/* Do not phone home and query upstream regarding plugins,
++	 * in Debian plugins come in dedicated packages anyway.
+ 	remmina_curl_compose_message(formdata, "POST", LIST_URL, NULL);
++	 */
+ 	return NULL;
+ }
+ 
