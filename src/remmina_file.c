@@ -232,7 +232,7 @@ remmina_file_copy(const gchar *filename)
 	return remminafile;
 }
 
-const RemminaProtocolSetting *find_protocol_setting(const gchar *name, RemminaProtocolPlugin *protocol_plugin)
+static const RemminaProtocolSetting *find_protocol_setting(const gchar *name, RemminaProtocolPlugin *protocol_plugin)
 {
 	TRACE_CALL(__func__);
 	const RemminaProtocolSetting *setting_iter;
@@ -591,15 +591,6 @@ void remmina_file_set_int(RemminaFile *remminafile, const gchar *setting, gint v
 				    g_strdup_printf("%i", value));
 }
 
-void remmina_file_set_state_int(RemminaFile *remminafile, const gchar *setting, gint value)
-{
-	TRACE_CALL(__func__);
-	if (remminafile)
-		g_hash_table_insert(remminafile->states,
-				    g_strdup(setting),
-				    g_strdup_printf("%i", value));
-}
-
 gint remmina_file_get_int(RemminaFile *remminafile, const gchar *setting, gint default_value)
 {
 	TRACE_CALL(__func__);
@@ -607,18 +598,17 @@ gint remmina_file_get_int(RemminaFile *remminafile, const gchar *setting, gint d
 	gint r;
 
 	value = g_hash_table_lookup(remminafile->settings, setting);
-	r = value == NULL ? default_value : (value[0] == 't' ? TRUE : atoi(value));
-	return r;
-}
 
-gint remmina_file_get_state_int(RemminaFile *remminafile, const gchar *setting, gint default_value)
-{
-	TRACE_CALL(__func__);
-	gchar *value;
-	gint r;
-
-	value = g_hash_table_lookup(remminafile->states, setting);
-	r = value == NULL ? default_value : (value[0] == 't' ? TRUE : atoi(value));
+	// If value is empty or null, return the default value
+	if (!value || strlen(value) == 0) {
+		r = default_value;
+	}
+	else if (value[0] == 't') {
+		r = TRUE;
+	}
+	else {
+		r = atoi(value);
+	}
 	return r;
 }
 
@@ -949,10 +939,9 @@ void remmina_file_state_last_success(RemminaFile *remminafile)
 	g_autoptr(GKeyFile) key_remminafile = g_key_file_new();
 	GError *error = NULL;
 
-	const gchar *date = NULL;
-	GDateTime *d = g_date_time_new_now_utc();
+	g_autoptr(GDateTime) d = g_date_time_new_now_utc();
 
-	date = g_strdup_printf("%d%02d%02d",
+	gchar* date = g_strdup_printf("%d%02d%02d",
 			       g_date_time_get_year(d),
 			       g_date_time_get_month(d),
 			       g_date_time_get_day_of_month(d));
@@ -963,12 +952,14 @@ void remmina_file_state_last_success(RemminaFile *remminafile)
 	if (!g_key_file_save_to_file(key_statefile, remminafile->statefile, &error)) {
 		REMMINA_CRITICAL("Could not save the key file. %s", error->message);
 		g_error_free(error);
+		g_free(date);
 		error = NULL;
 		return;
 	}
 	/* Delete old pre-1.5 keys */
 	g_key_file_remove_key(key_remminafile, KEYFILE_GROUP_REMMINA, "last_success", NULL);
 	REMMINA_DEBUG("Last connection made on %s.", date);
+	g_free(date);
 }
 
 void remmina_file_unsave_passwords(RemminaFile *remminafile)

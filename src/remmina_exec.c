@@ -75,7 +75,7 @@ static gboolean cb_closewidget(GtkWidget *widget, gpointer data)
 	return TRUE;
 }
 
-const gchar* remmina_exec_get_build_config(void)
+static const gchar* remmina_exec_get_build_config(void)
 {
 	static const gchar build_config[] =
 	    "Build configuration: " BUILD_CONFIG "\n"
@@ -86,7 +86,7 @@ const gchar* remmina_exec_get_build_config(void)
 	return build_config;
 }
 
-void remmina_exec_exitremmina()
+void remmina_exec_exitremmina(void)
 {
 	TRACE_CALL(__func__);
 
@@ -120,7 +120,7 @@ static gboolean disable_rcw_delete_confirm_cb(GtkWidget *widget, gpointer data)
 	return TRUE;
 }
 
-void remmina_exec_exitremmina_one_confirm()
+void remmina_exec_exitremmina_one_confirm(void)
 {
 	TRACE_CALL(__func__);
 	if (remmina_widget_pool_count() >1 || !remmina_main_get_window()) {
@@ -253,7 +253,15 @@ static void remmina_exec_connect(const gchar *data)
 	gchar **querystringpartkv;
 	gchar *value;
 	gchar *temp;
+	gchar **conn_name = NULL;
+	gchar *connection_name = NULL;
 	GError *error = NULL;
+
+	if (strstr(data, "\%") != NULL){
+		conn_name = g_strsplit(data, "\%", 2);
+		connection_name = conn_name[1];
+		data = conn_name[0];
+	}
 
 	protocol = NULL;
 	if (strncmp("rdp://", data, 6) == 0 || strncmp("RDP://", data, 6) == 0)
@@ -286,7 +294,7 @@ static void remmina_exec_connect(const gchar *data)
 
 	protocolserver = g_strsplit(data, "://", 2);
 	if (strncmp(protocol, "WWW", 3) == 0){
-		server = data;
+		server = g_strdup(data);
 	}
 	else{
 		server = g_strdup(protocolserver[1]);
@@ -380,11 +388,17 @@ static void remmina_exec_connect(const gchar *data)
 	g_free(server);
 	server = temp;
 
+	if (connection_name == NULL){
+		connection_name = g_strdup(server);
+	}
+
 	remmina_file_set_string(remminafile, "server", server);
-	remmina_file_set_string(remminafile, "name", server);
+	remmina_file_set_string(remminafile, "name", connection_name);
 	remmina_file_set_string(remminafile, "sound", "off");
 	remmina_file_set_string(remminafile, "protocol", protocol);
+	g_free(conn_name);
 	g_free(server);
+	g_free(connection_name);
 	g_strfreev(protocolserver);
 	rcw_open_from_file(remminafile);
 }

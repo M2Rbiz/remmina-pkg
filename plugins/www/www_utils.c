@@ -64,7 +64,7 @@ void www_utils_send_notification(const gchar *notification_id,
 	g_object_unref(notification);
 }
 
-gint www_utils_strpos(const gchar *haystack, const gchar *needle)
+static gint www_utils_strpos(const gchar *haystack, const gchar *needle)
 {
 	TRACE_CALL(__func__);
 	const gchar *sub;
@@ -82,7 +82,7 @@ gint www_utils_strpos(const gchar *haystack, const gchar *needle)
 /* end can be -1 for haystack->len.
  * returns: position of found text or -1.
  * (C) Taken from geany */
-gint www_utils_string_find(GString *haystack, gint start, gint end, const gchar *needle)
+static gint www_utils_string_find(GString *haystack, gint start, gint end, const gchar *needle)
 {
 	TRACE_CALL(__func__);
 	gint pos;

@@ -79,6 +79,7 @@ typedef struct _RemminaPrefDialog {
 	GtkCheckButton *	checkbutton_appearance_mp_left;
 	GtkCheckButton *	checkbutton_appearance_start_fullscreen;
 	GtkCheckButton *	checkbutton_appearance_start_dynres;
+	GtkCheckButton *	checkbutton_move_toolbar_multimon;
 	GtkCheckButton *	checkbutton_appearance_hide_toolbar;
 	GtkCheckButton *	checkbutton_appearance_hide_searchbar;
 	GtkComboBox *		comboboxtext_options_double_click;
@@ -87,6 +88,7 @@ typedef struct _RemminaPrefDialog {
 	GtkComboBox *		comboboxtext_options_scale_quality;
 	GtkComboBox *		comboboxtext_options_ssh_loglevel;
 	GtkComboBox *		comboboxtext_appearance_fullscreen_toolbar_visibility;
+	GtkEntry *			entry_fullscreen_toolbar_delay;
 	GtkComboBox *		comboboxtext_security_enc_method;
 	GtkCheckButton *	checkbutton_options_ssh_parseconfig;
 	GtkEntry *		entry_options_ssh_port;
@@ -161,6 +163,7 @@ typedef struct _RemminaPrefDialog {
 	GtkColorButton *	colorbutton_color14;
 	GtkColorButton *	colorbutton_color15;
 	GtkFileChooser *	button_term_cs;
+	GtkButton *			button_term_cs_remover;
 
 	RemminaPrefDialogPriv * priv;
 } RemminaPrefDialog;
@@ -179,5 +182,15 @@ GtkWidget *remmina_pref_dialog_new(gint default_tab, GtkWindow *parent);
 GtkWidget *remmina_pref_dialog_get_dialog(void);
 void remmina_prefdiag_unlock_repwd_on_changed(GtkEditable *editable, RemminaPrefDialog *dialog);
 void remmina_pref_dialog_on_action_close(GSimpleAction *action, GVariant *param, gpointer data);
+void remmina_pref_dialog_on_close_clicked(GtkWidget *widget, RemminaPrefDialog *dialog);
+void remmina_pref_dialog_on_key_chooser(GtkWidget *widget, gpointer user_data);
+void remmina_pref_dialog_vte_font_on_toggled(GtkSwitch *widget, RemminaPrefDialog *dialog);
+void remmina_pref_dialog_clear_recent(GtkWidget *widget, gpointer user_data);
+void remmina_pref_dialog_disable_tray_icon_on_toggled(GtkWidget *widget, RemminaPrefDialog *dialog);
+void remmina_pref_on_dialog_destroy(GtkWidget *widget, gpointer user_data);
+void remmina_pref_on_color_scheme_selected(GtkWidget *widget, gpointer user_data);
+void remmina_pref_on_color_scheme_removed(GtkWidget *widget, gpointer user_data);
+void remmina_pref_on_button_resolutions_clicked(GtkWidget *widget, gpointer user_data);
+void remmina_pref_on_button_keystrokes_clicked(GtkWidget *widget, gpointer user_data);
 
 G_END_DECLS

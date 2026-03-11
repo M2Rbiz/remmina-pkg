@@ -36,7 +36,7 @@ cmake_policy(SET CMP0048 NEW)
 
 project(
   Remmina
-  VERSION 1.4.40
+  VERSION 1.4.43
   DESCRIPTION "The Gtk Remote Desktop Client"
   LANGUAGES C CXX
 )
@@ -291,7 +291,7 @@ include_directories(src/include)
 
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
   set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-rdynamic")
-  include_directories(/usr/local/include /usr/include)
+  include_directories(SYSTEM /usr/local/include /usr/include)
   link_directories(/usr/local/lib /usr/lib)
   set(CMAKE_REQUIRED_INCLUDES /usr/local/include)
   set(CMAKE_SHARED_LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX} /usr/local/lib)
@@ -407,16 +407,18 @@ find_package(GLib REQUIRED)
 if(NOT GLib_FOUND)
   message(FATAL_ERROR "GLIB2 library not found")
 endif()
-include_directories(${GLib_INCLUDE_DIRS})
-include_directories(${GMODULE_INCLUDE_DIR})
+include_directories(SYSTEM ${GLib_INCLUDE_DIRS})
+include_directories(SYSTEM ${GMODULE_INCLUDE_DIR})
 
 find_package(GTK3 3.14.0 REQUIRED)
 if(NOT GTK3_FOUND)
   message(FATAL_ERROR "GTK3 library not found")
 endif()
-include_directories(${GTK3_INCLUDE_DIRS})
+include_directories(SYSTEM ${GTK3_INCLUDE_DIRS})
 
-pkg_check_modules(wayland-client wayland-client)
+if(NOT APPLE)
+  pkg_check_modules(wayland-client wayland-client)
+endif()
 if(wayland-client_FOUND)
   set(GTK_LIBRARIES
       ${GTK3_LIBRARY}
@@ -430,7 +432,7 @@ if(wayland-client_FOUND)
       ${Gmodule_LIBRARIES}
       ${GMODULE_LIBRARY}
       ${wayland-client_LIBRARIES})
-  include_directories(${wayland-client_INCLUDE_DIRS})
+  include_directories(SYSTEM ${wayland-client_INCLUDE_DIRS})
   message(STATUS "Wayland library found.")
 else()
   set(GTK_LIBRARIES
@@ -568,8 +570,13 @@ else()
   message(STATUS "Icons cache won't be generated automatically")
 endif()
 
-option(WITH_UPDATE_DESKTOP_DB
-       "Generate desktop files MIME types cache database" ON)
+if(APPLE)
+  option(WITH_UPDATE_DESKTOP_DB
+         "Generate desktop files MIME types cache database" OFF)
+else()
+  option(WITH_UPDATE_DESKTOP_DB
+         "Generate desktop files MIME types cache database" ON)
+endif()
 if(WITH_UPDATE_DESKTOP_DB)
   message(STATUS "Desktop MIME types cache database enabled")
   add_definitions(-DWITH_UPDATE_DESKTOP_DB)

@@ -129,7 +129,6 @@ static const gchar *common_identities[] =
 *                           X11 Channels                                      *
 *-----------------------------------------------------------------------------*/
 #define _PATH_UNIX_X    "/tmp/.X11-unix/X%d"
-#define _XAUTH_CMD      "/usr/bin/xauth list %s 2>/dev/null"
 
 typedef struct item {
 	ssh_channel channel;
@@ -156,7 +155,7 @@ static int remmina_ssh_x11_get_proto(const char *display, char **_proto, char **
 static void remmina_ssh_set_nodelay(int fd);
 static int remmina_ssh_connect_local_xsocket_path(const char *pathname);
 static int remmina_ssh_connect_local_xsocket(int display_number);
-static int remmina_ssh_x11_connect_display();
+static int remmina_ssh_x11_connect_display(void);
 
 // Send data to channel
 static int remmina_ssh_cp_to_ch_cb(int fd, int revents, void *userdata);
@@ -328,10 +327,19 @@ remmina_ssh_x11_get_proto(const char *display, char **_proto, char **_cookie)
 		display = xdisplay;
 	}
 
-	snprintf(cmd, sizeof(cmd), _XAUTH_CMD, display);
-	REMMINA_DEBUG("xauth cmd: %s", cmd);
+	gchar *xauth_path = g_find_program_in_path("xauth");
+	if (xauth_path == NULL) {
+		REMMINA_WARNING("Could not find 'xauth' command in PATH.");
+		return 1;
+	}
 
-	f = popen(cmd, "r");
+	gchar *cmd_str = g_strdup_printf("\"%s\" list %s 2>/dev/null", xauth_path, display);
+	REMMINA_DEBUG("xauth cmd: %s", cmd_str);
+
+	f = popen(cmd_str, "r");
+
+	g_free(xauth_path);
+	g_free(cmd_str);
 	if (f && fgets(line, sizeof(line), f) && sscanf(line, "%*s %511s %511s", proto, cookie) == 2) {
 		ret = 0;
 	} else {
@@ -383,7 +391,7 @@ remmina_ssh_connect_local_xsocket(int display_number)
 }
 
 static int
-remmina_ssh_x11_connect_display()
+remmina_ssh_x11_connect_display(void)
 {
 	TRACE_CALL(__func__);
 
@@ -667,22 +675,17 @@ remmina_ssh_set_application_error(RemminaSSH *ssh, const gchar *fmt, ...)
 }
 
 static enum remmina_ssh_auth_result
-remmina_ssh_auth_interactive(RemminaSSH *ssh)
+remmina_ssh_auth_interactive(RemminaSSH *ssh, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 	gint ret;
 	gint n;
 	gint i;
-	const gchar *name, *instruction = NULL;
+	const gchar *name, *instruction, *prompt = NULL;
 
 	ret = SSH_AUTH_ERROR;
 	if (ssh->authenticated) return REMMINA_SSH_AUTH_SUCCESS;
-	/* TODO: What if I have an empty password? */
-	if (ssh->password == NULL) {
-		remmina_ssh_set_error(ssh, "OTP code is empty");
-		REMMINA_DEBUG("OTP code is empty, returning");
-		return REMMINA_SSH_AUTH_AUTHFAILED_RETRY_AFTER_PROMPT;
-	}
+
 	REMMINA_DEBUG("OTP code has been set to: %s", ssh->password);
 
 	ret = ssh_userauth_kbdint(ssh->session, NULL, NULL);
@@ -698,8 +701,17 @@ remmina_ssh_auth_interactive(RemminaSSH *ssh)
 		else
 			REMMINA_DEBUG("SSH kbd-interactive instruction is empty");
 		n = ssh_userauth_kbdint_getnprompts(ssh->session);
-		for (i = 0; i < n; i++)
-			ssh_userauth_kbdint_setanswer(ssh->session, i, ssh->password);
+		for (i = 0; i < n; i++){
+			prompt = ssh_userauth_kbdint_getprompt(ssh->session, i, FALSE);
+			gchar* prompt_response = NULL;
+			if (strlen(prompt) > 0){
+				REMMINA_DEBUG("SSH kbd-interactive prompt: %s", prompt);
+				prompt_response = remmina_protocol_widget_panel_prompt(gp, prompt);
+			}
+			else
+				REMMINA_DEBUG("SSH kbd-interactive prompt is empty");
+			ssh_userauth_kbdint_setanswer(ssh->session, i, prompt_response);
+		}
 		ret = ssh_userauth_kbdint(ssh->session, NULL, NULL);
 	}
 
@@ -1155,7 +1167,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 		if (!ssh->authenticated && (method & SSH_AUTH_METHOD_INTERACTIVE)) {
 			/* SSH server is requesting us to do interactive auth. */
 			REMMINA_DEBUG("SSH using remmina_ssh_auth_interactive after password has failed");
-			rv = remmina_ssh_auth_interactive(ssh);
+			rv = remmina_ssh_auth_interactive(ssh, gp);
 		}
 		if (rv == REMMINA_SSH_AUTH_PARTIAL) {
 			if (ssh->password) {
@@ -1189,7 +1201,7 @@ remmina_ssh_auth(RemminaSSH *ssh, const gchar *password, RemminaProtocolWidget *
 	case SSH_AUTH_KBDINTERACTIVE:
 		REMMINA_DEBUG("SSH using remmina_ssh_auth_interactive");
 		if (method & SSH_AUTH_METHOD_INTERACTIVE) {
-			rv = remmina_ssh_auth_interactive(ssh);
+			rv = remmina_ssh_auth_interactive(ssh, gp);
 			if (rv == REMMINA_SSH_AUTH_PARTIAL) {
 				if (ssh->password) {
 					g_free(ssh->password);
@@ -1383,7 +1395,6 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 	gchar *message;
 	gchar *current_pwd;
 	gchar *current_user;
-	const gchar *instruction = NULL;
 	gint ret;
 	size_t len;
 	guchar *pubkey;
@@ -1511,7 +1522,6 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 		remmina_ssh_auth_type = REMMINA_SSH_AUTH_KRBTOKEN;
 		break;
 	case SSH_AUTH_KBDINTERACTIVE:
-		instruction = _("Enter TOTP/OTP/2FA code");
 		remmina_ssh_auth_type = REMMINA_SSH_AUTH_KBDINTERACTIVE;
 		pwdfkey = ssh->is_tunnel ? "ssh_tunnel_password" : "password";
 		break;
@@ -1641,38 +1651,6 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 				g_free(current_user);
 				return REMMINA_SSH_AUTH_USERCANCEL;
 			}
-		} else if (remmina_ssh_auth_type == REMMINA_SSH_AUTH_KBDINTERACTIVE) {
-			REMMINA_DEBUG("Showing panel for keyboard interactive login\n");
-			/**
-			 * gp
-			 * flags
-			 * title
-			 * default_username
-			 * default_password
-			 * default_domain
-			 * password_prompt
-			 */
-			ret = remmina_protocol_widget_panel_auth(
-				gp,
-				0,
-				_("Keyboard interactive login, TOTP/OTP/2FA"),
-				NULL,
-				NULL,
-				NULL,
-				instruction);
-			if (ret == GTK_RESPONSE_OK) {
-				g_free(current_pwd);
-				current_pwd = remmina_protocol_widget_get_password(gp);
-				REMMINA_DEBUG("OTP code is: %s", current_pwd);
-				ssh->password = g_strdup(current_pwd);
-			} else {
-				g_free(current_pwd);
-				return REMMINA_SSH_AUTH_USERCANCEL;
-			}
-		} else {
-			g_print("Unimplemented.");
-			g_free(current_pwd);
-			return REMMINA_SSH_AUTH_FATAL_ERROR;
 		}
 		REMMINA_DEBUG("Retrying authentication");
 		ret = remmina_ssh_auth(ssh, current_pwd, gp, remminafile);
@@ -1692,7 +1670,7 @@ remmina_ssh_auth_gui(RemminaSSH *ssh, RemminaProtocolWidget *gp, RemminaFile *re
 	return ret;
 }
 
-void
+static void
 remmina_ssh_log_callback(ssh_session session, int priority, const char *message, void *userdata)
 {
 	TRACE_CALL(__func__);
@@ -1716,6 +1694,7 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 	char ipstr[INET6_ADDRSTRLEN];
 	void *addr4=NULL;
 	void *addr6=NULL;
+	gchar* args[100]; //Should be much smaller, but set 100 to be safe
 
 	ssh->callback = g_new0(struct ssh_callbacks_struct, 1);
 
@@ -1788,6 +1767,7 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 		else
 			REMMINA_DEBUG("Cannot parse ssh_config: %s", ssh_get_error(ssh->session));
 	}
+
 	if (g_strcmp0(ssh->tunnel_entrance_host, "127.0.0.1") == 0) {
 		REMMINA_DEBUG("Setting SSH_OPTIONS_HOST to ssh->tunnel_entrance_host is 127.0.0.1,");
 		ssh_options_set(ssh->session, SSH_OPTIONS_HOST, ssh->tunnel_entrance_host);
@@ -1887,6 +1867,26 @@ remmina_ssh_init_session(RemminaSSH *ssh)
 		REMMINA_DEBUG("SSH_OPTIONS_COMPRESSION is now %s", ssh->compression);
 	else
 		REMMINA_DEBUG("SSH_OPTIONS_COMPRESSION does not have a valid value. %s", ssh->compression);
+
+
+	//Parse command line ssh arguments, if any exist
+	if (ssh->command_args){
+		gchar* command_args = g_strdup(ssh->command_args);
+		int arg_count = 1;
+		args[0] = "ssh";
+		char *token = strtok(command_args, " ");
+		while (token != NULL){
+			args[arg_count] = token;
+			token = strtok(NULL, " ");
+			arg_count += 1;
+		}
+		args[arg_count] = NULL;
+		if (ssh_options_getopt(ssh->session, &arg_count, args)){
+			REMMINA_DEBUG("ssh command line has not been correctly parsed");
+		}
+		g_free(command_args);
+	}
+
 
 	// Handle the dual IPv4 / IPv6 stack
 	// Prioritize IPv6 and fallback to IPv4
@@ -2091,12 +2091,14 @@ remmina_ssh_init_from_file(RemminaSSH *ssh, RemminaFile *remminafile, gboolean i
 	ssh->allow_ssh_rsa = remmina_file_get_int(remminafile, is_tunnel ? "ssh_tunnel_allow_ssh_rsa" : "ssh_allow_ssh_rsa", 0);
 	gint c = remmina_file_get_int(remminafile, is_tunnel ? "ssh_tunnel_compression" : "ssh_compression", 0);
 	ssh->compression = (c == 1) ? "yes" : "no";
+	ssh->command_args = g_strdup(remmina_file_get_string(remminafile, "ssh_tunnel_command_args"));
 
 	REMMINA_DEBUG("ssh->user: %s", ssh->user);
 	REMMINA_DEBUG("ssh->password: %s", ssh->password);
 	REMMINA_DEBUG("ssh->auth: %d", ssh->auth);
 	REMMINA_DEBUG("ssh->charset: %s", ssh->charset);
 	REMMINA_DEBUG("ssh->kex_algorithms: %s", ssh->kex_algorithms);
+	REMMINA_DEBUG("ssh->command_args: %s", ssh->command_args);
 	REMMINA_DEBUG("ssh->ciphers: %s", ssh->ciphers);
 	REMMINA_DEBUG("ssh->hostkeytypes: %s", ssh->hostkeytypes);
 	REMMINA_DEBUG("ssh->proxycommand: %s", ssh->proxycommand);
@@ -2876,7 +2878,7 @@ remmina_sftp_new_from_file(RemminaFile *remminafile)
 	TRACE_CALL(__func__);
 	RemminaSFTP *sftp;
 
-	sftp = g_new(RemminaSFTP, 1);
+	sftp = g_new0(RemminaSFTP, 1);
 
 	remmina_ssh_init_from_file(REMMINA_SSH(sftp), remminafile, FALSE);
 
@@ -2891,7 +2893,7 @@ remmina_sftp_new_from_ssh(RemminaSSH *ssh)
 	TRACE_CALL(__func__);
 	RemminaSFTP *sftp;
 
-	sftp = g_new(RemminaSFTP, 1);
+	sftp = g_new0(RemminaSFTP, 1);
 
 	remmina_ssh_init_from_ssh(REMMINA_SSH(sftp), ssh);
 
@@ -3033,7 +3035,10 @@ remmina_ssh_shell_thread(gpointer data)
 
 		REMMINA_DEBUG("proto: %s - cookie: %s", proto, cookie);
 		ret = ssh_channel_request_x11(channel, 0, proto, cookie, 0);
-		if (ret != SSH_OK) return NULL;
+		if (ret != SSH_OK) {
+			REMMINA_WARNING("ssh_channel_request_x11 failed.");
+			return NULL;
+		}
 	}
 
 	if (shell->exec && shell->exec[0]) {
@@ -3233,7 +3238,7 @@ remmina_ssh_shell_free(RemminaSSHShell *shell)
 		g_free(shell->run_line);
 		shell->run_line = NULL;
 	}
-	/* It’s not necessary to close shell->slave since the other end (vte) will close it */;
+	/* It’s not necessary to close shell->slave since the other end (vte) will close it */
 	remmina_ssh_free(REMMINA_SSH(shell));
 }
 

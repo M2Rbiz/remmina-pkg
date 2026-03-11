@@ -68,7 +68,7 @@ static RemminaLanguageWrapperPlugin remmina_python_wrapper =
 	"Enables Python plugins for Remmina",         	// Description
 	GETTEXT_PACKAGE,                                // Translation domain
 	"Python Wrapper for Remmina v0.1",         		// Version number
-	python_wrapper_supported_extensions,			// Supported extentions
+	python_wrapper_supported_extensions,			// Supported extensions
 	python_wrapper_init,                            // Plugin initialization
 	python_wrapper_load,                   			// Plugin load Python file
 };
@@ -189,8 +189,9 @@ gboolean python_wrapper_load(RemminaLanguageWrapperPlugin* plugin, const char* n
 }
 
 
-G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService *service)
-{
+G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService *service);
+
+gboolean remmina_plugin_entry(RemminaPluginService *service) {
 	TRACE_CALL(__func__);
 	python_wrapper_set_service(service);
 

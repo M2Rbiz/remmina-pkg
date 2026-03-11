@@ -106,7 +106,8 @@ enum panel_type {
 	RPWDT_AUTH,
 	RPWDT_QUESTIONYESNO,
 	RPWDT_AUTHX509,
-	RPWDT_ACCEPT
+	RPWDT_ACCEPT,
+	RPWDT_PROMPT
 };
 
 G_DEFINE_TYPE(RemminaProtocolWidget, remmina_protocol_widget, GTK_TYPE_EVENT_BOX)
@@ -243,7 +244,7 @@ static void remmina_protocol_widget_init(RemminaProtocolWidget *gp)
 	g_signal_connect(G_OBJECT(gp), "destroy", G_CALLBACK(remmina_protocol_widget_destroy), NULL);
 }
 
-void remmina_protocol_widget_open_connection_real(gpointer data)
+static void remmina_protocol_widget_open_connection_real(gpointer data)
 {
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = REMMINA_PROTOCOL_WIDGET(data);
@@ -328,7 +329,10 @@ void remmina_protocol_widget_open_connection(RemminaProtocolWidget *gp)
 	remmina_message_panel_setup_progress(mp, _("Executing external commands…"), NULL, NULL);
 	rco_show_message_panel(gp->cnnobj, mp);
 
-	remmina_ext_exec_new(gp->priv->remmina_file, "precommand");
+	GtkDialog* dialog = remmina_ext_exec_new(gp->priv->remmina_file, "precommand");
+	if (dialog)
+		g_object_unref(dialog);
+
 	rco_destroy_message_panel(gp->cnnobj, mp);
 
 	name = remmina_file_get_string(gp->priv->remmina_file, "name");
@@ -353,7 +357,9 @@ static gboolean conn_closed_real(gpointer data, int button){
 	remmina_protocol_widget_close_all_tunnels(gp);
 #endif
 	/* Exec postcommand */
-	remmina_ext_exec_new(gp->priv->remmina_file, "postcommand");
+	GtkDialog* dialog = remmina_ext_exec_new(gp->priv->remmina_file, "postcommand");
+	if (dialog)
+		g_object_unref(dialog);
 	/* Notify listeners (usually rcw) that the connection is closed */
 	g_signal_emit_by_name(G_OBJECT(gp), "disconnect");
 	return G_SOURCE_REMOVE;
@@ -628,7 +634,7 @@ void remmina_protocol_widget_send_keystrokes(RemminaProtocolWidget *gp, GtkMenuI
  * get from remmina_protocol_widget_send_clipboard
  * Probably we don't need the replacement table.
  */
-void remmina_protocol_widget_send_clip_strokes(GtkClipboard *clipboard, const gchar *clip_text, gpointer data)
+static void remmina_protocol_widget_send_clip_strokes(GtkClipboard *clipboard, const gchar *clip_text, gpointer data)
 {
 	TRACE_CALL(__func__);
 	RemminaProtocolWidget *gp = REMMINA_PROTOCOL_WIDGET(data);
@@ -1582,6 +1588,8 @@ static void authpanel_mt_cb(void *user_data, int button)
 			d->gp->priv->cacrl = remmina_message_panel_field_get_filename(d->gp->priv->auth_message_panel, REMMINA_MESSAGE_PANEL_CACRLFILE);
 			d->gp->priv->clientcert = remmina_message_panel_field_get_filename(d->gp->priv->auth_message_panel, REMMINA_MESSAGE_PANEL_CLIENTCERTFILE);
 			d->gp->priv->clientkey = remmina_message_panel_field_get_filename(d->gp->priv->auth_message_panel, REMMINA_MESSAGE_PANEL_CLIENTKEYFILE);
+		} else if (d->dtype == RPWDT_PROMPT) {
+			d->gp->priv->password = remmina_message_panel_field_get_string(d->gp->priv->auth_message_panel, REMMINA_MESSAGE_PANEL_PASSWORD);
 		}
 	}
 
@@ -1625,6 +1633,8 @@ static gboolean remmina_protocol_widget_dialog_mt_setup(gpointer user_data)
 			remmina_message_panel_field_set_switch(mp, REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD, (d->default_password == NULL || d->default_password[0] == 0) ? FALSE: TRUE);
 	} else if (d->dtype == RPWDT_QUESTIONYESNO) {
 		remmina_message_panel_setup_question(mp, d->title, authpanel_mt_cb, d, FALSE);
+	} else if (d->dtype == RPWDT_PROMPT) {
+		remmina_message_panel_setup_prompt(mp, d->title, authpanel_mt_cb, d);
 	} else if (d->dtype == RPWDT_ACCEPT) {
 		remmina_message_panel_setup_question(mp, d->title, authpanel_mt_cb, d, TRUE);
 	} else if (d->dtype == RPWDT_AUTHX509) {
@@ -1756,6 +1766,12 @@ static int remmina_protocol_widget_dialog(enum panel_type dtype, RemminaProtocol
 	g_free(d->default_domain);
 	g_free(d);
 	return rcbutton;
+}
+
+gchar* remmina_protocol_widget_panel_prompt(RemminaProtocolWidget *gp, const char *msg)
+{
+	remmina_protocol_widget_dialog(RPWDT_PROMPT, gp, 0, msg, NULL, NULL, NULL, NULL);
+	return gp->priv->password;
 }
 
 gint remmina_protocol_widget_panel_question_yesno(RemminaProtocolWidget *gp, const char *msg)

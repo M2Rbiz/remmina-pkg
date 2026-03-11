@@ -877,7 +877,21 @@ static gboolean remmina_rdp_event_on_key(GtkWidget *widget, GdkEventKey *event, 
 					}
 				}
 			}
+#if FREERDP_CHECK_VERSION(3, 11, 0)			
+			guint32 keyboard_type = freerdp_settings_get_uint32(rfi->clientContext.context.settings, FreeRDP_KeyboardType);
+			if (keyboard_type == 0){
+				keyboard_type = WINPR_KBD_TYPE_IBM_ENHANCED;
+			}
+#ifdef GDK_WINDOWING_X11
+			DWORD vc = GetVirtualKeyCodeFromKeycode(hardware_keycode, WINPR_KEYCODE_TYPE_XKB);
+#else
+			DWORD vc = GetVirtualKeyCodeFromKeycode(hardware_keycode, WINPR_KEYCODE_TYPE_EVDEV);
+#endif
+			const DWORD sc = GetVirtualScanCodeFromVirtualKeyCode(vc, keyboard_type); 
+			DWORD scancode = freerdp_keyboard_remap_key(rfi->remap_table, sc);
+#else
 			scancode = freerdp_keyboard_get_rdp_scancode_from_x11_keycode(hardware_keycode);
+#endif
 			if (scancode) {
 				rdp_event.key_event.key_code = scancode & 0xFF;
 				rdp_event.key_event.extended = scancode & 0x100;
@@ -886,6 +900,7 @@ static gboolean remmina_rdp_event_on_key(GtkWidget *widget, GdkEventKey *event, 
 				keypress_list_add(gp, rdp_event);
 			}
 		} else {
+			hardware_keycode = event->hardware_keycode;
 			unicode_keyval = gdk_keyval_to_unicode(event->keyval);
 			/* Decide when whe should send a keycode or a Unicode character.
 			 * - All non char keys (Shift, Alt, Super) should be sent as keycode
@@ -900,7 +915,22 @@ static gboolean remmina_rdp_event_on_key(GtkWidget *widget, GdkEventKey *event, 
 			    unicode_keyval == 0 ||                                                      // Impossible to translate
 			    (event->state & (GDK_MOD1_MASK | GDK_CONTROL_MASK | GDK_SUPER_MASK)) != 0   // A modifier not recognized by gdk_keyval_to_unicode()
 			    ) {
+#if FREERDP_CHECK_VERSION(3, 11, 0)
+
+				guint32 keyboard_type = freerdp_settings_get_uint32(rfi->clientContext.context.settings, FreeRDP_KeyboardType);
+				if (keyboard_type == 0){
+					keyboard_type = WINPR_KBD_TYPE_IBM_ENHANCED;
+				}
+#ifdef GDK_WINDOWING_X11
+				DWORD vc = GetVirtualKeyCodeFromKeycode(hardware_keycode, WINPR_KEYCODE_TYPE_XKB);
+#else
+				DWORD vc = GetVirtualKeyCodeFromKeycode(hardware_keycode, WINPR_KEYCODE_TYPE_EVDEV);
+#endif
+				const DWORD sc = GetVirtualScanCodeFromVirtualKeyCode(vc, keyboard_type); 
+				DWORD scancode = freerdp_keyboard_remap_key(rfi->remap_table, sc);
+#else
 				scancode = freerdp_keyboard_get_rdp_scancode_from_x11_keycode(event->hardware_keycode);
+#endif
 				rdp_event.key_event.key_code = scancode & 0xFF;
 				rdp_event.key_event.extended = scancode & 0x100;
 				rdp_event.key_event.extended1 = FALSE;
@@ -1078,7 +1108,7 @@ void remmina_rdp_event_init(RemminaProtocolWidget *gp)
 #endif
 }
 
-void remmina_rdp_event_free_event(RemminaProtocolWidget *gp, RemminaPluginRdpUiObject *obj)
+void remmina_rdp_event_free_event(RemminaPluginRdpUiObject *obj)
 {
 	TRACE_CALL(__func__);
 
@@ -1116,7 +1146,7 @@ void remmina_rdp_event_uninit(RemminaProtocolWidget *gp)
 		rfi->ui_handler = 0;
 	}
 	while ((ui = (RemminaPluginRdpUiObject *)g_async_queue_try_pop(rfi->ui_queue)) != NULL)
-		remmina_rdp_event_free_event(gp, ui);
+		remmina_rdp_event_free_event(ui);
 	if (rfi->surface) {
 		cairo_surface_mark_dirty(rfi->surface);
 		cairo_surface_destroy(rfi->surface);
@@ -1343,10 +1373,13 @@ static void remmina_rdp_event_cursor(RemminaProtocolWidget *gp, RemminaPluginRdp
 		break;
 
 	case REMMINA_RDP_POINTER_NULL:
-		gdk_window_set_cursor(gtk_widget_get_window(rfi->drawing_area),
-				      gdk_cursor_new_for_display(gdk_display_get_default(),
-								 GDK_BLANK_CURSOR));
+	{
+		GdkWindow* da = gtk_widget_get_window(rfi->drawing_area);
+		GdkCursor* cursor = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_BLANK_CURSOR);
+		gdk_window_set_cursor(da, cursor);
+		g_object_unref(cursor);
 		ui->retval = 1;
+	}
 		break;
 
 	case REMMINA_RDP_POINTER_DEFAULT:
@@ -1447,7 +1480,7 @@ static gboolean remmina_rdp_event_process_ui_queue(RemminaProtocolWidget *gp)
 			pthread_cond_signal(&ui->sync_wait_cond);
 			pthread_mutex_unlock(&ui->sync_wait_mutex);
 		} else {
-			remmina_rdp_event_free_event(gp, ui);
+			remmina_rdp_event_free_event(ui);
 		}
 
 		pthread_mutex_unlock(&rfi->ui_queue_mutex);
@@ -1521,7 +1554,7 @@ int remmina_rdp_event_queue_ui_sync_retint(RemminaProtocolWidget *gp, RemminaPlu
 	ui->sync = TRUE;
 	remmina_rdp_event_queue_ui(gp, ui);
 	retval = ui->retval;
-	remmina_rdp_event_free_event(gp, ui);
+	remmina_rdp_event_free_event(ui);
 	return retval;
 }
 
@@ -1533,6 +1566,6 @@ void *remmina_rdp_event_queue_ui_sync_retptr(RemminaProtocolWidget *gp, RemminaP
 	ui->sync = TRUE;
 	remmina_rdp_event_queue_ui(gp, ui);
 	rp = ui->retptr;
-	remmina_rdp_event_free_event(gp, ui);
+	remmina_rdp_event_free_event(ui);
 	return rp;
 }

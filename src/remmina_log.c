@@ -69,7 +69,7 @@ G_GNUC_CONST;
 
 G_DEFINE_TYPE(RemminaLogWindow, remmina_log_window, GTK_TYPE_WINDOW)
 
-void remmina_log_stats()
+static void remmina_log_stats(void)
 {
 	TRACE_CALL(__func__);
 	JsonNode *n;
@@ -250,9 +250,8 @@ void _remmina_message(const gchar *fmt, ...)
 	TRACE_CALL(__func__);
 
 	va_list args;
-	g_autofree gchar *text;
 	va_start(args, fmt);
-	text = g_strdup_vprintf(fmt, args);
+	g_autofree gchar * text = g_strdup_vprintf(fmt, args);
 	va_end(args);
 
 	// Append text to remmina_log_file.log
@@ -358,10 +357,10 @@ void _remmina_audit(const gchar *fun, const gchar *fmt, ...)
 	gchar *isodate = g_time_val_to_iso8601(&tv);
 #endif
 
-	g_autofree gchar *buf = g_strdup("");
+	gchar *buf = g_strdup("");
 
 	if (isodate) {
-
+		g_free(buf);
 		buf = g_strconcat(
 				"[", isodate, "] - ",
 				g_get_host_name (),
@@ -377,7 +376,9 @@ void _remmina_audit(const gchar *fun, const gchar *fmt, ...)
 	if (remmina_pref_get_boolean("audit"))
 		_remmina_message(buf);
 	else
-		_remmina_debug(fun, buf);
+		_remmina_debug(fun, "%s", buf);
+	g_free(buf);
+	g_free(isodate);
 }
 
 // !!! Calling this function will crash Remmina !!!

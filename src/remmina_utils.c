@@ -167,7 +167,7 @@ const char *remmina_RSA_PubKey_v2 =
 		"-----END PUBLIC KEY-----\n";
 
 
-gint remmina_utils_strpos(const gchar *haystack, const gchar *needle)
+static gint remmina_utils_strpos(const gchar *haystack, const gchar *needle)
 {
 	TRACE_CALL(__func__);
 	const gchar *sub;
@@ -180,6 +180,23 @@ gint remmina_utils_strpos(const gchar *haystack, const gchar *needle)
 		return -1;
 
 	return sub - haystack;
+}
+
+// Determines if we're in a flatpak environment and prepends to the cmd if so
+// The original value passed in will be freed
+gchar* remmina_utils_get_flatpak_command(gchar *cmd){
+	gchar* ret = NULL;
+	gchar *flatpak_info = g_build_filename(g_get_user_runtime_dir(), "flatpak-info", NULL);
+
+	if (g_file_test(flatpak_info, G_FILE_TEST_EXISTS)) {
+		ret = g_strconcat("flatpak-spawn --host ", cmd, NULL);
+	} 
+	else{
+		ret = g_strdup(cmd);
+	}
+	g_free(flatpak_info);
+	g_free(cmd);
+	return ret;
 }
 
 /* end can be -1 for haystack->len.
@@ -329,7 +346,7 @@ static gchar *remmina_utils_read_distrofile(gchar *filename)
  * Return the current language defined in the LC_ALL.
  * @return a language string or en_US.
  */
-gchar *remmina_utils_get_lang()
+gchar *remmina_utils_get_lang(void)
 {
 	TRACE_CALL(__func__);
 	gchar *lang = setlocale(LC_ALL, NULL);
@@ -350,7 +367,7 @@ gchar *remmina_utils_get_lang()
  * Return the OS name as in "uname -s".
  * @return The OS name or NULL.
  */
-gchar *remmina_utils_get_kernel_name()
+gchar *remmina_utils_get_kernel_name(void)
 {
 	TRACE_CALL(__func__);
 	struct utsname u;
@@ -365,7 +382,7 @@ gchar *remmina_utils_get_kernel_name()
  * Return the OS version as in "uname -r".
  * @return The OS release or NULL.
  */
-gchar *remmina_utils_get_kernel_release()
+gchar *remmina_utils_get_kernel_release(void)
 {
 	TRACE_CALL(__func__);
 	struct utsname u;
@@ -380,7 +397,7 @@ gchar *remmina_utils_get_kernel_release()
  * Return the machine hardware name as in "uname -m".
  * @return The machine hardware name or NULL.
  */
-gchar *remmina_utils_get_kernel_arch()
+gchar *remmina_utils_get_kernel_arch(void)
 {
 	TRACE_CALL(__func__);
 	struct utsname u;
@@ -391,69 +408,19 @@ gchar *remmina_utils_get_kernel_arch()
 	return g_strdup(u.machine);
 }
 
-/**
- * Print the Distributor as specified by the lsb_release command.
- * @return the distributor ID string or NULL. Caller must free it with g_free().
- */
-gchar *remmina_utils_get_lsb_id()
+gchar *remmina_utils_run_command(gchar* command)
 {
-	TRACE_CALL(__func__);
-	gchar *lsb_id = NULL;
-	if (g_spawn_command_line_sync("/usr/bin/lsb_release -si", &lsb_id, NULL, NULL, NULL))
-		return lsb_id;
+	gchar *std_out = NULL;
+	gchar *std_err = NULL;
+	gchar* cmd = remmina_utils_get_flatpak_command(g_strdup(command));
+	if (g_spawn_command_line_sync(cmd, &std_out, &std_err, NULL, NULL)){
+		g_free(cmd);
+		g_free(std_err);
+		return std_out;
+	}
+	g_free(cmd);
 	return NULL;
-}
 
-/**
- * Print the Distribution description as specified by the lsb_release command.
- * @return the Distribution description string or NULL. Caller must free it with g_free().
- */
-gchar *remmina_utils_get_lsb_description()
-{
-	TRACE_CALL(__func__);
-	gchar *lsb_description = NULL;
-	if (g_spawn_command_line_sync("/usr/bin/lsb_release -sd", &lsb_description, NULL, NULL, NULL))
-		return lsb_description;
-	return NULL;
-}
-
-/**
- * Print the Distribution release name as specified by the lsb_release command.
- * @return the Distribution release name string or NULL. Caller must free it with g_free().
- */
-gchar *remmina_utils_get_lsb_release()
-{
-	TRACE_CALL(__func__);
-	gchar *lsb_release = NULL;
-	if (g_spawn_command_line_sync("/usr/bin/lsb_release -sr", &lsb_release, NULL, NULL, NULL))
-		return lsb_release;
-	return NULL;
-}
-
-/**
- * Print the Distribution codename as specified by the lsb_release command.
- * @return the codename string or NULL. Caller must free it with g_free().
- */
-gchar *remmina_utils_get_lsb_codename()
-{
-	TRACE_CALL(__func__);
-	gchar *lsb_codename = NULL;
-	if (g_spawn_command_line_sync("/usr/bin/lsb_release -sc", &lsb_codename, NULL, NULL, NULL))
-		return lsb_codename;
-	return NULL;
-}
-
-/**
- * Print the process list as specified by the ps command.
- * @return the list string or NULL. Caller must free it with g_free().
- */
-gchar *remmina_utils_get_process_list()
-{
-	TRACE_CALL(__func__);
-	gchar *list = NULL;
-	if (g_spawn_command_line_sync("ps aux", &list, NULL, NULL, NULL))
-		return list;
-	return NULL;
 }
 
 
@@ -462,7 +429,7 @@ gchar *remmina_utils_get_process_list()
  * Test each known distribution specific information file and print it’s content.
  * @return a string or NULL. Caller must free it with g_free().
  */
-GHashTable *remmina_utils_get_etc_release()
+GHashTable *remmina_utils_get_etc_release(void)
 {
 	TRACE_CALL(__func__);
 	gchar *etc_release = NULL;
@@ -488,16 +455,15 @@ GHashTable *remmina_utils_get_etc_release()
  * Print device associated with default route.
  * @return a string or NULL. Caller must free it with g_free().
  */
-gchar *remmina_utils_get_dev()
+gchar *remmina_utils_get_dev(void)
 {
 	TRACE_CALL(__func__);
-	gchar *dif;
 	gint pos = 0;
 	GString *dev;
-
-	if (g_spawn_command_line_sync("ip route show default", &dif, NULL, NULL, NULL)) {
-		dev = g_string_new(dif);
-		g_free(dif);
+	gchar* cmd = remmina_utils_run_command("ip route show default");
+	if (cmd != NULL) {
+		dev = g_string_new(cmd);
+		g_free(cmd);
 		pos = remmina_utils_string_find(dev, pos, -1, "dev ");
 		dev = g_string_erase(dev, 0, pos + 4);
 		pos = remmina_utils_string_find(dev, 0, -1, " ");
@@ -511,11 +477,10 @@ gchar *remmina_utils_get_dev()
  * Print address associated with default route.
  * @return a string or NULL. Caller must free it with g_free().
  */
-gchar *remmina_utils_get_logical()
+gchar *remmina_utils_get_logical(void)
 {
 	TRACE_CALL(__func__);
 	gchar *dev = NULL;
-	gchar *dlog;
 	gint pos = 0;
 
 	dev = remmina_utils_get_dev();
@@ -525,14 +490,15 @@ gchar *remmina_utils_get_logical()
 		g_free(dev);
 	}
 
-	if (g_spawn_command_line_sync(lbuf->str, &dlog, NULL, NULL, NULL)) {
+	gchar *cmd = remmina_utils_run_command(lbuf->str);
+	if (cmd != NULL) {
 		g_string_free(lbuf, TRUE);
-		GString *log = g_string_new(dlog);
-		g_free(dlog);
+		GString *log = g_string_new(cmd);
 		pos = remmina_utils_string_find(log, pos, -1, "inet ");
 		log = g_string_erase(log, 0, pos + 5);
 		pos = remmina_utils_string_find(log, 0, -1, " ");
 		log = g_string_truncate(log, pos);
+		g_free(cmd);
 		return g_string_free(log, FALSE);
 	}
 	g_string_free(lbuf, TRUE);
@@ -543,11 +509,10 @@ gchar *remmina_utils_get_logical()
  * Print link associated with default route.
  * @return a string or NULL. Caller must free it with g_free().
  */
-gchar *remmina_utils_get_link()
+gchar *remmina_utils_get_link(void)
 {
 	TRACE_CALL(__func__);
 	gchar *dev = NULL;
-	gchar *plink;
 	gint pos = 0;
 
 	dev = remmina_utils_get_dev();
@@ -556,16 +521,16 @@ gchar *remmina_utils_get_link()
 		pbuf = g_string_append(pbuf, dev);
 		g_free(dev);
 	}
-
-	if (g_spawn_command_line_sync(pbuf->str, &plink, NULL, NULL, NULL))
+	gchar *cmd = remmina_utils_run_command(pbuf->str);
+	if (cmd != NULL)
 	{
 		g_string_free(pbuf, TRUE);
-		GString *link = g_string_new(plink);
-		g_free(plink);
+		GString *link = g_string_new(cmd);
 		pos = remmina_utils_string_find(link, pos, -1, "link/ether ");
 		link = g_string_erase(link, 0, pos + 11);
 		pos = remmina_utils_string_find(link, 0, -1, " ");
 		link = g_string_truncate(link, pos);
+		g_free(cmd);
 		return g_string_free(link, FALSE);
 	}
 	g_string_free(pbuf, TRUE);
@@ -576,17 +541,19 @@ gchar *remmina_utils_get_link()
  * Print python version.
  * @return a string or NULL. Caller must free it with g_free().
  */
-gchar *remmina_utils_get_python()
+gchar *remmina_utils_get_python(void)
 {
 	TRACE_CALL(__func__);
-	gchar *version;
+	gchar *cmd = remmina_utils_run_command("python -V");
+	if (cmd == NULL || cmd[0] == 0){
+		cmd = remmina_utils_run_command("python3 -V");
+	}
 
-	version = (g_spawn_command_line_sync("python -V", &version, NULL, NULL, NULL)) ||
-		(g_spawn_command_line_sync("python3 -V", &version, NULL, NULL, NULL)) ? version : NULL;
-	if (version != NULL)
-		version = remmina_utils_string_strip(version);
+	if (cmd != NULL){
+		cmd = remmina_utils_string_strip(cmd);
+	}
 
-	return version;
+	return cmd;
 }
 
 
@@ -594,7 +561,7 @@ gchar *remmina_utils_get_python()
  * Print machine age.
  * @return a string or NULL. Caller must free it with g_free().
  */
-gchar *remmina_utils_get_mage()
+gchar *remmina_utils_get_mage(void)
 {
 	TRACE_CALL(__func__);
 	gchar *mage = malloc(21);
@@ -702,7 +669,7 @@ DONE:
  * Generate a random sting of chars to be used as part of UID for news or stats
  * @return a string or NULL. Caller must free it with g_free().
  */
-gchar *remmina_gen_random_uuid()
+gchar *remmina_gen_random_uuid(void)
 {
 	TRACE_CALL(__func__);
 	gchar *result;
@@ -802,7 +769,7 @@ gchar *remmina_rsa_encrypt_string(EVP_PKEY *pubkey, const char *instr)
 		return NULL;
 	}
 
-	if (EVP_PKEY_encrypt_init_ex(ctx, NULL) <= 0) {;
+	if (EVP_PKEY_encrypt_init_ex(ctx, NULL) <= 0) {
 		EVP_PKEY_CTX_free(ctx);
 		g_free(ebuf);
 		return NULL;
@@ -838,7 +805,7 @@ gchar *remmina_rsa_encrypt_string(EVP_PKEY *pubkey, const char *instr)
 			return NULL;
 		}
 
-		if (EVP_PKEY_encrypt(ctx, outptr, &out_blksz, (const unsigned char *)instr, blksz) <= 0) {;
+		if (EVP_PKEY_encrypt(ctx, outptr, &out_blksz, (const unsigned char *)instr, blksz) <= 0) {
 			EVP_PKEY_CTX_free(ctx);
 			g_free(ebuf);
 			return NULL;
@@ -1173,4 +1140,19 @@ int remmina_compress_from_file_to_file(GFile *source, GFile *dest)
 	g_free(bytes_written);
 	g_free(converted);
 	return total_read;
+}
+
+gint remmina_get_monitor_num(GdkDisplay* d, GdkMonitor* m) {
+	for (int i = 0 ; i < gdk_display_get_n_monitors(d) ; i++) {
+		if (m == gdk_display_get_monitor(d, i))
+			return i;
+	}
+	return 0;
+}
+
+gint remmina_get_primary_monitor_num() {
+	GdkDisplay* d = gdk_display_get_default();
+	GdkMonitor* m = gdk_display_get_primary_monitor(d);
+
+	return remmina_get_monitor_num(d, m);
 }

@@ -69,7 +69,7 @@
 #define REMMINA_PLUGIN_SSH_FEATURE_TOOL_DECREASE_FONT 5
 #define REMMINA_PLUGIN_SSH_FEATURE_TOOL_SEARCH 6
 
-#define GET_PLUGIN_DATA(gp) (RemminaPluginSshData *)g_object_get_data(G_OBJECT(gp), "plugin-data");
+#define GET_PLUGIN_DATA(gp) (RemminaPluginSshData *)g_object_get_data(G_OBJECT(gp), "plugin-data")
 
 /** Palette colors taken from sakura */
 #define PALETTE_SIZE 16
@@ -535,7 +535,7 @@ remmina_plugin_ssh_vte_paste_clipboard(GtkMenuItem *menuitem, gpointer vte)
 	vte_terminal_paste_clipboard(VTE_TERMINAL(vte));
 }
 
-void
+static void
 remmina_plugin_ssh_vte_save_session(GtkMenuItem *menuitem, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
@@ -712,7 +712,7 @@ remmina_search_widget_search_backward(RemminaPluginSshData *gpdata)
 	vte_terminal_search_find_previous(VTE_TERMINAL(gpdata->vte));
 }
 
-GtkWidget *remmina_plugin_pop_search_new(GtkWidget *relative_to, RemminaProtocolWidget *gp)
+static GtkWidget *remmina_plugin_pop_search_new(GtkWidget *relative_to, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 	RemminaPluginSshData *gpdata = GET_PLUGIN_DATA(gp);
@@ -769,7 +769,7 @@ GtkWidget *remmina_plugin_pop_search_new(GtkWidget *relative_to, RemminaProtocol
 	return search_widget->window;
 }
 
-void remmina_plugin_pop_search(GtkMenuItem *menuitem, RemminaProtocolWidget *gp)
+static void remmina_plugin_pop_search(GtkMenuItem *menuitem, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 	RemminaPluginSshData *gpdata = GET_PLUGIN_DATA(gp);
@@ -789,7 +789,7 @@ void remmina_plugin_pop_search(GtkMenuItem *menuitem, RemminaProtocolWidget *gp)
 	REMMINA_DEBUG("After popover");
 }
 
-void remmina_plugin_ssh_call_sftp(GtkMenuItem *menuitem, RemminaProtocolWidget *gp)
+static void remmina_plugin_ssh_call_sftp(GtkMenuItem *menuitem, RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 	remmina_protocol_widget_call_feature_by_type(gp, REMMINA_PROTOCOL_FEATURE_TYPE_TOOL, REMMINA_PROTOCOL_FEATURE_TOOL_SFTP);
@@ -811,7 +811,7 @@ remmina_ssh_plugin_popup_menu(GtkWidget *widget, GdkEvent *event, GtkWidget *men
 	return FALSE;
 }
 
-gboolean
+static gboolean
 remmina_ssh_plugin_copy_selection(GtkWidget *widget, GdkEvent *event, GtkWidget *menu)
 {
 	if ((event->type == GDK_BUTTON_RELEASE) && (((GdkEventButton *)event)->button == 1)) {
@@ -836,7 +836,7 @@ remmina_ssh_plugin_copy_selection(GtkWidget *widget, GdkEvent *event, GtkWidget 
  * .
  *
  */
-void remmina_plugin_ssh_popup_ui(RemminaProtocolWidget *gp)
+static void remmina_plugin_ssh_popup_ui(RemminaProtocolWidget *gp)
 {
 	TRACE_CALL(__func__);
 	RemminaPluginSshData *gpdata = GET_PLUGIN_DATA(gp);
@@ -910,6 +910,22 @@ remmina_plugin_ssh_eof(VteTerminal *vteterminal, RemminaProtocolWidget *gp)
 	gpdata->closed = TRUE;
 }
 
+static void
+remmina_plugin_terminal_close(VteTerminal *vteterminal, RemminaProtocolWidget *gp)
+{
+	TRACE_CALL(__func__);
+
+	RemminaPluginSshData *gpdata = GET_PLUGIN_DATA(gp);
+
+	if (gpdata->closed)
+		return;
+
+	gpdata->closed = TRUE;
+
+	remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
+	return;
+}
+
 static gboolean
 remmina_plugin_ssh_close_connection(RemminaProtocolWidget *gp)
 {
@@ -938,8 +954,25 @@ remmina_plugin_ssh_close_connection(RemminaProtocolWidget *gp)
 	return FALSE;
 }
 
+static gboolean
+remmina_plugin_terminal_close_connection(RemminaProtocolWidget *gp)
+{
+		TRACE_CALL(__func__);
+	RemminaPluginSshData *gpdata = GET_PLUGIN_DATA(gp);
+
+	REMMINA_DEBUG("Requesting to close the connection");
+
+	if (gpdata->closed) {
+		return FALSE;
+	}
+	
+	remmina_plugin_service->protocol_plugin_signal_connection_closed(gp);
+	gpdata->closed = TRUE;
+	return FALSE;
+}
+
 /**
- * Remmina SSH plugin initialization.
+ * Remmina SSH and terminal plugin initialization.
  *
  * This is the main function used to create the widget that will be embedded in the
  * Remmina Connection Window.
@@ -951,7 +984,7 @@ remmina_plugin_ssh_close_connection(RemminaProtocolWidget *gp)
  * @see https://gitlab.com/Remmina/Remmina/wikis/Remmina-SSH-Terminal-colour-schemes
  */
 static void
-remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
+remmina_plugin_ssh_terminal_init(RemminaProtocolWidget *gp, gboolean is_terminal)
 {
 	TRACE_CALL(__func__);
 	RemminaPluginSshData *gpdata;
@@ -1285,14 +1318,34 @@ remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
 	gpdata->vte_session_file = g_file_new_for_path(fp);
 	g_free(fp);
 
-	g_signal_connect(G_OBJECT(vte), "size-allocate", G_CALLBACK(remmina_plugin_ssh_on_size_allocate), gp);
-	g_signal_connect(G_OBJECT(vte), "unrealize", G_CALLBACK(remmina_plugin_ssh_eof), gp);
-	g_signal_connect(G_OBJECT(vte), "eof", G_CALLBACK(remmina_plugin_ssh_eof), gp);
-	g_signal_connect(G_OBJECT(vte), "child-exited", G_CALLBACK(remmina_plugin_ssh_eof), gp);
+	if (is_terminal){
+		g_signal_connect(G_OBJECT(vte), "size-allocate", G_CALLBACK(remmina_plugin_ssh_on_size_allocate), gp);
+		g_signal_connect(G_OBJECT(vte), "unrealize", G_CALLBACK(remmina_plugin_terminal_close), gp);
+		g_signal_connect(G_OBJECT(vte), "eof", G_CALLBACK(remmina_plugin_terminal_close), gp);
+	}
+	else{
+		g_signal_connect(G_OBJECT(vte), "size-allocate", G_CALLBACK(remmina_plugin_ssh_on_size_allocate), gp);
+		g_signal_connect(G_OBJECT(vte), "unrealize", G_CALLBACK(remmina_plugin_ssh_eof), gp);
+		g_signal_connect(G_OBJECT(vte), "eof", G_CALLBACK(remmina_plugin_ssh_eof), gp);
+		g_signal_connect(G_OBJECT(vte), "child-exited", G_CALLBACK(remmina_plugin_ssh_eof), gp);
+	}
+	
 	remmina_plugin_ssh_popup_ui(gp);
 	gtk_widget_show_all(hbox);
 }
 
+
+static void
+remmina_plugin_ssh_init(RemminaProtocolWidget *gp)
+{
+	remmina_plugin_ssh_terminal_init(gp, FALSE);
+}
+
+static void
+remmina_plugin_terminal_init(RemminaProtocolWidget *gp)
+{
+	remmina_plugin_ssh_terminal_init(gp, TRUE);
+}
 /**
  * Initialize the main window properties and the pthread.
  *
@@ -1320,6 +1373,39 @@ remmina_plugin_ssh_open_connection(RemminaProtocolWidget *gp)
 	}
 	return TRUE;
 }
+
+static gboolean
+remmina_plugin_terminal_open_connection(RemminaProtocolWidget *gp)
+{
+	TRACE_CALL(__func__);
+	RemminaPluginSshData *gpdata = GET_PLUGIN_DATA(gp);
+
+	remmina_plugin_service->protocol_plugin_set_expand(gp, TRUE);
+	remmina_plugin_service->protocol_plugin_set_width(gp, 640);
+	remmina_plugin_service->protocol_plugin_set_height(gp, 480);
+
+	gchar **envp = g_get_environ();
+    gchar **command = (gchar *[]){g_strdup(g_environ_getenv(envp, "SHELL")), NULL };
+    g_strfreev(envp);
+    vte_terminal_spawn_async(VTE_TERMINAL(gpdata->vte),
+        VTE_PTY_DEFAULT,
+        NULL,         /* working directory  */
+        command,      /* command */
+        NULL,         /* environment */
+        0,            /* spawn flags */
+        NULL, NULL,   /* child setup */
+        NULL,         /* child pid */
+        -1,           /* timeout */
+        NULL,         /* cancellable */
+        NULL,  /* callback */
+        NULL);        /* user_data */
+
+	remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
+	return TRUE;
+
+
+}
+
 
 /**
  * Not used by the plugin.
@@ -1412,6 +1498,7 @@ static gpointer ssh_auth[] =
 	"2", N_("SSH agent"),
 	"3", N_("Public key (automatic)"),
 	"4", N_("Kerberos (GSSAPI)"),
+	"5", N_("Keyboard Interactive"),
 	NULL
 };
 
@@ -1572,6 +1659,12 @@ static const RemminaProtocolSetting remmina_ssh_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	NULL,			  NULL,					      FALSE, NULL,		   NULL										 }
 };
 
+static const RemminaProtocolSetting remmina_terminal_basic_settings[] =
+{
+	{ REMMINA_PROTOCOL_SETTING_TYPE_SELECT, "ssh_color_scheme",	  N_("Terminal colour scheme"),		      FALSE, ssh_terminal_palette, NULL										 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	NULL,			  NULL,					      FALSE, NULL,		   NULL										 }
+};
+
 /**
  * SSH Protocol plugin definition and features.
  *
@@ -1602,6 +1695,36 @@ static RemminaProtocolPlugin remmina_plugin_ssh =
 	NULL                                            /**< RCW unmap event */
 };
 
+/**
+ * Terminal Protocol plugin definition and features.
+ *
+ * Uses much of the same code as the ssh plugin to set up a terminal
+ * but does not establish an ssh connection.
+ */
+static RemminaProtocolPlugin remmina_plugin_terminal =
+{
+	REMMINA_PLUGIN_TYPE_PROTOCOL,                   /**< Type */
+	"Terminal",                                          /**< Name */
+	N_("Local Terminal"),                       /**< Description */
+	GETTEXT_PACKAGE,                                /**< Translation domain */
+	VERSION,                                        /**< Version number */
+	"org.remmina.Remmina-tool-symbolic",             /**< Icon for normal connection */
+	"org.remmina.Remmina-tool-symbolic",           /**< Icon for SSH connection */
+	remmina_terminal_basic_settings,				/**< Array for basic settings */
+	NULL			,                 				/**< Array for advanced settings */
+	REMMINA_PROTOCOL_SSH_SETTING_NONE,            /**< SSH settings type */
+	remmina_plugin_ssh_features,                    /**< Array for available features */
+	remmina_plugin_terminal_init,                        /**< Plugin initialization */
+	remmina_plugin_terminal_open_connection,             /**< Plugin open connection */
+	remmina_plugin_terminal_close_connection,            /**< Plugin close connection */
+	remmina_plugin_ssh_query_feature,               /**< Query for available features */
+	remmina_plugin_ssh_call_feature,                /**< Call a feature */
+	remmina_ssh_keystroke,                          /**< Send a keystroke */
+	NULL,                                           /**< No screenshot support available */
+	NULL,                                           /**< RCW map event */
+	NULL                                            /**< RCW unmap event */
+};
+
 
 /*
  * this function is used for
@@ -1614,7 +1737,7 @@ compare(gconstpointer a, gconstpointer b)
 	return strcmp((gchar *)a, (gchar *)b);
 }
 
-void
+static void
 remmina_ssh_plugin_load_terminal_palettes(gpointer *ssh_terminal_palette_new)
 {
 	unsigned int preset_rec_size = sizeof(ssh_terminal_palette) / sizeof(gpointer);
@@ -1741,6 +1864,7 @@ remmina_ssh_plugin_register(void)
 	remmina_plugin_ssh.advanced_settings = (RemminaProtocolSetting *)settings;
 
 	remmina_plugin_service->register_plugin((RemminaPlugin *)&remmina_plugin_ssh);
+	remmina_plugin_service->register_plugin((RemminaPlugin *)&remmina_plugin_terminal);
 
 	ssh_threads_set_callbacks(ssh_threads_get_pthread());
 	ssh_init();
