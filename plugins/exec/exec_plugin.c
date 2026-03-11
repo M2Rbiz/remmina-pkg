@@ -148,6 +148,7 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 	TRACE_CALL(__func__);
 	RemminaFile* remminafile;
 	const gchar *cmd;
+	gchar* flat_cmd;
 	gchar *stdout_buffer;
 	gchar *stderr_buffer;
 	char **argv;
@@ -168,8 +169,16 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 		remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
 		return TRUE;
 	}
-
-	g_shell_parse_argv(cmd, NULL, &argv, &error);
+	gchar *flatpak_info = g_build_filename(g_get_user_runtime_dir(), "flatpak-info", NULL);
+	if (g_file_test(flatpak_info, G_FILE_TEST_EXISTS)) {
+		flat_cmd = g_strconcat("flatpak-spawn --host ", cmd, NULL);
+		g_shell_parse_argv(flat_cmd, NULL, &argv, &error);
+		g_free(flat_cmd);
+	} else{
+		g_shell_parse_argv(cmd, NULL, &argv, &error);
+	}
+	g_free(flatpak_info);
+	
 	if (error) {
 		gtk_text_buffer_set_text (gpdata->log_buffer, error->message, -1);
 		remmina_plugin_service->protocol_plugin_signal_connection_opened(gp);
@@ -221,7 +230,6 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 			default:
 				gtk_widget_destroy(GTK_WIDGET(dialog));
 				return FALSE;
-				break;
 		}
 		gtk_widget_destroy(GTK_WIDGET(dialog));
 		REMMINA_PLUGIN_DEBUG("[%s] Run Sync", PLUGIN_NAME);
@@ -240,6 +248,7 @@ static gboolean remmina_plugin_exec_run(RemminaProtocolWidget *gp)
 			REMMINA_PLUGIN_DEBUG("[%s] Command executed", PLUGIN_NAME);
 			gtk_text_buffer_set_text (gpdata->log_buffer, stdout_buffer, -1);
 		}else  {
+			cmd = remmina_plugin_service->file_get_string(remminafile, "execcommand");
 			g_warning("Command %s exited with error: %s\n", cmd, error->message);
 			gtk_text_buffer_set_text (gpdata->log_buffer, error->message, -1);
 			g_error_free(error);
@@ -324,7 +333,9 @@ static RemminaProtocolPlugin remmina_plugin = {
 	NULL                                            // RCW unmap event
 };
 
-G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService *service)
+G_MODULE_EXPORT gboolean remmina_plugin_entry(RemminaPluginService *service);
+
+gboolean remmina_plugin_entry(RemminaPluginService *service)
 {
 	TRACE_CALL(__func__);
 	remmina_plugin_service = service;

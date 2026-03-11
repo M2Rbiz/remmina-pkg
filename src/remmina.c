@@ -445,6 +445,7 @@ int main(int argc, char *argv[])
 	g_application_set_option_context_parameter_string (G_APPLICATION(app), _("- or protocol://username:encryptedpassword@host:port"));
 	// TRANSLATORS: Shown in terminal. Do not use characters that may be not supported on a terminal
 	g_application_set_option_context_description (G_APPLICATION(app),
+			// xgettext:no-c-format
 			_("Examples:\n"
 				"To connect using an existing connection profile, use:\n"
 				"\n"
@@ -460,9 +461,14 @@ int main(int argc, char *argv[])
 				"\tremmina -c spice://server\n"
 				"\tremmina -c https://example.com\n"
 				"\n"
+				"To quick connect and name the connection\n"
+				"\n"
+				"\tremmina -c ssh://user@server\%connection_name\n"
+				"\n"
 				"To quick connect using a URI along with an encrypted password:\n"
 				"\n"
 				"\tremmina -c rdp://username:encrypted-password@server\n"
+				"\n"
 				"\tremmina -c vnc://username:encrypted-password@server\n"
 				"\tremmina -c vnc://server?VncUsername=username\\&VncPassword=encrypted-password\n"
 				"\n"

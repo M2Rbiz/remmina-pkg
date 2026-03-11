@@ -1,3 +1,80 @@
+## v1.4.43
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.42...v1.4.43)
+
+* Add minimal macOS build support [!2727](https://gitlab.com/Remmina/Remmina/-/merge_requests/2727) *@jayvdlaan*
+* Revert "Added kerberos-config plug" [!2728](https://gitlab.com/Remmina/Remmina/-/merge_requests/2728) *@craig.rylance*
+* [REM-3489] Fix issue preventing SPICE plugin from being loaded [!2729](https://gitlab.com/Remmina/Remmina/-/merge_requests/2729) *@myheroyuki*
+* [REM-3490] Do not calculate monitor shift if using freerdp_settings_set_monitor_def_array_sorted [!2730](https://gitlab.com/Remmina/Remmina/-/merge_requests/2730) *@myheroyuki*
+
+
+## v1.4.42
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.41...v1.4.42)
+
+* add option to enforce IPvX preference [!2677](https://gitlab.com/Remmina/Remmina/-/merge_requests/2677) *@muellermart*
+* Fix ssh x11 forwarding crashing in nixos [!2678](https://gitlab.com/Remmina/Remmina/-/merge_requests/2678) *@urizafrir*
+* Add support for smartcard authentication [!2680](https://gitlab.com/Remmina/Remmina/-/merge_requests/2680) *@cschenk*
+* [REM-3444] Add option to delay floating toolbar popup [!2681](https://gitlab.com/Remmina/Remmina/-/merge_requests/2681) *@myheroyuki*
+* [REM-3448] Update FreeRDP checks to newer version [!2682](https://gitlab.com/Remmina/Remmina/-/merge_requests/2682) *@myheroyuki*
+* [REM-3448] Fix typo [!2683](https://gitlab.com/Remmina/Remmina/-/merge_requests/2683) *@myheroyuki*
+* Update AppStream metadata [!2684](https://gitlab.com/Remmina/Remmina/-/merge_requests/2684) *@ascfiiwolf*
+* [FLAT-390] update ffmpeg [!2685](https://gitlab.com/Remmina/Remmina/-/merge_requests/2685) *@myheroyuki*
+* [Rem-3180] Create named SPICE connection [!2687](https://gitlab.com/Remmina/Remmina/-/merge_requests/2687) *@myheroyuki*
+* [REM-2880] Fix session stuck problem with KeePassXC [!2689](https://gitlab.com/Remmina/Remmina/-/merge_requests/2689) *@CalmarBen*
+* [REM-3453] default dynamic resolution when supported issue [!2690](https://gitlab.com/Remmina/Remmina/-/merge_requests/2690) *@CalmarBen*
+* [REM-3258] toolbar disappearance in some multi-monitor situations  [!2692](https://gitlab.com/Remmina/Remmina/-/merge_requests/2692) *@CalmarBen*
+* [REM-3458] Enable AAD support in Flatpak build [!2694](https://gitlab.com/Remmina/Remmina/-/merge_requests/2694) *@myheroyuki*
+* Create viewonly mode button on rcw toolbar [!2696](https://gitlab.com/Remmina/Remmina/-/merge_requests/2696) *@rafarsa6363*
+* Permit css customization in scrolled window mode [!2697](https://gitlab.com/Remmina/Remmina/-/merge_requests/2697) *@CalmarBen*
+* src/remmina_ssh.c: zero-initialize RemminaSFTP structs [!2698](https://gitlab.com/Remmina/Remmina/-/merge_requests/2698) *@mochaa*
+* [plugins/rdp] fix memory leaks [!2699](https://gitlab.com/Remmina/Remmina/-/merge_requests/2699) *@akallabeth*
+* [REM-3462] Strip whitespace from quickconnect [!2700](https://gitlab.com/Remmina/Remmina/-/merge_requests/2700) *@myheroyuki*
+* [cmake] mark include_directories SYSTEM [!2701](https://gitlab.com/Remmina/Remmina/-/merge_requests/2701) *@akallabeth*
+* [rdp] fix FreeRDP_MonitorLocalShift[XY] [!2702](https://gitlab.com/Remmina/Remmina/-/merge_requests/2702) *@akallabeth*
+* fix various compiler warnings [!2703](https://gitlab.com/Remmina/Remmina/-/merge_requests/2703) *@akallabeth*
+* [REM-3454] UI: move view_toggle_button on the left [!2704](https://gitlab.com/Remmina/Remmina/-/merge_requests/2704) *@CalmarBen*
+* bug: double free on remmina_string_array_free [!2706](https://gitlab.com/Remmina/Remmina/-/merge_requests/2706) *@CalmarBen*
+* [REM-3464]run update-translations.sh [!2711](https://gitlab.com/Remmina/Remmina/-/merge_requests/2711) *@myheroyuki*
+* Avoid Gettext incorrectly considering c-format [!2712](https://gitlab.com/Remmina/Remmina/-/merge_requests/2712) *@rafaelff
+* [REM-3469] Disable save password prompt on quick connect authentication prompts [!2713](https://gitlab.com/Remmina/Remmina/-/merge_requests/2713) *@myheroyuki*
+* fix UB when connecting by link-local address [!2716](https://gitlab.com/Remmina/Remmina/-/merge_requests/2716) *@erindesu*
+* Added kerberos-tickets plug  [!2717](https://gitlab.com/Remmina/Remmina/-/merge_requests/2717) *@craig.rylance*
+* Added kerberos-config plug [!2719](https://gitlab.com/Remmina/Remmina/-/merge_requests/2719) *@craig.rylance*
+* Fix floating toolbar popup regression in multimonitor [!2724](https://gitlab.com/Remmina/Remmina/-/merge_requests/2724) *@CalmarBen*
+
+## v1.4.41
+[full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.40...v1.4.41)
+
+* [REM-3321] Update keyboard mapping [!2646](https://gitlab.com/Remmina/Remmina/-/merge_requests/2646) *@myheroyuki*
+* [REM-3276] Fix segfault that could happen when attempting to save a connection profile [!2649](https://gitlab.com/Remmina/Remmina/-/merge_requests/2649) *@myheroyuki*
+* [REM-3342] Add ifdef to allow compilation without libssh   [!2650](https://gitlab.com/Remmina/Remmina/-/merge_requests/2650) *@myheroyuki*
+* [REM-3343] Add environment variable to prevent openssl config issue  [!2651](https://gitlab.com/Remmina/Remmina/-/merge_requests/2651) *@myheroyuki*
+* [REM-3346] Update snap to latest FreeRDP version [!2652](https://gitlab.com/Remmina/Remmina/-/merge_requests/2652) *@myheroyuki*
+* [REM-3344] Toggle sending null or empty password when field is left blank [!2653](https://gitlab.com/Remmina/Remmina/-/merge_requests/2653) *@myheroyuki*
+* [REM-3363] Add checks to allow FreeRDP2 compatibility [!2654](https://gitlab.com/Remmina/Remmina/-/merge_requests/2654) *@myheroyuki*
+* Fix KeyStroke function for SPICE plugin [!2655](https://gitlab.com/Remmina/Remmina/-/merge_requests/2655) *@BobbyTheBuilder*
+* [REM-3364] Raise max length of username field to 300 from 100 [!2656](https://gitlab.com/Remmina/Remmina/-/merge_requests/2656) *@myheroyuki*
+* [REM-3186] Allow use of ssh command line arguments to create ssh connections [!2657](https://gitlab.com/Remmina/Remmina/-/merge_requests/2657) *@myheroyuki*
+* Fix use of default_value in remmina_file_get_int [!2660](https://gitlab.com/Remmina/Remmina/-/merge_requests/2660) *@rafarsa6363*
+* Implement VNC connection timeout [!2659](https://gitlab.com/Remmina/Remmina/-/merge_requests/2659) *@rafarsa6363*
+* Fix warnings [!2658](https://gitlab.com/Remmina/Remmina/-/merge_requests/2658) *@RipleyTom*
+* [REM-3123] Prevent crash when pasting an image using RDP if gdk_pixbuf_save_to_buffer fails [!2661](https://gitlab.com/Remmina/Remmina/-/merge_requests/2661) *@myheroyuki*
+* [REM-3386] Properly save and load color themes [!2662](https://gitlab.com/Remmina/Remmina/-/merge_requests/2662) *@myheroyuki*
+* [REM-3388] Fix Flatpak crash when moving floating tool bar [!2663](https://gitlab.com/Remmina/Remmina/-/merge_requests/2663) *@myheroyuki*
+* [REM-3389] Save unlock password when set outside of the preferences menu [!2664](https://gitlab.com/Remmina/Remmina/-/merge_requests/2664) *@myheroyuki*
+* [REM-3382] Update CMAKE_PREFIX_PATH in snapcraft.yaml [!2665](https://gitlab.com/Remmina/Remmina/-/merge_requests/2665) *@myheroyuki*
+* [REM-3390] Properly implement keyboard interactive ssh authentication [!2666](https://gitlab.com/Remmina/Remmina/-/merge_requests/2666) *@myheroyuki*
+* [REM-3396] Made hiding connection profile name on floating toolbar optional [!2667](https://gitlab.com/Remmina/Remmina/-/merge_requests/2667) *@myheroyuki*
+* [REM-3402] Add a local terminal plugin [!2670](https://gitlab.com/Remmina/Remmina/-/merge_requests/2670) *@myheroyuki*
+* [REM-3398] Allow Flatpak build to run commands [!2669](https://gitlab.com/Remmina/Remmina/-/merge_requests/2669) *@myheroyuki*
+* [REM-3413] Allow users to connect to multiple connections or groups of connects at once [!2671](https://gitlab.com/Remmina/Remmina/-/merge_requests/2671) *@myheroyuki*
+* Create autostart directory if it does not exist. [!2672](https://gitlab.com/Remmina/Remmina/-/merge_requests/2672) *@rafarsa6363*
+* Fix autostart directory create for flatpak. [!2673](https://gitlab.com/Remmina/Remmina/-/merge_requests/2673) *@rafarsa6363
+* Python Wrapper plugin: Fix typo + add comment for edge-case hinting that the plugin needs to be installed [!2674](https://gitlab.com/Remmina/Remmina/-/merge_requests/2674) *@dzatoah*
+* Several small fixes and improving group connections [!2675](https://gitlab.com/Remmina/Remmina/-/merge_requests/2675) *@myheroyuki*
+
+
+
+
 ## v1.4.40
 [full changelog](https://gitlab.com/Remmina/Remmina/compare/v1.4.39...v1.4.40)
 

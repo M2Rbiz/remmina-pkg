@@ -105,7 +105,8 @@ enum {
 enum {
 	FLOATING_TOOLBAR_VISIBILITY_PEEKING	= 0,
 	FLOATING_TOOLBAR_VISIBILITY_INVISIBLE	= 1, //"Invisible" corresponds to the "Hidden" option in the drop-down
-	FLOATING_TOOLBAR_VISIBILITY_DISABLE	= 2
+	FLOATING_TOOLBAR_VISIBILITY_DISABLE	= 2,
+	FLOATING_TOOLBAR_VISIBILITY_MINIMAL	= 3
 };
 
 typedef struct _RemminaColorPref {
@@ -159,11 +160,13 @@ typedef struct _RemminaPref {
 	gboolean		mp_left;
 	gboolean		start_fullscreen;
 	gboolean		start_dynres;
+	gboolean 		toolbar_fix_position_multimon;
 	gboolean		hide_connection_toolbar;
 	gboolean		hide_searchbar;
 	gint			default_mode;
 	gint			tab_mode;
 	gint			fullscreen_toolbar_visibility;
+	gint			fullscreen_toolbar_delay;
 	const gchar *		grab_color;
 	gboolean		grab_color_switch;
 	/* In RemminaPrefDialog applet tab */
@@ -216,6 +219,7 @@ typedef struct _RemminaPref {
 	guint			vte_shortcutkey_increase_font;
 	guint			vte_shortcutkey_decrease_font;
 	guint			vte_shortcutkey_search_text;
+	gchar * 		color_file;
 	/* In View menu */
 	gboolean		hide_toolbar;
 	gboolean		small_toolbutton;
@@ -231,6 +235,7 @@ typedef struct _RemminaPref {
 	gchar *			expanded_group;
 	gboolean		toolbar_pin_down;
 	gint			floating_toolbar_placement;
+	gint			floating_toolbar_monitor;
 	gint			toolbar_placement;
 	gboolean		prevent_snap_welcome_message;
 	gchar *			last_quickconnect_protocol;

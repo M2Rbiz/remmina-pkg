@@ -117,6 +117,7 @@ static GActionEntry main_actions[] = {
 	{ "copy",     remmina_main_on_action_connection_copy,		NULL, NULL, NULL },
 	{ "delete",   remmina_main_on_action_connection_delete,		NULL, NULL, NULL },
 	{ "delete_multiple", remmina_main_on_action_connection_delete_multiple, NULL, NULL, NULL },
+	{ "connect_multiple", remmina_main_on_action_connection_connect_multiple, NULL, NULL, NULL },
 	{ "edit",     remmina_main_on_action_connection_edit,		NULL, NULL, NULL },
 	{ "exttools", remmina_main_on_action_connection_external_tools, NULL, NULL, NULL },
 	{ "new",      remmina_main_on_action_connection_new,		NULL, NULL, NULL },
@@ -181,7 +182,7 @@ static void remmina_main_save_expanded_group(void)
  * Save the Remmina Main Window size and the expanded group before to close Remmina.
  * This function uses remmina_main_save_size and remmina_main_save_expanded_group.
  */
-void remmina_main_save_before_destroy()
+void remmina_main_save_before_destroy(void)
 {
 	TRACE_CALL(__func__);
 	if (!remminamain || !remminamain->window)
@@ -194,7 +195,7 @@ void remmina_main_save_before_destroy()
 	remmina_pref_save();
 }
 
-void remmina_main_destroy()
+void remmina_main_destroy(void)
 {
 	TRACE_CALL(__func__);
 
@@ -236,7 +237,7 @@ gboolean remmina_main_on_delete_event(GtkWidget *widget, GdkEvent *event, gpoint
 	return FALSE;
 }
 
-gboolean remmina_main_idle_destroy(gpointer data)
+static gboolean remmina_main_idle_destroy(gpointer data)
 {
 	TRACE_CALL(__func__);
 
@@ -249,7 +250,7 @@ gboolean remmina_main_idle_destroy(gpointer data)
 /**
  * Called when the remminamain->window widget is destroyed (glade event handler)
  */
-void remmina_main_on_destroy_event()
+void remmina_main_on_destroy_event(void)
 {
 	TRACE_CALL(__func__);
 
@@ -677,7 +678,7 @@ static void remmina_main_select_file(const gchar *filename)
 	}
 }
 
-static void remmina_main_load_files()
+static void remmina_main_load_files(void)
 {
 	TRACE_CALL(__func__);
 	gint items_count;
@@ -799,14 +800,38 @@ void remmina_main_load_files_cb(GtkEntry *entry, char *string, gpointer user_dat
 	remmina_main_load_files();
 }
 
+
+static void remmina_main_load_by_group_callback(RemminaFile *remminafile, gpointer user_data)
+{
+	
+	const gchar* group = remmina_file_get_string(remminafile, "group");
+
+	if (g_strcmp0(remminamain->priv->selected_name, group) == 0 ){
+		if (remmina_pref_get_boolean("use_primary_password")
+			&& remmina_pref_get_boolean("lock_connect")
+			&& remmina_unlock_new(remminamain->window) == 0)
+			return;
+		if (remmina_file_get_int (remminafile, "profile-lock", FALSE) == 1
+				&& remmina_unlock_new(remminamain->window) == 0)
+			return;
+
+		remmina_file_touch(remminafile);
+		rcw_open_from_filename(remminafile->filename);
+	}
+}
+
 void remmina_main_on_action_connection_connect(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
 
 	RemminaFile *remminafile;
 
-	if (!remminamain->priv->selected_filename)
+	if (!remminamain->priv->selected_filename){
+		if (remminamain->priv->selected_name){
+			remmina_file_manager_iterate((GFunc)remmina_main_load_by_group_callback, NULL);
+		}
 		return;
+	}
 
 	remminafile = remmina_file_load(remminamain->priv->selected_filename);
 
@@ -923,7 +948,7 @@ static gboolean remmina_main_tree_row_activated(GtkTreeView *tree, GtkTreePath *
 	return TRUE;
 }
 
-void remmina_main_on_view_toggle()
+void remmina_main_on_view_toggle(void)
 {
 	if (gtk_toggle_button_get_active(remminamain->view_toggle_button)) {
 		if (remmina_pref.view_file_mode != REMMINA_VIEW_FILE_LIST) {
@@ -1043,6 +1068,84 @@ void remmina_main_on_action_connection_delete(GSimpleAction *action, GVariant *p
 	remmina_main_clear_selection_data();
 }
 
+
+void remmina_main_on_action_connection_connect_multiple(GSimpleAction *action, GVariant *param, gpointer data)
+{
+	TRACE_CALL(__func__);
+	GtkTreeSelection *sel = gtk_tree_view_get_selection(remminamain->tree_files_list);
+	GtkTreeModel *model = gtk_tree_view_get_model(remminamain->tree_files_list);
+	GList *list = gtk_tree_selection_get_selected_rows(sel, &model);
+	gchar *file_to_load = NULL;
+
+
+	while (list) {
+		GtkTreePath *path = list->data;
+		GtkTreeIter iter;
+		
+		if (!gtk_tree_model_get_iter(model, &iter, path)) {
+			GtkWidget *dialog_warning;
+			dialog_warning = gtk_message_dialog_new(remminamain->window, GTK_DIALOG_MODAL, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, 
+				_("Failed to load files!"));
+			gtk_dialog_run(GTK_DIALOG(dialog_warning));
+			gtk_widget_destroy(dialog_warning);
+			remmina_main_clear_selection_data();
+			return;
+		}
+
+		gtk_tree_model_get(model, &iter, 
+				FILENAME_COLUMN, &file_to_load, -1);
+
+		if (file_to_load == NULL){
+			gtk_tree_model_get(model, &iter, 
+				GROUP_COLUMN, &file_to_load, -1);
+
+			REMMINA_DEBUG("Group column is %s", file_to_load);
+			if (remminamain->priv->selected_name){
+				remmina_file_manager_iterate((GFunc)remmina_main_load_by_group_callback, NULL);
+			}
+		}
+
+		RemminaFile *remminafile = remmina_file_load(file_to_load);
+
+		if (remminafile == NULL){
+			list = g_list_next(list);
+			continue;
+		}
+
+		if (((remmina_pref_get_boolean("lock_edit")
+				&& remmina_pref_get_boolean("use_primary_password"))
+				|| remmina_file_get_int (remminafile, "profile-lock", FALSE))
+			&& remmina_unlock_new(remminamain->window) == 0){
+				list = g_list_next(list);
+				continue;
+			}
+
+
+		if (remmina_file_get_int (remminafile, "profile-lock", FALSE) == 1
+			&& remmina_unlock_new(remminamain->window) == 0){
+				list = g_list_next(list);
+				continue;
+			}
+				
+
+		remmina_file_touch(remminafile);
+		rcw_open_from_filename(file_to_load);
+
+		
+
+		if (remminafile) {
+			remmina_file_free(remminafile);
+			remminafile = NULL;
+		}
+
+		list = g_list_next(list);
+	}
+	
+	remmina_main_clear_selection_data();
+}
+
+
+
 void remmina_main_on_action_connection_delete_multiple(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
@@ -1101,7 +1204,7 @@ void remmina_main_on_action_connection_delete_multiple(GSimpleAction *action, GV
 	remmina_main_clear_selection_data();
 }
 
-void remmina_main_on_accel_application_preferences(GSimpleAction *action, GVariant *param, gpointer data)
+static void remmina_main_on_accel_application_preferences(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
 	GVariant *v = g_variant_new("i", 0);
@@ -1109,7 +1212,7 @@ void remmina_main_on_accel_application_preferences(GSimpleAction *action, GVaria
 	remmina_main_on_action_application_preferences(NULL, v, NULL);
 }
 
-void remmina_main_reload_preferences()
+void remmina_main_reload_preferences(void)
 {
 	GtkSettings *settings;
 	settings = gtk_settings_get_default();
@@ -1185,7 +1288,7 @@ void remmina_main_on_action_application_quit(GSimpleAction *action, GVariant *pa
 	remmina_application_condexit(REMMINA_CONDEXIT_ONQUIT);
 }
 
-void remmina_main_on_date_column_sort_clicked()
+void remmina_main_on_date_column_sort_clicked(void)
 {
 	if (remmina_pref.view_file_mode != REMMINA_VIEW_FILE_LIST) {
 		remmina_pref.view_file_mode = REMMINA_VIEW_FILE_LIST;
@@ -1428,13 +1531,13 @@ void remmina_main_on_action_application_about(GSimpleAction *action, GVariant *p
 {
 	TRACE_CALL(__func__);
 	remmina_about_open(remminamain->window);
-};
+}
 
 void remmina_main_on_action_application_bug_report(GSimpleAction *action, GVariant *param, gpointer data)
 {
 	TRACE_CALL(__func__);
 	remmina_bug_report_open(remminamain->window);
-};
+}
 
 static gboolean is_empty(const gchar *s)
 {
@@ -1467,6 +1570,7 @@ static gboolean remmina_main_quickconnect(void)
 
 	remminafile = remmina_file_new();
 	server = g_strdup(gtk_entry_get_text(remminamain->entry_quick_connect_server));
+	server = g_strstrip(server);
 	if (g_hostname_to_ascii(server) == NULL) {
 		g_free(server), server = NULL;
 		return FALSE;
@@ -1497,6 +1601,7 @@ static gboolean remmina_main_quickconnect(void)
 	remmina_file_set_string(remminafile, "server", server);
 	remmina_file_set_string(remminafile, "name", server);
 	remmina_file_set_string(remminafile, "protocol", qcp);
+	remmina_file_set_int(remminafile, "disablepasswordstoring", TRUE);
 	g_free(server);
 	g_free(server_trimmed);
 	g_free(qcp);
@@ -1544,7 +1649,7 @@ void remmina_main_on_action_search_toggle(GSimpleAction *action, GVariant *param
 	}
 }
 
-void remmina_main_on_accel_search_toggle(RemminaMain *remminamain)
+static void remmina_main_on_accel_search_toggle(RemminaMain *remminamain)
 {
 	TRACE_CALL(__func__);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(remminamain->search_toggle), TRUE);
@@ -1583,7 +1688,7 @@ gboolean remmina_main_file_list_on_button_press(GtkWidget *widget, GdkEventButto
 #if GTK_CHECK_VERSION(3, 22, 0)
 			// For now, if more than one selected row, display only a delete menu option
 			if (gtk_tree_selection_count_selected_rows(gtk_tree_view_get_selection(remminamain->tree_files_list)) > 1) {
-				gtk_menu_popup_at_pointer(GTK_MENU(remminamain->menu_popup_delete_rc), (GdkEvent *)event);
+				gtk_menu_popup_at_pointer(GTK_MENU(remminamain->menu_popup_multi), (GdkEvent *)event);
 				return GDK_EVENT_STOP;
 			}
 			else {
@@ -1799,7 +1904,7 @@ GtkWidget *remmina_main_new(void)
 	remminamain->menu_popup = GTK_MENU(RM_GET_OBJECT("menu_popup"));
 	remminamain->menu_header_button = GTK_MENU_BUTTON(RM_GET_OBJECT("menu_header_button"));
 	remminamain->menu_popup_full = GTK_MENU(RM_GET_OBJECT("menu_popup_full"));
-	remminamain->menu_popup_delete_rc = GTK_MENU(RM_GET_OBJECT("menu_popup_delete_rc"));
+	remminamain->menu_popup_multi = GTK_MENU(RM_GET_OBJECT("menu_popup_multi"));
 	if (kioskmode && kioskmode == TRUE) {
 		gtk_widget_set_sensitive(GTK_WIDGET(remminamain->menu_popup_full), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(remminamain->menu_header_button), FALSE);
@@ -1851,7 +1956,7 @@ GtkWidget *remmina_main_new(void)
 	return GTK_WIDGET(remminamain->window);
 }
 
-GtkWindow *remmina_main_get_window()
+GtkWindow *remmina_main_get_window(void)
 {
 	if (!remminamain)
 		return NULL;

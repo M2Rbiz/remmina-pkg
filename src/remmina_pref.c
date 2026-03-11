@@ -53,6 +53,7 @@
 #include "remmina_public.h"
 #include "remmina_string_array.h"
 #include "remmina_pref.h"
+#include "remmina_utils.h"
 #include "remmina_log.h"
 #include "remmina/remmina_trace_calls.h"
 
@@ -370,6 +371,11 @@ void remmina_pref_init(void)
 	else
 		remmina_pref.floating_toolbar_placement = FLOATING_TOOLBAR_PLACEMENT_TOP;
 
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "floating_toolbar_monitor", NULL))
+		remmina_pref.floating_toolbar_monitor = g_key_file_get_integer(gkeyfile, "remmina_pref", "floating_toolbar_monitor", NULL);
+	else
+		remmina_pref.floating_toolbar_monitor = remmina_get_primary_monitor_num();
+
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "prevent_snap_welcome_message", NULL))
 		remmina_pref.prevent_snap_welcome_message = g_key_file_get_boolean(gkeyfile, "remmina_pref", "prevent_snap_welcome_message", NULL);
 	else
@@ -412,6 +418,12 @@ void remmina_pref_init(void)
 		remmina_pref.start_dynres = g_key_file_get_boolean(gkeyfile, "remmina_pref", "start_dynres", NULL);
 	else
 		remmina_pref.start_dynres = FALSE;
+
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "toolbar_fix_position_multimon", NULL))
+		remmina_pref.toolbar_fix_position_multimon = g_key_file_get_boolean(gkeyfile, "remmina_pref", "toolbar_fix_position_multimon", NULL);
+	else
+		remmina_pref.toolbar_fix_position_multimon = TRUE;
+		
 
 	if (g_key_file_has_key(gkeyfile, "remmina_pref", "hide_connection_toolbar", NULL))
 		remmina_pref.hide_connection_toolbar = g_key_file_get_boolean(gkeyfile, "remmina_pref",
@@ -640,6 +652,11 @@ void remmina_pref_init(void)
 	else
 		remmina_pref.fullscreen_toolbar_visibility = FLOATING_TOOLBAR_VISIBILITY_PEEKING;
 
+	if (g_key_file_has_key(gkeyfile, "remmina_pref", "fullscreen_toolbar_delay", NULL))
+		remmina_pref.fullscreen_toolbar_delay = g_key_file_get_integer(gkeyfile, "remmina_pref", "fullscreen_toolbar_delay", NULL);
+	else
+		remmina_pref.fullscreen_toolbar_delay = 0;
+
 	if (disabletoolbar)
 		remmina_pref.fullscreen_toolbar_visibility = FLOATING_TOOLBAR_VISIBILITY_DISABLE;
 
@@ -786,8 +803,6 @@ void remmina_pref_init(void)
 	else
 		remmina_pref.vte_shortcutkey_search_text = GDK_KEY_g;
 
-	remmina_pref_file_load_colors(gkeyfile, &remmina_pref.color_pref);
-
 	if (g_key_file_has_key(gkeyfile, "remmina_info", "periodic_news_last_checksum", NULL)) {
 		remmina_pref.periodic_news_last_checksum = g_key_file_get_string(gkeyfile, "remmina_info", "periodic_news_last_checksum", NULL);
 	}
@@ -828,6 +843,13 @@ void remmina_pref_init(void)
 		info_disable_tip = remmina_pref.disable_tip;
 	}
 
+	if (g_key_file_has_key(gkeyfile, "remmina_info", "ssh_color_file", NULL)) {
+		remmina_pref.color_file = g_key_file_get_string(gkeyfile, "remmina_info", "ssh_color_file", NULL);
+	}
+	else {
+		remmina_pref.color_file = NULL;
+	}
+
 	#ifdef DISABLE_NEWS
 	info_disable_news = 1;
 	remmina_pref.disable_news = TRUE;
@@ -852,12 +874,6 @@ void remmina_pref_init(void)
 	}
 
 
-	/* If we have a color scheme file, we switch to it, GIO will merge it in the
-	 * remmina.pref file */
-	if (g_file_test(remmina_colors_file, G_FILE_TEST_IS_REGULAR)) {
-		g_key_file_load_from_file(gkeyfile, remmina_colors_file, G_KEY_FILE_NONE, NULL);
-		g_remove(remmina_colors_file);
-	}
 
 	/* Default settings */
 	if (!g_key_file_has_key(gkeyfile, "remmina", "name", NULL)) {
@@ -866,6 +882,15 @@ void remmina_pref_init(void)
 		g_key_file_set_integer(gkeyfile, "remmina", "enable-plugins", 1);
 		remmina_pref_save();
 	}
+
+	/* If we have a color scheme file, we switch to it, GIO will merge it in the
+	* remmina.pref file */
+	if (g_file_test(remmina_colors_file, G_FILE_TEST_IS_REGULAR)) {
+		g_key_file_load_from_file(gkeyfile, remmina_colors_file, G_KEY_FILE_NONE, NULL);
+		// g_remove(remmina_colors_file);
+	}
+
+	remmina_pref_file_load_colors(gkeyfile, &remmina_pref.color_pref);
 
 	g_key_file_free(gkeyfile);
 
@@ -932,6 +957,7 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "audit", remmina_pref.audit);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "trust_all", remmina_pref.trust_all);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "floating_toolbar_placement", remmina_pref.floating_toolbar_placement);
+	g_key_file_set_integer(gkeyfile, "remmina_pref", "floating_toolbar_monitor", remmina_pref.floating_toolbar_monitor);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "toolbar_placement", remmina_pref.toolbar_placement);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "prevent_snap_welcome_message", remmina_pref.prevent_snap_welcome_message);
 	g_key_file_set_string(gkeyfile, "remmina_pref", "last_quickconnect_protocol", remmina_pref.last_quickconnect_protocol);
@@ -941,6 +967,7 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "mp_left", remmina_pref.mp_left);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "start_fullscreen", remmina_pref.start_fullscreen);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "start_dynres", remmina_pref.start_dynres);
+	g_key_file_set_boolean(gkeyfile, "remmina_pref", "toolbar_fix_position_multimon", remmina_pref.toolbar_fix_position_multimon);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_connection_toolbar", remmina_pref.hide_connection_toolbar);
 	g_key_file_set_boolean(gkeyfile, "remmina_pref", "hide_searchbar", remmina_pref.hide_searchbar);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "default_action", remmina_pref.default_action);
@@ -973,6 +1000,7 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "default_mode", remmina_pref.default_mode);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "tab_mode", remmina_pref.tab_mode);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "fullscreen_toolbar_visibility", remmina_pref.fullscreen_toolbar_visibility);
+	g_key_file_set_integer(gkeyfile, "remmina_pref", "fullscreen_toolbar_delay", remmina_pref.fullscreen_toolbar_delay);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "auto_scroll_step", remmina_pref.auto_scroll_step);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "hostkey", remmina_pref.hostkey);
 	g_key_file_set_integer(gkeyfile, "remmina_pref", "shortcutkey_fullscreen", remmina_pref.shortcutkey_fullscreen);
@@ -1022,6 +1050,7 @@ gboolean remmina_pref_save(void)
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color13", remmina_pref.color_pref.color13 ? remmina_pref.color_pref.color13 : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color14", remmina_pref.color_pref.color14 ? remmina_pref.color_pref.color14 : "");
 	g_key_file_set_string(gkeyfile, "ssh_colors", "color15", remmina_pref.color_pref.color15 ? remmina_pref.color_pref.color15 : "");
+	g_key_file_set_string(gkeyfile, "remmina_info", "ssh_color_file", remmina_pref.color_file ? remmina_pref.color_file : "");
 	g_key_file_set_boolean(gkeyfile, "remmina_info", "periodic_news_permitted", !remmina_pref.disable_news);
 	g_key_file_set_string(gkeyfile, "remmina_info", "periodic_news_last_checksum", remmina_pref.periodic_news_last_checksum ? remmina_pref.periodic_news_last_checksum: "");
 	g_key_file_set_boolean(gkeyfile, "remmina_info", "periodic_usage_stats_permitted", !remmina_pref.disable_stats);

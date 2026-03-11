@@ -121,6 +121,11 @@ static HANDLE freerdp_abort_event(rdpContext* context) {
 	return context->abortEvent;
 }
 
+struct rdp_remap_table
+{
+	DWORD table[0x10000];
+};
+
 static BOOL freerdp_settings_set_pointer_len(rdpSettings* settings, size_t id, const void* data, size_t len)
 {
 	switch(id) {
@@ -819,6 +824,18 @@ static BOOL remmina_rdp_post_connect(freerdp *instance)
 	ui->type = REMMINA_RDP_UI_CONNECTED;
 	remmina_rdp_event_queue_ui_async(gp, ui);
 
+	const char* KeyboardRemappingList =
+	    freerdp_settings_get_string(instance->context->settings, FreeRDP_KeyboardRemappingList);
+
+
+#if FREERDP_CHECK_VERSION(3, 11, 0)
+	rfi->remap_table = freerdp_keyboard_remap_string_to_list(KeyboardRemappingList);
+	if (!rfi->remap_table)
+		return FALSE;
+#else
+	rfi->remap_table = NULL;
+#endif
+
 	return TRUE;
 }
 
@@ -966,7 +983,9 @@ static BOOL remmina_rdp_authenticate_ex(freerdp* instance, char** username, char
                                 char** domain, rdp_auth_reason reason)
 {
 	TRACE_CALL(__func__);
-	gchar *s_username = NULL, *s_password = NULL, *s_domain = NULL;
+	const gchar *s_username = NULL;
+	const gchar *s_password = NULL;
+	const gchar *s_domain = NULL;
 	const gchar* key_user = NULL;
 	const gchar* key_domain = NULL;
 	const gchar* key_password = NULL;
@@ -977,7 +996,7 @@ static BOOL remmina_rdp_authenticate_ex(freerdp* instance, char** username, char
 	gboolean save;
 	gboolean disablepasswordstoring;
 	RemminaFile *remminafile;
-	RemminaMessagePanelFlags flags = REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD | REMMINA_MESSAGE_PANEL_FLAG_USERNAME | REMMINA_MESSAGE_PANEL_FLAG_DOMAIN;
+	RemminaMessagePanelFlags flags =  REMMINA_MESSAGE_PANEL_FLAG_USERNAME | REMMINA_MESSAGE_PANEL_FLAG_DOMAIN;
 
 	rfi = (rfContext *)instance->context;
 	gp = rfi->protocol_widget;
@@ -1016,6 +1035,7 @@ static BOOL remmina_rdp_authenticate_ex(freerdp* instance, char** username, char
 		case AUTH_SMARTCARD_PIN:
 			key_title = _("Enter RDP SmartCard PIN");
 			key_password = "smartcard_pin";
+			cfg_key_password = FreeRDP_Password;
 			flags = 0;
 			break;
 		default:
@@ -1027,33 +1047,49 @@ static BOOL remmina_rdp_authenticate_ex(freerdp* instance, char** username, char
 	if (!disablepasswordstoring)
 		flags |= REMMINA_MESSAGE_PANEL_FLAG_SAVEPASSWORD;
 
+	if(key_user)
+		s_username = remmina_plugin_service->file_get_string(remminafile, key_user);
+
+	if(key_password)
+		s_password = remmina_plugin_service->file_get_string(remminafile, key_password);
+
+	if(key_domain)
+		s_domain = remmina_plugin_service->file_get_string(remminafile, key_domain);
+
 	ret = remmina_plugin_service->protocol_plugin_init_auth(gp, flags,
 								key_title,
-								remmina_plugin_service->file_get_string(remminafile, key_user),
-								remmina_plugin_service->file_get_string(remminafile, key_password),
-								remmina_plugin_service->file_get_string(remminafile, key_domain),
+								s_username,
+								s_password,
+								s_domain,
 								NULL);
+	BOOL rc = FALSE;
 	if (ret == GTK_RESPONSE_OK) {
 		if (cfg_key_user != FreeRDP_STRING_UNUSED)
 		{
-			s_username = remmina_plugin_service->protocol_plugin_init_get_username(gp);
+			gchar* s_username = remmina_plugin_service->protocol_plugin_init_get_username(gp);
 			if (s_username)
 				freerdp_settings_set_string(rfi->clientContext.context.settings, cfg_key_user, s_username);
 			remmina_plugin_service->file_set_string(remminafile, key_user, s_username);
+			g_free(s_username);
 		}
 
+		gchar* s_pwd_copy = NULL;
+		if (s_password)
+			s_pwd_copy= strdup(s_password);
 		if (cfg_key_password != FreeRDP_STRING_UNUSED)
 		{
-			s_password = remmina_plugin_service->protocol_plugin_init_get_password(gp);
-			if (s_password)
-				freerdp_settings_set_string(rfi->clientContext.context.settings, cfg_key_password, s_password);
+			g_free(s_pwd_copy);
+			s_pwd_copy = remmina_plugin_service->protocol_plugin_init_get_password(gp);
+			if (s_pwd_copy)
+				freerdp_settings_set_string(rfi->clientContext.context.settings, cfg_key_password, s_pwd_copy);
 		}
 
 		if (cfg_key_domain != FreeRDP_STRING_UNUSED) {
-			s_domain = remmina_plugin_service->protocol_plugin_init_get_domain(gp);
+			gchar* s_domain = remmina_plugin_service->protocol_plugin_init_get_domain(gp);
 			if (s_domain)
 				freerdp_settings_set_string(rfi->clientContext.context.settings, cfg_key_domain, s_domain);
 			remmina_plugin_service->file_set_string(remminafile, key_domain, s_domain);
+			g_free(s_domain);
 		}
 
 		save = remmina_plugin_service->protocol_plugin_init_get_savepassword(gp);
@@ -1061,22 +1097,16 @@ static BOOL remmina_rdp_authenticate_ex(freerdp* instance, char** username, char
 			// User has requested to save credentials. We put the password
 			// into remminafile->settings. It will be saved later, on successful connection, by
 			// rcw.c
-			remmina_plugin_service->file_set_string(remminafile, key_password, s_password);
+			remmina_plugin_service->file_set_string(remminafile, key_password, s_pwd_copy);
 		} else {
 			remmina_plugin_service->file_set_string(remminafile, key_password, NULL);
 		}
+		g_free(s_pwd_copy);
 
-
-		if (s_username) g_free(s_username);
-		if (s_password) g_free(s_password);
-		if (s_domain) g_free(s_domain);
-
-		return TRUE;
-	} else {
-		return FALSE;
+		rc = TRUE;
 	}
 
-	return TRUE;
+	return rc;
 }
 
 static BOOL remmina_rdp_choose_smartcard(freerdp* instance, SmartcardCertInfo** cert_list, DWORD count,
@@ -1204,10 +1234,11 @@ static DWORD remmina_rdp_verify_changed_certificate_ex(freerdp *instance, const 
 static void remmina_rdp_post_disconnect(freerdp *instance)
 {
 	TRACE_CALL(__func__);
+	rfContext *rfi;
 
 	if (!instance || !instance->context)
 		return;
-
+	rfi = (rfContext *)instance->context;
 	PubSub_UnsubscribeChannelConnected(instance->context->pubSub,
 					   remmina_rdp_OnChannelConnectedEventHandler);
 	PubSub_UnsubscribeChannelDisconnected(instance->context->pubSub,
@@ -1216,6 +1247,10 @@ static void remmina_rdp_post_disconnect(freerdp *instance)
 	/* The remaining cleanup will be continued on main thread by complete_cleanup_on_main_thread() */
 
 	// With FreeRDP3 only resources allocated in PostConnect and later are cleaned up here.
+#if FREERDP_CHECK_VERSION(3, 11, 0)
+	freerdp_keyboard_remap_free(rfi->remap_table);
+	rfi->remap_table = NULL;
+#endif
 }
 
 static void remmina_rdp_main_loop(RemminaProtocolWidget *gp)
@@ -1584,8 +1619,12 @@ static gchar *remmina_get_rdp_kbd_remap(const gchar *keymap)
 	rdp_kbd_remap = g_malloc0(512);
 	display = XOpenDisplay(0);
 	for (i = 0; table[i] > 0; i += 2) {
+#if !defined(WITHOUT_FREERDP_3x_DEPRECATED)
 		g_snprintf(keys, sizeof(keys), "0x%02x=0x%02x", freerdp_keyboard_get_rdp_scancode_from_x11_keycode(XKeysymToKeycode(display, table[i])),
 			freerdp_keyboard_get_rdp_scancode_from_x11_keycode(XKeysymToKeycode(display, table[i + 1])));
+#else
+#warning "TODO: freerdp_keyboard_get_rdp_scancode_from_x11_keycode not implemented!"
+#endif
 		if (i > 0)
 			g_strlcat(rdp_kbd_remap, ",", 512);
 		g_strlcat(rdp_kbd_remap, keys, 512);
@@ -1622,10 +1661,13 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 
 	remminafile = remmina_plugin_service->protocol_plugin_get_file(gp);
 
+	gchar* ddir = remmina_plugin_service->file_get_user_datadir();
 	datapath = g_build_path("/",
-				remmina_plugin_service->file_get_user_datadir(),
+				ddir,
 				"RDP",
 				NULL);
+	g_free(ddir);
+
 	REMMINA_PLUGIN_DEBUG("RDP data path is %s", datapath);
 
 	if ((datapath != NULL) && (datapath[0] != '\0'))
@@ -1789,7 +1831,14 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		freerdp_settings_set_string(rfi->clientContext.context.settings, FreeRDP_Password, s);
 	} 
 	else {
-		freerdp_settings_set_string(rfi->clientContext.context.settings, FreeRDP_Password, "");
+		i = remmina_plugin_service->file_get_int(remminafile, "allow_empty_pass", 0);
+		if (i){
+			freerdp_settings_set_string(rfi->clientContext.context.settings, FreeRDP_Password, "");
+		}
+		else{
+			freerdp_settings_set_string(rfi->clientContext.context.settings, FreeRDP_Password, s);
+		}
+		
 	}
 
 	freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_AutoLogonEnabled, TRUE);
@@ -2060,6 +2109,12 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 		freerdp_settings_set_uint32(rfi->clientContext.context.settings, FreeRDP_TlsSecLevel, i);
 	}
 
+	if (remmina_plugin_service->file_get_int(remminafile, "smartcard-logon", FALSE)) {
+		freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_SmartcardLogon, TRUE);
+		freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_RedirectSmartCards, TRUE);
+		freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_PasswordIsSmartcardPin, TRUE);
+	}
+
 	freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_CompressionEnabled, TRUE);
 	if (remmina_plugin_service->file_get_int(remminafile, "disable_fastpath", FALSE)) {
 		freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_FastPathInput, FALSE);
@@ -2126,7 +2181,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 			CLPARAM **p;
 			size_t count;
 
-			p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("audin", g_strdup(cs), &count);
+			p = remmina_rdp_CommandLineParseCommaSeparatedValuesEx("audin", cs, &count);
 
 			freerdp_client_add_dynamic_channel(rfi->clientContext.context.settings, count, p);
 			g_free(p);
@@ -2151,7 +2206,7 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	if (cs != NULL && cs[0] != '\0')
 		REMMINA_PLUGIN_DEBUG("Log level set to to %s", cs);
 	else
-		cs = g_strdup("INFO");
+		cs = "INFO";
 	wLog *root = WLog_GetRoot();
 	WLog_SetStringLogLevel(root, cs);
 
@@ -2218,8 +2273,17 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 	}
 #endif
 
+#if FREERDP_CHECK_VERSION(3, 6, 2)
+	if (remmina_plugin_service->file_get_int(remminafile, "preferipv6", FALSE) ? TRUE : FALSE){
+		freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_PreferIPv6OverIPv4, TRUE);
+	        if (remmina_plugin_service->file_get_int(remminafile, "forceipvx", FALSE) ? TRUE : FALSE)
+			freerdp_settings_set_uint32(rfi->clientContext.context.settings, FreeRDP_ForceIPvX, 6);
+	}else if (remmina_plugin_service->file_get_int(remminafile, "forceipvx", FALSE) ? TRUE : FALSE)
+                freerdp_settings_set_uint32(rfi->clientContext.context.settings, FreeRDP_ForceIPvX, 4);
+#else
 	if (remmina_plugin_service->file_get_int(remminafile, "preferipv6", FALSE) ? TRUE : FALSE)
 		freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_PreferIPv6OverIPv4, TRUE);
+#endif
 
 	freerdp_settings_set_bool(rfi->clientContext.context.settings, FreeRDP_RedirectClipboard, remmina_plugin_service->file_get_int(remminafile, "disableclipboard", FALSE) ? FALSE : TRUE);
 
@@ -2488,8 +2552,12 @@ static gboolean remmina_rdp_main(RemminaProtocolWidget *gp)
 #ifdef FREERDP_ERROR_CONNECT_LOGON_FAILURE
 			case FREERDP_ERROR_CONNECT_LOGON_FAILURE:
 #endif
-				/* Logon failure, will retry with interactive authentication */
-				rfi->attempt_interactive_authentication = TRUE;
+				if (freerdp_settings_get_bool(rfi->clientContext.context.settings, FreeRDP_SmartcardLogon)) {
+					remmina_plugin_service->protocol_plugin_set_error(gp, _("Could not authenticate using smartcard."));
+				} else {
+					/* Logon failure, will retry with interactive authentication */
+					rfi->attempt_interactive_authentication = TRUE;
+				}
 				break;
 			case STATUS_ACCOUNT_LOCKED_OUT:
 #ifdef FREERDP_ERROR_CONNECT_ACCOUNT_LOCKED_OUT
@@ -3172,6 +3240,8 @@ static const RemminaProtocolSetting remmina_rdp_basic_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "drive",			N_("Share folder"),			  FALSE, NULL,		  drive_tooltip,								NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "restricted-admin",		N_("Restricted admin mode"),		  FALSE, NULL,		  NULL,										NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_TEXT,	    "pth",			N_("Password hash"),			  FALSE, NULL,		  N_("Restricted admin mode password hash"),					NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "smartcard-logon",		N_("Use a smartcard for logon"),	  FALSE, NULL,		  NULL,										NULL, NULL },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_PASSWORD,   "smartcard_pin",		N_("Smartcard PIN"),			  FALSE, NULL,		  NULL,										NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "left-handed",		N_("Left-handed mouse support"),	  TRUE,	 NULL,		  N_("Swap left and right mouse buttons for left-handed mouse support"),	NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "disable-smooth-scrolling", N_("Disable smooth scrolling"),		  TRUE,	 NULL,		  NULL,										NULL, NULL },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	    "multimon",			N_("Enable multi monitor"),		  TRUE,	 NULL,		  NULL,										NULL, NULL },
@@ -3234,6 +3304,9 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 
 	{ REMMINA_PROTOCOL_SETTING_TYPE_ASSISTANCE,	  "assistance_mode",	    N_("Attempt to connect in assistance mode"),	TRUE,	NULL																 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "preferipv6",		    N_("Prefer IPv6 AAAA record over IPv4 A record"),	 TRUE,	NULL,		  NULL														 },
+#if FREERDP_CHECK_VERSION(3, 6, 2)
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "forceipvx",		    N_("Force preferred IPv4 A record or IPv6 AAAA record"),	 TRUE,	NULL,		  NULL														 },
+#endif
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "shareprinter",	    N_("Share printers"),				 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "shareserial",	    N_("Share serial ports"),				 TRUE,	NULL,		  NULL														 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "serialpermissive",	    N_("(SELinux) permissive mode for serial ports"),	 TRUE,	NULL,		  NULL														 },
@@ -3258,6 +3331,7 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "websockets",		    N_("Enable Gateway websockets support"),		 TRUE,	NULL,		  NULL														 },
 #endif
 	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "no-suppress",	    N_("Update framebuffer even when not visible"),	TRUE,	NULL																 },
+	{ REMMINA_PROTOCOL_SETTING_TYPE_CHECK,	  "allow_empty_pass",	N_("Allow sending empty password"),	TRUE,	NULL																 },
 	{ REMMINA_PROTOCOL_SETTING_TYPE_END,	  NULL,			    NULL,						 FALSE, NULL,		  NULL														 }
 };
 
@@ -3265,15 +3339,14 @@ static const RemminaProtocolSetting remmina_rdp_advanced_settings[] =
  * The last element of the array must be REMMINA_PROTOCOL_FEATURE_TYPE_END. */
 static const RemminaProtocolFeature remmina_rdp_features[] =
 {
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_PREF,	 	  REMMINA_RDP_FEATURE_VIEWONLY,	     GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_CHECK), "viewonly",
-	  N_("View only") },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	      REMMINA_RDP_FEATURE_TOOL_REFRESH,	       N_("Refresh"),		   NULL, NULL },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_SCALE,	      REMMINA_RDP_FEATURE_SCALE,	       NULL,			   NULL, NULL },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_DYNRESUPDATE, REMMINA_RDP_FEATURE_DYNRESUPDATE,	       NULL,			   NULL, NULL },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_MULTIMON,     REMMINA_RDP_FEATURE_MULTIMON,	       NULL,			   NULL, NULL },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	      REMMINA_RDP_FEATURE_TOOL_SENDCTRLALTDEL, N_("Send Ctrl+Alt+Delete"), NULL, NULL },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_UNFOCUS,      REMMINA_RDP_FEATURE_UNFOCUS,	       NULL,			   NULL, NULL },
-	{ REMMINA_PROTOCOL_FEATURE_TYPE_END,	      0,				       NULL,			   NULL, NULL }
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_VIEWONLY,	  REMMINA_RDP_FEATURE_VIEWONLY,	           GINT_TO_POINTER(REMMINA_PROTOCOL_FEATURE_PREF_CHECK), "viewonly", N_("View only") },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	      REMMINA_RDP_FEATURE_TOOL_REFRESH,	       N_("Refresh"),		                                 NULL,       NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_SCALE,	      REMMINA_RDP_FEATURE_SCALE,	           NULL,			                                     NULL,       NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_DYNRESUPDATE, REMMINA_RDP_FEATURE_DYNRESUPDATE,	       NULL,			                                     NULL,       NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_MULTIMON,     REMMINA_RDP_FEATURE_MULTIMON,	           NULL,			                                     NULL,       NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_TOOL,	      REMMINA_RDP_FEATURE_TOOL_SENDCTRLALTDEL, N_("Send Ctrl+Alt+Delete"),                           NULL,       NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_UNFOCUS,      REMMINA_RDP_FEATURE_UNFOCUS,	           NULL,			                                     NULL,       NULL },
+	{ REMMINA_PROTOCOL_FEATURE_TYPE_END,	      0,				                       NULL,			                                     NULL,       NULL }
 };
 
 /* This will be filled with version info string */
